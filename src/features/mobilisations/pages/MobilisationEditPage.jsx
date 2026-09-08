@@ -85,13 +85,12 @@ export default function MobilisationEditPage() {
     );
   }
 
-  // Normally Draft/Rejected only — ALSO open during the first-step
-  // reviewer's (Office Secretary's) own turn, fixing whatever the
-  // coordinator entered wrong (server-enforced in updateMobilisation;
-  // canDecideCurrentStep is the same "am I authorized right now" flag the
-  // detail page's canDecide already uses).
-  const isFirstStepTurn = mobilisation.status === 'PendingReview' && mobilisation.currentStep === 0 && mobilisation.canDecideCurrentStep;
-  if (!['Draft', 'Rejected'].includes(mobilisation.status) && !isFirstStepTurn) {
+  // Normally Draft/Rejected only — ALSO open throughout PendingReview to
+  // whoever holds step 0 (Office Secretary today), fixing whatever the
+  // coordinator entered wrong, even after the record has moved on to a
+  // later step (server-enforced in updateMobilisation; `canEditSection1` is
+  // the same server-computed flag the detail page's Edit button uses).
+  if (!['Draft', 'Rejected'].includes(mobilisation.status) && !mobilisation.canEditSection1) {
     return (
       <EmptyState
         title={t('staffMobilisations.edit.cannotEditTitle')}

@@ -489,16 +489,20 @@ export default function MobilisationDetailPage() {
   // Secretary) only ever has "Submit" (the same underlying Approve call).
   const isFinalStep = (m.steps?.length ?? 1) - 1 <= m.currentStep;
   // Section 2's fields are editable only by the workflow's first-step
-  // reviewer (Office Secretary today) or Admin — every later step
-  // (Marketing Manager, etc.) can see the data and decide on it, never
-  // change it. Mirrors mobilisation.service.js's saveCommercialDetails
-  // check exactly (currentStep === 0, not steps[currentStep]).
+  // reviewer (Office Secretary today) or Admin, and ONLY during their own
+  // turn (currentStep === 0) — every later step (Marketing Manager, etc.)
+  // can see the data and decide on it, never change it. Mirrors
+  // mobilisation.service.js's saveCommercialDetails check exactly.
   const canEditDetails = user.role === 'Admin' || (canDecide && m.currentStep === 0);
   // The Edit page is Section 1 (the coordinator's own data) — normally
-  // Draft/Rejected only, but ALSO open to whoever can edit Section 2 during
-  // their first-step turn (Office Secretary fixing what the coordinator got
-  // wrong, logged the same way as any other edit — see updateMobilisation).
-  const canEditSection1 = canManage || canEditDetails;
+  // Draft/Rejected only, but ALSO open throughout PendingReview to whoever
+  // holds step 0 (Office Secretary today), even after the record has moved
+  // on to a later step — a genuinely different, WIDER right than Section
+  // 2's own (`canEditDetails` above), driven by the server's own
+  // `canEditSection1` flag (see getMobilisation's own doc comment) rather
+  // than recomputed here, since "am I a member of step 0's ApprovalRole" is
+  // a server-only lookup this client has no way to answer itself.
+  const canEditSection1 = canManage || Boolean(m.canEditSection1);
   const hasCommercialFields = 'clientRate' in m;
   // Section 2 (quotation/PO/OT/timesheet/remark) is simply absent from the
   // API response for a plain coordinator — the server strips it
