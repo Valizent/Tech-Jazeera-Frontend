@@ -7,6 +7,12 @@
  * full-screen spinner (NOT a redirect — bouncing a logged-in user to /login
  * for a half second on every reload is the classic mistake), then either
  * renders the app or redirects to /login.
+ *
+ * `errorElement: <ErrorPage />` on both top-level branches catches any
+ * uncaught render/loader error in that subtree — without it, React Router
+ * falls back to its own raw stack-trace screen (the "Hey developer" default
+ * you get today). Placed on each branch rather than one outer route so a
+ * crash inside the signed-in shell doesn't strand a guest, and vice versa.
  */
 import { createBrowserRouter, Navigate, Outlet, useLocation } from 'react-router-dom';
 import { useAuth } from '../features/auth/AuthContext.jsx';
@@ -74,6 +80,7 @@ import MyExitDocumentsPage from '../features/ess/pages/MyExitDocumentsPage.jsx';
 import MyAttendancePage from '../features/ess/pages/MyAttendancePage.jsx';
 import NoPortalAccessPage from '../features/ess/pages/NoPortalAccessPage.jsx';
 import RequireSectionRead from '../components/shared/RequireSectionRead.jsx';
+import ErrorPage from './pages/ErrorPage.jsx';
 import WorkforceHubPage from './pages/WorkforceHubPage.jsx';
 import SalesHubPage from './pages/SalesHubPage.jsx';
 import FinancialHubPage from './pages/FinancialHubPage.jsx';
@@ -156,10 +163,12 @@ const guarded = (sectionKey, element) => <RequireSectionRead sectionKey={section
 export const router = createBrowserRouter([
   {
     element: <AuthLayout />,
+    errorElement: <ErrorPage />,
     children: [{ path: '/login', element: <LoginPage /> }],
   },
   {
     element: <RequireAuth />,
+    errorElement: <ErrorPage />,
     children: [
       {
         element: <RoleRouter />,
