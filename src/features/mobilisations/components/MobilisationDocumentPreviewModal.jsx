@@ -57,8 +57,8 @@ export default function MobilisationDocumentPreviewModal({ mobilisationId, doc, 
   const isImage = doc.mimeType.startsWith('image/');
 
   return (
-    <Modal open={open} onClose={onClose} title={doc.originalName} size="xl">
-      <div className="space-y-4">
+    <Modal open={open} onClose={onClose} title={doc.originalName} size="full">
+      <div className="flex h-[78vh] flex-col space-y-4">
         <div className="flex flex-wrap items-center justify-between gap-2">
           <div className="flex flex-wrap items-center gap-2">
             <Badge variant="primary">
@@ -73,7 +73,7 @@ export default function MobilisationDocumentPreviewModal({ mobilisationId, doc, 
           </Button>
         </div>
 
-        <div className="grid h-[60vh] place-items-center overflow-hidden rounded-xl border border-border bg-bg">
+        <div className="grid min-h-0 flex-1 place-items-center overflow-hidden rounded-xl border border-border bg-bg">
           {error ? (
             <p className="p-6 text-sm text-danger">{error}</p>
           ) : !url ? (
