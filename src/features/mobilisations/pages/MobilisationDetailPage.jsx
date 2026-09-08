@@ -99,7 +99,80 @@ function userId(entry) {
  * `undefined` from the loading-state render and never repopulate — RHF only
  * reads defaultValues at mount.)
  */
+/** Approve/Reject, shared by both the read-only and editable renderings
+ *  below — identical either way, just placed at the very end of whichever
+ *  one is showing. */
+function DecideButtons({ canDecide, isFinalStep, onApprove, onReject }) {
+  const { t } = useTranslation();
+  if (!canDecide) return null;
+  if (!isFinalStep) {
+    // Not the final step (Office Secretary today) — nothing upstream of
+    // them to reject, so their only action is to move it forward. Same
+    // underlying call as Approve (advances currentStep), just never
+    // offered a Reject alongside it.
+    return (
+      <Button type="button" onClick={onApprove}>
+        {t('staffMobilisations.detail.submitToNextStep')}
+      </Button>
+    );
+  }
+  return (
+    <>
+      <Button type="button" variant="danger-ghost" onClick={onReject}>
+        {t('common.reject')}
+      </Button>
+      <Button type="button" onClick={onApprove}>
+        {t('common.approve')}
+      </Button>
+    </>
+  );
+}
+
 function CommercialDetailsCard({ m, canEdit, canDecide, isFinalStep, onSave, saving, onApprove, onReject }) {
+  const { t } = useTranslation();
+
+  // View-only (Marketing Manager, or any other viewer without edit rights)
+  // — a table like every other section on this page, not a form full of
+  // disabled inputs nobody can tell apart from an editable one. The
+  // overtime/timesheet numbers are deliberately absent here: they're
+  // already in the Rates & Financials table above, and repeating them in a
+  // second, form-shaped table right below was the actual complaint — same
+  // numbers, shown twice, one copy looking editable when it wasn't.
+  if (!canEdit) {
+    return (
+      <Card>
+        <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-muted">
+          {t('staffMobilisations.detail.detailsSharedByClient')}
+        </h2>
+        <DetailTable
+          rows={[
+            { label: t('staffMobilisations.detail.clientQuotation'), value: m.clientQuotation },
+            { label: t('staffMobilisations.detail.clientQuotationDate'), value: m.clientQuotationDate && formatDate(m.clientQuotationDate) },
+            { label: t('staffMobilisations.detail.clientPO'), value: m.clientPO },
+            { label: t('staffMobilisations.detail.clientPODate'), value: m.clientPODate && formatDate(m.clientPODate) },
+            { label: t('staffMobilisations.detail.subQuotation'), value: m.subQuotation },
+            { label: t('staffMobilisations.detail.subQuotationDate'), value: m.subQuotationDate && formatDate(m.subQuotationDate) },
+            { label: t('staffMobilisations.detail.subPO'), value: m.subPO },
+            { label: t('staffMobilisations.detail.subPODate'), value: m.subPODate && formatDate(m.subPODate) },
+          ]}
+        />
+        {canDecide && (
+          <div className="mt-4 flex flex-wrap justify-end gap-2">
+            <DecideButtons canDecide={canDecide} isFinalStep={isFinalStep} onApprove={onApprove} onReject={onReject} />
+          </div>
+        )}
+      </Card>
+    );
+  }
+
+  // Editable (Office Secretary during their own turn, or Admin) — the real
+  // data-entry form. Overtime/timesheet fields stay here even though
+  // they're ALSO shown read-only in Rates & Financials above: that table
+  // reflects what's saved, this is where it actually gets typed in.
+  return <CommercialDetailsForm m={m} canDecide={canDecide} isFinalStep={isFinalStep} onSave={onSave} saving={saving} onApprove={onApprove} onReject={onReject} />;
+}
+
+function CommercialDetailsForm({ m, canDecide, isFinalStep, onSave, saving, onApprove, onReject }) {
   const { t } = useTranslation();
   const {
     register,
@@ -126,14 +199,14 @@ function CommercialDetailsCard({ m, canEdit, canDecide, isFinalStep, onSave, sav
       </h2>
       <form onSubmit={handleSubmit(onSave)} noValidate className="space-y-4">
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-          <Input label={t('staffMobilisations.detail.clientQuotation')} disabled={!canEdit} error={errors.clientQuotation?.message} {...register('clientQuotation')} />
-          <Input label={t('staffMobilisations.detail.clientQuotationDate')} type="date" disabled={!canEdit} error={errors.clientQuotationDate?.message} {...register('clientQuotationDate')} />
-          <Input label={t('staffMobilisations.detail.clientPO')} disabled={!canEdit} error={errors.clientPO?.message} {...register('clientPO')} />
-          <Input label={t('staffMobilisations.detail.clientPODate')} type="date" disabled={!canEdit} error={errors.clientPODate?.message} {...register('clientPODate')} />
-          <Input label={t('staffMobilisations.detail.subQuotation')} disabled={!canEdit} error={errors.subQuotation?.message} {...register('subQuotation')} />
-          <Input label={t('staffMobilisations.detail.subQuotationDate')} type="date" disabled={!canEdit} error={errors.subQuotationDate?.message} {...register('subQuotationDate')} />
-          <Input label={t('staffMobilisations.detail.subPO')} disabled={!canEdit} error={errors.subPO?.message} {...register('subPO')} />
-          <Input label={t('staffMobilisations.detail.subPODate')} type="date" disabled={!canEdit} error={errors.subPODate?.message} {...register('subPODate')} />
+          <Input label={t('staffMobilisations.detail.clientQuotation')} error={errors.clientQuotation?.message} {...register('clientQuotation')} />
+          <Input label={t('staffMobilisations.detail.clientQuotationDate')} type="date" error={errors.clientQuotationDate?.message} {...register('clientQuotationDate')} />
+          <Input label={t('staffMobilisations.detail.clientPO')} error={errors.clientPO?.message} {...register('clientPO')} />
+          <Input label={t('staffMobilisations.detail.clientPODate')} type="date" error={errors.clientPODate?.message} {...register('clientPODate')} />
+          <Input label={t('staffMobilisations.detail.subQuotation')} error={errors.subQuotation?.message} {...register('subQuotation')} />
+          <Input label={t('staffMobilisations.detail.subQuotationDate')} type="date" error={errors.subQuotationDate?.message} {...register('subQuotationDate')} />
+          <Input label={t('staffMobilisations.detail.subPO')} error={errors.subPO?.message} {...register('subPO')} />
+          <Input label={t('staffMobilisations.detail.subPODate')} type="date" error={errors.subPODate?.message} {...register('subPODate')} />
         </div>
         <div className="border-t border-border pt-4">
           <h3 className="mb-3 text-xs font-semibold uppercase tracking-wide text-muted">{t('staffMobilisations.detail.sectionOvertimeTimesheet')}</h3>
@@ -143,7 +216,6 @@ function CommercialDetailsCard({ m, canEdit, canDecide, isFinalStep, onSave, sav
               type="number"
               step="0.01"
               min="0"
-              disabled={!canEdit}
               error={errors.clientTimesheetHours?.message}
               {...register('clientTimesheetHours')}
             />
@@ -159,7 +231,6 @@ function CommercialDetailsCard({ m, canEdit, canDecide, isFinalStep, onSave, sav
               type="number"
               step="0.01"
               min="0"
-              disabled={!canEdit}
               error={errors.otClientRate?.message}
               {...register('otClientRate')}
             />
@@ -168,7 +239,6 @@ function CommercialDetailsCard({ m, canEdit, canDecide, isFinalStep, onSave, sav
               type="number"
               step="0.01"
               min="0"
-              disabled={!canEdit}
               error={errors.otClientCommission?.message}
               {...register('otClientCommission')}
             />
@@ -179,7 +249,6 @@ function CommercialDetailsCard({ m, canEdit, canDecide, isFinalStep, onSave, sav
                   type="number"
                   step="0.01"
                   min="0"
-                  disabled={!canEdit}
                   error={errors.otSubcontractorRate?.message}
                   {...register('otSubcontractorRate')}
                 />
@@ -188,7 +257,6 @@ function CommercialDetailsCard({ m, canEdit, canDecide, isFinalStep, onSave, sav
                   type="number"
                   step="0.01"
                   min="0"
-                  disabled={!canEdit}
                   error={errors.otSubcontractorCommission?.message}
                   {...register('otSubcontractorCommission')}
                 />
@@ -196,35 +264,13 @@ function CommercialDetailsCard({ m, canEdit, canDecide, isFinalStep, onSave, sav
             )}
           </div>
         </div>
-        <Textarea label={t('staffMobilisations.form.remark')} disabled={!canEdit} error={errors.remark?.message} {...register('remark')} />
-        {(canEdit || canDecide) && (
-          <div className="flex flex-wrap justify-end gap-2 pt-2">
-            {canEdit && (
-              <Button type="submit" variant="secondary" isLoading={saving}>
-                {t('staffMobilisations.detail.saveDetails')}
-              </Button>
-            )}
-            {canDecide && !isFinalStep && (
-              // Not the final step (Office Secretary today) — nothing
-              // upstream of them to reject, so their only action is to move
-              // it forward. Same underlying call as Approve (advances
-              // currentStep), just never offered a Reject alongside it.
-              <Button type="button" onClick={onApprove}>
-                {t('staffMobilisations.detail.submitToNextStep')}
-              </Button>
-            )}
-            {canDecide && isFinalStep && (
-              <>
-                <Button type="button" variant="danger-ghost" onClick={onReject}>
-                  {t('common.reject')}
-                </Button>
-                <Button type="button" onClick={onApprove}>
-                  {t('common.approve')}
-                </Button>
-              </>
-            )}
-          </div>
-        )}
+        <Textarea label={t('staffMobilisations.form.remark')} error={errors.remark?.message} {...register('remark')} />
+        <div className="flex flex-wrap justify-end gap-2 pt-2">
+          <Button type="submit" variant="secondary" isLoading={saving}>
+            {t('staffMobilisations.detail.saveDetails')}
+          </Button>
+          <DecideButtons canDecide={canDecide} isFinalStep={isFinalStep} onApprove={onApprove} onReject={onReject} />
+        </div>
       </form>
     </Card>
   );
@@ -463,6 +509,58 @@ export default function MobilisationDetailPage() {
       />
 
       <Card>
+        <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-muted">{t('staffMobilisations.detail.documentsTitle')}</h2>
+        {(m.documents ?? []).length === 0 ? (
+          <p className="text-sm text-muted">{t('staffMobilisations.detail.noDocuments')}</p>
+        ) : (
+          <ul className="mb-4 divide-y divide-border">
+            {m.documents.map((d) => (
+              <li key={d._id} className="flex items-center justify-between gap-3 py-2 text-sm">
+                <span className="min-w-0 truncate">
+                  {d.originalName} <span className="text-xs text-muted">({t(`staffMobilisations.documentCategoryLabels.${d.category}`, MOBILISATION_DOCUMENT_CATEGORY_LABELS[d.category])})</span>
+                </span>
+                <span className="flex shrink-0 gap-2">
+                  <Button size="sm" variant="ghost" onClick={() => downloadMobilisationDocument(id, d._id, d.originalName)}>
+                    {t('common.download')}
+                  </Button>
+                  {canDeleteDocuments && (
+                    <Button size="sm" variant="danger-ghost" isLoading={deleteDocMutation.isPending} onClick={() => deleteDocMutation.mutate(d._id)}>
+                      {t('common.delete')}
+                    </Button>
+                  )}
+                </span>
+              </li>
+            ))}
+          </ul>
+        )}
+
+        {canAddDocuments && (
+          <div className="flex flex-wrap items-end gap-2">
+            <Select label={t('staffMobilisations.detail.category')} value={category} onChange={(e) => setCategory(e.target.value)} className="min-w-[140px]">
+              {MOBILISATION_DOCUMENT_CATEGORIES.map((c) => (
+                <option key={c} value={c}>
+                  {t(`staffMobilisations.documentCategoryLabels.${c}`, MOBILISATION_DOCUMENT_CATEGORY_LABELS[c])}
+                </option>
+              ))}
+            </Select>
+            <div>
+              <label className="mb-1.5 block text-sm font-medium">{t('staffMobilisations.detail.filesLabel')}</label>
+              <input
+                type="file"
+                multiple
+                accept=".pdf,.jpg,.jpeg,.png,.webp,.doc,.docx,.xls,.xlsx"
+                onChange={(e) => setFiles([...e.target.files])}
+                className="text-sm"
+              />
+            </div>
+            <Button size="sm" disabled={files.length === 0} isLoading={uploadMutation.isPending} onClick={() => uploadMutation.mutate()}>
+              {t('staffMobilisations.detail.upload')}
+            </Button>
+          </div>
+        )}
+      </Card>
+
+      <Card>
         <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-muted">
           {t('staffMobilisations.detail.sectionWorkerPlacement')}
         </h2>
@@ -637,58 +735,6 @@ export default function MobilisationDetailPage() {
         />
       )}
 
-      <Card>
-        <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-muted">{t('staffMobilisations.detail.documentsTitle')}</h2>
-        {(m.documents ?? []).length === 0 ? (
-          <p className="text-sm text-muted">{t('staffMobilisations.detail.noDocuments')}</p>
-        ) : (
-          <ul className="mb-4 divide-y divide-border">
-            {m.documents.map((d) => (
-              <li key={d._id} className="flex items-center justify-between gap-3 py-2 text-sm">
-                <span className="min-w-0 truncate">
-                  {d.originalName} <span className="text-xs text-muted">({t(`staffMobilisations.documentCategoryLabels.${d.category}`, MOBILISATION_DOCUMENT_CATEGORY_LABELS[d.category])})</span>
-                </span>
-                <span className="flex shrink-0 gap-2">
-                  <Button size="sm" variant="ghost" onClick={() => downloadMobilisationDocument(id, d._id, d.originalName)}>
-                    {t('common.download')}
-                  </Button>
-                  {canDeleteDocuments && (
-                    <Button size="sm" variant="danger-ghost" isLoading={deleteDocMutation.isPending} onClick={() => deleteDocMutation.mutate(d._id)}>
-                      {t('common.delete')}
-                    </Button>
-                  )}
-                </span>
-              </li>
-            ))}
-          </ul>
-        )}
-
-        {canAddDocuments && (
-          <div className="flex flex-wrap items-end gap-2">
-            <Select label={t('staffMobilisations.detail.category')} value={category} onChange={(e) => setCategory(e.target.value)} className="min-w-[140px]">
-              {MOBILISATION_DOCUMENT_CATEGORIES.map((c) => (
-                <option key={c} value={c}>
-                  {t(`staffMobilisations.documentCategoryLabels.${c}`, MOBILISATION_DOCUMENT_CATEGORY_LABELS[c])}
-                </option>
-              ))}
-            </Select>
-            <div>
-              <label className="mb-1.5 block text-sm font-medium">{t('staffMobilisations.detail.filesLabel')}</label>
-              <input
-                type="file"
-                multiple
-                accept=".pdf,.jpg,.jpeg,.png,.webp,.doc,.docx,.xls,.xlsx"
-                onChange={(e) => setFiles([...e.target.files])}
-                className="text-sm"
-              />
-            </div>
-            <Button size="sm" disabled={files.length === 0} isLoading={uploadMutation.isPending} onClick={() => uploadMutation.mutate()}>
-              {t('staffMobilisations.detail.upload')}
-            </Button>
-          </div>
-        )}
-      </Card>
-
       <ConfirmDialog
         open={Boolean(toRemove)}
         title={t('staffMobilisations.detail.removeCoordinatorConfirmTitle')}
@@ -736,25 +782,25 @@ export default function MobilisationDetailPage() {
               : t('staffMobilisations.detail.rejectModalMessage')}
           </p>
           {pendingDecision === 'Rejected' && (
-            <>
-              <Select
-                label={t('staffMobilisations.detail.rejectionTargetLabel')}
-                value={rejectionTarget}
-                onChange={(e) => setRejectionTarget(e.target.value)}
-              >
-                <option value="">{t('staffMobilisations.detail.rejectionTargetPlaceholder')}</option>
-                <option value="Coordinator">{t('staffMobilisations.detail.rejectionTargetCoordinator')}</option>
-                <option value="OfficeSecretary">{t('staffMobilisations.detail.rejectionTargetOfficeSecretary')}</option>
-                <option value="Both">{t('staffMobilisations.detail.rejectionTargetBoth')}</option>
-              </Select>
-              <Textarea
-                label={t('staffMobilisations.detail.noteRequired')}
-                value={decideNote}
-                onChange={(e) => setDecideNote(e.target.value)}
-                placeholder={t('staffMobilisations.detail.notePlaceholder')}
-              />
-            </>
+            <Select
+              label={t('staffMobilisations.detail.rejectionTargetLabel')}
+              value={rejectionTarget}
+              onChange={(e) => setRejectionTarget(e.target.value)}
+            >
+              <option value="">{t('staffMobilisations.detail.rejectionTargetPlaceholder')}</option>
+              <option value="Coordinator">{t('staffMobilisations.detail.rejectionTargetCoordinator')}</option>
+              <option value="OfficeSecretary">{t('staffMobilisations.detail.rejectionTargetOfficeSecretary')}</option>
+              <option value="Both">{t('staffMobilisations.detail.rejectionTargetBoth')}</option>
+            </Select>
           )}
+          {/* A comment is required to reject, but welcome on an approval
+              too — the reviewer may want to leave a note either way. */}
+          <Textarea
+            label={pendingDecision === 'Rejected' ? t('staffMobilisations.detail.noteRequired') : t('staffMobilisations.detail.noteOptional')}
+            value={decideNote}
+            onChange={(e) => setDecideNote(e.target.value)}
+            placeholder={t('staffMobilisations.detail.notePlaceholder')}
+          />
           <div className="flex justify-end gap-2 pt-2">
             <Button variant="secondary" disabled={decideMutation.isPending} onClick={() => setPendingDecision(null)}>
               {t('common.cancel')}

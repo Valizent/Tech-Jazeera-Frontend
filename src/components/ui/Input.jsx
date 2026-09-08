@@ -81,6 +81,11 @@ const Input = forwardRef(function Input(
         className={cn(
           'h-10 w-full rounded-lg border bg-surface px-3 text-sm text-text shadow-xs',
           'placeholder:text-muted/70 transition-all outline-none',
+          // A field a viewer isn't allowed to change (e.g. Marketing
+          // Manager looking at Office Secretary's already-submitted
+          // details) must look visibly locked, not just silently reject
+          // keystrokes — same reasoning as Textarea/Select's identical rule.
+          'disabled:cursor-not-allowed disabled:border-border disabled:bg-bg/40 disabled:text-muted disabled:hover:border-border',
           error
             ? 'border-danger focus:ring-2 focus:ring-danger/20 focus:ring-offset-2 focus:ring-offset-surface'
             : 'border-border hover:border-muted/50 focus:border-primary focus:ring-2 focus:ring-primary/20 focus:ring-offset-2 focus:ring-offset-surface'

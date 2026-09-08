@@ -1650,6 +1650,7 @@
       "rejectionTargetOfficeSecretary": "السكرتير المكتبي (القسم 2 يحتاج تصحيحًا)",
       "rejectionTargetBoth": "كلاهما",
       "noteRequired": "ملاحظة (مطلوبة)",
+      "noteOptional": "ملاحظة (اختيارية)",
       "notePlaceholder": "اشرح ما الذي يحتاج إلى تصحيح…",
       "submitToNextStep": "إرسال",
       "approvedToast": "تمت الموافقة على التعبئة.",

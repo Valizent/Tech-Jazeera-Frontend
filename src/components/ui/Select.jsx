@@ -24,6 +24,9 @@ const Select = forwardRef(function Select({ label, error, className, children, .
         aria-describedby={error ? errorId : undefined}
         className={cn(
           'h-10 w-full rounded-lg border bg-surface px-3 text-sm text-text shadow-xs transition-colors',
+          // A field a viewer isn't allowed to change must look visibly
+          // locked — see Input.jsx's identical rule.
+          'disabled:cursor-not-allowed disabled:border-border disabled:bg-bg/40 disabled:text-muted disabled:hover:border-border',
           error
             ? 'border-danger'
             : 'border-border hover:border-muted/50 focus:border-primary'

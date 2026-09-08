@@ -1650,6 +1650,7 @@
       "rejectionTargetOfficeSecretary": "Office Secretary (Section 2 needs fixing)",
       "rejectionTargetBoth": "Both",
       "noteRequired": "Note (required)",
+      "noteOptional": "Note (optional)",
       "notePlaceholder": "Explain what needs fixing…",
       "submitToNextStep": "Submit",
       "approvedToast": "Mobilisation approved.",
