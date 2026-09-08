@@ -1,5 +1,7 @@
 /**
  * Deployments API layer — the only file that knows deployment endpoint URLs.
+ * No create/edit here on purpose — a Deployment is born automatically once
+ * its source Mobilisation is Approved (see mobilisations.api.js).
  */
 import { api } from '../../lib/axios.js';
 
@@ -14,21 +16,22 @@ export async function getDeployment(id) {
   return data.data;
 }
 
-/** Assign a worker: POST /deployments { worker, client, site, ... } */
-export async function assignWorker(payload) {
-  const { data } = await api.post('/deployments', payload);
+/** Record a calendar month's actual client-timesheet hours + OT amount. */
+export async function addMonthlyHours(id, payload) {
+  const { data } = await api.post(`/deployments/${id}/monthly-hours`, payload);
   return data.data;
 }
 
-/** Transfer the worker of a deployment: POST /deployments/:id/transfer */
-export async function transferDeployment(id, payload) {
-  const { data } = await api.post(`/deployments/${id}/transfer`, payload);
+/** Correct an already-entered month. */
+export async function updateMonthlyHours(id, entryId, payload) {
+  const { data } = await api.patch(`/deployments/${id}/monthly-hours/${entryId}`, payload);
   return data.data;
 }
 
-/** End (unassign) a deployment: POST /deployments/:id/end */
-export async function endDeployment(id) {
-  await api.post(`/deployments/${id}/end`);
+/** Release the worker off this deployment — ends it and frees them to standby. */
+export async function releaseDeployment(id, payload) {
+  const { data } = await api.post(`/deployments/${id}/release`, payload);
+  return data.data;
 }
 
 // TEMPORARY — pre-production cleanup only, Admin-only. Remove this function

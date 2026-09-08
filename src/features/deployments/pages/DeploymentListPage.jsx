@@ -1,12 +1,13 @@
 /**
  * Deployment register — every placement, current and historical, with status
- * and client filters. This is the read/overview screen; assigning happens on
- * a dedicated page, and transfer/end happen on the worker's profile (the
- * natural place to manage one worker's placement).
+ * and client filters. Read-only overview; a Deployment is born automatically
+ * once its source Mobilisation is Approved (see the Mobilisations module) and
+ * ended via Release on the deployment's own detail page — there is no manual
+ * create/assign here.
  */
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { listDeployments, deleteDeployment } from '../deployments.api.js';
 import { listClients } from '../../clients/clients.api.js';
@@ -30,7 +31,6 @@ export default function DeploymentListPage() {
   const navigate = useNavigate();
   const toast = useToast();
   const queryClient = useQueryClient();
-  const canWrite = Boolean(user.sectionAccess?.includes('deploymentsManage'));
   // TEMPORARY — pre-production cleanup only. Remove this Admin-only delete
   // affordance (isAdmin, toDelete, deleteMutation, the actions column below,
   // and the ConfirmDialog at the bottom of this file) before going live —
@@ -81,10 +81,10 @@ export default function DeploymentListPage() {
       key: 'worker',
       header: t('staffDeployments.list.columns.worker'),
       render: (d) => (
-        <Link to={`/employees/${d.worker?._id}`} className="font-medium text-text hover:text-primary">
-          {d.worker?.fullName ?? t('staffDeployments.list.unknownWorker')}
-          <span className="block text-xs font-normal text-muted">{d.worker?.employeeId}</span>
-        </Link>
+        <span className="font-medium text-text">
+          {d.workerName}
+          {d.worker?.employeeId && <span className="block text-xs font-normal text-muted">{d.worker.employeeId}</span>}
+        </span>
       ),
     },
     {
@@ -93,11 +93,10 @@ export default function DeploymentListPage() {
       render: (d) => (
         <span>
           {d.clientName}
-          <span className="block text-xs text-muted">{d.site}</span>
+          {d.site && <span className="block text-xs text-muted">{d.site}</span>}
         </span>
       ),
     },
-    { key: 'shift', header: t('staffDeployments.list.columns.shift'), hideOnMobile: true, render: (d) => t(`staffDeployments.shiftLabels.${d.shift}`, d.shift) },
     {
       key: 'startDate',
       header: t('staffDeployments.list.columns.period'),
@@ -126,7 +125,14 @@ export default function DeploymentListPage() {
             header: '',
             className: 'text-right',
             render: (d) => (
-              <Button size="sm" variant="danger-ghost" onClick={() => setToDelete(d)}>
+              <Button
+                size="sm"
+                variant="danger-ghost"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setToDelete(d);
+                }}
+              >
                 {t('common.delete')}
               </Button>
             ),
@@ -141,7 +147,6 @@ export default function DeploymentListPage() {
         title={t('staffDeployments.list.pageTitle')}
         description={t('staffDeployments.list.pageDescription')}
         onBack={() => navigate(-1)}
-        actions={canWrite && <Button onClick={() => navigate('/deployments/new')}>{t('staffDeployments.list.assignWorker')}</Button>}
       />
 
       <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-end">
@@ -182,7 +187,7 @@ export default function DeploymentListPage() {
             rows={data?.items ?? []}
             rowKey={(d) => d._id}
             loading={isPending}
-            onRowClick={(d) => d.worker?._id && navigate(`/employees/${d.worker._id}`)}
+            onRowClick={(d) => navigate(`/deployments/${d._id}`)}
             emptyState={
               <EmptyState
                 title={params.status || params.client ? t('staffDeployments.list.emptyTitleFiltered') : t('staffDeployments.list.emptyTitleNoFilters')}
@@ -190,11 +195,6 @@ export default function DeploymentListPage() {
                   params.status || params.client
                     ? t('common.tryClearingFilters')
                     : t('staffDeployments.list.emptyDescriptionNoFilters')
-                }
-                action={
-                  !params.status && !params.client && canWrite ? (
-                    <Button onClick={() => navigate('/deployments/new')}>{t('staffDeployments.list.assignWorker')}</Button>
-                  ) : null
                 }
               />
             }
@@ -226,7 +226,7 @@ export default function DeploymentListPage() {
         open={Boolean(toDelete)}
         title={t('staffDeployments.list.deleteConfirmTitle')}
         message={t('staffDeployments.list.deleteConfirmMessage', {
-          worker: toDelete?.worker?.fullName ?? '',
+          worker: toDelete?.workerName ?? '',
           client: toDelete?.clientName ?? '',
         })}
         loading={deleteMutation.isPending}

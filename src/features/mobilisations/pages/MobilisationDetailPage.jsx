@@ -12,7 +12,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useTranslation } from 'react-i18next';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { useNavigate, useParams } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import {
   getMobilisation,
   listCoordinatorCandidates,
@@ -20,7 +20,6 @@ import {
   removeCoordinator,
   confirmCoordinator,
   submitMobilisation,
-  completeMobilisation,
   deleteMobilisation,
   saveCommercialDetails,
   decideMobilisation,
@@ -342,7 +341,6 @@ export default function MobilisationDetailPage() {
   const [decideNote, setDecideNote] = useState('');
   const [rejectionTarget, setRejectionTarget] = useState('');
   const [pendingDecision, setPendingDecision] = useState(null); // 'Approved' | 'Rejected' | null
-  const [confirmingComplete, setConfirmingComplete] = useState(false);
   const [files, setFiles] = useState([]);
   const [category, setCategory] = useState('Contract');
   const [previewDoc, setPreviewDoc] = useState(null);
@@ -406,15 +404,6 @@ export default function MobilisationDetailPage() {
     mutationFn: () => submitMobilisation(id),
     onSuccess: () => {
       toast.success(t('staffMobilisations.detail.submittedToast'));
-      invalidate();
-    },
-    onError: (error) => toast.error(apiMessage(error)),
-  });
-  const completeMutation = useMutation({
-    mutationFn: () => completeMobilisation(id),
-    onSuccess: () => {
-      toast.success(t('staffMobilisations.detail.completedToast'));
-      setConfirmingComplete(false);
       invalidate();
     },
     onError: (error) => toast.error(apiMessage(error)),
@@ -491,11 +480,6 @@ export default function MobilisationDetailPage() {
   const myEntry = m.coordinators.find((c) => userId(c) === user.id);
   const isPrimary = m.coordinators.some((c) => c.isPrimary && userId(c) === user.id);
   const canManage = (user.role === 'Admin' || isPrimary) && ['Draft', 'Rejected'].includes(m.status);
-  // Milestone 5: releases the worker back to standby (Employee.coordinator
-  // → null) — same primary-coordinator-or-Admin circle as every other
-  // record-level action, Approved only (the one status it can be marked
-  // complete from).
-  const canComplete = (user.role === 'Admin' || isPrimary) && m.status === 'Approved';
   const needsMyConfirmation = myEntry && !myEntry.confirmed && ['Draft', 'Rejected'].includes(m.status);
   const unconfirmed = m.coordinators.filter((c) => !c.confirmed);
   const canSubmit = canManage && unconfirmed.length === 0;
@@ -548,10 +532,12 @@ export default function MobilisationDetailPage() {
                 {t('common.edit')}
               </Button>
             )}
-            {canComplete && (
-              <Button size="sm" variant="secondary" onClick={() => setConfirmingComplete(true)}>
-                {t('staffMobilisations.detail.markComplete')}
-              </Button>
+            {m.deployment && (
+              <Link to={`/deployments/${m.deployment._id}`}>
+                <Button size="sm" variant="secondary">
+                  {t('staffMobilisations.detail.viewDeployment')}
+                </Button>
+              </Link>
             )}
             {/* TEMPORARY — pre-production cleanup only, see the note above confirmingDelete. */}
             {user.role === 'Admin' && (
@@ -634,6 +620,7 @@ export default function MobilisationDetailPage() {
             { label: t('staffMobilisations.detail.fields.phone'), value: m.phone },
             { label: t('staffMobilisations.detail.fields.jobTitle'), value: m.jobTitle },
             { label: t('staffMobilisations.detail.fields.client'), value: m.clientName },
+            { label: t('staffMobilisations.detail.fields.site'), value: m.site },
             ...(m.hasSubcontractor
               ? [{ label: t('staffMobilisations.detail.fields.subcontractor'), value: m.subcontractorName }]
               : []),
@@ -800,17 +787,6 @@ export default function MobilisationDetailPage() {
         loading={removeMutation.isPending}
         onConfirm={() => removeMutation.mutate(userId(toRemove))}
         onCancel={() => setToRemove(null)}
-      />
-
-      <ConfirmDialog
-        open={confirmingComplete}
-        title={t('staffMobilisations.detail.completeConfirmTitle')}
-        message={t('staffMobilisations.detail.completeConfirmMessage', { name: m.workerName })}
-        confirmLabel={t('staffMobilisations.detail.markComplete')}
-        confirmVariant="primary"
-        loading={completeMutation.isPending}
-        onConfirm={() => completeMutation.mutate()}
-        onCancel={() => setConfirmingComplete(false)}
       />
 
       {/* TEMPORARY — pre-production cleanup only, see the note above confirmingDelete. */}

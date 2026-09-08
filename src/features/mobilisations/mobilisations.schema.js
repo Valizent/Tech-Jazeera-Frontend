@@ -38,6 +38,7 @@ const mobilisationFields = {
   jobTitle: z.string().trim().min(1, 'Job title is required.').max(150),
 
   client: z.string().min(1, 'Select a client.'),
+  site: optionalStr(150),
   clientRate: optionalNumberString,
   clientCommission: optionalNumberString,
   fta: optionalNumberString,
@@ -83,6 +84,7 @@ export const emptyMobilisationForm = {
   phone: '',
   jobTitle: '',
   client: '',
+  site: '',
   clientRate: '',
   clientCommission: '',
   fta: '',
@@ -185,6 +187,7 @@ export function mobilisationToForm(m) {
     phone: m.phone ?? '',
     jobTitle: m.jobTitle,
     client: m.client,
+    site: m.site ?? '',
     clientRate: String(m.clientRate ?? ''),
     clientCommission: String(m.clientCommission ?? ''),
     fta: String(m.fta ?? ''),

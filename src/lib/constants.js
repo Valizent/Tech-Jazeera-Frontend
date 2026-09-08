@@ -273,12 +273,14 @@ export const APPROVAL_REQUEST_TYPE_LABELS = {
 // so ApprovalsPage.jsx gates its own Add/Save controls internally rather
 // than a page-level role redirect.
 
-/** Mirrors the Deployment model enums. */
-export const DEPLOYMENT_SHIFTS = ['Day', 'Night', 'Rotating'];
+/** Mirrors the Deployment model enum. A Deployment is born automatically
+ *  from an Approved Mobilisation — no create/assign form, so no shift enum
+ *  to mirror here anymore either. */
 export const DEPLOYMENT_STATUSES = ['Active', 'Ended'];
 
-// Assign/transfer/end is the admin-configurable SectionAccess
-// ('deploymentsManage') mechanism now, not a static role list.
+// Monthly hours entry and Release are the admin-configurable SectionAccess
+// ('deploymentsHours' / 'deploymentsRelease') mechanism now, not a static
+// role list.
 
 /** Mirrors the Attendance model enum, with display metadata used by the
  *  marking grid and summary. `letter` labels grid cells; `variant` is the

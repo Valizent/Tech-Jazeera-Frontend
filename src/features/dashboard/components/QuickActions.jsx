@@ -16,7 +16,7 @@ import Card from '../../../components/ui/Card.jsx';
 const ACTIONS = [
   { labelKey: 'staffDashboard.quickActions.addEmployee', to: '/employees/new', sectionKey: 'employeeCreate' },
   { labelKey: 'staffDashboard.quickActions.addClient', to: '/clients/new', sectionKey: 'clientsManage' },
-  { labelKey: 'staffDashboard.quickActions.assignWorker', to: '/deployments/new', sectionKey: 'deploymentsManage' },
+  { labelKey: 'staffDashboard.quickActions.newMobilisation', to: '/mobilisations/new', sectionKey: 'mobilisationsSelfMobilise' },
   { labelKey: 'staffDashboard.quickActions.attendance', to: '/attendance', sectionKey: 'attendanceManage' },
   { labelKey: 'staffDashboard.quickActions.newQuotation', to: '/quotations/new', sectionKey: 'quotationsManage' },
 ];

@@ -96,11 +96,6 @@ export async function submitMobilisation(id) {
   return data.data;
 }
 
-/** Approved → Completed (Milestone 5) — releases the worker back to standby. */
-export async function completeMobilisation(id) {
-  const { data } = await api.patch(`/mobilisations/${id}/complete`);
-  return data.data;
-}
 
 // --- M3: Marketing Manager review ---
 

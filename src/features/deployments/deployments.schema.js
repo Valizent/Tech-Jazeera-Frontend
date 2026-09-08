@@ -1,39 +1,40 @@
 /**
- * Client-side deployment form schemas.
- *
- * Two schemas because assign needs a worker and transfer does not (the worker
- * is fixed by the deployment being transferred). They otherwise share the
- * same placement fields.
+ * Client-side deployment form schemas — monthly hours entry/correction and
+ * Release. No create/edit schema here on purpose — see deployments.api.js.
  */
 import { z } from 'zod';
-import { DEPLOYMENT_SHIFTS } from '../../lib/constants.js';
 
-const optional = z.string().trim().max(1000).optional().or(z.literal(''));
+const optionalStr = (max) => z.string().trim().max(max).optional().or(z.literal(''));
 
-const placement = {
-  client: z.string().min(1, 'Select a client.'),
-  site: z.string().min(1, 'Select a site.'),
-  vehicle: z.string().trim().max(60).optional().or(z.literal('')),
-  driver: z.string().trim().max(100).optional().or(z.literal('')),
-  shift: z.enum(DEPLOYMENT_SHIFTS),
-  startDate: z.string().min(1, 'Start date is required.'),
-  notes: optional,
-};
-
-export const assignFormSchema = z.object({
-  worker: z.string().min(1, 'Select a worker.'),
-  ...placement,
+export const monthlyHoursFormSchema = z.object({
+  month: z.string().regex(/^\d{4}-(0[1-9]|1[0-2])$/, 'Choose a month.'),
+  actualHours: z.string().min(1, 'Enter the actual hours.'),
+  otAmount: z.string().optional().or(z.literal('')),
+  notes: optionalStr(500),
 });
 
-export const transferFormSchema = z.object({ ...placement });
-
-/** Defaults shared by both forms. `worker` is added by the assign page. */
-export const emptyPlacement = {
-  client: '',
-  site: '',
-  vehicle: '',
-  driver: '',
-  shift: 'Day',
-  startDate: new Date().toISOString().slice(0, 10), // today, editable
+export const emptyMonthlyHoursForm = {
+  month: '',
+  actualHours: '',
+  otAmount: '',
   notes: '',
+};
+
+export function monthlyHoursEntryToForm(entry) {
+  return {
+    month: entry.month,
+    actualHours: String(entry.actualHours ?? ''),
+    otAmount: String(entry.otAmount ?? ''),
+    notes: entry.notes ?? '',
+  };
+}
+
+export const releaseFormSchema = z.object({
+  releaseDate: z.string().min(1, 'Release date is required.'),
+  releaseNote: optionalStr(1000),
+});
+
+export const emptyReleaseForm = {
+  releaseDate: new Date().toISOString().slice(0, 10),
+  releaseNote: '',
 };

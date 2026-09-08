@@ -24,7 +24,7 @@ import ClientNewPage from '../features/clients/pages/ClientNewPage.jsx';
 import ClientProfilePage from '../features/clients/pages/ClientProfilePage.jsx';
 import ClientEditPage from '../features/clients/pages/ClientEditPage.jsx';
 import DeploymentListPage from '../features/deployments/pages/DeploymentListPage.jsx';
-import DeploymentNewPage from '../features/deployments/pages/DeploymentNewPage.jsx';
+import DeploymentDetailPage from '../features/deployments/pages/DeploymentDetailPage.jsx';
 import MobilisationListPage from '../features/mobilisations/pages/MobilisationListPage.jsx';
 import MobilisationNewPage from '../features/mobilisations/pages/MobilisationNewPage.jsx';
 import MobilisationDetailPage from '../features/mobilisations/pages/MobilisationDetailPage.jsx';
@@ -169,7 +169,7 @@ export const router = createBrowserRouter([
               { path: '/clients/:id', element: <ClientProfilePage /> },
               { path: '/clients/:id/edit', element: <ClientEditPage /> },
               { path: '/deployments', element: <DeploymentListPage /> },
-              { path: '/deployments/new', element: <DeploymentNewPage /> },
+              { path: '/deployments/:id', element: <DeploymentDetailPage /> },
               { path: '/mobilisations', element: <MobilisationListPage /> },
               { path: '/mobilisations/new', element: <MobilisationNewPage /> },
               { path: '/mobilisations/:id', element: <MobilisationDetailPage /> },

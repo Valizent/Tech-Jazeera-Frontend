@@ -11,10 +11,9 @@
  * directly, each backed by a live autocomplete of previously-entered values
  * (not a managed picklist like Job title — just a suggestion aid, same
  * spirit as the Nationality
- * field's static `<datalist>` on the Employee form, but sourced live). The
- * subcontractor block only appears for 'SupplierEmployee' — same
- * reveal-on-condition pattern as DeploymentForm's client-dependent site
- * dropdown.
+ * field's static `<datalist>` on the Employee form, but sourced live — `site`
+ * below reuses the exact same free-typed-with-suggestions pattern). The
+ * subcontractor block only appears for 'SupplierEmployee'.
  */
 import { useEffect, useState } from 'react';
 import { useForm, useWatch, Controller } from 'react-hook-form';
@@ -214,6 +213,13 @@ export default function MobilisationForm({
               </option>
             ))}
           </Select>
+          <SuggestedInput
+            field="site"
+            label={t('staffMobilisations.form.siteLabel')}
+            placeholder={t('common.optional')}
+            error={errors.site?.message}
+            register={register}
+          />
           <Input label={t('staffMobilisations.form.clientRate')} type="number" step="0.01" min="0" error={errors.clientRate?.message} {...register('clientRate')} />
           <Input label={t('staffMobilisations.form.clientCommission')} type="number" step="0.01" min="0" error={errors.clientCommission?.message} {...register('clientCommission')} />
           <Input label={t('staffMobilisations.form.fta')} type="number" step="0.01" min="0" error={errors.fta?.message} {...register('fta')} />
