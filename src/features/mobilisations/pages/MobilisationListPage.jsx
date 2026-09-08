@@ -5,11 +5,12 @@
  */
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { keepPreviousData, useQuery } from '@tanstack/react-query';
+import { keepPreviousData, useMutation, useQuery } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
-import { listMobilisations } from '../mobilisations.api.js';
-import { formatDate } from '../../../lib/utils.js';
+import { listMobilisations, downloadMobilisationsExport } from '../mobilisations.api.js';
+import { apiMessage, formatDate } from '../../../lib/utils.js';
 import { MOBILISATION_STATUSES, MOBILISATION_STATUS_VARIANT } from '../../../lib/constants.js';
+import { useToast } from '../../../components/ui/Toast.jsx';
 import PageHeader from '../../../components/shared/PageHeader.jsx';
 import Table from '../../../components/ui/Table.jsx';
 import Badge from '../../../components/ui/Badge.jsx';
@@ -21,6 +22,7 @@ import EmptyState from '../../../components/ui/EmptyState.jsx';
 export default function MobilisationListPage() {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const toast = useToast();
 
   const [search, setSearch] = useState('');
   const [params, setParams] = useState({ page: 1, limit: 20, search: '', status: '' });
@@ -47,6 +49,15 @@ export default function MobilisationListPage() {
     // no way to reach this already-open list otherwise.
     refetchInterval: 10_000,
     refetchOnWindowFocus: true,
+  });
+
+  const exportMutation = useMutation({
+    mutationFn: () =>
+      downloadMobilisationsExport({
+        ...(params.search && { search: params.search }),
+        ...(params.status && { status: params.status }),
+      }),
+    onError: (error) => toast.error(apiMessage(error)),
   });
 
   const columns = [
@@ -83,9 +94,19 @@ export default function MobilisationListPage() {
         description={t('staffMobilisations.list.pageDescription')}
         onBack={() => navigate(-1)}
         actions={
-          <Button size="sm" onClick={() => navigate('/mobilisations/new')}>
-            {t('staffMobilisations.list.newMobilisation')}
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button
+              size="sm"
+              variant="secondary"
+              isLoading={exportMutation.isPending}
+              onClick={() => exportMutation.mutate()}
+            >
+              {t('staffMobilisations.list.exportExcel')}
+            </Button>
+            <Button size="sm" onClick={() => navigate('/mobilisations/new')}>
+              {t('staffMobilisations.list.newMobilisation')}
+            </Button>
+          </div>
         }
       />
 

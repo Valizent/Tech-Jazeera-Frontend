@@ -27,6 +27,7 @@ import {
   uploadMobilisationDocuments,
   deleteMobilisationDocument,
   downloadMobilisationDocument,
+  downloadMobilisationExport,
 } from '../mobilisations.api.js';
 import {
   commercialDetailsFormSchema,
@@ -51,21 +52,39 @@ import Modal from '../../../components/ui/Modal.jsx';
 import Skeleton from '../../../components/ui/Skeleton.jsx';
 import EmptyState from '../../../components/ui/EmptyState.jsx';
 
-function Field({ label, value, valueClassName }) {
-  if (value === undefined || value === null || value === '') return null;
-  return (
-    <div>
-      <dt className="text-xs uppercase tracking-wide text-muted">{label}</dt>
-      <dd className={cn('text-sm', valueClassName)}>{value}</dd>
-    </div>
-  );
-}
-
 /** Green when profit, red when loss — zero stays neutral (not a loss). */
 function profitClass(amount) {
   if (amount > 0) return 'text-success';
   if (amount < 0) return 'text-danger';
   return undefined;
+}
+
+/** Label/value rows as a real table — reads top-to-bottom instead of
+ *  scattered across a grid, which is the point for a section with a dozen+
+ *  fields. Rows with no value are simply omitted (same "don't show empty
+ *  fields" convention as Field). `overflow-x-auto` is defensive — two
+ *  columns of this width never actually needs it, but every wide-ish
+ *  container in this app carries its own scroll per the project's no-
+ *  horizontal-page-scroll rule. */
+function DetailTable({ rows }) {
+  const visible = rows.filter((r) => r.value !== undefined && r.value !== null && r.value !== '');
+  if (!visible.length) return null;
+  return (
+    <div className="overflow-x-auto rounded-lg border border-border">
+      <table className="w-full text-sm">
+        <tbody className="divide-y divide-border">
+          {visible.map((r) => (
+            <tr key={r.label}>
+              <td className="w-2/5 bg-bg/40 px-3 py-2 align-top text-xs uppercase tracking-wide text-muted">
+                {r.label}
+              </td>
+              <td className={cn('px-3 py-2 font-medium', r.valueClassName)}>{r.value}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
 }
 
 function userId(entry) {
@@ -80,7 +99,7 @@ function userId(entry) {
  * `undefined` from the loading-state render and never repopulate — RHF only
  * reads defaultValues at mount.)
  */
-function CommercialDetailsCard({ m, canDecide, onSave, saving, onApprove, onReject }) {
+function CommercialDetailsCard({ m, canEdit, canDecide, isFinalStep, onSave, saving, onApprove, onReject }) {
   const { t } = useTranslation();
   const {
     register,
@@ -107,14 +126,14 @@ function CommercialDetailsCard({ m, canDecide, onSave, saving, onApprove, onReje
       </h2>
       <form onSubmit={handleSubmit(onSave)} noValidate className="space-y-4">
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-          <Input label={t('staffMobilisations.detail.clientQuotation')} disabled={!canDecide} error={errors.clientQuotation?.message} {...register('clientQuotation')} />
-          <Input label={t('staffMobilisations.detail.clientQuotationDate')} type="date" disabled={!canDecide} error={errors.clientQuotationDate?.message} {...register('clientQuotationDate')} />
-          <Input label={t('staffMobilisations.detail.clientPO')} disabled={!canDecide} error={errors.clientPO?.message} {...register('clientPO')} />
-          <Input label={t('staffMobilisations.detail.clientPODate')} type="date" disabled={!canDecide} error={errors.clientPODate?.message} {...register('clientPODate')} />
-          <Input label={t('staffMobilisations.detail.subQuotation')} disabled={!canDecide} error={errors.subQuotation?.message} {...register('subQuotation')} />
-          <Input label={t('staffMobilisations.detail.subQuotationDate')} type="date" disabled={!canDecide} error={errors.subQuotationDate?.message} {...register('subQuotationDate')} />
-          <Input label={t('staffMobilisations.detail.subPO')} disabled={!canDecide} error={errors.subPO?.message} {...register('subPO')} />
-          <Input label={t('staffMobilisations.detail.subPODate')} type="date" disabled={!canDecide} error={errors.subPODate?.message} {...register('subPODate')} />
+          <Input label={t('staffMobilisations.detail.clientQuotation')} disabled={!canEdit} error={errors.clientQuotation?.message} {...register('clientQuotation')} />
+          <Input label={t('staffMobilisations.detail.clientQuotationDate')} type="date" disabled={!canEdit} error={errors.clientQuotationDate?.message} {...register('clientQuotationDate')} />
+          <Input label={t('staffMobilisations.detail.clientPO')} disabled={!canEdit} error={errors.clientPO?.message} {...register('clientPO')} />
+          <Input label={t('staffMobilisations.detail.clientPODate')} type="date" disabled={!canEdit} error={errors.clientPODate?.message} {...register('clientPODate')} />
+          <Input label={t('staffMobilisations.detail.subQuotation')} disabled={!canEdit} error={errors.subQuotation?.message} {...register('subQuotation')} />
+          <Input label={t('staffMobilisations.detail.subQuotationDate')} type="date" disabled={!canEdit} error={errors.subQuotationDate?.message} {...register('subQuotationDate')} />
+          <Input label={t('staffMobilisations.detail.subPO')} disabled={!canEdit} error={errors.subPO?.message} {...register('subPO')} />
+          <Input label={t('staffMobilisations.detail.subPODate')} type="date" disabled={!canEdit} error={errors.subPODate?.message} {...register('subPODate')} />
         </div>
         <div className="border-t border-border pt-4">
           <h3 className="mb-3 text-xs font-semibold uppercase tracking-wide text-muted">{t('staffMobilisations.detail.sectionOvertimeTimesheet')}</h3>
@@ -124,7 +143,7 @@ function CommercialDetailsCard({ m, canDecide, onSave, saving, onApprove, onReje
               type="number"
               step="0.01"
               min="0"
-              disabled={!canDecide}
+              disabled={!canEdit}
               error={errors.clientTimesheetHours?.message}
               {...register('clientTimesheetHours')}
             />
@@ -140,7 +159,7 @@ function CommercialDetailsCard({ m, canDecide, onSave, saving, onApprove, onReje
               type="number"
               step="0.01"
               min="0"
-              disabled={!canDecide}
+              disabled={!canEdit}
               error={errors.otClientRate?.message}
               {...register('otClientRate')}
             />
@@ -149,7 +168,7 @@ function CommercialDetailsCard({ m, canDecide, onSave, saving, onApprove, onReje
               type="number"
               step="0.01"
               min="0"
-              disabled={!canDecide}
+              disabled={!canEdit}
               error={errors.otClientCommission?.message}
               {...register('otClientCommission')}
             />
@@ -160,7 +179,7 @@ function CommercialDetailsCard({ m, canDecide, onSave, saving, onApprove, onReje
                   type="number"
                   step="0.01"
                   min="0"
-                  disabled={!canDecide}
+                  disabled={!canEdit}
                   error={errors.otSubcontractorRate?.message}
                   {...register('otSubcontractorRate')}
                 />
@@ -169,7 +188,7 @@ function CommercialDetailsCard({ m, canDecide, onSave, saving, onApprove, onReje
                   type="number"
                   step="0.01"
                   min="0"
-                  disabled={!canDecide}
+                  disabled={!canEdit}
                   error={errors.otSubcontractorCommission?.message}
                   {...register('otSubcontractorCommission')}
                 />
@@ -177,18 +196,33 @@ function CommercialDetailsCard({ m, canDecide, onSave, saving, onApprove, onReje
             )}
           </div>
         </div>
-        <Textarea label={t('staffMobilisations.form.remark')} disabled={!canDecide} error={errors.remark?.message} {...register('remark')} />
-        {canDecide && (
+        <Textarea label={t('staffMobilisations.form.remark')} disabled={!canEdit} error={errors.remark?.message} {...register('remark')} />
+        {(canEdit || canDecide) && (
           <div className="flex flex-wrap justify-end gap-2 pt-2">
-            <Button type="submit" variant="secondary" isLoading={saving}>
-              {t('staffMobilisations.detail.saveDetails')}
-            </Button>
-            <Button type="button" variant="danger-ghost" onClick={onReject}>
-              {t('common.reject')}
-            </Button>
-            <Button type="button" onClick={onApprove}>
-              {t('common.approve')}
-            </Button>
+            {canEdit && (
+              <Button type="submit" variant="secondary" isLoading={saving}>
+                {t('staffMobilisations.detail.saveDetails')}
+              </Button>
+            )}
+            {canDecide && !isFinalStep && (
+              // Not the final step (Office Secretary today) — nothing
+              // upstream of them to reject, so their only action is to move
+              // it forward. Same underlying call as Approve (advances
+              // currentStep), just never offered a Reject alongside it.
+              <Button type="button" onClick={onApprove}>
+                {t('staffMobilisations.detail.submitToNextStep')}
+              </Button>
+            )}
+            {canDecide && isFinalStep && (
+              <>
+                <Button type="button" variant="danger-ghost" onClick={onReject}>
+                  {t('common.reject')}
+                </Button>
+                <Button type="button" onClick={onApprove}>
+                  {t('common.approve')}
+                </Button>
+              </>
+            )}
           </div>
         )}
       </form>
@@ -206,6 +240,7 @@ export default function MobilisationDetailPage() {
   const [inviteId, setInviteId] = useState('');
   const [toRemove, setToRemove] = useState(null);
   const [decideNote, setDecideNote] = useState('');
+  const [rejectionTarget, setRejectionTarget] = useState('');
   const [pendingDecision, setPendingDecision] = useState(null); // 'Approved' | 'Rejected' | null
   const [confirmingComplete, setConfirmingComplete] = useState(false);
   const [files, setFiles] = useState([]);
@@ -293,12 +328,25 @@ export default function MobilisationDetailPage() {
     },
     onError: (error) => toast.error(apiMessage(error)),
   });
+  const exportMutation = useMutation({
+    mutationFn: () => downloadMobilisationExport(id, m.serialNumber),
+    onError: (error) => toast.error(apiMessage(error)),
+  });
   const decideMutation = useMutation({
     mutationFn: (values) => decideMobilisation(id, values),
     onSuccess: (updated) => {
-      toast.success(updated.status === 'Approved' ? t('staffMobilisations.detail.approvedToast') : t('staffMobilisations.detail.rejectedToast'));
+      // A rejection targeting 'OfficeSecretary' never leaves 'PendingReview'
+      // (see rejectMobilisation) — status alone can't distinguish "sent back
+      // for rework" from an ordinary in-progress record, so what was
+      // actually requested (pendingDecision) picks the toast instead.
+      let toastKey = 'approvedToast';
+      if (pendingDecision === 'Rejected') {
+        toastKey = updated.status === 'PendingReview' ? 'sentBackToast' : 'rejectedToast';
+      }
+      toast.success(t(`staffMobilisations.detail.${toastKey}`));
       setPendingDecision(null);
       setDecideNote('');
+      setRejectionTarget('');
       invalidate();
     },
     onError: (error) => toast.error(apiMessage(error)),
@@ -351,6 +399,21 @@ export default function MobilisationDetailPage() {
   const unconfirmed = m.coordinators.filter((c) => !c.confirmed);
   const canSubmit = canManage && unconfirmed.length === 0;
   const canDecide = m.canDecideCurrentStep && m.status === 'PendingReview';
+  // Only the workflow's final step gets a real Reject — see
+  // CommercialDetailsCard's own comment on why an earlier step (Office
+  // Secretary) only ever has "Submit" (the same underlying Approve call).
+  const isFinalStep = (m.steps?.length ?? 1) - 1 <= m.currentStep;
+  // Section 2's fields are editable only by the workflow's first-step
+  // reviewer (Office Secretary today) or Admin — every later step
+  // (Marketing Manager, etc.) can see the data and decide on it, never
+  // change it. Mirrors mobilisation.service.js's saveCommercialDetails
+  // check exactly (currentStep === 0, not steps[currentStep]).
+  const canEditDetails = user.role === 'Admin' || (canDecide && m.currentStep === 0);
+  // The Edit page is Section 1 (the coordinator's own data) — normally
+  // Draft/Rejected only, but ALSO open to whoever can edit Section 2 during
+  // their first-step turn (Office Secretary fixing what the coordinator got
+  // wrong, logged the same way as any other edit — see updateMobilisation).
+  const canEditSection1 = canManage || canEditDetails;
   const hasCommercialFields = 'clientRate' in m;
   // Section 2 (quotation/PO/OT/timesheet/remark) is simply absent from the
   // API response for a plain coordinator — the server strips it
@@ -376,7 +439,10 @@ export default function MobilisationDetailPage() {
         actions={
           <div className="flex items-center gap-2">
             <Badge variant={MOBILISATION_STATUS_VARIANT[m.status]}>{t(`common.status.${m.status}`, m.status)}</Badge>
-            {canManage && (
+            <Button size="sm" variant="secondary" isLoading={exportMutation.isPending} onClick={() => exportMutation.mutate()}>
+              {t('staffMobilisations.detail.exportExcel')}
+            </Button>
+            {canEditSection1 && (
               <Button size="sm" variant="secondary" onClick={() => navigate(`/mobilisations/${id}/edit`)}>
                 {t('common.edit')}
               </Button>
@@ -397,52 +463,28 @@ export default function MobilisationDetailPage() {
       />
 
       <Card>
-        <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-muted">{t('staffMobilisations.detail.detailsTitle')}</h2>
-        <dl className="grid grid-cols-2 gap-4 sm:grid-cols-3">
-          <Field label={t('staffMobilisations.detail.fields.workerType')} value={t(`staffMobilisations.form.workerType.${m.workerType}`, m.workerType)} />
-          <Field label={t('staffMobilisations.detail.fields.iqamaNumber')} value={m.iqamaNumber} />
-          <Field label={t('staffMobilisations.detail.fields.nationality')} value={m.nationality} />
-          <Field label={t('staffMobilisations.detail.fields.phone')} value={m.phone} />
-          <Field label={t('staffMobilisations.detail.fields.mobilisationDate')} value={formatDate(m.mobilisationDate)} />
-          <Field label={t('staffMobilisations.detail.fields.checkoutDate')} value={m.checkoutDate && formatDate(m.checkoutDate)} />
-          {hasCommercialFields && (
-            <>
-              <Field label={t('staffMobilisations.detail.fields.clientRate')} value={formatMoney(m.clientRate)} />
-              <Field label={t('staffMobilisations.detail.fields.clientCommission')} value={formatMoney(m.clientCommission)} />
-              <Field label={t('staffMobilisations.detail.fields.fta')} value={formatMoney(m.fta)} />
-              <Field label={t('staffMobilisations.detail.fields.allowance')} value={formatMoney(m.allowance)} />
-              <Field label={t('staffMobilisations.detail.fields.requiredTimesheetHours')} value={m.requiredTimesheetHours ?? null} />
-              <Field label={t('staffMobilisations.detail.fields.clientTimesheetHours')} value={m.clientTimesheetHours ?? null} />
-              {m.hasSubcontractor && (
-                <>
-                  <Field label={t('staffMobilisations.detail.fields.subcontractor')} value={m.subcontractorName} />
-                  <Field label={t('staffMobilisations.detail.fields.subcontractorRate')} value={formatMoney(m.subcontractorRate)} />
-                  <Field label={t('staffMobilisations.detail.fields.subcontractorCommission')} value={formatMoney(m.subcontractorCommission)} />
-                </>
-              )}
-              <Field label={t('staffMobilisations.detail.fields.profitPerHour')} value={formatMoney(m.profitPerHour)} />
-              <Field
-                label={t('staffMobilisations.detail.fields.profitPerMonth')}
-                value={m.profitPerMonth != null ? formatMoney(m.profitPerMonth) : null}
-                valueClassName={profitClass(m.profitPerMonth)}
-              />
-              <Field label={t('staffMobilisations.detail.fields.otHours')} value={m.otHours ?? null} />
-              <Field label={t('staffMobilisations.detail.fields.otClientRate')} value={m.otClientRate != null ? formatMoney(m.otClientRate) : null} />
-              <Field label={t('staffMobilisations.detail.fields.otClientCommission')} value={m.otClientCommission != null ? formatMoney(m.otClientCommission) : null} />
-              {m.hasSubcontractor && (
-                <>
-                  <Field label={t('staffMobilisations.detail.fields.otSubcontractorRate')} value={m.otSubcontractorRate != null ? formatMoney(m.otSubcontractorRate) : null} />
-                  <Field label={t('staffMobilisations.detail.fields.otSubcontractorCommission')} value={m.otSubcontractorCommission != null ? formatMoney(m.otSubcontractorCommission) : null} />
-                </>
-              )}
-              <Field
-                label={t('staffMobilisations.detail.fields.otProfitTotal')}
-                value={m.otProfitTotal ? formatMoney(m.otProfitTotal) : null}
-                valueClassName={profitClass(m.otProfitTotal)}
-              />
-            </>
-          )}
-        </dl>
+        <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-muted">
+          {t('staffMobilisations.detail.sectionWorkerPlacement')}
+        </h2>
+        <DetailTable
+          rows={[
+            { label: t('staffMobilisations.detail.fields.workerName'), value: m.workerName },
+            {
+              label: t('staffMobilisations.detail.fields.workerType'),
+              value: t(`staffMobilisations.form.workerType.${m.workerType}`, m.workerType),
+            },
+            { label: t('staffMobilisations.detail.fields.iqamaNumber'), value: m.iqamaNumber },
+            { label: t('staffMobilisations.detail.fields.nationality'), value: m.nationality },
+            { label: t('staffMobilisations.detail.fields.phone'), value: m.phone },
+            { label: t('staffMobilisations.detail.fields.jobTitle'), value: m.jobTitle },
+            { label: t('staffMobilisations.detail.fields.client'), value: m.clientName },
+            ...(m.hasSubcontractor
+              ? [{ label: t('staffMobilisations.detail.fields.subcontractor'), value: m.subcontractorName }]
+              : []),
+            { label: t('staffMobilisations.detail.fields.mobilisationDate'), value: formatDate(m.mobilisationDate) },
+            { label: t('staffMobilisations.detail.fields.checkoutDate'), value: m.checkoutDate && formatDate(m.checkoutDate) },
+          ]}
+        />
         {m.remark && (
           <div className="mt-4">
             <p className="text-xs uppercase tracking-wide text-muted">{t('staffMobilisations.detail.remark')}</p>
@@ -450,6 +492,65 @@ export default function MobilisationDetailPage() {
           </div>
         )}
       </Card>
+
+      {hasCommercialFields && (
+        <Card>
+          <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-muted">
+            {t('staffMobilisations.detail.sectionRatesFinancials')}
+          </h2>
+          <DetailTable
+            rows={[
+              { label: t('staffMobilisations.detail.fields.clientRate'), value: formatMoney(m.clientRate) },
+              { label: t('staffMobilisations.detail.fields.clientCommission'), value: formatMoney(m.clientCommission) },
+              { label: t('staffMobilisations.detail.fields.fta'), value: formatMoney(m.fta) },
+              { label: t('staffMobilisations.detail.fields.allowance'), value: formatMoney(m.allowance) },
+              { label: t('staffMobilisations.detail.fields.requiredTimesheetHours'), value: m.requiredTimesheetHours ?? null },
+              { label: t('staffMobilisations.detail.fields.clientTimesheetHours'), value: m.clientTimesheetHours ?? null },
+              ...(m.hasSubcontractor
+                ? [
+                    { label: t('staffMobilisations.detail.fields.subcontractorRate'), value: formatMoney(m.subcontractorRate) },
+                    {
+                      label: t('staffMobilisations.detail.fields.subcontractorCommission'),
+                      value: formatMoney(m.subcontractorCommission),
+                    },
+                  ]
+                : []),
+              { label: t('staffMobilisations.detail.fields.profitPerHour'), value: formatMoney(m.profitPerHour) },
+              {
+                label: t('staffMobilisations.detail.fields.profitPerMonth'),
+                value: m.profitPerMonth != null ? formatMoney(m.profitPerMonth) : null,
+                valueClassName: profitClass(m.profitPerMonth),
+              },
+              { label: t('staffMobilisations.detail.fields.otHours'), value: m.otHours ?? null },
+              {
+                label: t('staffMobilisations.detail.fields.otClientRate'),
+                value: m.otClientRate != null ? formatMoney(m.otClientRate) : null,
+              },
+              {
+                label: t('staffMobilisations.detail.fields.otClientCommission'),
+                value: m.otClientCommission != null ? formatMoney(m.otClientCommission) : null,
+              },
+              ...(m.hasSubcontractor
+                ? [
+                    {
+                      label: t('staffMobilisations.detail.fields.otSubcontractorRate'),
+                      value: m.otSubcontractorRate != null ? formatMoney(m.otSubcontractorRate) : null,
+                    },
+                    {
+                      label: t('staffMobilisations.detail.fields.otSubcontractorCommission'),
+                      value: m.otSubcontractorCommission != null ? formatMoney(m.otSubcontractorCommission) : null,
+                    },
+                  ]
+                : []),
+              {
+                label: t('staffMobilisations.detail.fields.otProfitTotal'),
+                value: m.otProfitTotal ? formatMoney(m.otProfitTotal) : null,
+                valueClassName: profitClass(m.otProfitTotal),
+              },
+            ]}
+          />
+        </Card>
+      )}
 
       <Card>
         <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-muted">{t('staffMobilisations.detail.coordinatorsTitle')}</h2>
@@ -526,7 +627,9 @@ export default function MobilisationDetailPage() {
       {(canDecide || hasReviewFields) && (
         <CommercialDetailsCard
           m={m}
+          canEdit={canEditDetails}
           canDecide={canDecide}
+          isFinalStep={isFinalStep}
           saving={commercialMutation.isPending}
           onSave={(values) => commercialMutation.mutate(values)}
           onApprove={() => setPendingDecision('Approved')}
@@ -622,6 +725,7 @@ export default function MobilisationDetailPage() {
           if (decideMutation.isPending) return;
           setPendingDecision(null);
           setDecideNote('');
+          setRejectionTarget('');
         }}
         title={pendingDecision === 'Approved' ? t('staffMobilisations.detail.approveModalTitle') : t('staffMobilisations.detail.rejectModalTitle')}
       >
@@ -632,12 +736,24 @@ export default function MobilisationDetailPage() {
               : t('staffMobilisations.detail.rejectModalMessage')}
           </p>
           {pendingDecision === 'Rejected' && (
-            <Textarea
-              label={t('staffMobilisations.detail.noteRequired')}
-              value={decideNote}
-              onChange={(e) => setDecideNote(e.target.value)}
-              placeholder={t('staffMobilisations.detail.notePlaceholder')}
-            />
+            <>
+              <Select
+                label={t('staffMobilisations.detail.rejectionTargetLabel')}
+                value={rejectionTarget}
+                onChange={(e) => setRejectionTarget(e.target.value)}
+              >
+                <option value="">{t('staffMobilisations.detail.rejectionTargetPlaceholder')}</option>
+                <option value="Coordinator">{t('staffMobilisations.detail.rejectionTargetCoordinator')}</option>
+                <option value="OfficeSecretary">{t('staffMobilisations.detail.rejectionTargetOfficeSecretary')}</option>
+                <option value="Both">{t('staffMobilisations.detail.rejectionTargetBoth')}</option>
+              </Select>
+              <Textarea
+                label={t('staffMobilisations.detail.noteRequired')}
+                value={decideNote}
+                onChange={(e) => setDecideNote(e.target.value)}
+                placeholder={t('staffMobilisations.detail.notePlaceholder')}
+              />
+            </>
           )}
           <div className="flex justify-end gap-2 pt-2">
             <Button variant="secondary" disabled={decideMutation.isPending} onClick={() => setPendingDecision(null)}>
@@ -647,7 +763,7 @@ export default function MobilisationDetailPage() {
               variant={pendingDecision === 'Rejected' ? 'danger' : 'primary'}
               isLoading={decideMutation.isPending}
               onClick={() => {
-                const values = { status: pendingDecision, decisionNote: decideNote };
+                const values = { status: pendingDecision, decisionNote: decideNote, rejectionTarget: rejectionTarget || undefined };
                 const result = decideMobilisationFormSchema.safeParse(values);
                 if (!result.success) {
                   toast.error(result.error.issues[0]?.message ?? t('staffMobilisations.detail.defaultRejectError'));

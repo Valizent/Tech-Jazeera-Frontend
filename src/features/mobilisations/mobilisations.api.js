@@ -28,6 +28,35 @@ export async function getMobilisation(id) {
   return data.data;
 }
 
+/** Download this one mobilisation as a .xlsx (an authenticated Blob — a
+ *  plain <a>/<img> can't send the in-memory bearer token). */
+export async function downloadMobilisationExport(id, serialNumber) {
+  const res = await api.get(`/mobilisations/${id}/export`, { responseType: 'blob' });
+  const url = URL.createObjectURL(res.data);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `mobilisation_${serialNumber}.xlsx`;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+}
+
+/** Download every mobilisation matching the given list filters as one
+ *  .xlsx (same filters the list page itself uses — status/client/worker/
+ *  search/sort — pagination doesn't apply to an export). */
+export async function downloadMobilisationsExport(filters) {
+  const res = await api.get('/mobilisations/export', { params: filters, responseType: 'blob' });
+  const url = URL.createObjectURL(res.data);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `mobilisations_${new Date().toISOString().slice(0, 10)}.xlsx`;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+}
+
 export async function createMobilisation(payload) {
   const { data } = await api.post('/mobilisations', payload);
   return data.data;

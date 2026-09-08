@@ -6,12 +6,13 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
-import { createMobilisation } from '../mobilisations.api.js';
+import { createMobilisation, listCoordinatorCandidates } from '../mobilisations.api.js';
 import { emptyMobilisationForm } from '../mobilisations.schema.js';
 import { listEmployees } from '../../employees/employees.api.js';
 import { listClients } from '../../clients/clients.api.js';
 import { listSubcontractors } from '../../subcontractors/subcontractors.api.js';
 import { listJobTitles } from '../../jobTitles/jobTitles.api.js';
+import { useAuth } from '../../auth/AuthContext.jsx';
 import { apiMessage } from '../../../lib/utils.js';
 import { useToast } from '../../../components/ui/Toast.jsx';
 import PageHeader from '../../../components/shared/PageHeader.jsx';
@@ -24,10 +25,18 @@ export default function MobilisationNewPage() {
   const { t } = useTranslation();
   const toast = useToast();
   const queryClient = useQueryClient();
+  const { user } = useAuth();
+  const isOfficeSecretary = user.role === 'Office Secretary';
 
   const { data: workerData, isPending: workersLoading } = useQuery({
     queryKey: ['employees', { forMobilisation: true }],
     queryFn: () => listEmployees({ limit: 100, type: 'Own' }),
+  });
+  // Office Secretary only — the "create for a Coordinator who's busy" picker.
+  const { data: coordinatorData, isPending: coordinatorsLoading } = useQuery({
+    queryKey: ['mobilisations', 'coordinator-candidates'],
+    queryFn: listCoordinatorCandidates,
+    enabled: isOfficeSecretary,
   });
   const { data: clientData, isPending: clientsLoading } = useQuery({
     queryKey: ['clients', { active: true }],
@@ -56,7 +65,7 @@ export default function MobilisationNewPage() {
     mutation.mutate(values);
   }
 
-  if (workersLoading || clientsLoading || subcontractorsLoading || jobTitlesLoading) {
+  if (workersLoading || clientsLoading || subcontractorsLoading || jobTitlesLoading || (isOfficeSecretary && coordinatorsLoading)) {
     return (
       <div className="mx-auto max-w-3xl space-y-4">
         <Skeleton className="h-8 w-48" />
@@ -87,6 +96,7 @@ export default function MobilisationNewPage() {
           clients={clients}
           subcontractors={subcontractors}
           jobTitles={jobTitles}
+          coordinatorCandidates={isOfficeSecretary ? (coordinatorData ?? []) : undefined}
           defaultValues={emptyMobilisationForm}
           onSubmit={handleSubmit}
           onCancel={() => navigate('/mobilisations')}

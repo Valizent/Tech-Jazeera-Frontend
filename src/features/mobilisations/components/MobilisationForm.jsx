@@ -59,6 +59,7 @@ export default function MobilisationForm({
   clients,
   subcontractors,
   jobTitles,
+  coordinatorCandidates,
   defaultValues,
   onSubmit,
   onCancel,
@@ -107,6 +108,29 @@ export default function MobilisationForm({
   return (
     <>
     <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-6">
+      {/* Office Secretary only — creating this on behalf of a Coordinator
+          who's busy. Every other creator never sees this (coordinatorCandidates
+          is only passed by MobilisationNewPage when the logged-in user is
+          Office Secretary) and becomes the primary coordinator themselves,
+          as before. */}
+      {coordinatorCandidates && (
+        <section className="space-y-4">
+          <h3 className="text-sm font-semibold uppercase tracking-wide text-muted">{t('staffMobilisations.form.sectionOnBehalf')}</h3>
+          <Select
+            label={t('staffMobilisations.form.onBehalfOfLabel')}
+            error={errors.onBehalfOf?.message}
+            {...register('onBehalfOf')}
+          >
+            <option value="">{t('staffMobilisations.form.selectCoordinator')}</option>
+            {coordinatorCandidates.map((c) => (
+              <option key={c._id} value={c._id}>
+                {c.name}
+              </option>
+            ))}
+          </Select>
+        </section>
+      )}
+
       <section className="space-y-4">
         <h3 className="text-sm font-semibold uppercase tracking-wide text-muted">{t('staffMobilisations.form.sectionWorkerJob')}</h3>
         <Select label={t('staffMobilisations.form.workerTypeLabel')} error={errors.workerType?.message} {...register('workerType')}>

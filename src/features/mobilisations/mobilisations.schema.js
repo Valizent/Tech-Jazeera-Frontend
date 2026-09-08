@@ -53,6 +53,13 @@ const mobilisationFields = {
   checkoutDate: z.string().optional().or(z.literal('')),
 
   remark: optionalStr(1000),
+
+  // Only ever shown/used when an Office Secretary creates this "for" a
+  // Coordinator who's busy — see MobilisationForm's coordinatorCandidates
+  // prop. Left plain-optional here (the server is the real "required for
+  // Office Secretary" gate) since this same schema is shared with every
+  // other creator, for whom the field is simply never rendered.
+  onBehalfOf: z.string().optional().or(z.literal('')),
 };
 
 export const mobilisationFormSchema = z.object(mobilisationFields).superRefine((data, ctx) => {
@@ -87,6 +94,7 @@ export const emptyMobilisationForm = {
   mobilisationDate: new Date().toISOString().slice(0, 10),
   checkoutDate: '',
   remark: '',
+  onBehalfOf: '',
 };
 
 // --- M3: current-step reviewer's Section 2 (Office Secretary, then
@@ -149,15 +157,21 @@ export function commercialDetailsToForm(m) {
   };
 }
 
-/** Rejecting requires a note so the coordinator knows what to fix. */
+/** Rejecting requires a note (what to fix) and a rejectionTarget (who it
+ *  goes back to — Coordinator/OfficeSecretary/Both, mirrors the server's
+ *  decideMobilisationSchema exactly). */
 export const decideMobilisationFormSchema = z
   .object({
     status: z.enum(['Approved', 'Rejected']),
     decisionNote: optionalStr(500),
+    rejectionTarget: z.enum(['Coordinator', 'OfficeSecretary', 'Both']).optional(),
   })
   .superRefine((data, ctx) => {
     if (data.status === 'Rejected' && !data.decisionNote) {
       ctx.addIssue({ code: 'custom', path: ['decisionNote'], message: 'Explain what needs fixing before rejecting.' });
+    }
+    if (data.status === 'Rejected' && !data.rejectionTarget) {
+      ctx.addIssue({ code: 'custom', path: ['rejectionTarget'], message: 'Choose who this should go back to.' });
     }
   });
 
