@@ -1616,6 +1616,7 @@
       "waitingOnConfirmation": "بانتظار تأكيد من: {{names}}",
       "submitForReview": "تقديم للمراجعة",
       "detailsSharedByClient": "تفاصيل مشتركة من شركة العميل",
+      "missing": "مفقود",
       "clientQuotation": "عرض سعر العميل",
       "clientQuotationDate": "تاريخ عرض سعر العميل",
       "clientPO": "أمر شراء العميل",
@@ -1663,6 +1664,11 @@
       "commercialSavedToast": "تم حفظ التفاصيل التجارية.",
       "documentUploadedToast": "تم رفع المستند(ات).",
       "documentRemovedToast": "تمت إزالة المستند.",
+      "preview": {
+        "couldNotLoad": "تعذر تحميل الملف.",
+        "cannotPreview": "لا يمكن معاينة هذا النوع من الملفات في المتصفح.",
+        "downloadToView": "قم بتنزيله لعرضه."
+      },
       "defaultRejectError": "اشرح ما الذي يحتاج إلى تصحيح قبل الرفض.",
       "markComplete": "تمييز كمكتمل",
       "completeConfirmTitle": "تمييز كمكتمل؟",

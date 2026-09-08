@@ -144,3 +144,11 @@ export async function downloadMobilisationDocument(id, fileId, originalName) {
   a.remove();
   URL.revokeObjectURL(url);
 }
+
+/** Fetch a mobilisation document's bytes as a Blob, for inline preview
+ *  (mirrors documents.api.js's fetchFileBlob) — no download side effect,
+ *  the caller turns it into an object URL itself. */
+export async function fetchMobilisationDocumentBlob(id, fileId) {
+  const res = await api.get(`/mobilisations/${id}/documents/${fileId}/file`, { responseType: 'blob' });
+  return res.data;
+}

@@ -34,6 +34,7 @@ import {
   commercialDetailsToForm,
   decideMobilisationFormSchema,
 } from '../mobilisations.schema.js';
+import MobilisationDocumentPreviewModal from '../components/MobilisationDocumentPreviewModal.jsx';
 import { useAuth } from '../../auth/AuthContext.jsx';
 import { apiMessage, cn, formatDate, formatMoney } from '../../../lib/utils.js';
 import { MOBILISATION_STATUS_VARIANT, MOBILISATION_DOCUMENT_CATEGORIES, MOBILISATION_DOCUMENT_CATEGORY_LABELS } from '../../../lib/constants.js';
@@ -59,28 +60,59 @@ function profitClass(amount) {
   return undefined;
 }
 
+/** A small inline warning triangle — no icon library in this app (Tailwind
+ *  only), so every icon here is a hand-drawn SVG, same as the header's
+ *  hamburger/theme-toggle icons. */
+function WarningIcon({ className }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className={className}>
+      <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v4m0 4h.01M10.29 3.86 1.82 18a1.5 1.5 0 0 0 1.29 2.25h17.78A1.5 1.5 0 0 0 22.18 18L13.71 3.86a1.5 1.5 0 0 0-2.62 0Z" />
+    </svg>
+  );
+}
+
 /** Label/value rows as a real table — reads top-to-bottom instead of
  *  scattered across a grid, which is the point for a section with a dozen+
- *  fields. Rows with no value are simply omitted (same "don't show empty
- *  fields" convention as Field). `overflow-x-auto` is defensive — two
- *  columns of this width never actually needs it, but every wide-ish
- *  container in this app carries its own scroll per the project's no-
- *  horizontal-page-scroll rule. */
+ *  fields. By default a row with no value is simply omitted (an optional
+ *  field genuinely not set, e.g. checkout date — nothing to flag). A row
+ *  marked `required: true` behaves differently: it's ALWAYS shown, and an
+ *  empty value renders as a visible "Missing" warning instead of vanishing
+ *  — for fields someone was actually supposed to fill in (Office
+ *  Secretary's quotation/PO details), silently hiding an empty one looks
+ *  identical to "nothing to see here" when it's really "this hasn't been
+ *  done yet". `overflow-x-auto` is defensive — two columns of this width
+ *  never actually needs it, but every wide-ish container in this app
+ *  carries its own scroll per the project's no-horizontal-page-scroll
+ *  rule. */
 function DetailTable({ rows }) {
-  const visible = rows.filter((r) => r.value !== undefined && r.value !== null && r.value !== '');
+  const { t } = useTranslation();
+  const isEmpty = (value) => value === undefined || value === null || value === '';
+  const visible = rows.filter((r) => r.required || !isEmpty(r.value));
   if (!visible.length) return null;
   return (
     <div className="overflow-x-auto rounded-lg border border-border">
       <table className="w-full text-sm">
         <tbody className="divide-y divide-border">
-          {visible.map((r) => (
-            <tr key={r.label}>
-              <td className="w-2/5 bg-bg/40 px-3 py-2 align-top text-xs uppercase tracking-wide text-muted">
-                {r.label}
-              </td>
-              <td className={cn('px-3 py-2 font-medium', r.valueClassName)}>{r.value}</td>
-            </tr>
-          ))}
+          {visible.map((r) => {
+            const missing = r.required && isEmpty(r.value);
+            return (
+              <tr key={r.label}>
+                <td className="w-2/5 bg-bg/40 px-3 py-2 align-top text-xs uppercase tracking-wide text-muted">
+                  {r.label}
+                </td>
+                <td className={cn('px-3 py-2 font-medium', missing ? 'text-danger' : r.valueClassName)}>
+                  {missing ? (
+                    <span className="inline-flex items-center gap-1.5">
+                      <WarningIcon className="h-4 w-4 shrink-0" />
+                      {t('staffMobilisations.detail.missing')}
+                    </span>
+                  ) : (
+                    r.value
+                  )}
+                </td>
+              </tr>
+            );
+          })}
         </tbody>
       </table>
     </div>
@@ -146,14 +178,36 @@ function CommercialDetailsCard({ m, canEdit, canDecide, isFinalStep, onSave, sav
         </h2>
         <DetailTable
           rows={[
-            { label: t('staffMobilisations.detail.clientQuotation'), value: m.clientQuotation },
-            { label: t('staffMobilisations.detail.clientQuotationDate'), value: m.clientQuotationDate && formatDate(m.clientQuotationDate) },
-            { label: t('staffMobilisations.detail.clientPO'), value: m.clientPO },
-            { label: t('staffMobilisations.detail.clientPODate'), value: m.clientPODate && formatDate(m.clientPODate) },
-            { label: t('staffMobilisations.detail.subQuotation'), value: m.subQuotation },
-            { label: t('staffMobilisations.detail.subQuotationDate'), value: m.subQuotationDate && formatDate(m.subQuotationDate) },
-            { label: t('staffMobilisations.detail.subPO'), value: m.subPO },
-            { label: t('staffMobilisations.detail.subPODate'), value: m.subPODate && formatDate(m.subPODate) },
+            // Client quotation/PO always apply — every mobilisation bills a
+            // client, so these are flagged as missing when Office Secretary
+            // hasn't filled them in yet rather than silently disappearing.
+            { label: t('staffMobilisations.detail.clientQuotation'), value: m.clientQuotation, required: true },
+            {
+              label: t('staffMobilisations.detail.clientQuotationDate'),
+              value: m.clientQuotationDate && formatDate(m.clientQuotationDate),
+              required: true,
+            },
+            { label: t('staffMobilisations.detail.clientPO'), value: m.clientPO, required: true },
+            {
+              label: t('staffMobilisations.detail.clientPODate'),
+              value: m.clientPODate && formatDate(m.clientPODate),
+              required: true,
+            },
+            // Sub quotation/PO only "required" when there's actually a
+            // subcontractor to get one from — otherwise an empty value is
+            // correctly N/A, not missing, and stays silently hidden.
+            { label: t('staffMobilisations.detail.subQuotation'), value: m.subQuotation, required: m.hasSubcontractor },
+            {
+              label: t('staffMobilisations.detail.subQuotationDate'),
+              value: m.subQuotationDate && formatDate(m.subQuotationDate),
+              required: m.hasSubcontractor,
+            },
+            { label: t('staffMobilisations.detail.subPO'), value: m.subPO, required: m.hasSubcontractor },
+            {
+              label: t('staffMobilisations.detail.subPODate'),
+              value: m.subPODate && formatDate(m.subPODate),
+              required: m.hasSubcontractor,
+            },
           ]}
         />
         {canDecide && (
@@ -291,6 +345,7 @@ export default function MobilisationDetailPage() {
   const [confirmingComplete, setConfirmingComplete] = useState(false);
   const [files, setFiles] = useState([]);
   const [category, setCategory] = useState('Contract');
+  const [previewDoc, setPreviewDoc] = useState(null);
   // TEMPORARY — pre-production cleanup only. Remove confirmingDelete,
   // deleteMutation, the "Delete" button below, and its ConfirmDialog before
   // going live — see the note in mobilisations.api.js.
@@ -520,6 +575,9 @@ export default function MobilisationDetailPage() {
                   {d.originalName} <span className="text-xs text-muted">({t(`staffMobilisations.documentCategoryLabels.${d.category}`, MOBILISATION_DOCUMENT_CATEGORY_LABELS[d.category])})</span>
                 </span>
                 <span className="flex shrink-0 gap-2">
+                  <Button size="sm" variant="ghost" onClick={() => setPreviewDoc(d)}>
+                    {t('common.view')}
+                  </Button>
                   <Button size="sm" variant="ghost" onClick={() => downloadMobilisationDocument(id, d._id, d.originalName)}>
                     {t('common.download')}
                   </Button>
@@ -823,6 +881,13 @@ export default function MobilisationDetailPage() {
           </div>
         </div>
       </Modal>
+
+      <MobilisationDocumentPreviewModal
+        mobilisationId={id}
+        doc={previewDoc}
+        open={Boolean(previewDoc)}
+        onClose={() => setPreviewDoc(null)}
+      />
     </div>
   );
 }

@@ -1616,6 +1616,7 @@
       "waitingOnConfirmation": "Waiting on confirmation from: {{names}}",
       "submitForReview": "Submit for review",
       "detailsSharedByClient": "Details shared by client company",
+      "missing": "Missing",
       "clientQuotation": "Client quotation",
       "clientQuotationDate": "Client quotation date",
       "clientPO": "Client PO",
@@ -1663,6 +1664,11 @@
       "commercialSavedToast": "Commercial details saved.",
       "documentUploadedToast": "Document(s) uploaded.",
       "documentRemovedToast": "Document removed.",
+      "preview": {
+        "couldNotLoad": "Could not load the file.",
+        "cannotPreview": "This file type can't be previewed in the browser.",
+        "downloadToView": "Download it to view."
+      },
       "defaultRejectError": "Explain what needs fixing before rejecting.",
       "markComplete": "Mark complete",
       "completeConfirmTitle": "Mark complete?",
