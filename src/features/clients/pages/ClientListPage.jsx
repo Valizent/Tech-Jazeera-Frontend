@@ -13,7 +13,6 @@ import { useToast } from '../../../components/ui/Toast.jsx';
 import {
   CLIENT_STATUSES,
   CLIENT_DELETE_ROLES,
-  CLIENT_CREATE_ROLES,
   CLIENT_APPROVAL_STATUSES,
   CLIENT_APPROVAL_VARIANT,
 } from '../../../lib/constants.js';
@@ -38,7 +37,7 @@ export default function ClientListPage() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 
-  const canCreate = CLIENT_CREATE_ROLES.includes(user.role);
+  const canCreate = Boolean(user.sectionAccess?.includes('clientsManage'));
   const canDelete = CLIENT_DELETE_ROLES.includes(user.role);
   const [deciding, setDeciding] = useState(null); // client pending Approve/Reject review
 

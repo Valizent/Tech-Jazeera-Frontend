@@ -10,11 +10,8 @@
  * past the fold were completely unreachable).
  */
 import {
-  STAFF_USER_VIEW_ROLES,
   COORDINATOR_ACTIVITY_VIEW_ROLES,
-  EOSB_VIEW_ROLES,
   FINANCIAL_REQUEST_VIEW_ROLES,
-  APPROVALS_MANAGE_ROLES,
   MOBILISATION_SETTINGS_MANAGE_ROLES,
 } from '../lib/constants.js';
 
@@ -119,7 +116,7 @@ export const NAV_GROUPS = [
       { to: '/leave', label: 'Leave', icon: ICON.calendarOff, description: 'Types, requests and approvals.', labelKey: 'staffNav.workforce.leave.label', descriptionKey: 'staffNav.workforce.leave.description' },
       { to: '/holidays', label: 'Holidays', icon: ICON.holidays, description: 'The company holiday calendar.', labelKey: 'staffNav.workforce.holidays.label', descriptionKey: 'staffNav.workforce.holidays.description' },
       { to: '/timesheets', label: 'Timesheets', icon: ICON.list, description: 'Weekly hours, submitted for approval.', labelKey: 'staffNav.workforce.timesheets.label', descriptionKey: 'staffNav.workforce.timesheets.description' },
-      { to: '/eosb', label: 'End of Service', icon: ICON.eosb, roles: EOSB_VIEW_ROLES, description: 'EOSB settlements on exit.', labelKey: 'staffNav.workforce.eosb.label', descriptionKey: 'staffNav.workforce.eosb.description' },
+      { to: '/eosb', label: 'End of Service', icon: ICON.eosb, sectionKey: 'eosb', description: 'EOSB settlements on exit.', labelKey: 'staffNav.workforce.eosb.label', descriptionKey: 'staffNav.workforce.eosb.description' },
       // No static roles gate — matches Leave: everyone reaching this hub can
       // submit their own request, decide capability is per-row via
       // canDecideCurrentStep, and issuing stays a narrower internal check.
@@ -151,7 +148,7 @@ export const NAV_GROUPS = [
     description: 'Money in, money out, and payroll.',
     descriptionKey: 'staffNav.financial.description',
     items: [
-      { to: '/invoices', label: 'Invoices', icon: ICON.invoice, description: 'Billed to clients, payments tracked.', labelKey: 'staffNav.financial.invoices.label', descriptionKey: 'staffNav.financial.invoices.description' },
+      { to: '/invoices', label: 'Invoices', icon: ICON.invoice, sectionKey: 'invoices', description: 'Billed to clients, payments tracked.', labelKey: 'staffNav.financial.invoices.label', descriptionKey: 'staffNav.financial.invoices.description' },
       // No static roles gate — access is the admin-configurable Section
       // Access mechanism (see docs/SECTION-ACCESS-notes.md); visible to
       // every staff role that reaches this hub, page 403s if not granted —
@@ -174,13 +171,16 @@ export const NAV_GROUPS = [
       { to: '/section-access', label: 'Section Access', icon: ICON.cog, roles: ['Admin'], description: 'Which roles or approval roles can open Payroll, Expenses, and other governed sections.', labelKey: 'staffNav.admin.sectionAccess.label', descriptionKey: 'staffNav.admin.sectionAccess.description' },
       { to: '/documents', label: 'Documents', icon: ICON.document, description: 'Company & employee document store.', labelKey: 'staffNav.admin.documents.label', descriptionKey: 'staffNav.admin.documents.description' },
       { to: '/assets', label: 'Assets', icon: ICON.asset, description: 'Equipment issued to employees.', labelKey: 'staffNav.admin.assets.label', descriptionKey: 'staffNav.admin.assets.description' },
-      { to: '/team', label: 'Team', icon: ICON.team, roles: STAFF_USER_VIEW_ROLES, description: 'Staff logins and roles.', labelKey: 'staffNav.admin.team.label', descriptionKey: 'staffNav.admin.team.description' },
-      { to: '/approvals', label: 'Approval Hierarchy', icon: ICON.hierarchy, roles: APPROVALS_MANAGE_ROLES, description: 'Approval roles and multi-step workflow chains.', labelKey: 'staffNav.admin.approvals.label', descriptionKey: 'staffNav.admin.approvals.description' },
+      { to: '/team', label: 'Team', icon: ICON.team, sectionKey: 'team', description: 'Staff logins and roles.', labelKey: 'staffNav.admin.team.label', descriptionKey: 'staffNav.admin.team.description' },
+      // No sectionKey — reading the hierarchy stays open to any staff role
+      // (requireStaff, unchanged); only editing it is the admin-configurable
+      // 'approvalHierarchy' grant, gated inside the page itself.
+      { to: '/approvals', label: 'Approval Hierarchy', icon: ICON.hierarchy, description: 'Approval roles and multi-step workflow chains.', labelKey: 'staffNav.admin.approvals.label', descriptionKey: 'staffNav.admin.approvals.description' },
       { to: '/mobilisation-settings', label: 'Mobilisation Settings', icon: ICON.cog, roles: MOBILISATION_SETTINGS_MANAGE_ROLES, description: 'The stale mobilisation warning threshold — viewer/self-mobilise access is on Section Access now.', labelKey: 'staffNav.admin.mobilisationSettings.label', descriptionKey: 'staffNav.admin.mobilisationSettings.description' },
       { to: '/approvals/log', label: 'Approval Log', icon: ICON.activity, description: 'Every request decided through a workflow, in order. Visible if you sit in the hierarchy.', labelKey: 'staffNav.admin.approvalsLog.label', descriptionKey: 'staffNav.admin.approvalsLog.description' },
-      { to: '/timesheet-processor', label: 'Timesheet Processor', icon: ICON.clock, roles: ['Admin'], description: 'Bulk-import device attendance exports.', labelKey: 'staffNav.admin.timesheetProcessor.label', descriptionKey: 'staffNav.admin.timesheetProcessor.description' },
-      { to: '/nfc', label: 'NFC Customers', icon: ICON.nfc, roles: ['Admin'], description: 'NFC business-card program.', labelKey: 'staffNav.admin.nfc.label', descriptionKey: 'staffNav.admin.nfc.description' },
-      { to: '/security-log', label: 'Security Log', icon: ICON.check, roles: ['Admin'], description: 'Auth & CRUD audit trail.', labelKey: 'staffNav.admin.securityLog.label', descriptionKey: 'staffNav.admin.securityLog.description' },
+      { to: '/timesheet-processor', label: 'Timesheet Processor', icon: ICON.clock, sectionKey: 'timesheetProcessor', description: 'Bulk-import device attendance exports.', labelKey: 'staffNav.admin.timesheetProcessor.label', descriptionKey: 'staffNav.admin.timesheetProcessor.description' },
+      { to: '/nfc', label: 'NFC Customers', icon: ICON.nfc, sectionKey: 'nfc', description: 'NFC business-card program.', labelKey: 'staffNav.admin.nfc.label', descriptionKey: 'staffNav.admin.nfc.description' },
+      { to: '/security-log', label: 'Security Log', icon: ICON.check, sectionKey: 'auditLog', description: 'Auth & CRUD audit trail.', labelKey: 'staffNav.admin.securityLog.label', descriptionKey: 'staffNav.admin.securityLog.description' },
       { to: '/coordinator-activity', label: 'Coordinator Activity', icon: ICON.activity, roles: COORDINATOR_ACTIVITY_VIEW_ROLES, description: 'What Coordinators added themselves.', labelKey: 'staffNav.admin.coordinatorActivity.label', descriptionKey: 'staffNav.admin.coordinatorActivity.description' },
     ],
   },

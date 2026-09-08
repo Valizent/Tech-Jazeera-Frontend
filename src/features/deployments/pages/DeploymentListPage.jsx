@@ -11,7 +11,7 @@ import { keepPreviousData, useQuery } from '@tanstack/react-query';
 import { listDeployments } from '../deployments.api.js';
 import { listClients } from '../../clients/clients.api.js';
 import { useAuth } from '../../auth/AuthContext.jsx';
-import { DEPLOYMENT_STATUSES, DEPLOYMENT_WRITE_ROLES } from '../../../lib/constants.js';
+import { DEPLOYMENT_STATUSES } from '../../../lib/constants.js';
 import { formatDate } from '../../../lib/utils.js';
 import PageHeader from '../../../components/shared/PageHeader.jsx';
 import Table from '../../../components/ui/Table.jsx';
@@ -26,7 +26,7 @@ export default function DeploymentListPage() {
   const { t } = useTranslation();
   const { user } = useAuth();
   const navigate = useNavigate();
-  const canWrite = DEPLOYMENT_WRITE_ROLES.includes(user.role);
+  const canWrite = Boolean(user.sectionAccess?.includes('deploymentsManage'));
 
   const [params, setParams] = useState({
     page: 1,

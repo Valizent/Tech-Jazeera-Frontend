@@ -24,7 +24,6 @@ import {
 import { ramadanPeriodFormSchema, emptyRamadanPeriodForm, ramadanPeriodToForm } from '../ramadan.schema.js';
 import { useAuth } from '../../auth/AuthContext.jsx';
 import { apiMessage, formatDate } from '../../../lib/utils.js';
-import { HOLIDAY_MANAGE_ROLES } from '../../../lib/constants.js';
 import { useToast } from '../../../components/ui/Toast.jsx';
 import ConfirmDialog from '../../../components/shared/ConfirmDialog.jsx';
 import Table from '../../../components/ui/Table.jsx';
@@ -39,7 +38,13 @@ export default function RamadanPeriodsSection() {
   const { user } = useAuth();
   const toast = useToast();
   const queryClient = useQueryClient();
-  const canManage = HOLIDAY_MANAGE_ROLES.includes(user.role);
+  // A real pre-existing mismatch found here: this used HOLIDAY_MANAGE_ROLES
+  // (['Admin','HR'], the Holiday calendar's OWN Admin/HR-only circle), which
+  // silently hid these controls from Manager even though the server always
+  // allowed Manager to manage Ramadan periods — a different config than
+  // Holidays. Fixed by using Ramadan's own 'ramadanManage' Section Access
+  // grant, matching the real server gate.
+  const canManage = Boolean(user.sectionAccess?.includes('ramadanManage'));
 
   const [editing, setEditing] = useState(null); // null = closed, {} = new, {...} = edit
   const [toDelete, setToDelete] = useState(null);

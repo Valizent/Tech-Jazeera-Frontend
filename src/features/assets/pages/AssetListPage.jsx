@@ -30,7 +30,7 @@ import {
 } from '../assets.schema.js';
 import { useAuth } from '../../auth/AuthContext.jsx';
 import { apiMessage, formatDate } from '../../../lib/utils.js';
-import { ASSET_CATEGORIES, ASSET_STATUSES, ASSET_STATUS_VARIANT, ASSET_WRITE_ROLES, ASSET_DELETE_ROLES } from '../../../lib/constants.js';
+import { ASSET_CATEGORIES, ASSET_STATUSES, ASSET_STATUS_VARIANT, ASSET_DELETE_ROLES } from '../../../lib/constants.js';
 import { useToast } from '../../../components/ui/Toast.jsx';
 import PageHeader from '../../../components/shared/PageHeader.jsx';
 import ConfirmDialog from '../../../components/shared/ConfirmDialog.jsx';
@@ -48,7 +48,7 @@ export default function AssetListPage() {
   const { user } = useAuth();
   const toast = useToast();
   const queryClient = useQueryClient();
-  const canWrite = ASSET_WRITE_ROLES.includes(user.role);
+  const canWrite = Boolean(user.sectionAccess?.includes('assetsManage'));
   const canDelete = ASSET_DELETE_ROLES.includes(user.role);
 
   const [category, setCategory] = useState('');

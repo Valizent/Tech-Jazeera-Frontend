@@ -9,7 +9,7 @@ import { keepPreviousData, useQuery } from '@tanstack/react-query';
 import { listQuotations } from '../quotations.api.js';
 import { buildQuotationColumns } from '../components/quotationColumns.jsx';
 import { useAuth } from '../../auth/AuthContext.jsx';
-import { QUOTATION_STATUSES, QUOTATION_WRITE_ROLES } from '../../../lib/constants.js';
+import { QUOTATION_STATUSES } from '../../../lib/constants.js';
 import PageHeader from '../../../components/shared/PageHeader.jsx';
 import Table from '../../../components/ui/Table.jsx';
 import Button from '../../../components/ui/Button.jsx';
@@ -21,7 +21,7 @@ export default function QuotationListPage() {
   const { t } = useTranslation();
   const { user } = useAuth();
   const navigate = useNavigate();
-  const canWrite = QUOTATION_WRITE_ROLES.includes(user.role);
+  const canWrite = Boolean(user.sectionAccess?.includes('quotationsManage'));
 
   const [search, setSearch] = useState('');
   const [params, setParams] = useState({ page: 1, limit: 20, search: '', status: '' });

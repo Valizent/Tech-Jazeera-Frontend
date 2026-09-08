@@ -13,7 +13,7 @@ import { addVersion, deleteDocument, downloadDocumentFile } from '../documents.a
 import { currentVersion } from '../documents.schema.js';
 import { useAuth } from '../../auth/AuthContext.jsx';
 import { useToast } from '../../../components/ui/Toast.jsx';
-import { DOCUMENT_WRITE_ROLES, DOCUMENT_DELETE_ROLES, DOCUMENT_ACCEPT } from '../../../lib/constants.js';
+import { DOCUMENT_ACCEPT } from '../../../lib/constants.js';
 import { apiMessage } from '../../../lib/utils.js';
 import Button from '../../../components/ui/Button.jsx';
 import ConfirmDialog from '../../../components/shared/ConfirmDialog.jsx';
@@ -28,8 +28,8 @@ export default function DocumentActionsCell({ doc }) {
   const [previewing, setPreviewing] = useState(false);
   const [confirmingDelete, setConfirmingDelete] = useState(false);
 
-  const canWrite = DOCUMENT_WRITE_ROLES.includes(user.role);
-  const canDelete = DOCUMENT_DELETE_ROLES.includes(user.role);
+  const canWrite = Boolean(user.sectionAccess?.includes('documentsManage'));
+  const canDelete = canWrite;
   const version = currentVersion(doc);
 
   const invalidate = () => queryClient.invalidateQueries({ queryKey: ['documents'] });

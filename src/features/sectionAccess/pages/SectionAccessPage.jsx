@@ -1,12 +1,16 @@
 /**
  * SectionAccessPage — Admin-only. The generic "who else can open this
  * section" control panel (see server/sectionAccess.model.js): each governed
- * section (Payroll, Expenses today — more can adopt the same mechanism
- * later without a new page) gets two independent grants — literal login
- * roles, and admin-named ApprovalRoles (e.g. a "Financial Manager" or "COO"
- * role) for a grant tied to a real person regardless of their login role.
- * Admin always has full access to every section; this page only controls
- * who ELSE gets in.
+ * section gets two independent grants — literal login roles, and
+ * admin-named ApprovalRoles (e.g. a "Financial Manager" or "COO" role) for
+ * a grant tied to a real person regardless of their login role. Admin
+ * always has full access to every section; this page only controls who
+ * ELSE gets in.
+ *
+ * ~20 sections now (started at 2) — grouped under the same
+ * Workforce/Sales/Financial/Admin categories as the sidebar itself
+ * (navConfig.js's NAV_GROUPS) so the page stays scannable, each collapsible
+ * via native <details> (no new dependency for a one-off grouping need).
  */
 import { useEffect, useState } from 'react';
 import { Navigate, useNavigate } from 'react-router-dom';
@@ -23,6 +27,47 @@ import Button from '../../../components/ui/Button.jsx';
 import Skeleton from '../../../components/ui/Skeleton.jsx';
 import EmptyState from '../../../components/ui/EmptyState.jsx';
 import { PillChecklist } from '../../../components/ui/TogglePill.jsx';
+
+/** Mirrors navConfig.js's NAV_GROUPS membership for the same sections —
+ *  a section not listed here (shouldn't happen once every key is mapped)
+ *  falls into 'Other' rather than silently disappearing from the page. */
+const SECTION_CATEGORY = {
+  attendanceManage: 'Workforce',
+  eosb: 'Workforce',
+  employeeCreate: 'Workforce',
+  ramadanManage: 'Workforce',
+  clientsManage: 'Sales & Clients',
+  deploymentsManage: 'Sales & Clients',
+  quotationsManage: 'Sales & Clients',
+  mobilisationsViewer: 'Sales & Clients',
+  mobilisationsSelfMobilise: 'Sales & Clients',
+  subcontractorsManage: 'Sales & Clients',
+  invoices: 'Financial',
+  payroll: 'Financial',
+  expenses: 'Financial',
+  financialRequests: 'Financial',
+  companySettings: 'Admin & Tools',
+  documentsManage: 'Admin & Tools',
+  assetsManage: 'Admin & Tools',
+  team: 'Admin & Tools',
+  approvalHierarchy: 'Admin & Tools',
+  timesheetProcessor: 'Admin & Tools',
+  nfc: 'Admin & Tools',
+  auditLog: 'Admin & Tools',
+};
+const CATEGORY_ORDER = ['Workforce', 'Sales & Clients', 'Financial', 'Admin & Tools', 'Other'];
+
+function groupByCategory(sections) {
+  const byCategory = new Map();
+  for (const section of sections) {
+    const category = SECTION_CATEGORY[section.sectionKey] ?? 'Other';
+    if (!byCategory.has(category)) byCategory.set(category, []);
+    byCategory.get(category).push(section);
+  }
+  return CATEGORY_ORDER.map((category) => ({ category, sections: byCategory.get(category) ?? [] })).filter(
+    (g) => g.sections.length > 0
+  );
+}
 
 function SectionCard({ section, approvalRoles, approvalRolesLoading }) {
   const toast = useToast();
@@ -131,14 +176,34 @@ export default function SectionAccessPage() {
           action={<Button variant="secondary" onClick={() => refetch()}>Retry</Button>}
         />
       ) : (
-        <div className="space-y-6">
-          {sections.map((section) => (
-            <SectionCard
-              key={section.sectionKey}
-              section={section}
-              approvalRoles={approvalRoles}
-              approvalRolesLoading={approvalRolesLoading}
-            />
+        <div className="space-y-4">
+          {groupByCategory(sections).map(({ category, sections: categorySections }) => (
+            <details key={category} className="group" open>
+              <summary className="flex cursor-pointer list-none items-center justify-between gap-2 rounded-lg border border-border bg-surface px-4 py-3 text-sm font-semibold text-text transition-colors hover:border-primary/40">
+                <span>
+                  {category} <span className="font-normal text-muted">({categorySections.length})</span>
+                </span>
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.5"
+                  className="h-4 w-4 shrink-0 text-muted transition-transform group-open:rotate-180"
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+                </svg>
+              </summary>
+              <div className="mt-4 space-y-4 pl-1">
+                {categorySections.map((section) => (
+                  <SectionCard
+                    key={section.sectionKey}
+                    section={section}
+                    approvalRoles={approvalRoles}
+                    approvalRolesLoading={approvalRolesLoading}
+                  />
+                ))}
+              </div>
+            </details>
           ))}
         </div>
       )}

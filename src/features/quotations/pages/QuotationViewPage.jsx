@@ -13,7 +13,7 @@ import QuotationPdfButton from '../components/QuotationPdfButton.jsx';
 import { listInvoices, createInvoice } from '../../invoices/invoices.api.js';
 import { useAuth } from '../../auth/AuthContext.jsx';
 import { useToast } from '../../../components/ui/Toast.jsx';
-import { QUOTATION_WRITE_ROLES, QUOTATION_DELETE_ROLES, INVOICE_WRITE_ROLES } from '../../../lib/constants.js';
+import { QUOTATION_DELETE_ROLES } from '../../../lib/constants.js';
 import { apiMessage, formatDate, formatMoney } from '../../../lib/utils.js';
 import PageHeader from '../../../components/shared/PageHeader.jsx';
 import BackButton from '../../../components/shared/BackButton.jsx';
@@ -40,9 +40,13 @@ export default function QuotationViewPage() {
   const queryClient = useQueryClient();
   const [confirmingDelete, setConfirmingDelete] = useState(false);
 
-  const canWrite = QUOTATION_WRITE_ROLES.includes(user.role);
+  const canWrite = Boolean(user.sectionAccess?.includes('quotationsManage'));
   const canDelete = QUOTATION_DELETE_ROLES.includes(user.role);
-  const canInvoice = INVOICE_WRITE_ROLES.includes(user.role);
+  // Invoices is a whole-module Section Access gate now — converting a
+  // quotation to an invoice needs the same 'invoices' grant the Invoices
+  // page itself requires (successful page access already implies full
+  // read/write there, so this mirrors that exactly).
+  const canInvoice = Boolean(user.sectionAccess?.includes('invoices'));
 
   const { data: q, isPending, isError } = useQuery({
     queryKey: ['quotation', id],

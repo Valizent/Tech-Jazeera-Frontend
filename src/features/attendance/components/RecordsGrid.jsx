@@ -68,7 +68,7 @@ export default function RecordsGrid() {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
   const { user } = useAuth();
-  const canEdit = ATTENDANCE_WRITE_ROLES.includes(user.role);
+  const canEdit = Boolean(user.sectionAccess?.includes('attendanceManage'));
   const canSeeStaffRows = ATTENDANCE_WRITE_ROLES.includes(user.role);
 
   const [mode, setMode] = useState('month'); // 'month' | 'week'

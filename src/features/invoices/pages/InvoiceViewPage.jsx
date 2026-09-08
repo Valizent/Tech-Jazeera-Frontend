@@ -14,7 +14,7 @@ import InvoicePdfButton from '../components/InvoicePdfButton.jsx';
 import { paymentFormSchema, emptyPaymentForm } from '../invoices.schema.js';
 import { useAuth } from '../../auth/AuthContext.jsx';
 import { apiMessage, formatDate, formatMoney } from '../../../lib/utils.js';
-import { INVOICE_STATUS_VARIANT, INVOICE_WRITE_ROLES, INVOICE_DELETE_ROLES } from '../../../lib/constants.js';
+import { INVOICE_STATUS_VARIANT, INVOICE_DELETE_ROLES } from '../../../lib/constants.js';
 import { useToast } from '../../../components/ui/Toast.jsx';
 import PageHeader from '../../../components/shared/PageHeader.jsx';
 import BackButton from '../../../components/shared/BackButton.jsx';
@@ -41,7 +41,10 @@ export default function InvoiceViewPage() {
   const toast = useToast();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  const canWrite = INVOICE_WRITE_ROLES.includes(user.role);
+  // Reaching this page at all already implies the whole-module 'invoices'
+  // Section Access grant (payments included) — no separate write check
+  // needed, same "successful load implies full action access" pattern as
+  // Payroll/Expenses. Delete stays its own hardcoded, stricter circle.
   const canDelete = INVOICE_DELETE_ROLES.includes(user.role);
 
   const [recordingPayment, setRecordingPayment] = useState(false);
@@ -119,7 +122,7 @@ export default function InvoiceViewPage() {
               {t(`common.status.${inv.status}`, inv.status)}
             </Badge>
             <InvoicePdfButton id={inv._id} number={inv.invoiceNumber} />
-            {canWrite && inv.status !== 'Paid' && <Button onClick={openRecordPayment}>{t('staffInvoices.view.recordPayment')}</Button>}
+            {inv.status !== 'Paid' && <Button onClick={openRecordPayment}>{t('staffInvoices.view.recordPayment')}</Button>}
             {canDelete && inv.payments.length === 0 && (
               <Button variant="danger" onClick={() => setConfirmingDelete(true)}>
                 {t('common.delete')}

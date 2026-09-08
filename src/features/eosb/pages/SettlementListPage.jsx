@@ -1,16 +1,16 @@
 /**
  * EOSB settlements list — every computed end-of-service settlement (P3-A).
- * View/PDF for Admin/Manager/HR/Accounts; computing a new one is
- * Admin/Manager/HR only (see lib/constants.js EOSB_WRITE_ROLES).
+ * The whole module (view/PDF/compute/delete) is Section Access key 'eosb'
+ * now — reaching this page at all already implies full access, same
+ * "successful load implies full action access" pattern as Payroll/Expenses.
  */
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { keepPreviousData, useQuery } from '@tanstack/react-query';
 import { listSettlements } from '../eosb.api.js';
-import { useAuth } from '../../auth/AuthContext.jsx';
 import { formatDate, formatMoney } from '../../../lib/utils.js';
-import { EOSB_WRITE_ROLES, EXIT_REASON_LABELS } from '../../../lib/constants.js';
+import { EXIT_REASON_LABELS } from '../../../lib/constants.js';
 import PageHeader from '../../../components/shared/PageHeader.jsx';
 import Table from '../../../components/ui/Table.jsx';
 import Button from '../../../components/ui/Button.jsx';
@@ -19,9 +19,7 @@ import EmptyState from '../../../components/ui/EmptyState.jsx';
 
 export default function SettlementListPage() {
   const { t } = useTranslation();
-  const { user } = useAuth();
   const navigate = useNavigate();
-  const canCompute = EOSB_WRITE_ROLES.includes(user.role);
 
   const [page, setPage] = useState(1);
   const limit = 20;
@@ -60,7 +58,7 @@ export default function SettlementListPage() {
         title={t('staffEosb.list.pageTitle')}
         description={t('staffEosb.list.pageDescription')}
         onBack={() => navigate(-1)}
-        actions={canCompute && <Button onClick={() => navigate('/eosb/new')}>{t('staffEosb.list.newSettlement')}</Button>}
+        actions={<Button onClick={() => navigate('/eosb/new')}>{t('staffEosb.list.newSettlement')}</Button>}
       />
 
       {isError ? (
@@ -77,7 +75,7 @@ export default function SettlementListPage() {
               <EmptyState
                 title={t('staffEosb.list.emptyTitle')}
                 description={t('staffEosb.list.emptyDescription')}
-                action={canCompute && <Button onClick={() => navigate('/eosb/new')}>{t('staffEosb.list.newSettlement')}</Button>}
+                action={<Button onClick={() => navigate('/eosb/new')}>{t('staffEosb.list.newSettlement')}</Button>}
               />
             }
           />

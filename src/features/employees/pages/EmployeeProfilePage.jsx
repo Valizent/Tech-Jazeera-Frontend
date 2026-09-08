@@ -15,7 +15,6 @@ import {
   EMPLOYEE_WRITE_ROLES,
   EMPLOYEE_DELETE_ROLES,
   ACCOUNT_PROVISION_ROLES,
-  EOSB_WRITE_ROLES,
 } from '../../../lib/constants.js';
 import { apiMessage, formatDate } from '../../../lib/utils.js';
 import PageHeader from '../../../components/shared/PageHeader.jsx';
@@ -100,7 +99,7 @@ export default function EmployeeProfilePage() {
   const canWrite = EMPLOYEE_WRITE_ROLES.includes(user.role);
   const canDelete = EMPLOYEE_DELETE_ROLES.includes(user.role);
   const canProvisionAccount = ACCOUNT_PROVISION_ROLES.includes(user.role);
-  const canComputeEosb = EOSB_WRITE_ROLES.includes(user.role);
+  const canComputeEosb = Boolean(user.sectionAccess?.includes('eosb'));
 
   const { data: employee, isPending, isError } = useQuery({
     queryKey: ['employee', id],

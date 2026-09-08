@@ -9,9 +9,8 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { getSettlement, deleteSettlement } from '../eosb.api.js';
 import SettlementPdfButton from '../components/SettlementPdfButton.jsx';
-import { useAuth } from '../../auth/AuthContext.jsx';
 import { apiMessage, formatDate, formatMoney } from '../../../lib/utils.js';
-import { EOSB_WRITE_ROLES, EXIT_REASON_LABELS } from '../../../lib/constants.js';
+import { EXIT_REASON_LABELS } from '../../../lib/constants.js';
 import { useToast } from '../../../components/ui/Toast.jsx';
 import PageHeader from '../../../components/shared/PageHeader.jsx';
 import BackButton from '../../../components/shared/BackButton.jsx';
@@ -43,12 +42,12 @@ function Row({ label, value, note, bold }) {
 export default function SettlementViewPage() {
   const { id } = useParams();
   const { t } = useTranslation();
-  const { user } = useAuth();
   const toast = useToast();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [confirmingDelete, setConfirmingDelete] = useState(false);
-  const canDelete = EOSB_WRITE_ROLES.includes(user.role);
+  // Reaching this page at all already implies the whole-module 'eosb'
+  // Section Access grant (delete included) — no separate check needed.
 
   const { data: s, isPending, isError } = useQuery({
     queryKey: ['eosb', id],
@@ -98,11 +97,9 @@ export default function SettlementViewPage() {
               {t(`staffEosb.exitReasonLabels.${s.exitReason}`, EXIT_REASON_LABELS[s.exitReason])}
             </Badge>
             <SettlementPdfButton id={s._id} employeeCode={s.employeeCode} />
-            {canDelete && (
-              <Button variant="danger-ghost" onClick={() => setConfirmingDelete(true)}>
-                {t('common.delete')}
-              </Button>
-            )}
+            <Button variant="danger-ghost" onClick={() => setConfirmingDelete(true)}>
+              {t('common.delete')}
+            </Button>
           </>
         }
       />

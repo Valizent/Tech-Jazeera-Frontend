@@ -17,7 +17,6 @@ import { listClients } from '../../clients/clients.api.js';
 import { emptyPlacement } from '../deployments.schema.js';
 import { useAuth } from '../../auth/AuthContext.jsx';
 import { useToast } from '../../../components/ui/Toast.jsx';
-import { DEPLOYMENT_WRITE_ROLES } from '../../../lib/constants.js';
 import { apiMessage, formatDate } from '../../../lib/utils.js';
 import Card from '../../../components/ui/Card.jsx';
 import Badge from '../../../components/ui/Badge.jsx';
@@ -41,7 +40,7 @@ export default function WorkerDeploymentPanel({ employee }) {
   const { user } = useAuth();
   const toast = useToast();
   const queryClient = useQueryClient();
-  const canWrite = DEPLOYMENT_WRITE_ROLES.includes(user.role);
+  const canWrite = Boolean(user.sectionAccess?.includes('deploymentsManage'));
 
   const [transferring, setTransferring] = useState(false);
   const [ending, setEnding] = useState(false);

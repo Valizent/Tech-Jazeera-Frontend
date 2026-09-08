@@ -8,7 +8,6 @@ import { useQuery } from '@tanstack/react-query';
 import { listQuotations } from '../quotations.api.js';
 import { buildQuotationColumns } from './quotationColumns.jsx';
 import { useAuth } from '../../auth/AuthContext.jsx';
-import { QUOTATION_WRITE_ROLES } from '../../../lib/constants.js';
 import Card from '../../../components/ui/Card.jsx';
 import Button from '../../../components/ui/Button.jsx';
 import Table from '../../../components/ui/Table.jsx';
@@ -19,7 +18,7 @@ export default function QuotationsPanel({ clientId }) {
   const { t } = useTranslation();
   const { user } = useAuth();
   const navigate = useNavigate();
-  const canWrite = QUOTATION_WRITE_ROLES.includes(user.role);
+  const canWrite = Boolean(user.sectionAccess?.includes('quotationsManage'));
 
   const { data, isPending } = useQuery({
     queryKey: ['quotations', { client: clientId }],

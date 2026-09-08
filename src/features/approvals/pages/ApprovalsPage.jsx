@@ -7,7 +7,7 @@
  * configuration only.
  */
 import { useState } from 'react';
-import { Navigate, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useForm, useFieldArray } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
@@ -32,7 +32,7 @@ import {
 } from '../approvals.schema.js';
 import { listStaffUsers } from '../../users/users.api.js';
 import { useAuth } from '../../auth/AuthContext.jsx';
-import { APPROVAL_REQUEST_TYPES, APPROVAL_REQUEST_TYPE_LABELS, APPROVALS_MANAGE_ROLES } from '../../../lib/constants.js';
+import { APPROVAL_REQUEST_TYPES, APPROVAL_REQUEST_TYPE_LABELS } from '../../../lib/constants.js';
 import { apiMessage, cn } from '../../../lib/utils.js';
 import { useToast } from '../../../components/ui/Toast.jsx';
 import PageHeader from '../../../components/shared/PageHeader.jsx';
@@ -47,6 +47,8 @@ import Skeleton from '../../../components/ui/Skeleton.jsx';
 import { PillChecklist } from '../../../components/ui/TogglePill.jsx';
 
 function ApprovalRolesPanel() {
+  const { user } = useAuth();
+  const canManage = Boolean(user.sectionAccess?.includes('approvalHierarchy'));
   const toast = useToast();
   const queryClient = useQueryClient();
   const [editing, setEditing] = useState(null); // null = closed, {} = new, {...} = edit
@@ -96,9 +98,11 @@ function ApprovalRolesPanel() {
             Named roles in your hierarchy (GM, COO, HR, BDM…) — each holds one or more staff accounts.
           </p>
         </div>
-        <Button size="sm" onClick={openNew}>
-          Add role
-        </Button>
+        {canManage && (
+          <Button size="sm" onClick={openNew}>
+            Add role
+          </Button>
+        )}
       </div>
 
       {isPending ? (
@@ -148,11 +152,13 @@ function ApprovalRolesPanel() {
 
           <div className="flex justify-end gap-2 pt-2">
             <Button variant="secondary" onClick={() => setEditing(null)} disabled={saveMutation.isPending}>
-              Cancel
+              {canManage ? 'Cancel' : 'Close'}
             </Button>
-            <Button type="submit" isLoading={saveMutation.isPending}>
-              Save
-            </Button>
+            {canManage && (
+              <Button type="submit" isLoading={saveMutation.isPending}>
+                Save
+              </Button>
+            )}
           </div>
         </form>
       </Modal>
@@ -243,6 +249,8 @@ function SortableStepCard({ id, index, register, roleError, roles, stepRoles, on
 }
 
 function ApprovalWorkflowsPanel() {
+  const { user } = useAuth();
+  const canManage = Boolean(user.sectionAccess?.includes('approvalHierarchy'));
   const toast = useToast();
   const queryClient = useQueryClient();
   const [editing, setEditing] = useState(null);
@@ -320,9 +328,11 @@ function ApprovalWorkflowsPanel() {
             Ordered chains built from your approval roles — any one member of a step's role(s) can decide it.
           </p>
         </div>
-        <Button size="sm" onClick={openNew} disabled={noRoles} title={noRoles ? 'Add an approval role first' : undefined}>
-          Add workflow
-        </Button>
+        {canManage && (
+          <Button size="sm" onClick={openNew} disabled={noRoles} title={noRoles ? 'Add an approval role first' : undefined}>
+            Add workflow
+          </Button>
+        )}
       </div>
 
       {isPending ? (
@@ -419,11 +429,13 @@ function ApprovalWorkflowsPanel() {
 
           <div className="flex justify-end gap-2 pt-2">
             <Button variant="secondary" onClick={() => setEditing(null)} disabled={saveMutation.isPending}>
-              Cancel
+              {canManage ? 'Cancel' : 'Close'}
             </Button>
-            <Button type="submit" isLoading={saveMutation.isPending}>
-              Save
-            </Button>
+            {canManage && (
+              <Button type="submit" isLoading={saveMutation.isPending}>
+                Save
+              </Button>
+            )}
           </div>
         </form>
       </Modal>
@@ -433,17 +445,15 @@ function ApprovalWorkflowsPanel() {
 
 export default function ApprovalsPage() {
   const navigate = useNavigate();
-  const { user } = useAuth();
-  // useTabParam (a hook) must run unconditionally, before the role-gate's
-  // early return below — calling it after would violate the Rules of Hooks
-  // the moment this component ever re-renders.
+  // Read (list roles/workflows) is open to any staff member — the server's
+  // own requireStaff floor, unchanged; the panels below each gate their own
+  // Add/Save controls on the admin-configurable 'approvalHierarchy' Section
+  // Access grant instead of an all-or-nothing page redirect.
   const tabs = [
     { key: 'roles', label: 'Roles', content: <ApprovalRolesPanel /> },
     { key: 'workflows', label: 'Workflows', content: <ApprovalWorkflowsPanel /> },
   ];
   const [activeTab, setActiveTab] = useTabParam(tabs, 'roles');
-
-  if (!APPROVALS_MANAGE_ROLES.includes(user.role)) return <Navigate to="/" replace />;
 
   return (
     <div className="mx-auto max-w-4xl space-y-6">

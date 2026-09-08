@@ -12,7 +12,7 @@ import { listDocuments } from '../documents.api.js';
 import { buildDocumentColumns } from '../components/documentColumns.jsx';
 import DocumentUploadModal from '../components/DocumentUploadModal.jsx';
 import { useAuth } from '../../auth/AuthContext.jsx';
-import { DOCUMENT_CATEGORIES, DOCUMENT_OWNER_TYPES, DOCUMENT_WRITE_ROLES } from '../../../lib/constants.js';
+import { DOCUMENT_CATEGORIES, DOCUMENT_OWNER_TYPES } from '../../../lib/constants.js';
 import PageHeader from '../../../components/shared/PageHeader.jsx';
 import Table from '../../../components/ui/Table.jsx';
 import Button from '../../../components/ui/Button.jsx';
@@ -24,7 +24,7 @@ export default function DocumentListPage() {
   const navigate = useNavigate();
   const { t } = useTranslation();
   const { user } = useAuth();
-  const canWrite = DOCUMENT_WRITE_ROLES.includes(user.role);
+  const canWrite = Boolean(user.sectionAccess?.includes('documentsManage'));
   const [uploading, setUploading] = useState(false);
 
   const [search, setSearch] = useState('');

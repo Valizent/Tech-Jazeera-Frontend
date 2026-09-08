@@ -18,7 +18,7 @@ import {
 import { subcontractorFormSchema, emptySubcontractorForm, subcontractorToForm } from '../subcontractors.schema.js';
 import { useAuth } from '../../auth/AuthContext.jsx';
 import { apiMessage } from '../../../lib/utils.js';
-import { SUBCONTRACTOR_STATUSES, SUBCONTRACTOR_WRITE_ROLES, SUBCONTRACTOR_DELETE_ROLES } from '../../../lib/constants.js';
+import { SUBCONTRACTOR_STATUSES } from '../../../lib/constants.js';
 import { useToast } from '../../../components/ui/Toast.jsx';
 import PageHeader from '../../../components/shared/PageHeader.jsx';
 import ConfirmDialog from '../../../components/shared/ConfirmDialog.jsx';
@@ -37,8 +37,8 @@ export default function SubcontractorListPage() {
   const { user } = useAuth();
   const toast = useToast();
   const queryClient = useQueryClient();
-  const canWrite = SUBCONTRACTOR_WRITE_ROLES.includes(user.role);
-  const canDelete = SUBCONTRACTOR_DELETE_ROLES.includes(user.role);
+  const canWrite = Boolean(user.sectionAccess?.includes('subcontractorsManage'));
+  const canDelete = canWrite;
 
   const [search, setSearch] = useState('');
   const [params, setParams] = useState({ page: 1, limit: 20, search: '', status: '' });

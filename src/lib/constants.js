@@ -43,9 +43,10 @@ export const EMPLOYEE_LOGIN_ROLES = ['Manager', 'HR', 'Accounts', 'Coordinator',
 
 /** P2-M2: roles this app assigns to a Coordinator's team-scoped queries. */
 export const COORDINATOR_ROLE = 'Coordinator';
-/** Mirror of user.routes.js — who may edit staff logins vs just view them. */
+/** Mirror of user.routes.js — editing a staff login stays hardcoded
+ *  Admin-only. Viewing the list is the admin-configurable SectionAccess
+ *  ('team') mechanism now — see navConfig.js. */
 export const STAFF_USER_MANAGE_ROLES = ['Admin'];
-export const STAFF_USER_VIEW_ROLES = ['Admin', 'Manager', 'HR'];
 /** Every role a staff login can be assigned (Worker is provisioned the same
  *  way, from an employee's profile, but isn't "staff" — see rbac.js). */
 export const STAFF_ASSIGNABLE_ROLES = ['Admin', 'Manager', 'HR', 'Accounts', 'Coordinator'];
@@ -103,10 +104,9 @@ export const EXIT_REASON_LABELS = {
   TerminationByEmployer: 'Termination by employer',
   EndOfContract: 'End of contract',
 };
-/** Mirror of settlement.routes.js guards — view is wider than write (Accounts
- *  needs the figure to pay it; only HR/Manager/Admin compute one). */
-export const EOSB_VIEW_ROLES = ['Admin', 'Manager', 'HR', 'Accounts'];
-export const EOSB_WRITE_ROLES = ['Admin', 'Manager', 'HR'];
+// EOSB access (view/compute/delete, one unified circle) is the
+// admin-configurable SectionAccess ('eosb') mechanism now — reaching the
+// page at all already implies full access, no static role list needed.
 
 /** Mirrors advance.model.js / reimbursement.model.js. */
 export const ADVANCE_STATUSES = ['Pending', 'Approved', 'Rejected', 'Cancelled', 'Closed'];
@@ -125,10 +125,11 @@ export const REIMBURSEMENT_STATUS_VARIANT = {
   Rejected: 'danger',
   Paid: 'primary',
 };
-/** Mirror of financialRequests.routes.js guards. Approving is Admin/Manager/HR;
- *  handling the actual money (repayments, marking paid) also includes Accounts. */
+/** Mirror of financialRequests.routes.js's nav-level guard (list/submit stay
+ *  on requireStaffOrExecutive, unchanged) — deciding is the admin-configurable
+ *  SectionAccess ('financialRequests') mechanism now, and handling the actual
+ *  money (repayments, marking paid) stays its own hardcoded circle below. */
 export const FINANCIAL_REQUEST_VIEW_ROLES = ['Admin', 'Manager', 'HR', 'Accounts'];
-export const FINANCIAL_REQUEST_DECIDE_ROLES = ['Admin', 'Manager', 'HR'];
 export const FINANCIAL_REQUEST_MONEY_ROLES = ['Admin', 'Manager', 'HR', 'Accounts'];
 /** UX hint only — the server's real allowlist/limit is middleware/upload.js. */
 export const RECEIPT_ACCEPT = 'image/jpeg,image/png,image/webp,application/pdf';
@@ -164,8 +165,9 @@ export const EXIT_DOCUMENTS_ISSUE_ROLES = ['Admin', 'Manager', 'HR'];
 export const ASSET_CATEGORIES = ['Vehicle', 'Laptop', 'Mobile Device', 'Tool', 'Other'];
 export const ASSET_STATUSES = ['Available', 'Assigned', 'Maintenance', 'Retired'];
 export const ASSET_STATUS_VARIANT = { Available: 'success', Assigned: 'primary', Maintenance: 'warning', Retired: 'default' };
-/** Mirror of asset.routes.js guards. */
-export const ASSET_WRITE_ROLES = ['Admin', 'Manager', 'HR'];
+/** Create/edit/assign/return is the admin-configurable SectionAccess
+ *  ('assetsManage') mechanism now — see AssetListPage.jsx. Delete stays its
+ *  own hardcoded, stricter circle (mirrors asset.routes.js). */
 export const ASSET_DELETE_ROLES = ['Admin', 'HR'];
 
 /** Mirrors timesheet.model.js. Same write circle as Attendance. */
@@ -185,11 +187,12 @@ export const MONTH_NAMES = [
   'July', 'August', 'September', 'October', 'November', 'December',
 ];
 
-/** Mirrors invoice.model.js / invoice.routes.js guards — same commercial-
- *  document circle as Quotation. */
+/** Mirrors invoice.model.js. View/create/payments is the admin-configurable
+ *  SectionAccess ('invoices') mechanism now — reaching the page at all
+ *  already implies full access there. Delete stays its own hardcoded,
+ *  stricter circle. */
 export const INVOICE_STATUSES = ['Unpaid', 'Partially Paid', 'Paid'];
 export const INVOICE_STATUS_VARIANT = { Unpaid: 'danger', 'Partially Paid': 'warning', Paid: 'success' };
-export const INVOICE_WRITE_ROLES = ['Admin', 'Manager', 'Accounts'];
 export const INVOICE_DELETE_ROLES = ['Admin', 'Manager'];
 
 /** Mirrors expense.model.js. Internal cost data — access is the same
@@ -202,11 +205,10 @@ export const EXPENSE_CATEGORIES = ['Rent', 'Fuel', 'Salaries-external', 'Purchas
  *  admin configuration (Office Secretary reaches things only via
  *  ApprovalRole membership on a workflow step, never a blanket grant). */
 export const SECTION_ACCESS_GRANTABLE_ROLES = ['Admin', 'Manager', 'HR', 'Accounts', 'Coordinator', 'Executive'];
-/** Mirrors subcontractor.model.js's status enum. */
+/** Mirrors subcontractor.model.js's status enum. Create/edit/delete (one
+ *  circle) is the admin-configurable SectionAccess ('subcontractorsManage')
+ *  mechanism now, not a static role list. */
 export const SUBCONTRACTOR_STATUSES = ['Active', 'Inactive'];
-/** Mirror of subcontractor.routes.js guards — same circle as Client. */
-export const SUBCONTRACTOR_WRITE_ROLES = ['Admin', 'Manager'];
-export const SUBCONTRACTOR_DELETE_ROLES = ['Admin', 'Manager'];
 
 /** Mirrors mobilisation.model.js's status enum. */
 export const MOBILISATION_STATUSES = ['Draft', 'PendingReview', 'Approved', 'Rejected', 'Completed'];
@@ -228,20 +230,15 @@ export const MOBILISATION_SETTINGS_MANAGE_ROLES = ['Admin'];
 /** Mirrors the Client model's status enum. */
 export const CLIENT_STATUSES = ['Active', 'Inactive'];
 
-/** Mirror of the client route guards (server enforces). */
-export const CLIENT_WRITE_ROLES = ['Admin', 'Manager'];
+/** Create/edit/decide (one circle) is the admin-configurable SectionAccess
+ *  ('clientsManage') mechanism now — see clients.permissions.js. Delete
+ *  stays its own hardcoded, stricter circle. */
 export const CLIENT_DELETE_ROLES = ['Admin', 'Manager'];
-/** Who may reach the "Add client" form — write roles plus self-service
- *  Coordinator (their submission starts Pending approval). */
-export const CLIENT_CREATE_ROLES = ['Admin', 'Manager', 'Coordinator'];
 
 /** Mirrors the Client model's approvalStatus enum — separate from `status`
  *  above. A Coordinator-created client starts Pending until decided. */
 export const CLIENT_APPROVAL_STATUSES = ['Approved', 'Pending', 'Rejected'];
 export const CLIENT_APPROVAL_VARIANT = { Approved: 'success', Pending: 'warning', Rejected: 'danger' };
-/** Mirror of the client decide-route guard (server enforces the finer
- *  "must be THIS coordinator's manager" rule). */
-export const CLIENT_DECIDE_ROLES = ['Admin', 'Manager'];
 
 /** Who sees the Coordinator Activity oversight page. */
 export const COORDINATOR_ACTIVITY_VIEW_ROLES = ['Admin', 'Manager', 'HR'];
@@ -270,17 +267,18 @@ export const APPROVAL_REQUEST_TYPE_LABELS = {
   ExitReentry: 'Exit Re-Entry Visa',
   Certificate: 'Certificate Request',
 };
-/** Configuring the hierarchy itself (roles/workflows) is Admin-only — the
- *  server enforces this; the mirror only hides the nav link/route for
- *  everyone else. */
-export const APPROVALS_MANAGE_ROLES = ['Admin'];
+// Configuring the hierarchy itself (roles/workflows) is the
+// admin-configurable SectionAccess ('approvalHierarchy') mechanism now —
+// reading the list stays open to any staff role (requireStaff, unchanged),
+// so ApprovalsPage.jsx gates its own Add/Save controls internally rather
+// than a page-level role redirect.
 
 /** Mirrors the Deployment model enums. */
 export const DEPLOYMENT_SHIFTS = ['Day', 'Night', 'Rotating'];
 export const DEPLOYMENT_STATUSES = ['Active', 'Ended'];
 
-/** Mirror of the deployment route guards (server enforces). */
-export const DEPLOYMENT_WRITE_ROLES = ['Admin', 'Manager'];
+// Assign/transfer/end is the admin-configurable SectionAccess
+// ('deploymentsManage') mechanism now, not a static role list.
 
 /** Mirrors the Attendance model enum, with display metadata used by the
  *  marking grid and summary. `letter` labels grid cells; `variant` is the
@@ -304,7 +302,12 @@ export const HOLIDAY_DISPLAY_META = { letter: 'H' };
 /** Mirrors Employee.weeklyOffDay's 0=Sun..6=Sat convention (Date#getUTCDay()). */
 export const WEEKDAY_LABELS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 
-/** Mirror of the attendance write guard (server enforces). */
+/** Mirror of staffAttendance.routes.js's GET /all oversight guard (server
+ *  enforces) — who sees the merged staff-attendance rows. Marking/adjusting
+ *  Employee-based attendance is the separate, admin-configurable
+ *  'attendanceManage' Section Access key now (default the same set, but the
+ *  two can drift once an Admin customizes the grant — this one stays a
+ *  hardcoded mirror since its own server route is untouched). */
 export const ATTENDANCE_WRITE_ROLES = ['Admin', 'Manager', 'HR'];
 /** Who clocks their own attendance in/out (mirrors staffAttendance.routes.js).
  *  Admin is exempt by design; Workers have their own equivalent via the ESS
@@ -328,9 +331,8 @@ export const DOCUMENT_CATEGORIES = [
   'Other',
 ];
 
-/** Mirror of the document route guards (server enforces). */
-export const DOCUMENT_WRITE_ROLES = ['Admin', 'Manager', 'HR'];
-export const DOCUMENT_DELETE_ROLES = ['Admin', 'Manager', 'HR'];
+// Upload/versioning/delete (one circle) is the admin-configurable
+// SectionAccess ('documentsManage') mechanism now, not a static role list.
 
 /** Upload limits, mirrored from server/src/middleware/upload.js. */
 export const DOCUMENT_MAX_MB = 10;
@@ -344,8 +346,9 @@ export const AVATAR_ACCEPT = '.jpg,.jpeg,.png,.webp';
 export const QUOTATION_STATUSES = ['Draft', 'Approved', 'Rejected'];
 export const QUOTATION_LINE_TYPES = ['Labour', 'Trading'];
 
-/** Mirror of the quotation route guards (server enforces). */
-export const QUOTATION_WRITE_ROLES = ['Admin', 'Manager', 'Accounts'];
+/** Create/edit/duplicate is the admin-configurable SectionAccess
+ *  ('quotationsManage') mechanism now. Delete stays its own hardcoded,
+ *  stricter circle (mirrors quotation.routes.js). */
 export const QUOTATION_DELETE_ROLES = ['Admin', 'Manager'];
 
 /** Default KSA VAT rate for new line items. */
