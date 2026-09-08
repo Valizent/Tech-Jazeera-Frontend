@@ -1518,6 +1518,8 @@
       "selectWorker": "اختر عاملًا…",
       "workerNameLabel": "اسم العامل *",
       "iqamaNumberLabel": "رقم الإقامة / الهوية",
+      "iqamaNumberPlaceholder": "10 أرقام",
+      "iqamaAutofillToast": "تم العثور على {{name}} من تعبئة سابقة — تم تعبئة التفاصيل.",
       "nationalityLabel": "الجنسية",
       "phoneLabel": "الهاتف",
       "jobTitleLabel": "المسمى الوظيفي *",

@@ -1518,6 +1518,8 @@
       "selectWorker": "Select a worker…",
       "workerNameLabel": "Worker name *",
       "iqamaNumberLabel": "Iqama / ID number",
+      "iqamaNumberPlaceholder": "10 digits",
+      "iqamaAutofillToast": "Found {{name}} from a previous mobilisation — details filled in.",
       "nationalityLabel": "Nationality",
       "phoneLabel": "Phone",
       "jobTitleLabel": "Job title *",

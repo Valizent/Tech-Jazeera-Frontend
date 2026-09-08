@@ -23,6 +23,14 @@ export async function getMobilisationSuggestions(field) {
   return data.data;
 }
 
+/** "Is this worker already known?" — a SupplierEmployee/Freelancer's most
+ *  recent mobilisation snapshot, by their exact 10-digit Iqama, or null.
+ *  See MobilisationForm's auto-fill-on-Iqama-match behavior. */
+export async function lookupMobilisationWorkerByIqama(iqamaNumber) {
+  const { data } = await api.get('/mobilisations/lookup-by-iqama', { params: { iqamaNumber } });
+  return data.data;
+}
+
 export async function getMobilisation(id) {
   const { data } = await api.get(`/mobilisations/${id}`);
   return data.data;

@@ -8,21 +8,24 @@
  * picker (Own-type only — Outsourced/Subcontracted employees go through
  * Supplier Employee/Freelancer instead); 'SupplierEmployee'/'Freelancer'
  * have no Employee record at all, so name/Iqama/nationality/phone are typed
- * directly, each backed by a live autocomplete of previously-entered values
- * (not a managed picklist like Job title — just a suggestion aid, same
- * spirit as the Nationality
- * field's static `<datalist>` on the Employee form, but sourced live — `site`
- * below reuses the exact same free-typed-with-suggestions pattern). The
- * subcontractor block only appears for 'SupplierEmployee'.
+ * directly. Iqama is the durable identity for these two types — once a
+ * worker's 10-digit Iqama is fully typed, `useIqamaAutofill` below looks up
+ * their most recent past mobilisation (any coordinator, any status — see
+ * mobilisation.service.js's lookupWorkerByIqama) and fills in name/
+ * nationality/phone/subcontractor automatically, so a worker released back
+ * to standby and mobilised again doesn't need re-typing from scratch. `site`
+ * still uses the separate free-typed-with-suggestions pattern
+ * (SuggestedInput) — unrelated to worker identity. The subcontractor block
+ * only appears for 'SupplierEmployee'.
  */
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useForm, useWatch, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useTranslation } from 'react-i18next';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { mobilisationFormSchema, WORKER_TYPES } from '../mobilisations.schema.js';
 import { createJobTitle } from '../../jobTitles/jobTitles.api.js';
-import { getMobilisationSuggestions } from '../mobilisations.api.js';
+import { getMobilisationSuggestions, lookupMobilisationWorkerByIqama } from '../mobilisations.api.js';
 import { apiMessage } from '../../../lib/utils.js';
 import { useToast } from '../../../components/ui/Toast.jsx';
 import Input from '../../../components/ui/Input.jsx';
@@ -53,6 +56,40 @@ function SuggestedInput({ field, label, error, register, ...props }) {
   );
 }
 
+/** Once `iqamaNumber` reaches a full 10 digits, looks up whether this worker
+ *  has been mobilised before and — if so — fills in name/nationality/phone/
+ *  workerType/subcontractor. Applies at most once per distinct Iqama value
+ *  (via `appliedRef`) so it never fights a coordinator's own edits to the
+ *  same fields afterward. */
+function useIqamaAutofill({ control, workerType, setValue, toast, t }) {
+  const iqamaRaw = useWatch({ control, name: 'iqamaNumber' });
+  const iqamaDigits = (iqamaRaw || '').replace(/\D/g, '');
+  const enabled = workerType !== 'Employee' && iqamaDigits.length === 10;
+
+  const { data: foundWorker } = useQuery({
+    queryKey: ['mobilisation-worker-lookup', iqamaDigits],
+    queryFn: () => lookupMobilisationWorkerByIqama(iqamaDigits),
+    enabled,
+    staleTime: 60_000,
+  });
+
+  const appliedRef = useRef(null);
+  useEffect(() => {
+    if (!foundWorker || appliedRef.current === iqamaDigits) return;
+    appliedRef.current = iqamaDigits;
+    setValue('workerName', foundWorker.workerName ?? '', { shouldValidate: true, shouldDirty: true });
+    setValue('nationality', foundWorker.nationality ?? '', { shouldDirty: true });
+    setValue('phone', foundWorker.phone || '+966', { shouldDirty: true });
+    if (foundWorker.workerType && foundWorker.workerType !== workerType) {
+      setValue('workerType', foundWorker.workerType, { shouldDirty: true });
+    }
+    if (foundWorker.subcontractor) {
+      setValue('subcontractor', foundWorker.subcontractor, { shouldDirty: true });
+    }
+    toast.success(t('staffMobilisations.form.iqamaAutofillToast', { name: foundWorker.workerName }));
+  }, [foundWorker, iqamaDigits, setValue, workerType, toast, t]);
+}
+
 export default function MobilisationForm({
   workers,
   clients,
@@ -77,6 +114,7 @@ export default function MobilisationForm({
   } = useForm({ resolver: zodResolver(mobilisationFormSchema), defaultValues });
 
   const workerType = useWatch({ control, name: 'workerType' });
+  useIqamaAutofill({ control, workerType, setValue, toast, t });
 
   const [addingJobTitle, setAddingJobTitle] = useState(false);
   const [newJobTitle, setNewJobTitle] = useState('');
@@ -151,17 +189,18 @@ export default function MobilisationForm({
             </Select>
           ) : (
             <>
-              <SuggestedInput
-                field="workerName"
+              <Input
                 label={t('staffMobilisations.form.workerNameLabel')}
                 error={errors.workerName?.message}
-                register={register}
+                {...register('workerName')}
               />
-              <SuggestedInput
-                field="iqamaNumber"
+              <Input
                 label={t('staffMobilisations.form.iqamaNumberLabel')}
+                inputMode="numeric"
+                maxLength={10}
+                placeholder={t('staffMobilisations.form.iqamaNumberPlaceholder')}
                 error={errors.iqamaNumber?.message}
-                register={register}
+                {...register('iqamaNumber')}
               />
               <Controller
                 name="nationality"

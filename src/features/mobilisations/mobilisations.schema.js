@@ -9,6 +9,19 @@ import { z } from 'zod';
 const optionalNumberString = z.string().optional().or(z.literal(''));
 const optionalStr = (max) => z.string().trim().max(max).optional().or(z.literal(''));
 
+// Saudi Iqama numbers are exactly 10 digits. Mirrors the server's own regex
+// in mobilisation.validation.js — only meaningful for a SupplierEmployee/
+// Freelancer mobilisation (typed directly; an Employee's comes from their
+// linked record instead).
+const optionalIqama = z
+  .string()
+  .trim()
+  .optional()
+  .or(z.literal(''))
+  .refine((value) => !value || /^\d{10}$/.test(value), {
+    message: 'Iqama number must be exactly 10 digits.',
+  });
+
 // Saudi mobile only (this company operates in Saudi Arabia) — local
 // 05XXXXXXXX (10 digits) or international +9665XXXXXXXX/9665XXXXXXXX (966 +
 // 9 digits starting with 5). Mirrors the server's own regex in
@@ -32,7 +45,7 @@ const mobilisationFields = {
   // typed directly — required by the superRefine below, not here.
   worker: z.string().optional().or(z.literal('')),
   workerName: optionalStr(150),
-  iqamaNumber: optionalStr(50),
+  iqamaNumber: optionalIqama,
   nationality: optionalStr(80),
   phone: optionalSaudiPhone,
   jobTitle: z.string().trim().min(1, 'Job title is required.').max(150),
@@ -81,7 +94,7 @@ export const emptyMobilisationForm = {
   workerName: '',
   iqamaNumber: '',
   nationality: '',
-  phone: '',
+  phone: '+966',
   jobTitle: '',
   client: '',
   site: '',
@@ -184,7 +197,7 @@ export function mobilisationToForm(m) {
     workerName: m.workerName ?? '',
     iqamaNumber: m.iqamaNumber ?? '',
     nationality: m.nationality ?? '',
-    phone: m.phone ?? '',
+    phone: m.phone || '+966',
     jobTitle: m.jobTitle,
     client: m.client,
     site: m.site ?? '',
