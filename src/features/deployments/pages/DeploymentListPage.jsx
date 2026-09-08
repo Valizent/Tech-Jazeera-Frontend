@@ -7,13 +7,15 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link, useNavigate } from 'react-router-dom';
-import { keepPreviousData, useQuery } from '@tanstack/react-query';
-import { listDeployments } from '../deployments.api.js';
+import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { listDeployments, deleteDeployment } from '../deployments.api.js';
 import { listClients } from '../../clients/clients.api.js';
 import { useAuth } from '../../auth/AuthContext.jsx';
+import { apiMessage, formatDate } from '../../../lib/utils.js';
 import { DEPLOYMENT_STATUSES } from '../../../lib/constants.js';
-import { formatDate } from '../../../lib/utils.js';
+import { useToast } from '../../../components/ui/Toast.jsx';
 import PageHeader from '../../../components/shared/PageHeader.jsx';
+import ConfirmDialog from '../../../components/shared/ConfirmDialog.jsx';
 import Table from '../../../components/ui/Table.jsx';
 import Badge from '../../../components/ui/Badge.jsx';
 import Button from '../../../components/ui/Button.jsx';
@@ -26,7 +28,15 @@ export default function DeploymentListPage() {
   const { t } = useTranslation();
   const { user } = useAuth();
   const navigate = useNavigate();
+  const toast = useToast();
+  const queryClient = useQueryClient();
   const canWrite = Boolean(user.sectionAccess?.includes('deploymentsManage'));
+  // TEMPORARY — pre-production cleanup only. Remove this Admin-only delete
+  // affordance (isAdmin, toDelete, deleteMutation, the actions column below,
+  // and the ConfirmDialog at the bottom of this file) before going live —
+  // see the note in deployments.api.js.
+  const isAdmin = user.role === 'Admin';
+  const [toDelete, setToDelete] = useState(null);
 
   const [params, setParams] = useState({
     page: 1,
@@ -54,6 +64,16 @@ export default function DeploymentListPage() {
         ...(params.client && { client: params.client }),
       }),
     placeholderData: keepPreviousData,
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: (id) => deleteDeployment(id),
+    onSuccess: () => {
+      toast.success(t('staffDeployments.list.deletedToast'));
+      setToDelete(null);
+      queryClient.invalidateQueries({ queryKey: ['deployments'] });
+    },
+    onError: (error) => toast.error(apiMessage(error)),
   });
 
   const columns = [
@@ -98,6 +118,21 @@ export default function DeploymentListPage() {
         </Badge>
       ),
     },
+    // TEMPORARY — pre-production cleanup only, see the note above isAdmin.
+    ...(isAdmin
+      ? [
+          {
+            key: 'actions',
+            header: '',
+            className: 'text-right',
+            render: (d) => (
+              <Button size="sm" variant="danger-ghost" onClick={() => setToDelete(d)}>
+                {t('common.delete')}
+              </Button>
+            ),
+          },
+        ]
+      : []),
   ];
 
   return (
@@ -185,6 +220,19 @@ export default function DeploymentListPage() {
           )}
         </>
       )}
+
+      {/* TEMPORARY — pre-production cleanup only, see the note above isAdmin. */}
+      <ConfirmDialog
+        open={Boolean(toDelete)}
+        title={t('staffDeployments.list.deleteConfirmTitle')}
+        message={t('staffDeployments.list.deleteConfirmMessage', {
+          worker: toDelete?.worker?.fullName ?? '',
+          client: toDelete?.clientName ?? '',
+        })}
+        loading={deleteMutation.isPending}
+        onConfirm={() => deleteMutation.mutate(toDelete._id)}
+        onCancel={() => setToDelete(null)}
+      />
     </div>
   );
 }

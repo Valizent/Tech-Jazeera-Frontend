@@ -30,3 +30,10 @@ export async function transferDeployment(id, payload) {
 export async function endDeployment(id) {
   await api.post(`/deployments/${id}/end`);
 }
+
+// TEMPORARY — pre-production cleanup only, Admin-only. Remove this function
+// along with its call sites and the server route/service/controller behind
+// it before going live.
+export async function deleteDeployment(id) {
+  await api.delete(`/deployments/${id}`);
+}

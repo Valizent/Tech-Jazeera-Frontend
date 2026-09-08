@@ -109,10 +109,22 @@
   "header": {
     "employee": "Employee",
     "updateProfilePhoto": "Update profile photo",
+    "updateMyDetails": "Update my details",
     "changePassword": "Change password",
     "logOut": "Log out",
     "notifications": "Notifications",
     "openMenu": "Open menu"
+  },
+  "myDetailsModal": {
+    "title": "My details",
+    "mobile": "Mobile",
+    "email": "Email",
+    "accommodation": "Accommodation",
+    "emergencyContact": "Emergency contact",
+    "contactName": "Name",
+    "contactPhone": "Phone",
+    "contactRelation": "Relation",
+    "success": "Your details have been updated."
   },
   "changePasswordModal": {
     "title": "Change password",
@@ -1304,7 +1316,10 @@
       "couldNotLoadDescription": "Please try again.",
       "emptyTitleNoFilters": "No deployments yet",
       "emptyTitleFiltered": "No deployments match",
-      "emptyDescriptionNoFilters": "Assign a worker to a client site to create the first deployment."
+      "emptyDescriptionNoFilters": "Assign a worker to a client site to create the first deployment.",
+      "deletedToast": "Deployment deleted.",
+      "deleteConfirmTitle": "Delete this deployment?",
+      "deleteConfirmMessage": "This permanently removes {{worker}}'s placement at {{client}}. This cannot be undone."
     },
     "form": {
       "workerLabel": "Worker *",
@@ -1634,7 +1649,10 @@
       "markComplete": "Mark complete",
       "completeConfirmTitle": "Mark complete?",
       "completeConfirmMessage": "{{name}} will be released back to standby, visible to every Coordinator to pick up for a new mobilisation. This can't be undone.",
-      "completedToast": "Mobilisation marked complete."
+      "completedToast": "Mobilisation marked complete.",
+      "deleteConfirmTitle": "Delete this mobilisation?",
+      "deleteConfirmMessage": "This permanently removes {{name}}'s mobilisation record, including its documents. This cannot be undone.",
+      "deletedToast": "Mobilisation deleted."
     }
   },
   "staffSubcontractors": {

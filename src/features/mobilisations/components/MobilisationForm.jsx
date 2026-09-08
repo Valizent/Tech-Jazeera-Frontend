@@ -17,7 +17,7 @@
  * dropdown.
  */
 import { useEffect, useState } from 'react';
-import { useForm, useWatch } from 'react-hook-form';
+import { useForm, useWatch, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useTranslation } from 'react-i18next';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
@@ -28,6 +28,7 @@ import { apiMessage } from '../../../lib/utils.js';
 import { useToast } from '../../../components/ui/Toast.jsx';
 import Input from '../../../components/ui/Input.jsx';
 import Select from '../../../components/ui/Select.jsx';
+import CountrySelect from '../../../components/ui/CountrySelect.jsx';
 import Textarea from '../../../components/ui/Textarea.jsx';
 import Button from '../../../components/ui/Button.jsx';
 import Modal from '../../../components/ui/Modal.jsx';
@@ -139,11 +140,18 @@ export default function MobilisationForm({
                 error={errors.iqamaNumber?.message}
                 register={register}
               />
-              <SuggestedInput
-                field="nationality"
-                label={t('staffMobilisations.form.nationalityLabel')}
-                error={errors.nationality?.message}
-                register={register}
+              <Controller
+                name="nationality"
+                control={control}
+                render={({ field }) => (
+                  <CountrySelect
+                    label={t('staffMobilisations.form.nationalityLabel')}
+                    error={errors.nationality?.message}
+                    value={field.value}
+                    onChange={field.onChange}
+                    onBlur={field.onBlur}
+                  />
+                )}
               />
               <Input label={t('staffMobilisations.form.phoneLabel')} error={errors.phone?.message} {...register('phone')} />
             </>

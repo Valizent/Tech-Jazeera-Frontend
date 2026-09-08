@@ -38,6 +38,13 @@ export async function updateMobilisation(id, payload) {
   return data.data;
 }
 
+// TEMPORARY — pre-production cleanup only, Admin-only. Remove this function
+// along with its call sites and the server route/service/controller behind
+// it before going live.
+export async function deleteMobilisation(id) {
+  await api.delete(`/mobilisations/${id}`);
+}
+
 // --- M2: joint coordinators + submit ---
 
 export async function addCoordinator(id, userId) {

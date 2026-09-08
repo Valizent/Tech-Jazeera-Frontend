@@ -9,6 +9,20 @@ import { z } from 'zod';
 const optionalNumberString = z.string().optional().or(z.literal(''));
 const optionalStr = (max) => z.string().trim().max(max).optional().or(z.literal(''));
 
+// Saudi mobile only (this company operates in Saudi Arabia) — local
+// 05XXXXXXXX (10 digits) or international +9665XXXXXXXX/9665XXXXXXXX (966 +
+// 9 digits starting with 5). Mirrors the server's own regex in
+// mobilisation.validation.js — scoped to Mobilisation's phone field only.
+const SAUDI_PHONE_REGEX = /^(?:\+?9665\d{8}|05\d{8})$/;
+const optionalSaudiPhone = z
+  .string()
+  .trim()
+  .optional()
+  .or(z.literal(''))
+  .refine((value) => !value || SAUDI_PHONE_REGEX.test(value), {
+    message: 'Enter a valid Saudi mobile number (e.g. 05XXXXXXXX or +9665XXXXXXXX).',
+  });
+
 export const WORKER_TYPES = ['Employee', 'SupplierEmployee', 'Freelancer'];
 
 const mobilisationFields = {
@@ -20,7 +34,7 @@ const mobilisationFields = {
   workerName: optionalStr(150),
   iqamaNumber: optionalStr(50),
   nationality: optionalStr(80),
-  phone: optionalStr(30),
+  phone: optionalSaudiPhone,
   jobTitle: z.string().trim().min(1, 'Job title is required.').max(150),
 
   client: z.string().min(1, 'Select a client.'),
@@ -77,8 +91,10 @@ export const emptyMobilisationForm = {
 
 // --- M3: current-step reviewer's Section 2 (Office Secretary, then
 // Marketing Manager, once configured) — quotation/PO, actual timesheet
-// hours, overtime, remark. Every field optional: a reviewer fills in what
-// they have as it arrives. ---
+// hours, overtime rates, remark. Every field optional: a reviewer fills in
+// what they have as it arrives. `otHours` is NOT here — it's server-derived
+// from clientTimesheetHours - requiredTimesheetHours (see
+// mobilisation.service.js's computeProfitFields), never typed in. ---
 
 export const commercialDetailsFormSchema = z.object({
   clientQuotation: optionalStr(100),
@@ -90,7 +106,6 @@ export const commercialDetailsFormSchema = z.object({
   subPO: optionalStr(100),
   subPODate: z.string().optional().or(z.literal('')),
   clientTimesheetHours: optionalNumberString,
-  otHours: optionalNumberString,
   otClientRate: optionalNumberString,
   otClientCommission: optionalNumberString,
   otSubcontractorRate: optionalNumberString,
@@ -108,7 +123,6 @@ export const emptyCommercialDetailsForm = {
   subPO: '',
   subPODate: '',
   clientTimesheetHours: '',
-  otHours: '',
   otClientRate: '',
   otClientCommission: '',
   otSubcontractorRate: '',
@@ -127,7 +141,6 @@ export function commercialDetailsToForm(m) {
     subPO: m.subPO ?? '',
     subPODate: m.subPODate ? m.subPODate.slice(0, 10) : '',
     clientTimesheetHours: String(m.clientTimesheetHours ?? ''),
-    otHours: String(m.otHours ?? ''),
     otClientRate: String(m.otClientRate ?? ''),
     otClientCommission: String(m.otClientCommission ?? ''),
     otSubcontractorRate: String(m.otSubcontractorRate ?? ''),

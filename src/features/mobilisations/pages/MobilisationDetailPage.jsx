@@ -21,6 +21,7 @@ import {
   confirmCoordinator,
   submitMobilisation,
   completeMobilisation,
+  deleteMobilisation,
   saveCommercialDetails,
   decideMobilisation,
   uploadMobilisationDocuments,
@@ -33,7 +34,7 @@ import {
   decideMobilisationFormSchema,
 } from '../mobilisations.schema.js';
 import { useAuth } from '../../auth/AuthContext.jsx';
-import { apiMessage, formatDate, formatMoney } from '../../../lib/utils.js';
+import { apiMessage, cn, formatDate, formatMoney } from '../../../lib/utils.js';
 import { MOBILISATION_STATUS_VARIANT, MOBILISATION_DOCUMENT_CATEGORIES, MOBILISATION_DOCUMENT_CATEGORY_LABELS } from '../../../lib/constants.js';
 import { useToast } from '../../../components/ui/Toast.jsx';
 import ApprovalTrailView from '../../../components/shared/ApprovalTrailView.jsx';
@@ -50,14 +51,21 @@ import Modal from '../../../components/ui/Modal.jsx';
 import Skeleton from '../../../components/ui/Skeleton.jsx';
 import EmptyState from '../../../components/ui/EmptyState.jsx';
 
-function Field({ label, value }) {
+function Field({ label, value, valueClassName }) {
   if (value === undefined || value === null || value === '') return null;
   return (
     <div>
       <dt className="text-xs uppercase tracking-wide text-muted">{label}</dt>
-      <dd className="text-sm">{value}</dd>
+      <dd className={cn('text-sm', valueClassName)}>{value}</dd>
     </div>
   );
+}
+
+/** Green when profit, red when loss — zero stays neutral (not a loss). */
+function profitClass(amount) {
+  if (amount > 0) return 'text-success';
+  if (amount < 0) return 'text-danger';
+  return undefined;
 }
 
 function userId(entry) {
@@ -77,8 +85,20 @@ function CommercialDetailsCard({ m, canDecide, onSave, saving, onApprove, onReje
   const {
     register,
     handleSubmit,
+    watch,
     formState: { errors },
   } = useForm({ resolver: zodResolver(commercialDetailsFormSchema), defaultValues: commercialDetailsToForm(m) });
+
+  // Server-derived, never typed in (see mobilisation.service.js's
+  // computeProfitFields): max(0, client timesheet hours - required
+  // timesheet hours), live-updating as the reviewer types the client's
+  // actual hours in above.
+  const clientTimesheetHoursRaw = watch('clientTimesheetHours');
+  const clientTimesheetHours = Number(clientTimesheetHoursRaw);
+  const otHoursPreview =
+    clientTimesheetHoursRaw !== '' && Number.isFinite(clientTimesheetHours)
+      ? Math.max(0, clientTimesheetHours - (m.requiredTimesheetHours ?? 0))
+      : 0;
 
   return (
     <Card>
@@ -110,12 +130,10 @@ function CommercialDetailsCard({ m, canDecide, onSave, saving, onApprove, onReje
             />
             <Input
               label={t('staffMobilisations.detail.otHours')}
-              type="number"
-              step="0.01"
-              min="0"
-              disabled={!canDecide}
-              error={errors.otHours?.message}
-              {...register('otHours')}
+              type="text"
+              readOnly
+              disabled
+              value={otHoursPreview}
             />
             <Input
               label={t('staffMobilisations.detail.otClientRate')}
@@ -192,6 +210,10 @@ export default function MobilisationDetailPage() {
   const [confirmingComplete, setConfirmingComplete] = useState(false);
   const [files, setFiles] = useState([]);
   const [category, setCategory] = useState('Contract');
+  // TEMPORARY — pre-production cleanup only. Remove confirmingDelete,
+  // deleteMutation, the "Delete" button below, and its ConfirmDialog before
+  // going live — see the note in mobilisations.api.js.
+  const [confirmingDelete, setConfirmingDelete] = useState(false);
 
   const { data: m, isPending, isError } = useQuery({
     queryKey: ['mobilisation', id],
@@ -258,6 +280,16 @@ export default function MobilisationDetailPage() {
       toast.success(t('staffMobilisations.detail.completedToast'));
       setConfirmingComplete(false);
       invalidate();
+    },
+    onError: (error) => toast.error(apiMessage(error)),
+  });
+  // TEMPORARY — pre-production cleanup only, see the note above confirmingDelete.
+  const deleteMutation = useMutation({
+    mutationFn: () => deleteMobilisation(id),
+    onSuccess: () => {
+      toast.success(t('staffMobilisations.detail.deletedToast'));
+      queryClient.invalidateQueries({ queryKey: ['mobilisations'] });
+      navigate('/mobilisations');
     },
     onError: (error) => toast.error(apiMessage(error)),
   });
@@ -354,6 +386,12 @@ export default function MobilisationDetailPage() {
                 {t('staffMobilisations.detail.markComplete')}
               </Button>
             )}
+            {/* TEMPORARY — pre-production cleanup only, see the note above confirmingDelete. */}
+            {user.role === 'Admin' && (
+              <Button size="sm" variant="danger-ghost" onClick={() => setConfirmingDelete(true)}>
+                {t('common.delete')}
+              </Button>
+            )}
           </div>
         }
       />
@@ -383,7 +421,11 @@ export default function MobilisationDetailPage() {
                 </>
               )}
               <Field label={t('staffMobilisations.detail.fields.profitPerHour')} value={formatMoney(m.profitPerHour)} />
-              <Field label={t('staffMobilisations.detail.fields.profitPerMonth')} value={m.profitPerMonth != null ? formatMoney(m.profitPerMonth) : null} />
+              <Field
+                label={t('staffMobilisations.detail.fields.profitPerMonth')}
+                value={m.profitPerMonth != null ? formatMoney(m.profitPerMonth) : null}
+                valueClassName={profitClass(m.profitPerMonth)}
+              />
               <Field label={t('staffMobilisations.detail.fields.otHours')} value={m.otHours ?? null} />
               <Field label={t('staffMobilisations.detail.fields.otClientRate')} value={m.otClientRate != null ? formatMoney(m.otClientRate) : null} />
               <Field label={t('staffMobilisations.detail.fields.otClientCommission')} value={m.otClientCommission != null ? formatMoney(m.otClientCommission) : null} />
@@ -393,7 +435,11 @@ export default function MobilisationDetailPage() {
                   <Field label={t('staffMobilisations.detail.fields.otSubcontractorCommission')} value={m.otSubcontractorCommission != null ? formatMoney(m.otSubcontractorCommission) : null} />
                 </>
               )}
-              <Field label={t('staffMobilisations.detail.fields.otProfitTotal')} value={m.otProfitTotal ? formatMoney(m.otProfitTotal) : null} />
+              <Field
+                label={t('staffMobilisations.detail.fields.otProfitTotal')}
+                value={m.otProfitTotal ? formatMoney(m.otProfitTotal) : null}
+                valueClassName={profitClass(m.otProfitTotal)}
+              />
             </>
           )}
         </dl>
@@ -558,6 +604,16 @@ export default function MobilisationDetailPage() {
         loading={completeMutation.isPending}
         onConfirm={() => completeMutation.mutate()}
         onCancel={() => setConfirmingComplete(false)}
+      />
+
+      {/* TEMPORARY — pre-production cleanup only, see the note above confirmingDelete. */}
+      <ConfirmDialog
+        open={confirmingDelete}
+        title={t('staffMobilisations.detail.deleteConfirmTitle')}
+        message={t('staffMobilisations.detail.deleteConfirmMessage', { name: m.workerName })}
+        loading={deleteMutation.isPending}
+        onConfirm={() => deleteMutation.mutate()}
+        onCancel={() => setConfirmingDelete(false)}
       />
 
       <Modal

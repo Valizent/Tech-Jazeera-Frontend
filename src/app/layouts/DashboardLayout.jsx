@@ -19,6 +19,7 @@ import { NavLink, Outlet, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../features/auth/AuthContext.jsx';
 import ChangePasswordModal from '../../features/auth/components/ChangePasswordModal.jsx';
 import AvatarUploadModal from '../../features/auth/components/AvatarUploadModal.jsx';
+import MyDetailsModal from '../../features/profile/components/MyDetailsModal.jsx';
 import ThemeToggle from '../../components/shared/ThemeToggle.jsx';
 import NotificationBell from '../../components/shared/NotificationBell.jsx';
 import LanguageSwitcher from '../../components/shared/LanguageSwitcher.jsx';
@@ -112,6 +113,10 @@ export default function DashboardLayout() {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [changePasswordOpen, setChangePasswordOpen] = useState(false);
   const [avatarModalOpen, setAvatarModalOpen] = useState(false);
+  const [myDetailsOpen, setMyDetailsOpen] = useState(false);
+  // Admin has no linked Employee record to edit — every other staff role
+  // does (see server/src/modules/me/profile.routes.js).
+  const canUpdateDetails = user.role !== 'Admin';
   const [avatarMenuOpen, setAvatarMenuOpen] = useState(false);
   const avatarMenuRef = useRef(null);
 
@@ -203,6 +208,17 @@ export default function DashboardLayout() {
                   >
                     {t('header.updateProfilePhoto')}
                   </button>
+                  {canUpdateDetails && (
+                    <button
+                      onClick={() => {
+                        setAvatarMenuOpen(false);
+                        setMyDetailsOpen(true);
+                      }}
+                      className="block w-full px-4 py-2 text-left text-sm text-text hover:bg-border/40"
+                    >
+                      {t('header.updateMyDetails')}
+                    </button>
+                  )}
                   <button
                     onClick={() => {
                       setAvatarMenuOpen(false);
@@ -235,6 +251,7 @@ export default function DashboardLayout() {
 
       <ChangePasswordModal open={changePasswordOpen} onClose={() => setChangePasswordOpen(false)} />
       <AvatarUploadModal open={avatarModalOpen} onClose={() => setAvatarModalOpen(false)} />
+      {canUpdateDetails && <MyDetailsModal open={myDetailsOpen} onClose={() => setMyDetailsOpen(false)} />}
     </div>
   );
 }
