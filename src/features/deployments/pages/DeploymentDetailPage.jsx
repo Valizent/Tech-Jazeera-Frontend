@@ -134,8 +134,8 @@ export default function DeploymentDetailPage() {
   // Office Secretary is a hardcoded exception to the Section Access gate —
   // mirrors deployment.service.js's addMonthlyHours exactly (they aren't a
   // grantable Section Access role at all).
-  const canEnterHours = user.role === 'Office Secretary' || Boolean(user.sectionAccess?.includes('deploymentsHours'));
-  const canRelease = Boolean(user.sectionAccess?.includes('deploymentsRelease'));
+  const canEnterHours = user.role === 'Office Secretary' || Boolean(user.sectionAccessWrite?.includes('deploymentsHours'));
+  const canRelease = Boolean(user.sectionAccessWrite?.includes('deploymentsRelease'));
 
   const { data: deployment, isPending, isError } = useQuery({
     queryKey: ['deployment', id],

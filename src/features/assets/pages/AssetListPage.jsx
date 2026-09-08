@@ -48,7 +48,7 @@ export default function AssetListPage() {
   const { user } = useAuth();
   const toast = useToast();
   const queryClient = useQueryClient();
-  const canWrite = Boolean(user.sectionAccess?.includes('assetsManage'));
+  const canWrite = Boolean(user.sectionAccessWrite?.includes('assetsManage'));
   const canDelete = ASSET_DELETE_ROLES.includes(user.role);
 
   const [category, setCategory] = useState('');

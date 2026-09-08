@@ -24,7 +24,7 @@ export default function DocumentListPage() {
   const navigate = useNavigate();
   const { t } = useTranslation();
   const { user } = useAuth();
-  const canWrite = Boolean(user.sectionAccess?.includes('documentsManage'));
+  const canWrite = Boolean(user.sectionAccessWrite?.includes('documentsManage'));
   const [uploading, setUploading] = useState(false);
 
   const [search, setSearch] = useState('');

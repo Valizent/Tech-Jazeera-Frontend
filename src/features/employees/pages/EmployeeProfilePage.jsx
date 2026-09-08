@@ -99,7 +99,7 @@ export default function EmployeeProfilePage() {
   const canWrite = EMPLOYEE_WRITE_ROLES.includes(user.role);
   const canDelete = EMPLOYEE_DELETE_ROLES.includes(user.role);
   const canProvisionAccount = ACCOUNT_PROVISION_ROLES.includes(user.role);
-  const canComputeEosb = Boolean(user.sectionAccess?.includes('eosb'));
+  const canComputeEosb = Boolean(user.sectionAccessWrite?.includes('eosb'));
 
   const { data: employee, isPending, isError } = useQuery({
     queryKey: ['employee', id],

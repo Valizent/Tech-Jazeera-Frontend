@@ -37,7 +37,7 @@ export default function SubcontractorListPage() {
   const { user } = useAuth();
   const toast = useToast();
   const queryClient = useQueryClient();
-  const canWrite = Boolean(user.sectionAccess?.includes('subcontractorsManage'));
+  const canWrite = Boolean(user.sectionAccessWrite?.includes('subcontractorsManage'));
   const canDelete = canWrite;
 
   const [search, setSearch] = useState('');

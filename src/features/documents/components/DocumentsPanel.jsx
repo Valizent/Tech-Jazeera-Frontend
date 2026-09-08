@@ -19,7 +19,7 @@ import EmptyState from '../../../components/ui/EmptyState.jsx';
 export default function DocumentsPanel({ ownerType, ownerId, ownerName }) {
   const { t } = useTranslation();
   const { user } = useAuth();
-  const canWrite = Boolean(user.sectionAccess?.includes('documentsManage'));
+  const canWrite = Boolean(user.sectionAccessWrite?.includes('documentsManage'));
   const [uploading, setUploading] = useState(false);
 
   const { data, isPending } = useQuery({

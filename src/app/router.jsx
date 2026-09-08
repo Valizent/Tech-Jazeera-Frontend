@@ -73,6 +73,7 @@ import MyPayslipsPage from '../features/ess/pages/MyPayslipsPage.jsx';
 import MyExitDocumentsPage from '../features/ess/pages/MyExitDocumentsPage.jsx';
 import MyAttendancePage from '../features/ess/pages/MyAttendancePage.jsx';
 import NoPortalAccessPage from '../features/ess/pages/NoPortalAccessPage.jsx';
+import RequireSectionRead from '../components/shared/RequireSectionRead.jsx';
 import WorkforceHubPage from './pages/WorkforceHubPage.jsx';
 import SalesHubPage from './pages/SalesHubPage.jsx';
 import FinancialHubPage from './pages/FinancialHubPage.jsx';
@@ -141,6 +142,17 @@ function WorkerRouter() {
   return <Outlet />;
 }
 
+/** Wrap a route's element with the Read gate for its section (see
+ *  RequireSectionRead) — only for the sections that are now Section-Access
+ *  read-gated. Routes deliberately left unwrapped: Mobilisation routes
+ *  (visibility is per-record, not a blanket section — see
+ *  mobilisation.service.js), Financial Requests (list/submit stays on the
+ *  broader requireStaffOrExecutive floor, unchanged), Company Settings/
+ *  Approval Log (already have their own dynamic in-page 403 handling), and
+ *  every "new"/"edit" sub-route (reached only via an already Write-gated
+ *  button; the server is the real enforcement either way). */
+const guarded = (sectionKey, element) => <RequireSectionRead sectionKey={sectionKey}>{element}</RequireSectionRead>;
+
 export const router = createBrowserRouter([
   {
     element: <AuthLayout />,
@@ -160,16 +172,16 @@ export const router = createBrowserRouter([
               { path: '/sales', element: <SalesHubPage /> },
               { path: '/financial', element: <FinancialHubPage /> },
               { path: '/admin-tools', element: <AdminToolsHubPage /> },
-              { path: '/employees', element: <EmployeeListPage /> },
+              { path: '/employees', element: guarded('employeeCreate', <EmployeeListPage />) },
               { path: '/employees/new', element: <EmployeeNewPage /> },
-              { path: '/employees/:id', element: <EmployeeProfilePage /> },
+              { path: '/employees/:id', element: guarded('employeeCreate', <EmployeeProfilePage />) },
               { path: '/employees/:id/edit', element: <EmployeeEditPage /> },
-              { path: '/clients', element: <ClientListPage /> },
+              { path: '/clients', element: guarded('clientsManage', <ClientListPage />) },
               { path: '/clients/new', element: <ClientNewPage /> },
-              { path: '/clients/:id', element: <ClientProfilePage /> },
+              { path: '/clients/:id', element: guarded('clientsManage', <ClientProfilePage />) },
               { path: '/clients/:id/edit', element: <ClientEditPage /> },
-              { path: '/deployments', element: <DeploymentListPage /> },
-              { path: '/deployments/:id', element: <DeploymentDetailPage /> },
+              { path: '/deployments', element: guarded('deploymentsRelease', <DeploymentListPage />) },
+              { path: '/deployments/:id', element: guarded('deploymentsRelease', <DeploymentDetailPage />) },
               { path: '/mobilisations', element: <MobilisationListPage /> },
               { path: '/mobilisations/new', element: <MobilisationNewPage /> },
               { path: '/mobilisations/:id', element: <MobilisationDetailPage /> },
@@ -177,41 +189,41 @@ export const router = createBrowserRouter([
               { path: '/mobilisation-settings', element: <MobilisationSettingsPage /> },
               { path: '/company-settings', element: <CompanySettingsPage /> },
               { path: '/section-access', element: <SectionAccessPage /> },
-              { path: '/subcontractors', element: <SubcontractorListPage /> },
-              { path: '/attendance', element: <AttendancePage /> },
-              { path: '/attendance/summary', element: <AttendanceSummaryPage /> },
-              { path: '/documents', element: <DocumentListPage /> },
-              { path: '/quotations', element: <QuotationListPage /> },
+              { path: '/subcontractors', element: guarded('subcontractorsManage', <SubcontractorListPage />) },
+              { path: '/attendance', element: guarded('attendanceManage', <AttendancePage />) },
+              { path: '/attendance/summary', element: guarded('attendanceManage', <AttendanceSummaryPage />) },
+              { path: '/documents', element: guarded('documentsManage', <DocumentListPage />) },
+              { path: '/quotations', element: guarded('quotationsManage', <QuotationListPage />) },
               { path: '/quotations/new', element: <QuotationNewPage /> },
-              { path: '/quotations/:id', element: <QuotationViewPage /> },
+              { path: '/quotations/:id', element: guarded('quotationsManage', <QuotationViewPage />) },
               { path: '/quotations/:id/edit', element: <QuotationEditPage /> },
-              { path: '/timesheet-processor', element: <TimesheetProcessorPage /> },
-              { path: '/team', element: <UserListPage /> },
+              { path: '/timesheet-processor', element: guarded('timesheetProcessor', <TimesheetProcessorPage />) },
+              { path: '/team', element: guarded('team', <UserListPage />) },
               { path: '/coordinator-activity', element: <CoordinatorActivityPage /> },
-              { path: '/leave', element: <LeavePage /> },
+              { path: '/leave', element: guarded('leaveRequests', <LeavePage />) },
               { path: '/holidays', element: <HolidayListPage /> },
-              { path: '/eosb', element: <SettlementListPage /> },
+              { path: '/eosb', element: guarded('eosb', <SettlementListPage />) },
               // Before the /eosb/:id catch-all, or "new" is read as a settlement id.
-              { path: '/eosb/new', element: <SettlementNewPage /> },
-              { path: '/eosb/:id', element: <SettlementViewPage /> },
+              { path: '/eosb/new', element: guarded('eosb', <SettlementNewPage />) },
+              { path: '/eosb/:id', element: guarded('eosb', <SettlementViewPage />) },
               { path: '/financial-requests', element: <FinancialRequestsPage /> },
-              { path: '/assets', element: <AssetListPage /> },
-              { path: '/exit-documents', element: <ExitDocumentsPage /> },
-              { path: '/timesheets', element: <TimesheetsPage /> },
-              { path: '/payroll', element: <PayrollListPage /> },
-              { path: '/payroll/:id', element: <PayrollRunPage /> },
-              { path: '/invoices', element: <InvoiceListPage /> },
-              { path: '/invoices/:id', element: <InvoiceViewPage /> },
-              { path: '/expenses', element: <ExpenseListPage /> },
-              { path: '/security-log', element: <AuditLogPage /> },
-              { path: '/approvals', element: <ApprovalsPage /> },
+              { path: '/assets', element: guarded('assetsManage', <AssetListPage />) },
+              { path: '/exit-documents', element: guarded('exitDocuments', <ExitDocumentsPage />) },
+              { path: '/timesheets', element: guarded('timesheetRequests', <TimesheetsPage />) },
+              { path: '/payroll', element: guarded('payroll', <PayrollListPage />) },
+              { path: '/payroll/:id', element: guarded('payroll', <PayrollRunPage />) },
+              { path: '/invoices', element: guarded('invoices', <InvoiceListPage />) },
+              { path: '/invoices/:id', element: guarded('invoices', <InvoiceViewPage />) },
+              { path: '/expenses', element: guarded('expenses', <ExpenseListPage />) },
+              { path: '/security-log', element: guarded('auditLog', <AuditLogPage />) },
+              { path: '/approvals', element: guarded('approvalHierarchy', <ApprovalsPage />) },
               { path: '/approvals/log', element: <ApprovalLogPage /> },
-              { path: '/nfc', element: <NfcCompanyListPage /> },
-              { path: '/nfc/cards', element: <NfcCardListPage /> },
-              { path: '/nfc/cards/:id', element: <NfcCardDetailPage /> },
+              { path: '/nfc', element: guarded('nfc', <NfcCompanyListPage />) },
+              { path: '/nfc/cards', element: guarded('nfc', <NfcCardListPage />) },
+              { path: '/nfc/cards/:id', element: guarded('nfc', <NfcCardDetailPage />) },
               // Before the /nfc/:id catch-all, or "analytics" is read as a company id.
-              { path: '/nfc/analytics', element: <NfcAnalyticsPage /> },
-              { path: '/nfc/:id', element: <NfcCompanyProfilePage /> },
+              { path: '/nfc/analytics', element: guarded('nfc', <NfcAnalyticsPage />) },
+              { path: '/nfc/:id', element: guarded('nfc', <NfcCompanyProfilePage />) },
             ],
           },
         ],

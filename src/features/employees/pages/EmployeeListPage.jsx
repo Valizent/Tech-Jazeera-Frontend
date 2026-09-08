@@ -61,7 +61,7 @@ export default function EmployeeListPage() {
   const canDelete = EMPLOYEE_DELETE_ROLES.includes(user.role);
   // Who may create is admin-configurable (Section Access, 'employeeCreate')
   // rather than a static role list — Admin only by default.
-  const canCreate = Boolean(user.sectionAccess?.includes('employeeCreate'));
+  const canCreate = Boolean(user.sectionAccessWrite?.includes('employeeCreate'));
 
   // `search` is what the user types; `params.search` is what we query with —
   // debounced 300ms so we don't fire a request per keystroke.

@@ -44,7 +44,7 @@ export default function RamadanPeriodsSection() {
   // allowed Manager to manage Ramadan periods — a different config than
   // Holidays. Fixed by using Ramadan's own 'ramadanManage' Section Access
   // grant, matching the real server gate.
-  const canManage = Boolean(user.sectionAccess?.includes('ramadanManage'));
+  const canManage = Boolean(user.sectionAccessWrite?.includes('ramadanManage'));
 
   const [editing, setEditing] = useState(null); // null = closed, {} = new, {...} = edit
   const [toDelete, setToDelete] = useState(null);

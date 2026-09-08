@@ -18,7 +18,7 @@ export default function QuotationsPanel({ clientId }) {
   const { t } = useTranslation();
   const { user } = useAuth();
   const navigate = useNavigate();
-  const canWrite = Boolean(user.sectionAccess?.includes('quotationsManage'));
+  const canWrite = Boolean(user.sectionAccessWrite?.includes('quotationsManage'));
 
   const { data, isPending } = useQuery({
     queryKey: ['quotations', { client: clientId }],

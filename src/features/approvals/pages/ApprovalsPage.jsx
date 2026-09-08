@@ -48,7 +48,7 @@ import { PillChecklist } from '../../../components/ui/TogglePill.jsx';
 
 function ApprovalRolesPanel() {
   const { user } = useAuth();
-  const canManage = Boolean(user.sectionAccess?.includes('approvalHierarchy'));
+  const canManage = Boolean(user.sectionAccessWrite?.includes('approvalHierarchy'));
   const toast = useToast();
   const queryClient = useQueryClient();
   const [editing, setEditing] = useState(null); // null = closed, {} = new, {...} = edit
@@ -250,7 +250,7 @@ function SortableStepCard({ id, index, register, roleError, roles, stepRoles, on
 
 function ApprovalWorkflowsPanel() {
   const { user } = useAuth();
-  const canManage = Boolean(user.sectionAccess?.includes('approvalHierarchy'));
+  const canManage = Boolean(user.sectionAccessWrite?.includes('approvalHierarchy'));
   const toast = useToast();
   const queryClient = useQueryClient();
   const [editing, setEditing] = useState(null);

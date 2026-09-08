@@ -1,11 +1,12 @@
 /**
  * SectionAccessPage — Admin-only. The generic "who else can open this
  * section" control panel (see server/sectionAccess.model.js): each governed
- * section gets two independent grants — literal login roles, and
- * admin-named ApprovalRoles (e.g. a "Financial Manager" or "COO" role) for
- * a grant tied to a real person regardless of their login role. Admin
- * always has full access to every section; this page only controls who
- * ELSE gets in.
+ * section has two independent TIERS (Read, Write — Write always includes
+ * Read), and each tier has two independent grant types — literal login
+ * roles, and admin-named ApprovalRoles (e.g. a "Financial Manager" or "COO"
+ * role) for a grant tied to a real person regardless of their login role.
+ * Admin always has full access to every section; this page only controls
+ * who ELSE gets in.
  *
  * ~20 sections now (started at 2) — grouped under the same
  * Workforce/Sales/Financial/Admin categories as the sidebar itself
@@ -70,19 +71,65 @@ function groupByCategory(sections) {
   );
 }
 
+/** One tier's pair of checklists (login roles + approval roles), reused for
+ *  both Read and Write below. */
+function TierChecklists({ title, hint, roles, onToggleRole, approvalRoleIds, onToggleApprovalRole, approvalRoles, approvalRolesLoading }) {
+  return (
+    <div className="space-y-3 rounded-lg border border-border/60 p-3">
+      <div>
+        <h3 className="text-xs font-semibold uppercase tracking-wide text-text">{title}</h3>
+        {hint && <p className="mt-0.5 text-xs text-muted">{hint}</p>}
+      </div>
+      <div>
+        <h4 className="mb-1.5 text-xs font-medium text-muted">Login roles</h4>
+        <PillChecklist
+          items={SECTION_ACCESS_GRANTABLE_ROLES}
+          selected={roles}
+          onToggle={onToggleRole}
+          getId={(r) => r}
+          getLabel={(r) => r}
+        />
+      </div>
+      <div>
+        <h4 className="mb-1.5 text-xs font-medium text-muted">Approval roles</h4>
+        {approvalRolesLoading ? (
+          <Skeleton className="h-10 w-full" />
+        ) : (
+          <PillChecklist
+            items={approvalRoles ?? []}
+            selected={approvalRoleIds}
+            onToggle={onToggleApprovalRole}
+            emptyMessage="No approval roles configured yet — add one on the Approval Hierarchy page first."
+          />
+        )}
+      </div>
+    </div>
+  );
+}
+
 function SectionCard({ section, approvalRoles, approvalRolesLoading }) {
   const toast = useToast();
   const queryClient = useQueryClient();
-  const [roles, setRoles] = useState(section.allowedRoles ?? []);
-  const [approvalRoleIds, setApprovalRoleIds] = useState((section.allowedApprovalRoles ?? []).map((r) => r._id));
+  const [readRoles, setReadRoles] = useState(section.readRoles ?? []);
+  const [readApprovalRoleIds, setReadApprovalRoleIds] = useState((section.readApprovalRoles ?? []).map((r) => r._id));
+  const [writeRoles, setWriteRoles] = useState(section.writeRoles ?? []);
+  const [writeApprovalRoleIds, setWriteApprovalRoleIds] = useState((section.writeApprovalRoles ?? []).map((r) => r._id));
 
   useEffect(() => {
-    setRoles(section.allowedRoles ?? []);
-    setApprovalRoleIds((section.allowedApprovalRoles ?? []).map((r) => r._id));
+    setReadRoles(section.readRoles ?? []);
+    setReadApprovalRoleIds((section.readApprovalRoles ?? []).map((r) => r._id));
+    setWriteRoles(section.writeRoles ?? []);
+    setWriteApprovalRoleIds((section.writeApprovalRoles ?? []).map((r) => r._id));
   }, [section]);
 
   const saveMutation = useMutation({
-    mutationFn: () => updateSectionAccess(section.sectionKey, { allowedRoles: roles, allowedApprovalRoles: approvalRoleIds }),
+    mutationFn: () =>
+      updateSectionAccess(section.sectionKey, {
+        readRoles,
+        readApprovalRoles: readApprovalRoleIds,
+        writeRoles,
+        writeApprovalRoles: writeApprovalRoleIds,
+      }),
     onSuccess: () => {
       toast.success(`${section.label} access saved.`);
       queryClient.invalidateQueries({ queryKey: ['section-access'] });
@@ -90,48 +137,36 @@ function SectionCard({ section, approvalRoles, approvalRolesLoading }) {
     onError: (error) => toast.error(apiMessage(error)),
   });
 
-  function toggleRole(role) {
-    setRoles((list) => (list.includes(role) ? list.filter((r) => r !== role) : [...list, role]));
-  }
-  function toggleApprovalRole(id) {
-    setApprovalRoleIds((list) => (list.includes(id) ? list.filter((r) => r !== id) : [...list, id]));
-  }
+  const toggle = (setter) => (value) =>
+    setter((list) => (list.includes(value) ? list.filter((v) => v !== value) : [...list, value]));
 
   return (
-    <Card className="space-y-5">
+    <Card className="space-y-4">
       <div>
         <h2 className="text-sm font-semibold uppercase tracking-wide text-muted">{section.label}</h2>
         <p className="mt-1 text-xs text-muted">{section.description}</p>
       </div>
 
-      <div>
-        <h3 className="mb-2 text-xs font-medium text-text">Login roles</h3>
-        <PillChecklist
-          items={SECTION_ACCESS_GRANTABLE_ROLES}
-          selected={roles}
-          onToggle={toggleRole}
-          getId={(r) => r}
-          getLabel={(r) => r}
-        />
-      </div>
-
-      <div>
-        <h3 className="mb-2 text-xs font-medium text-text">Approval roles</h3>
-        <p className="mb-2 text-xs text-muted">
-          Any member of these gets in too, regardless of their login role — e.g. a "Financial Manager" or "COO" role
-          you've named on the Approval Hierarchy page.
-        </p>
-        {approvalRolesLoading ? (
-          <Skeleton className="h-10 w-full" />
-        ) : (
-          <PillChecklist
-            items={approvalRoles ?? []}
-            selected={approvalRoleIds}
-            onToggle={toggleApprovalRole}
-            emptyMessage="No approval roles configured yet — add one on the Approval Hierarchy page first."
-          />
-        )}
-      </div>
+      <TierChecklists
+        title="Read"
+        hint="Can view this section. Anyone granted Write below can already read too — no need to add them here as well."
+        roles={readRoles}
+        onToggleRole={toggle(setReadRoles)}
+        approvalRoleIds={readApprovalRoleIds}
+        onToggleApprovalRole={toggle(setReadApprovalRoleIds)}
+        approvalRoles={approvalRoles}
+        approvalRolesLoading={approvalRolesLoading}
+      />
+      <TierChecklists
+        title="Write"
+        hint="Can create/edit/decide/delete (whatever this section's write action is) — and view it too."
+        roles={writeRoles}
+        onToggleRole={toggle(setWriteRoles)}
+        approvalRoleIds={writeApprovalRoleIds}
+        onToggleApprovalRole={toggle(setWriteApprovalRoleIds)}
+        approvalRoles={approvalRoles}
+        approvalRolesLoading={approvalRolesLoading}
+      />
 
       <div className="flex justify-end">
         <Button size="sm" onClick={() => saveMutation.mutate()} isLoading={saveMutation.isPending}>
@@ -161,7 +196,7 @@ export default function SectionAccessPage() {
     <div className="mx-auto max-w-2xl space-y-6">
       <PageHeader
         title="Section Access"
-        description="Admin always has full access everywhere. Choose who else can open a governed section — by login role, or by an approval role you've named (e.g. Financial Manager, COO)."
+        description="Admin always has full access everywhere. Each section has two independent tiers — Read (can view) and Write (can create/edit/decide/delete, and always includes Read) — by login role, or by an approval role you've named (e.g. Financial Manager, COO)."
         onBack={() => navigate(-1)}
       />
 

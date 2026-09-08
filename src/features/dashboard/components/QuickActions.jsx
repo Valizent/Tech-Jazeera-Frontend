@@ -1,7 +1,7 @@
 /**
  * QuickActions — shortcuts to the common create flows, shown only for the
- * actions the current user is admin-granted (Section Access — see
- * sectionAccess.model.js); the API still enforces them.
+ * actions the current user is admin-granted WRITE access to (Section
+ * Access — see sectionAccess.model.js); the API still enforces them.
  *
  * `addEmployee` previously checked EMPLOYEE_WRITE_ROLES (Admin/Manager/HR —
  * the EDIT circle) instead of the real 'employeeCreate' gate (Admin only by
@@ -24,7 +24,7 @@ const ACTIONS = [
 export default function QuickActions() {
   const { user } = useAuth();
   const { t } = useTranslation();
-  const available = ACTIONS.filter((a) => user.sectionAccess?.includes(a.sectionKey));
+  const available = ACTIONS.filter((a) => user.sectionAccessWrite?.includes(a.sectionKey));
   if (available.length === 0) return null;
 
   return (

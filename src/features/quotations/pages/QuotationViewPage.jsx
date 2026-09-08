@@ -40,13 +40,13 @@ export default function QuotationViewPage() {
   const queryClient = useQueryClient();
   const [confirmingDelete, setConfirmingDelete] = useState(false);
 
-  const canWrite = Boolean(user.sectionAccess?.includes('quotationsManage'));
+  const canWrite = Boolean(user.sectionAccessWrite?.includes('quotationsManage'));
   const canDelete = QUOTATION_DELETE_ROLES.includes(user.role);
   // Invoices is a whole-module Section Access gate now — converting a
   // quotation to an invoice needs the same 'invoices' grant the Invoices
   // page itself requires (successful page access already implies full
   // read/write there, so this mirrors that exactly).
-  const canInvoice = Boolean(user.sectionAccess?.includes('invoices'));
+  const canInvoice = Boolean(user.sectionAccessWrite?.includes('invoices'));
 
   const { data: q, isPending, isError } = useQuery({
     queryKey: ['quotation', id],

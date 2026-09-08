@@ -28,7 +28,7 @@ export default function DocumentActionsCell({ doc }) {
   const [previewing, setPreviewing] = useState(false);
   const [confirmingDelete, setConfirmingDelete] = useState(false);
 
-  const canWrite = Boolean(user.sectionAccess?.includes('documentsManage'));
+  const canWrite = Boolean(user.sectionAccessWrite?.includes('documentsManage'));
   const canDelete = canWrite;
   const version = currentVersion(doc);
 

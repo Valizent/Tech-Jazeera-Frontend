@@ -21,7 +21,7 @@ export default function QuotationListPage() {
   const { t } = useTranslation();
   const { user } = useAuth();
   const navigate = useNavigate();
-  const canWrite = Boolean(user.sectionAccess?.includes('quotationsManage'));
+  const canWrite = Boolean(user.sectionAccessWrite?.includes('quotationsManage'));
 
   const [search, setSearch] = useState('');
   const [params, setParams] = useState({ page: 1, limit: 20, search: '', status: '' });

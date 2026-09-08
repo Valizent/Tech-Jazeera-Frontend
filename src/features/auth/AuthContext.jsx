@@ -19,6 +19,22 @@ import { useToast } from '../../components/ui/Toast.jsx';
 
 const AuthContext = createContext(null);
 
+/** The server now sends `sectionAccess` as `{ read: [...], write: [...] }`
+ *  (see sectionAccess.service.js's getMySectionAccess) — flatten it into two
+ *  top-level arrays so every existing `user.sectionAccess?.includes(key)`
+ *  check (nav visibility, all over the app) keeps working unchanged and now
+ *  correctly means "can read"; `user.sectionAccessWrite` is the new one for
+ *  gating a create/edit/delete button. */
+function normalizeUser(rawUser) {
+  if (!rawUser) return rawUser;
+  const { sectionAccess, ...rest } = rawUser;
+  return {
+    ...rest,
+    sectionAccess: sectionAccess?.read ?? [],
+    sectionAccessWrite: sectionAccess?.write ?? [],
+  };
+}
+
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [status, setStatus] = useState('loading'); // 'loading' | 'authed' | 'guest'
@@ -33,7 +49,7 @@ export function AuthProvider({ children }) {
     refreshRequest()
       .then(({ user: restoredUser, accessToken }) => {
         setAccessToken(accessToken);
-        setUser(restoredUser);
+        setUser(normalizeUser(restoredUser));
         setStatus('authed');
       })
       .catch(() => setStatus('guest'));
@@ -87,7 +103,7 @@ export function AuthProvider({ children }) {
     // one — clear before the new session's own queries start populating it.
     queryClient.clear();
     setAccessToken(accessToken);
-    setUser(loggedInUser);
+    setUser(normalizeUser(loggedInUser));
     setStatus('authed');
   }, [queryClient]);
 

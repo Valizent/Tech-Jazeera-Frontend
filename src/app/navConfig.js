@@ -111,16 +111,13 @@ export const NAV_GROUPS = [
     description: 'Employees, attendance, leave and everything tied to their employment lifecycle.',
     descriptionKey: 'staffNav.workforce.description',
     items: [
-      { to: '/employees', label: 'Employees', icon: ICON.users, description: 'Records, profiles, documents.', labelKey: 'staffNav.workforce.employees.label', descriptionKey: 'staffNav.workforce.employees.description' },
-      { to: '/attendance', label: 'Attendance', icon: ICON.calendar, description: 'Daily sign-in/out and records.', labelKey: 'staffNav.workforce.attendance.label', descriptionKey: 'staffNav.workforce.attendance.description' },
-      { to: '/leave', label: 'Leave', icon: ICON.calendarOff, description: 'Types, requests and approvals.', labelKey: 'staffNav.workforce.leave.label', descriptionKey: 'staffNav.workforce.leave.description' },
+      { to: '/employees', label: 'Employees', icon: ICON.users, sectionKey: 'employeeCreate', description: 'Records, profiles, documents.', labelKey: 'staffNav.workforce.employees.label', descriptionKey: 'staffNav.workforce.employees.description' },
+      { to: '/attendance', label: 'Attendance', icon: ICON.calendar, sectionKey: 'attendanceManage', description: 'Daily sign-in/out and records.', labelKey: 'staffNav.workforce.attendance.label', descriptionKey: 'staffNav.workforce.attendance.description' },
+      { to: '/leave', label: 'Leave', icon: ICON.calendarOff, sectionKey: 'leaveRequests', description: 'Types, requests and approvals.', labelKey: 'staffNav.workforce.leave.label', descriptionKey: 'staffNav.workforce.leave.description' },
       { to: '/holidays', label: 'Holidays', icon: ICON.holidays, description: 'The company holiday calendar.', labelKey: 'staffNav.workforce.holidays.label', descriptionKey: 'staffNav.workforce.holidays.description' },
-      { to: '/timesheets', label: 'Timesheets', icon: ICON.list, description: 'Weekly hours, submitted for approval.', labelKey: 'staffNav.workforce.timesheets.label', descriptionKey: 'staffNav.workforce.timesheets.description' },
+      { to: '/timesheets', label: 'Timesheets', icon: ICON.list, sectionKey: 'timesheetRequests', description: 'Weekly hours, submitted for approval.', labelKey: 'staffNav.workforce.timesheets.label', descriptionKey: 'staffNav.workforce.timesheets.description' },
       { to: '/eosb', label: 'End of Service', icon: ICON.eosb, sectionKey: 'eosb', description: 'EOSB settlements on exit.', labelKey: 'staffNav.workforce.eosb.label', descriptionKey: 'staffNav.workforce.eosb.description' },
-      // No static roles gate — matches Leave: everyone reaching this hub can
-      // submit their own request, decide capability is per-row via
-      // canDecideCurrentStep, and issuing stays a narrower internal check.
-      { to: '/exit-documents', label: 'Exit & Documents', icon: ICON.exit, description: 'Re-entry visas, certificates.', labelKey: 'staffNav.workforce.exitDocuments.label', descriptionKey: 'staffNav.workforce.exitDocuments.description' },
+      { to: '/exit-documents', label: 'Exit & Documents', icon: ICON.exit, sectionKey: 'exitDocuments', description: 'Re-entry visas, certificates.', labelKey: 'staffNav.workforce.exitDocuments.label', descriptionKey: 'staffNav.workforce.exitDocuments.description' },
     ],
   },
   {
@@ -132,11 +129,14 @@ export const NAV_GROUPS = [
     description: 'Client relationships, worker placements and quotations.',
     descriptionKey: 'staffNav.sales.description',
     items: [
-      { to: '/clients', label: 'Clients', icon: ICON.building, description: 'Companies your workers are placed with.', labelKey: 'staffNav.sales.clients.label', descriptionKey: 'staffNav.sales.clients.description' },
-      { to: '/deployments', label: 'Deployments', icon: ICON.map, description: 'Which worker is placed where.', labelKey: 'staffNav.sales.deployments.label', descriptionKey: 'staffNav.sales.deployments.description' },
-      { to: '/quotations', label: 'Quotations', icon: ICON.quotation, description: 'Pricing sent to clients, pre-invoice.', labelKey: 'staffNav.sales.quotations.label', descriptionKey: 'staffNav.sales.quotations.description' },
+      { to: '/clients', label: 'Clients', icon: ICON.building, sectionKey: 'clientsManage', description: 'Companies your workers are placed with.', labelKey: 'staffNav.sales.clients.label', descriptionKey: 'staffNav.sales.clients.description' },
+      { to: '/deployments', label: 'Deployments', icon: ICON.map, sectionKey: 'deploymentsRelease', description: 'Which worker is placed where.', labelKey: 'staffNav.sales.deployments.label', descriptionKey: 'staffNav.sales.deployments.description' },
+      { to: '/quotations', label: 'Quotations', icon: ICON.quotation, sectionKey: 'quotationsManage', description: 'Pricing sent to clients, pre-invoice.', labelKey: 'staffNav.sales.quotations.label', descriptionKey: 'staffNav.sales.quotations.description' },
+      // No sectionKey — visibility is per-record (coordinator, or the
+      // mobilisationsViewer circle), not a blanket section; the page handles
+      // its own access, same reasoning as router.jsx leaving these unwrapped.
       { to: '/mobilisations', label: 'Mobilisations', icon: ICON.team, description: 'Worker placements with client billing terms.', labelKey: 'staffNav.sales.mobilisations.label', descriptionKey: 'staffNav.sales.mobilisations.description' },
-      { to: '/subcontractors', label: 'Subcontractors', icon: ICON.building, description: 'Companies a mobilisation is sometimes routed through.', labelKey: 'staffNav.sales.subcontractors.label', descriptionKey: 'staffNav.sales.subcontractors.description' },
+      { to: '/subcontractors', label: 'Subcontractors', icon: ICON.building, sectionKey: 'subcontractorsManage', description: 'Companies a mobilisation is sometimes routed through.', labelKey: 'staffNav.sales.subcontractors.label', descriptionKey: 'staffNav.sales.subcontractors.description' },
     ],
   },
   {
@@ -169,13 +169,15 @@ export const NAV_GROUPS = [
     items: [
       { to: '/company-settings', label: 'Company Settings', icon: ICON.building, description: 'Legal identity, contact, bank and signatory details — printed on every generated document.', labelKey: 'staffNav.admin.companySettings.label', descriptionKey: 'staffNav.admin.companySettings.description' },
       { to: '/section-access', label: 'Section Access', icon: ICON.cog, roles: ['Admin'], description: 'Which roles or approval roles can open Payroll, Expenses, and other governed sections.', labelKey: 'staffNav.admin.sectionAccess.label', descriptionKey: 'staffNav.admin.sectionAccess.description' },
-      { to: '/documents', label: 'Documents', icon: ICON.document, description: 'Company & employee document store.', labelKey: 'staffNav.admin.documents.label', descriptionKey: 'staffNav.admin.documents.description' },
-      { to: '/assets', label: 'Assets', icon: ICON.asset, description: 'Equipment issued to employees.', labelKey: 'staffNav.admin.assets.label', descriptionKey: 'staffNav.admin.assets.description' },
+      { to: '/documents', label: 'Documents', icon: ICON.document, sectionKey: 'documentsManage', description: 'Company & employee document store.', labelKey: 'staffNav.admin.documents.label', descriptionKey: 'staffNav.admin.documents.description' },
+      { to: '/assets', label: 'Assets', icon: ICON.asset, sectionKey: 'assetsManage', description: 'Equipment issued to employees.', labelKey: 'staffNav.admin.assets.label', descriptionKey: 'staffNav.admin.assets.description' },
       { to: '/team', label: 'Team', icon: ICON.team, sectionKey: 'team', description: 'Staff logins and roles.', labelKey: 'staffNav.admin.team.label', descriptionKey: 'staffNav.admin.team.description' },
-      // No sectionKey — reading the hierarchy stays open to any staff role
-      // (requireStaff, unchanged); only editing it is the admin-configurable
-      // 'approvalHierarchy' grant, gated inside the page itself.
-      { to: '/approvals', label: 'Approval Hierarchy', icon: ICON.hierarchy, description: 'Approval roles and multi-step workflow chains.', labelKey: 'staffNav.admin.approvals.label', descriptionKey: 'staffNav.admin.approvals.description' },
+      // Reading the hierarchy now defaults to Admin-only too (Read mirrors
+      // Write for 'approvalHierarchy' per the Section Access Read/Write
+      // split) — a deliberate change, not an oversight; many other pages
+      // depend on being ABLE to read role/workflow names, so an Admin will
+      // likely want to grant this broadly again from Section Access.
+      { to: '/approvals', label: 'Approval Hierarchy', icon: ICON.hierarchy, sectionKey: 'approvalHierarchy', description: 'Approval roles and multi-step workflow chains.', labelKey: 'staffNav.admin.approvals.label', descriptionKey: 'staffNav.admin.approvals.description' },
       { to: '/mobilisation-settings', label: 'Mobilisation Settings', icon: ICON.cog, roles: MOBILISATION_SETTINGS_MANAGE_ROLES, description: 'The stale mobilisation warning threshold — viewer/self-mobilise access is on Section Access now.', labelKey: 'staffNav.admin.mobilisationSettings.label', descriptionKey: 'staffNav.admin.mobilisationSettings.description' },
       { to: '/approvals/log', label: 'Approval Log', icon: ICON.activity, description: 'Every request decided through a workflow, in order. Visible if you sit in the hierarchy.', labelKey: 'staffNav.admin.approvalsLog.label', descriptionKey: 'staffNav.admin.approvalsLog.description' },
       { to: '/timesheet-processor', label: 'Timesheet Processor', icon: ICON.clock, sectionKey: 'timesheetProcessor', description: 'Bulk-import device attendance exports.', labelKey: 'staffNav.admin.timesheetProcessor.label', descriptionKey: 'staffNav.admin.timesheetProcessor.description' },

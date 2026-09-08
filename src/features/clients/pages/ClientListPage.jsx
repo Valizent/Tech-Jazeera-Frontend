@@ -37,7 +37,7 @@ export default function ClientListPage() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 
-  const canCreate = Boolean(user.sectionAccess?.includes('clientsManage'));
+  const canCreate = Boolean(user.sectionAccessWrite?.includes('clientsManage'));
   const canDelete = CLIENT_DELETE_ROLES.includes(user.role);
   const [deciding, setDeciding] = useState(null); // client pending Approve/Reject review
 

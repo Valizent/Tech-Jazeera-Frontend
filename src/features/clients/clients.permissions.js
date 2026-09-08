@@ -13,7 +13,7 @@
 export function canDecideClient(user, client) {
   if (client.approvalStatus !== 'Pending') return false;
   if (user.role === 'Admin') return true;
-  if (!user.sectionAccess?.includes('clientsManage')) return false;
+  if (!user.sectionAccessWrite?.includes('clientsManage')) return false;
   return client.createdBy?.employee?.manager === user.id;
 }
 
@@ -21,6 +21,6 @@ export function canDecideClient(user, client) {
  *  circle always; a Coordinator only their own, not-yet-approved
  *  submission (even without the grant — self-service submission). */
 export function canEditClient(user, client) {
-  if (user.sectionAccess?.includes('clientsManage')) return true;
+  if (user.sectionAccessWrite?.includes('clientsManage')) return true;
   return user.role === 'Coordinator' && client.createdBy?._id === user.id && client.approvalStatus !== 'Approved';
 }
