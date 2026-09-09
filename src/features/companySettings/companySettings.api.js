@@ -11,6 +11,14 @@ export async function getCompanySettings() {
   return data.data;
 }
 
+// Public endpoint (no Section Access gate) — see the server route's own
+// doc comment. Used by BrandLogo.jsx for the app shell's logo/name,
+// including the pre-login screen and the ESS portal.
+export async function getCompanyBranding() {
+  const { data } = await api.get('/company-settings/branding');
+  return data.data;
+}
+
 export async function updateCompanySettings(payload) {
   const { data } = await api.patch('/company-settings', payload);
   return data.data;

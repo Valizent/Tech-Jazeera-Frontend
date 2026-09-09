@@ -17,6 +17,7 @@ import AvatarUploadModal from '../../features/auth/components/AvatarUploadModal.
 import NotificationBell from '../../components/shared/NotificationBell.jsx';
 import LanguageSwitcher from '../../components/shared/LanguageSwitcher.jsx';
 import ThemeToggle from '../../components/shared/ThemeToggle.jsx';
+import BrandLogo, { useBranding } from '../../components/shared/BrandLogo.jsx';
 import { cn } from '../../lib/utils.js';
 
 const NAV_ITEMS = [
@@ -67,10 +68,11 @@ function NavIcon({ d }) {
 
 function Sidebar({ onNavigate }) {
   const { t } = useTranslation();
+  const { name: brandName } = useBranding();
   return (
     <div className="flex h-full flex-col border-r border-border/50 bg-surface/60 backdrop-blur-2xl">
       <div className="flex h-16 items-center gap-2.5 border-b border-border/50 bg-transparent px-5">
-        <img src="/logo.png" alt="Al Jazeera" className="h-9 w-9 rounded-xl shadow-glow" />
+        <BrandLogo className="h-9 w-9 shrink-0" />
         <span className="font-semibold tracking-tight">{t('nav.workspaceTitle')}</span>
       </div>
       <nav className="flex-1 space-y-1 p-3">
@@ -95,11 +97,10 @@ function Sidebar({ onNavigate }) {
         ))}
       </nav>
       <div className="border-t border-border p-4">
-        <p className="text-[11px] leading-relaxed text-muted/70">
-          {t('nav.footerLine1')}
-          <br />
-          {t('nav.footerLine2')}
+        <p className="truncate text-[11px] leading-relaxed text-muted/70" title={brandName}>
+          {brandName}
         </p>
+        <p className="text-[11px] leading-relaxed text-muted/70">{t('nav.footerLine2')}</p>
       </div>
     </div>
   );

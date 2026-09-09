@@ -28,7 +28,13 @@ export default function CompanyLogoCard() {
     queryFn: getCompanySettings,
   });
 
-  const invalidate = () => queryClient.invalidateQueries({ queryKey: ['company-settings'] });
+  // Also invalidates 'company-branding' — BrandLogo's separate, public
+  // query (header/login-screen logo) — so a logo change shows up
+  // immediately instead of waiting out its 5-minute staleTime.
+  const invalidate = () => {
+    queryClient.invalidateQueries({ queryKey: ['company-settings'] });
+    queryClient.invalidateQueries({ queryKey: ['company-branding'] });
+  };
 
   const uploadMutation = useMutation({
     mutationFn: uploadCompanyLogo,

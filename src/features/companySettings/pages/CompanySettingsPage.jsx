@@ -55,6 +55,11 @@ export default function CompanySettingsPage() {
     onSuccess: () => {
       toast.success('Company settings saved.');
       queryClient.invalidateQueries({ queryKey: ['company-settings'] });
+      // BrandLogo's header/login-screen branding is a separate, public query
+      // (different endpoint, deliberately no Section Access gate — see
+      // companySettings.routes.js) — invalidate it too so a name change
+      // shows up immediately instead of waiting out its 5-minute staleTime.
+      queryClient.invalidateQueries({ queryKey: ['company-branding'] });
     },
     onError: (error) => toast.error(apiMessage(error)),
   });

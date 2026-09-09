@@ -1,6 +1,5 @@
 {
   "common": {
-    "appName": "الجزيرة - نظام إدارة الموارد",
     "noSectionAccessTitle": "ليس لديك صلاحية الوصول إلى هذا القسم",
     "noSectionAccessDescription": "اطلب من المسؤول منحك الوصول من صلاحيات الأقسام إذا كنت تعتقد أن هذا خطأ.",
     "backToDashboard": "العودة إلى لوحة التحكم",
@@ -106,7 +105,6 @@
     "visasAndDocuments": "التأشيرات والمستندات",
     "myPayslips": "قسائم راتبي",
     "workspaceTitle": "مساحة عملي",
-    "footerLine1": "الجزيرة - نظام إدارة الموارد",
     "footerLine2": "الخدمة الذاتية للموظفين"
   },
   "header": {

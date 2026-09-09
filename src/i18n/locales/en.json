@@ -1,6 +1,5 @@
 {
   "common": {
-    "appName": "Al Jazeera ERP",
     "noSectionAccessTitle": "You don't have access to this section",
     "noSectionAccessDescription": "Ask an Admin to grant you access from Section Access if you believe this is wrong.",
     "backToDashboard": "Back to dashboard",
@@ -106,7 +105,6 @@
     "visasAndDocuments": "Visas & Documents",
     "myPayslips": "My Payslips",
     "workspaceTitle": "My Workspace",
-    "footerLine1": "Al Jazeera ERP",
     "footerLine2": "Employee self-service"
   },
   "header": {

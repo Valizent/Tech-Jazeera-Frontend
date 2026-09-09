@@ -23,6 +23,7 @@ import MyDetailsModal from '../../features/profile/components/MyDetailsModal.jsx
 import ThemeToggle from '../../components/shared/ThemeToggle.jsx';
 import NotificationBell from '../../components/shared/NotificationBell.jsx';
 import LanguageSwitcher from '../../components/shared/LanguageSwitcher.jsx';
+import BrandLogo, { useBranding } from '../../components/shared/BrandLogo.jsx';
 import { cn } from '../../lib/utils.js';
 import { DASHBOARD_ITEM, NAV_GROUPS, EXECUTIVE_NAV_ITEMS, OFFICE_SECRETARY_NAV_ITEMS } from '../navConfig.js';
 
@@ -37,6 +38,7 @@ function NavIcon({ d }) {
 function Sidebar({ onNavigate }) {
   const { user } = useAuth();
   const { t } = useTranslation();
+  const { name: brandName } = useBranding();
   // Executive and Office Secretary each get their own short, explicit nav —
   // see EXECUTIVE_NAV_ITEMS's doc comment for why this can't just be
   // another `roles`-filtered slice of the grouped nav below (every
@@ -71,8 +73,10 @@ function Sidebar({ onNavigate }) {
   return (
     <div className="flex h-full flex-col border-r border-border/50 bg-surface/60 backdrop-blur-2xl">
       <div className="flex h-16 items-center gap-2.5 border-b border-border/50 bg-transparent px-5">
-        <img src="/logo.png" alt="Al Jazeera" className="h-9 w-9 rounded-xl shadow-glow" />
-        <span className="font-semibold tracking-tight">{t('common.appName')}</span>
+        <BrandLogo className="h-9 w-9 shrink-0" />
+        <span className="min-w-0 flex-1 truncate font-semibold tracking-tight" title={brandName}>
+          {brandName}
+        </span>
       </div>
       <nav className="flex-1 space-y-1 overflow-y-auto p-3">
         {items.map((item) => (

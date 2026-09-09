@@ -9,11 +9,13 @@ import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../auth/AuthContext.jsx';
 import Button from '../../../components/ui/Button.jsx';
+import BrandLogo, { useBranding } from '../../../components/shared/BrandLogo.jsx';
 
 export default function NoPortalAccessPage() {
   const { t } = useTranslation();
   const { logout } = useAuth();
   const navigate = useNavigate();
+  const { name: brandName } = useBranding();
 
   async function handleLogout() {
     await logout();
@@ -23,8 +25,8 @@ export default function NoPortalAccessPage() {
   return (
     <div className="flex min-h-screen flex-col items-center justify-center gap-6 p-4">
       <div className="flex items-center gap-2.5">
-        <img src="/logo.png" alt="Al Jazeera" className="h-10 w-10 rounded-xl shadow-glow" />
-        <span className="text-lg font-semibold tracking-tight">{t('common.appName')}</span>
+        <BrandLogo className="h-10 w-10" />
+        <span className="text-lg font-semibold tracking-tight">{brandName}</span>
       </div>
       <div className="w-full max-w-sm rounded-2xl border border-white/60 bg-surface/70 p-6 text-center shadow-xl backdrop-blur-xl animate-rise-in dark:border-white/10">
         <h1 className="text-xl font-semibold">{t('noPortalAccess.title')}</h1>
