@@ -117,19 +117,28 @@ const SELF_SERVICE_ROLES = ['Worker', 'Staff'];
  *
  * Office Secretary is a narrower case: it stays in the admin shell (not the
  * ESS portal), but is deny-by-default like Executive — unlike Executive, it
- * was never allow-listed into the Dashboard endpoint (its only legitimate
- * destination is Mobilisations), so `/` — where every login lands after
- * sign-in — would just 403 on GET /api/dashboard. Unlike Worker/Staff's
- * redirect target, `/mobilisations` is still INSIDE this same RoleRouter-
- * guarded branch, so the location check is required — without it, RoleRouter
- * would re-run on the redirected-to URL and redirect again, never once
- * reaching <Outlet/> and leaving the whole page blank.
+ * was never allow-listed into the Dashboard endpoint, so `/` — where every
+ * login lands after sign-in — would just 403 on GET /api/dashboard. Its
+ * legitimate destinations are Mobilisations and Deployments (added
+ * 2026-09-13 — she also has a real, hardcoded server-side exception on
+ * Deployment's read/monthly-hours routes, "she needs to find the deployment
+ * she's about to enter hours against"; a direct link to one, e.g. from a
+ * notification, was bouncing her straight back to Mobilisations before this
+ * fix — found from a real user report). Unlike Worker/Staff's redirect
+ * target, both are still INSIDE this same RoleRouter-guarded branch, so the
+ * location check is required — without it, RoleRouter would re-run on the
+ * redirected-to URL and redirect again, never once reaching <Outlet/> and
+ * leaving the whole page blank.
  */
 function RoleRouter() {
   const { user } = useAuth();
   const location = useLocation();
   if (SELF_SERVICE_ROLES.includes(user.role)) return <Navigate to="/me" replace />;
-  if (user.role === 'Office Secretary' && !location.pathname.startsWith('/mobilisations')) {
+  if (
+    user.role === 'Office Secretary' &&
+    !location.pathname.startsWith('/mobilisations') &&
+    !location.pathname.startsWith('/deployments')
+  ) {
     return <Navigate to="/mobilisations" replace />;
   }
   return <Outlet />;
@@ -158,7 +167,11 @@ function WorkerRouter() {
  *  Approval Log (already have their own dynamic in-page 403 handling), and
  *  every "new"/"edit" sub-route (reached only via an already Write-gated
  *  button; the server is the real enforcement either way). */
-const guarded = (sectionKey, element) => <RequireSectionRead sectionKey={sectionKey}>{element}</RequireSectionRead>;
+const guarded = (sectionKey, element, officeSecretaryBypass) => (
+  <RequireSectionRead sectionKey={sectionKey} officeSecretaryBypass={officeSecretaryBypass}>
+    {element}
+  </RequireSectionRead>
+);
 
 export const router = createBrowserRouter([
   {
@@ -189,8 +202,11 @@ export const router = createBrowserRouter([
               { path: '/clients/new', element: <ClientNewPage /> },
               { path: '/clients/:id', element: guarded('clientsManage', <ClientProfilePage />) },
               { path: '/clients/:id/edit', element: <ClientEditPage /> },
-              { path: '/deployments', element: guarded('deploymentsRelease', <DeploymentListPage />) },
-              { path: '/deployments/:id', element: guarded('deploymentsRelease', <DeploymentDetailPage />) },
+              // officeSecretaryBypass: true — mirrors deployment.routes.js's
+              // own hardcoded canReadDeployments exception (she needs to
+              // find the deployment she's about to enter hours against).
+              { path: '/deployments', element: guarded('deploymentsRelease', <DeploymentListPage />, true) },
+              { path: '/deployments/:id', element: guarded('deploymentsRelease', <DeploymentDetailPage />, true) },
               { path: '/mobilisations', element: <MobilisationListPage /> },
               { path: '/mobilisations/new', element: <MobilisationNewPage /> },
               { path: '/mobilisations/:id', element: <MobilisationDetailPage /> },
