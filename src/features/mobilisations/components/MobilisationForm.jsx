@@ -266,30 +266,6 @@ export default function MobilisationForm({
               ))}
             </Select>
           </div>
-          <Input
-            label={t('staffMobilisations.form.requiredTimesheetHours')}
-            type="number"
-            step="0.01"
-            min="0"
-            error={errors.requiredTimesheetHours?.message}
-            {...register('requiredTimesheetHours')}
-          />
-          <Input
-            label={t('staffMobilisations.form.otClientRate')}
-            type="number"
-            step="0.01"
-            min="0"
-            error={errors.otClientRate?.message}
-            {...register('otClientRate')}
-          />
-          <Input
-            label={t('staffMobilisations.form.otClientCommission')}
-            type="number"
-            step="0.01"
-            min="0"
-            error={errors.otClientCommission?.message}
-            {...register('otClientCommission')}
-          />
         </div>
       </section>
 
@@ -315,6 +291,30 @@ export default function MobilisationForm({
           <Input label={t('staffMobilisations.form.clientCommission')} type="number" step="0.01" min="0" error={errors.clientCommission?.message} {...register('clientCommission')} />
           <Input label={t('staffMobilisations.form.fta')} type="number" step="0.01" min="0" error={errors.fta?.message} {...register('fta')} />
           <Input label={t('staffMobilisations.form.allowance')} type="number" step="0.01" min="0" error={errors.allowance?.message} {...register('allowance')} />
+          <Input
+            label={t('staffMobilisations.form.requiredTimesheetHours')}
+            type="number"
+            step="0.01"
+            min="0"
+            error={errors.requiredTimesheetHours?.message}
+            {...register('requiredTimesheetHours')}
+          />
+          <Input
+            label={t('staffMobilisations.form.otClientRate')}
+            type="number"
+            step="0.01"
+            min="0"
+            error={errors.otClientRate?.message}
+            {...register('otClientRate')}
+          />
+          <Input
+            label={t('staffMobilisations.form.otClientCommission')}
+            type="number"
+            step="0.01"
+            min="0"
+            error={errors.otClientCommission?.message}
+            {...register('otClientCommission')}
+          />
         </div>
       </section>
 
