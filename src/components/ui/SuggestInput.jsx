@@ -1,24 +1,25 @@
 /**
- * CountrySelect — a themed, searchable country combobox: type to filter,
- * click (or arrow keys + Enter) to pick, styled to match Input/Select
- * instead of the browser's own unstyled `<datalist>` popup. Stays free text
- * (the typed value IS the field value) rather than a validated enum — same
- * reasoning as countries.js's own note: a document's nationality doesn't
- * always match a UN member-state list (e.g. "Palestinian"), so this
- * suggests without restricting.
+ * SuggestInput — a themed, filterable free-text combobox: type to filter a
+ * given list of options, click (or arrow keys + Enter) to pick one, styled
+ * to match Input/Select instead of the browser's own unstyled `<datalist>`
+ * popup (which can't be styled by CSS at all — it renders in the OS's own
+ * chrome regardless of the app's theme, dark mode included). Stays free
+ * text — the typed value IS the field value — rather than a validated
+ * enum, so typing something not on the list is always allowed; this only
+ * ever suggests, never restricts. Generalized from what was CountrySelect
+ * (nationality-only) — same component, any options list.
  */
 import { useEffect, useId, useRef, useState } from 'react';
-import { COUNTRIES } from '../../lib/countries.js';
 import { cn } from '../../lib/utils.js';
 
-export default function CountrySelect({
+export default function SuggestInput({
   label,
   error,
   value,
   onChange,
   onBlur,
   placeholder,
-  options = COUNTRIES,
+  options = [],
   className,
 }) {
   const id = useId();
@@ -30,7 +31,7 @@ export default function CountrySelect({
 
   const query = value?.trim() ?? '';
   const matches = query
-    ? options.filter((c) => c.toLowerCase().includes(query.toLowerCase()))
+    ? options.filter((o) => o.toLowerCase().includes(query.toLowerCase()))
     : options;
 
   useEffect(() => {
@@ -52,8 +53,8 @@ export default function CountrySelect({
     listRef.current.children[highlight]?.scrollIntoView({ block: 'nearest' });
   }, [highlight]);
 
-  function selectCountry(country) {
-    onChange(country);
+  function selectOption(option) {
+    onChange(option);
     setOpen(false);
   }
 
@@ -72,7 +73,7 @@ export default function CountrySelect({
     } else if (e.key === 'Enter') {
       if (highlight >= 0 && matches[highlight]) {
         e.preventDefault();
-        selectCountry(matches[highlight]);
+        selectOption(matches[highlight]);
       }
     } else if (e.key === 'Escape') {
       setOpen(false);
@@ -120,17 +121,17 @@ export default function CountrySelect({
           ref={listRef}
           className="absolute top-full z-20 mt-1 max-h-56 w-full overflow-auto rounded-lg border border-border bg-surface py-1 shadow-lg"
         >
-          {matches.map((country, i) => (
+          {matches.map((option, i) => (
             <li
-              key={country}
+              key={option}
               role="option"
-              aria-selected={country === value}
+              aria-selected={option === value}
               // onMouseDown (not onClick) fires before the input's onBlur,
               // so the selection registers before the dropdown would
               // otherwise close first.
               onMouseDown={(e) => {
                 e.preventDefault();
-                selectCountry(country);
+                selectOption(option);
               }}
               onMouseEnter={() => setHighlight(i)}
               className={cn(
@@ -138,7 +139,7 @@ export default function CountrySelect({
                 i === highlight ? 'bg-primary/15 text-primary' : 'hover:bg-primary/10'
               )}
             >
-              {country}
+              {option}
             </li>
           ))}
         </ul>

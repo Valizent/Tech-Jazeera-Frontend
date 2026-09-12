@@ -1346,7 +1346,13 @@
         "contractHours": "العقد",
         "actualHours": "الفعلي",
         "otHours": "ساعات إضافية",
-        "otAmount": "مبلغ الإضافي"
+        "otAmount": "مبلغ الإضافي",
+        "status": "الحالة"
+      },
+      "hoursStatus": {
+        "Pending": "قيد الانتظار",
+        "Approved": "تمت الموافقة",
+        "Rejected": "مرفوض"
       },
       "monthLabel": "الشهر *",
       "actualHoursLabel": "الساعات الفعلية (جدول العميل) *",
@@ -1356,8 +1362,15 @@
       "save": "حفظ",
       "addedToast": "تم تسجيل الساعات.",
       "updatedToast": "تم تحديث الساعات.",
+      "approvedToast": "تمت الموافقة على الساعات.",
+      "rejectedToast": "تم رفض الساعات.",
       "noMonthlyHours": "لم تُدخل أي ساعات بعد.",
-      "endedNote": "انتهت عملية النشر هذه — لا يمكن إدخال ساعات بعد الآن."
+      "endedNote": "انتهت عملية النشر هذه — لا يمكن إدخال ساعات بعد الآن.",
+      "approveModalTitle": "الموافقة على {{month}}؟",
+      "rejectModalTitle": "رفض {{month}}؟",
+      "decideModalMessage": "ساعات {{month}} لـ {{worker}} — سيتم إشعار من أدخلها بهذا القرار.",
+      "decisionNoteRequiredLabel": "سبب الرفض *",
+      "decisionNoteOptionalLabel": "ملاحظة (اختياري)"
     },
     "panel": {
       "title": "النشر",

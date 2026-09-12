@@ -30,7 +30,7 @@ export default function MobilisationNewPage() {
 
   const { data: workerData, isPending: workersLoading } = useQuery({
     queryKey: ['employees', { forMobilisation: true }],
-    queryFn: () => listEmployees({ limit: 100, type: 'Own' }),
+    queryFn: () => listEmployees({ limit: 100, type: 'Own', loginRole: 'Worker' }),
   });
   // Office Secretary only — the "create for a Coordinator who's busy" picker.
   const { data: coordinatorData, isPending: coordinatorsLoading } = useQuery({
@@ -74,9 +74,12 @@ export default function MobilisationNewPage() {
     );
   }
 
-  // Own-type only — the "Own Employee" worker type is specifically for the
-  // company's own internal staff; an Outsourced/Subcontracted worker is
-  // placed via the Supplier Employee/Freelancer types instead (see
+  // Own-type AND a real Worker login only — "Own Employee" means a field
+  // worker directly employed by the company, not any internal staff member
+  // who happens to have an Own-type Employee record for payroll (Admin,
+  // Manager, Coordinator, HR, Accounts, Office Secretary, Staff all can —
+  // see employee.service.js's loginRole filter). An Outsourced/Subcontracted
+  // worker is placed via the Supplier Employee/Freelancer types instead (see
   // MobilisationForm's workerType selector).
   const workers = (workerData?.items ?? []).filter((w) => w.status !== 'Exited' && w.type === 'Own');
   const clients = clientData?.items ?? [];

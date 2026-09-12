@@ -1,9 +1,10 @@
 /**
- * Country names for the Nationality field's autocomplete (`<datalist>`).
- * Plain English short names, not a formal ISO list — this is a typing aid,
- * not a validated enum. The field stays free text on purpose: nationality on
- * an employee's actual documents doesn't always match a UN member-state list
- * (e.g. "Palestinian"), so the datalist suggests without restricting.
+ * Country names for the Nationality field's autocomplete (SuggestInput, a
+ * themed combobox — see components/ui/SuggestInput.jsx). Plain English short
+ * names, not a formal ISO list — this is a typing aid, not a validated enum.
+ * The field stays free text on purpose: nationality on an employee's actual
+ * documents doesn't always match a UN member-state list (e.g. "Palestinian"),
+ * so this suggests without restricting.
  */
 export const COUNTRIES = [
   'Afghanistan', 'Albania', 'Algeria', 'Andorra', 'Angola', 'Argentina', 'Armenia',

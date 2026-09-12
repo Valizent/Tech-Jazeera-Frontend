@@ -39,6 +39,7 @@ const SECTION_CATEGORY = {
   ramadanManage: 'Workforce',
   clientsManage: 'Sales & Clients',
   deploymentsHours: 'Sales & Clients',
+  deploymentsHoursDecide: 'Sales & Clients',
   deploymentsRelease: 'Sales & Clients',
   quotationsManage: 'Sales & Clients',
   mobilisationsViewer: 'Sales & Clients',

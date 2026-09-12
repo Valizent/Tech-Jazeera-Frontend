@@ -28,6 +28,12 @@ export async function updateMonthlyHours(id, entryId, payload) {
   return data.data;
 }
 
+/** Approve or Reject a Pending month's entry. payload: { decision, note } */
+export async function decideMonthlyHours(id, entryId, payload) {
+  const { data } = await api.patch(`/deployments/${id}/monthly-hours/${entryId}/decide`, payload);
+  return data.data;
+}
+
 /** Release the worker off this deployment — ends it and frees them to standby. */
 export async function releaseDeployment(id, payload) {
   const { data } = await api.post(`/deployments/${id}/release`, payload);

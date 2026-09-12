@@ -6,7 +6,7 @@
  */
 import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useForm } from 'react-hook-form';
+import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
@@ -24,6 +24,7 @@ import {
 } from '../../../lib/constants.js';
 import { COUNTRIES } from '../../../lib/countries.js';
 import Input from '../../../components/ui/Input.jsx';
+import SuggestInput from '../../../components/ui/SuggestInput.jsx';
 import Select from '../../../components/ui/Select.jsx';
 import Textarea from '../../../components/ui/Textarea.jsx';
 import Button from '../../../components/ui/Button.jsx';
@@ -63,6 +64,7 @@ export default function EmployeeForm({ defaultValues, onSubmit, submitLabel, sub
   const selectableTypes = isCoordinator ? EMPLOYEE_TYPES.filter((t) => t !== 'Own') : EMPLOYEE_TYPES;
   const {
     register,
+    control,
     handleSubmit,
     watch,
     setValue,
@@ -122,16 +124,6 @@ export default function EmployeeForm({ defaultValues, onSubmit, submitLabel, sub
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-6">
-      {/* Backs the Nationality field's autocomplete — type "I" and the browser
-          filters to India, Indonesia, Iran, Iraq, Ireland, etc. Native
-          <datalist>, not a custom dropdown: free typing still works for a
-          nationality that isn't on the list. */}
-      <datalist id="country-list">
-        {COUNTRIES.map((country) => (
-          <option key={country} value={country} />
-        ))}
-      </datalist>
-
       <Section title={t('staffEmployees.form.sections.employeeType')}>
         <div className="sm:col-span-2">
           <Select label={`${t('staffEmployees.form.type')} *`} error={errors.type?.message} {...register('type')}>
@@ -165,12 +157,19 @@ export default function EmployeeForm({ defaultValues, onSubmit, submitLabel, sub
       <Section title={t('staffEmployees.form.sections.personalDetails')}>
         <Input label={`${t('staffEmployees.form.employeeId')} *`} placeholder="AJ-001" error={errors.employeeId?.message} {...register('employeeId')} />
         <Input label={`${t('staffEmployees.form.fullName')} *`} error={errors.fullName?.message} {...register('fullName')} />
-        <Input
-          label={`${t('staffEmployees.form.nationality')}${isWorkforce ? ' *' : ''}`}
-          list="country-list"
-          autoComplete="off"
-          error={errors.nationality?.message}
-          {...register('nationality')}
+        <Controller
+          name="nationality"
+          control={control}
+          render={({ field }) => (
+            <SuggestInput
+              label={`${t('staffEmployees.form.nationality')}${isWorkforce ? ' *' : ''}`}
+              error={errors.nationality?.message}
+              value={field.value}
+              onChange={field.onChange}
+              onBlur={field.onBlur}
+              options={COUNTRIES}
+            />
+          )}
         />
         <Input
           label={`${t('staffEmployees.form.mobile')}${isWorkforce ? ' *' : ''}`}

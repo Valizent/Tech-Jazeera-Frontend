@@ -1346,7 +1346,13 @@
         "contractHours": "Contract",
         "actualHours": "Actual",
         "otHours": "OT hours",
-        "otAmount": "OT amount"
+        "otAmount": "OT amount",
+        "status": "Status"
+      },
+      "hoursStatus": {
+        "Pending": "Pending",
+        "Approved": "Approved",
+        "Rejected": "Rejected"
       },
       "monthLabel": "Month *",
       "actualHoursLabel": "Actual hours (client timesheet) *",
@@ -1356,8 +1362,15 @@
       "save": "Save",
       "addedToast": "Hours recorded.",
       "updatedToast": "Hours updated.",
+      "approvedToast": "Hours approved.",
+      "rejectedToast": "Hours rejected.",
       "noMonthlyHours": "No hours entered yet.",
-      "endedNote": "This deployment has ended — hours can no longer be entered."
+      "endedNote": "This deployment has ended — hours can no longer be entered.",
+      "approveModalTitle": "Approve {{month}}?",
+      "rejectModalTitle": "Reject {{month}}?",
+      "decideModalMessage": "{{month}} hours for {{worker}} — this decision notifies whoever entered it.",
+      "decisionNoteRequiredLabel": "Reason for rejection *",
+      "decisionNoteOptionalLabel": "Note (optional)"
     },
     "panel": {
       "title": "Deployment",

@@ -11,7 +11,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useTranslation } from 'react-i18next';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { getDeployment, addMonthlyHours, updateMonthlyHours, releaseDeployment } from '../deployments.api.js';
+import { getDeployment, addMonthlyHours, updateMonthlyHours, decideMonthlyHours, releaseDeployment } from '../deployments.api.js';
 import {
   monthlyHoursFormSchema,
   emptyMonthlyHoursForm,
@@ -136,6 +136,12 @@ export default function DeploymentDetailPage() {
   // grantable Section Access role at all).
   const canEnterHours = user.role === 'Office Secretary' || Boolean(user.sectionAccessWrite?.includes('deploymentsHours'));
   const canRelease = Boolean(user.sectionAccessWrite?.includes('deploymentsRelease'));
+  // Deliberately a separate grant from canEnterHours — no Office Secretary
+  // bypass here, since she's usually the one entering, not approving.
+  const canDecideHours = Boolean(user.sectionAccessWrite?.includes('deploymentsHoursDecide'));
+  const [decidingEntry, setDecidingEntry] = useState(null);
+  const [decision, setDecision] = useState(null); // 'Approved' | 'Rejected'
+  const [decisionNote, setDecisionNote] = useState('');
 
   const { data: deployment, isPending, isError } = useQuery({
     queryKey: ['deployment', id],
@@ -161,6 +167,20 @@ export default function DeploymentDetailPage() {
     onSuccess: () => {
       toast.success(t('staffDeployments.detail.updatedToast'));
       setEditingEntry(null);
+      invalidate();
+    },
+    onError: (error) => toast.error(apiMessage(error)),
+  });
+
+  const decideMutation = useMutation({
+    mutationFn: ({ entryId, values }) => decideMonthlyHours(id, entryId, values),
+    onSuccess: () => {
+      toast.success(
+        decision === 'Approved' ? t('staffDeployments.detail.approvedToast') : t('staffDeployments.detail.rejectedToast')
+      );
+      setDecidingEntry(null);
+      setDecision(null);
+      setDecisionNote('');
       invalidate();
     },
     onError: (error) => toast.error(apiMessage(error)),
@@ -284,26 +304,68 @@ export default function DeploymentDetailPage() {
                   <th className="px-3 py-2">{t('staffDeployments.detail.columns.actualHours')}</th>
                   <th className="px-3 py-2">{t('staffDeployments.detail.columns.otHours')}</th>
                   <th className="px-3 py-2">{t('staffDeployments.detail.columns.otAmount')}</th>
-                  {canEnterHours && isActive && <th className="px-3 py-2" />}
+                  <th className="px-3 py-2">{t('staffDeployments.detail.columns.status')}</th>
+                  {(canEnterHours || canDecideHours) && isActive && <th className="px-3 py-2" />}
                 </tr>
               </thead>
               <tbody className="divide-y divide-border">
-                {sortedMonths.map((entry) => (
-                  <tr key={entry._id}>
-                    <td className="px-3 py-2 font-medium">{entry.month}</td>
-                    <td className="px-3 py-2">{entry.contractHours}</td>
-                    <td className="px-3 py-2">{entry.actualHours}</td>
-                    <td className="px-3 py-2">{entry.otHours}</td>
-                    <td className="px-3 py-2">{formatMoney(entry.otAmount)}</td>
-                    {canEnterHours && isActive && (
-                      <td className="px-3 py-2 text-right">
-                        <Button size="sm" variant="ghost" onClick={() => setEditingEntry(entry)}>
-                          {t('staffDeployments.detail.editEntry')}
-                        </Button>
+                {sortedMonths.map((entry) => {
+                  const statusVariant = entry.status === 'Approved' ? 'success' : entry.status === 'Rejected' ? 'danger' : 'warning';
+                  const canEditThis = canEnterHours && isActive && entry.status !== 'Approved';
+                  const canDecideThis = canDecideHours && isActive && entry.status === 'Pending';
+                  return (
+                    <tr key={entry._id}>
+                      <td className="px-3 py-2 font-medium">{entry.month}</td>
+                      <td className="px-3 py-2">{entry.contractHours}</td>
+                      <td className="px-3 py-2">{entry.actualHours}</td>
+                      <td className="px-3 py-2">{entry.otHours}</td>
+                      <td className="px-3 py-2">{formatMoney(entry.otAmount)}</td>
+                      <td className="px-3 py-2">
+                        <Badge variant={statusVariant}>{t(`staffDeployments.detail.hoursStatus.${entry.status}`, entry.status)}</Badge>
+                        {entry.status === 'Rejected' && entry.decisionNote && (
+                          <p className="mt-1 max-w-[16rem] text-xs text-muted">{entry.decisionNote}</p>
+                        )}
                       </td>
-                    )}
-                  </tr>
-                ))}
+                      {(canEnterHours || canDecideHours) && isActive && (
+                        <td className="px-3 py-2 text-right">
+                          <div className="flex justify-end gap-1.5">
+                            {canEditThis && (
+                              <Button size="sm" variant="ghost" onClick={() => setEditingEntry(entry)}>
+                                {t('staffDeployments.detail.editEntry')}
+                              </Button>
+                            )}
+                            {canDecideThis && (
+                              <>
+                                <Button
+                                  size="sm"
+                                  variant="ghost"
+                                  onClick={() => {
+                                    setDecidingEntry(entry);
+                                    setDecision('Approved');
+                                    setDecisionNote('');
+                                  }}
+                                >
+                                  {t('common.approve')}
+                                </Button>
+                                <Button
+                                  size="sm"
+                                  variant="danger-ghost"
+                                  onClick={() => {
+                                    setDecidingEntry(entry);
+                                    setDecision('Rejected');
+                                    setDecisionNote('');
+                                  }}
+                                >
+                                  {t('common.reject')}
+                                </Button>
+                              </>
+                            )}
+                          </div>
+                        </td>
+                      )}
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           </div>
@@ -357,6 +419,70 @@ export default function DeploymentDetailPage() {
               })
             }
           />
+        )}
+      </Modal>
+
+      <Modal
+        open={Boolean(decidingEntry)}
+        onClose={() => {
+          if (decideMutation.isPending) return;
+          setDecidingEntry(null);
+          setDecision(null);
+        }}
+        title={
+          decidingEntry
+            ? t(
+                decision === 'Approved' ? 'staffDeployments.detail.approveModalTitle' : 'staffDeployments.detail.rejectModalTitle',
+                { month: decidingEntry.month }
+              )
+            : ''
+        }
+      >
+        {decidingEntry && (
+          <div className="space-y-4">
+            <p className="text-sm text-muted">
+              {t('staffDeployments.detail.decideModalMessage', {
+                month: decidingEntry.month,
+                worker: deployment.workerName,
+              })}
+            </p>
+            <Textarea
+              label={
+                decision === 'Rejected'
+                  ? t('staffDeployments.detail.decisionNoteRequiredLabel')
+                  : t('staffDeployments.detail.decisionNoteOptionalLabel')
+              }
+              value={decisionNote}
+              onChange={(e) => setDecisionNote(e.target.value)}
+            />
+            <div className="flex justify-end gap-2 pt-2">
+              <Button
+                type="button"
+                variant="secondary"
+                onClick={() => {
+                  setDecidingEntry(null);
+                  setDecision(null);
+                }}
+                disabled={decideMutation.isPending}
+              >
+                {t('common.cancel')}
+              </Button>
+              <Button
+                type="button"
+                variant={decision === 'Rejected' ? 'danger' : 'primary'}
+                isLoading={decideMutation.isPending}
+                disabled={decision === 'Rejected' && !decisionNote.trim()}
+                onClick={() =>
+                  decideMutation.mutate({
+                    entryId: decidingEntry._id,
+                    values: { decision, note: decisionNote.trim() || undefined },
+                  })
+                }
+              >
+                {decision === 'Approved' ? t('common.approve') : t('common.reject')}
+              </Button>
+            </div>
+          </div>
         )}
       </Modal>
 

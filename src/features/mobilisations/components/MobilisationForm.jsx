@@ -14,9 +14,10 @@
  * mobilisation.service.js's lookupWorkerByIqama) and fills in name/
  * nationality/phone/subcontractor automatically, so a worker released back
  * to standby and mobilised again doesn't need re-typing from scratch. `site`
- * still uses the separate free-typed-with-suggestions pattern
- * (SuggestedInput) — unrelated to worker identity. The subcontractor block
- * only appears for 'SupplierEmployee'.
+ * uses the same free-typed-with-suggestions pattern (SuggestInput, a themed
+ * combobox — never the browser's own unstyled `<datalist>` popup, which
+ * can't be styled at all) — unrelated to worker identity. The subcontractor
+ * block only appears for 'SupplierEmployee'.
  */
 import { useEffect, useRef, useState } from 'react';
 import { useForm, useWatch, Controller } from 'react-hook-form';
@@ -26,33 +27,39 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { mobilisationFormSchema, WORKER_TYPES } from '../mobilisations.schema.js';
 import { createJobTitle } from '../../jobTitles/jobTitles.api.js';
 import { getMobilisationSuggestions, lookupMobilisationWorkerByIqama } from '../mobilisations.api.js';
+import { COUNTRIES } from '../../../lib/countries.js';
 import { apiMessage } from '../../../lib/utils.js';
 import { useToast } from '../../../components/ui/Toast.jsx';
 import Input from '../../../components/ui/Input.jsx';
 import Select from '../../../components/ui/Select.jsx';
-import CountrySelect from '../../../components/ui/CountrySelect.jsx';
+import SuggestInput from '../../../components/ui/SuggestInput.jsx';
 import Textarea from '../../../components/ui/Textarea.jsx';
 import Button from '../../../components/ui/Button.jsx';
 import Modal from '../../../components/ui/Modal.jsx';
 
-/** Free-typed field + a live `<datalist>` of previously-entered values —
- *  the datalist id must stay unique per field since every instance of this
- *  form shares the DOM with itself only once, but a stable id is simplest. */
-function SuggestedInput({ field, label, error, register, ...props }) {
+/** Free-typed field + a themed dropdown of previously-entered values, via
+ *  SuggestInput — never a native `<datalist>` (unstyled, can't be themed). */
+function SuggestedInput({ field, label, error, control, placeholder }) {
   const { data: suggestions = [] } = useQuery({
     queryKey: ['mobilisation-suggestions', field],
     queryFn: () => getMobilisationSuggestions(field),
   });
-  const listId = `mobilisation-${field}-suggestions`;
   return (
-    <>
-      <Input label={label} list={listId} error={error} {...register(field)} {...props} />
-      <datalist id={listId}>
-        {suggestions.map((value) => (
-          <option key={value} value={value} />
-        ))}
-      </datalist>
-    </>
+    <Controller
+      name={field}
+      control={control}
+      render={({ field: { value, onChange, onBlur } }) => (
+        <SuggestInput
+          label={label}
+          error={error}
+          value={value}
+          onChange={onChange}
+          onBlur={onBlur}
+          placeholder={placeholder}
+          options={suggestions}
+        />
+      )}
+    />
   );
 }
 
@@ -206,12 +213,13 @@ export default function MobilisationForm({
                 name="nationality"
                 control={control}
                 render={({ field }) => (
-                  <CountrySelect
+                  <SuggestInput
                     label={t('staffMobilisations.form.nationalityLabel')}
                     error={errors.nationality?.message}
                     value={field.value}
                     onChange={field.onChange}
                     onBlur={field.onBlur}
+                    options={COUNTRIES}
                   />
                 )}
               />
@@ -257,7 +265,7 @@ export default function MobilisationForm({
             label={t('staffMobilisations.form.siteLabel')}
             placeholder={t('common.optional')}
             error={errors.site?.message}
-            register={register}
+            control={control}
           />
           <Input label={t('staffMobilisations.form.clientRate')} type="number" step="0.01" min="0" error={errors.clientRate?.message} {...register('clientRate')} />
           <Input label={t('staffMobilisations.form.clientCommission')} type="number" step="0.01" min="0" error={errors.clientCommission?.message} {...register('clientCommission')} />
