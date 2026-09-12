@@ -98,11 +98,12 @@ export const LEAVE_DECIDE_ROLES = ['Admin', 'Manager', 'HR', 'Coordinator'];
 export const HOLIDAY_MANAGE_ROLES = ['Admin', 'HR'];
 
 /** Mirror of settlement.model.js. */
-export const EXIT_REASONS = ['Resignation', 'TerminationByEmployer', 'EndOfContract'];
+export const EXIT_REASONS = ['Resignation', 'TerminationByEmployer', 'EndOfContract', 'SponsorshipTransfer'];
 export const EXIT_REASON_LABELS = {
   Resignation: 'Resignation',
   TerminationByEmployer: 'Termination by employer',
   EndOfContract: 'End of contract',
+  SponsorshipTransfer: 'Sponsorship transfer (Tanazel)',
 };
 // EOSB access (view/compute/delete, one unified circle) is the
 // admin-configurable SectionAccess ('eosb') mechanism now — reaching the
@@ -278,9 +279,28 @@ export const APPROVAL_REQUEST_TYPE_LABELS = {
  *  to mirror here anymore either. */
 export const DEPLOYMENT_STATUSES = ['Active', 'Ended'];
 
-// Monthly hours entry and Release are the admin-configurable SectionAccess
-// ('deploymentsHours' / 'deploymentsRelease') mechanism now, not a static
-// role list.
+// Monthly hours entry and Demobilise are the admin-configurable
+// SectionAccess ('deploymentsHours' / 'deploymentsRelease') mechanism now,
+// not a static role list.
+
+/** Mirror of deployment.model.js's DEMOBILISATION_REASONS/OUTCOME — see that
+ *  file's doc comment for the full reasoning. The 3 Employee-only reasons
+ *  are filtered out of the picker for a non-Employee deployment client-side
+ *  (the server enforces the same restriction independently). */
+export const DEMOBILISATION_REASONS = [
+  'ClientAssignmentEnded',
+  'TerminatedByCompany',
+  'Resigned',
+  'TransferredToAnotherCompany',
+  'Other',
+];
+export const EMPLOYEE_ONLY_DEMOBILISATION_REASONS = ['TerminatedByCompany', 'Resigned', 'TransferredToAnotherCompany'];
+export const DEMOBILISATION_OUTCOME = {
+  ClientAssignmentEnded: 'Standby',
+  TerminatedByCompany: 'Exit',
+  Resigned: 'Exit',
+  TransferredToAnotherCompany: 'Exit',
+};
 
 /** Mirrors the Attendance model enum, with display metadata used by the
  *  marking grid and summary. `letter` labels grid cells; `variant` is the

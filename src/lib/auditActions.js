@@ -27,9 +27,13 @@ export const ACTION_LABELS = {
   'client.approved': 'approved a client',
   'client.rejected': 'rejected a client',
 
-  'deployment.assign': 'deployed a worker',
-  'deployment.transfer': 'transferred a worker',
-  'deployment.end': 'ended a deployment',
+  'deployment.create': 'created a deployment',
+  'deployment.release': 'demobilised a deployment',
+  'deployment.delete': 'deleted a deployment',
+  'deployment.monthlyHours.add': 'entered monthly hours',
+  'deployment.monthlyHours.update': 'corrected monthly hours',
+  'deployment.monthlyHours.correctApproved': 'corrected approved monthly hours',
+  'deployment.monthlyHours.decide': 'decided a monthly hours entry',
 
   'attendance.mark': 'marked attendance',
   'attendance.checkin': 'signed in',

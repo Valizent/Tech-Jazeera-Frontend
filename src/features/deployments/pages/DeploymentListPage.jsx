@@ -112,8 +112,8 @@ export default function DeploymentListPage() {
       header: t('staffDeployments.list.columns.status'),
       render: (d) => (
         <Badge variant={STATUS_VARIANT[d.status]}>
-          {t(`common.status.${d.status}`, d.status)}
-          {d.endReason ? ` · ${d.endReason}` : ''}
+          {t(`staffDeployments.status.${d.status}`, d.status)}
+          {d.endReason ? ` · ${t(`staffDeployments.reasons.${d.endReason}`, d.endReason)}` : ''}
         </Badge>
       ),
     },
@@ -159,7 +159,7 @@ export default function DeploymentListPage() {
           <option value="">{t('common.allStatuses')}</option>
           {DEPLOYMENT_STATUSES.map((s) => (
             <option key={s} value={s}>
-              {t(`common.status.${s}`, s)}
+              {t(`staffDeployments.status.${s}`, s)}
             </option>
           ))}
         </Select>

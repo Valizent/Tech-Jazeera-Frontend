@@ -1007,7 +1007,8 @@
     "exitReasonLabels": {
       "Resignation": "Resignation",
       "TerminationByEmployer": "Termination by employer",
-      "EndOfContract": "End of contract"
+      "EndOfContract": "End of contract",
+      "SponsorshipTransfer": "Sponsorship transfer (Tanazel)"
     },
     "list": {
       "pageTitle": "End of service settlements",
@@ -1040,7 +1041,8 @@
       "reasonHints": {
         "Resignation": "The worker is leaving on their own terms — Article 85 tiering by length of service applies.",
         "TerminationByEmployer": "The company is ending the contract — full award, no reduction.",
-        "EndOfContract": "The contract term ended and wasn't renewed — full award, no reduction."
+        "EndOfContract": "The contract term ended and wasn't renewed — full award, no reduction.",
+        "SponsorshipTransfer": "The worker's sponsorship is transferring to another employer — full award, no reduction. Confirm this treatment with your HR/legal advisor if unsure."
       }
     },
     "view": {
@@ -1293,6 +1295,17 @@
     }
   },
   "staffDeployments": {
+    "status": {
+      "Active": "Mobilised",
+      "Ended": "Demobilised"
+    },
+    "reasons": {
+      "ClientAssignmentEnded": "Client assignment ended",
+      "TerminatedByCompany": "Terminated by company",
+      "Resigned": "Resigned",
+      "TransferredToAnotherCompany": "Transferred to another company (Tanazel)",
+      "Other": "Other"
+    },
     "list": {
       "pageTitle": "Deployments",
       "pageDescription": "Every worker actually at work with a client — born automatically once a mobilisation is approved.",
@@ -1326,15 +1339,24 @@
         "subcontractor": "Subcontractor",
         "contractHours": "Contract hours / month",
         "since": "Deployed since",
-        "released": "Released"
+        "demobilisedOn": "Demobilised on",
+        "reason": "Reason"
       },
       "viewMobilisation": "View mobilisation",
-      "release": "Release",
-      "releaseModalTitle": "Release {{name}}",
-      "releaseModalMessage": "{{name}} will be marked on standby and free for a new mobilisation. This ends the deployment.",
-      "releaseDateLabel": "Release date *",
-      "releaseNoteLabel": "Note",
-      "releasedToast": "{{name}} released.",
+      "demobilise": "Demobilise",
+      "demobiliseModalTitle": "Demobilise {{name}}",
+      "demobiliseModalMessage": "This ends the deployment. What happens next depends on the reason you choose below.",
+      "demobiliseDateLabel": "Demobilisation date *",
+      "reasonLabel": "Reason *",
+      "chooseReason": "Choose a reason",
+      "otherExitCheckbox": "This worker is no longer part of the company (mark as Exited)",
+      "exitWarning": "This will mark {{name}} as Exited — they'll no longer appear as active staff, in payroll, or be eligible for a new mobilisation until re-activated.",
+      "demobiliseNoteLabel": "Note",
+      "demobilisedToast": "{{name}} demobilised.",
+      "eosbPromptTitle": "Calculate EOSB for {{name}}?",
+      "eosbPromptMessage": "This ends {{name}}'s employment. You can calculate their End of Service settlement now, or do it later from their profile.",
+      "eosbPromptLater": "Later",
+      "eosbPromptGo": "Calculate EOSB",
       "sectionMonthlyHours": "Monthly client hours & overtime",
       "monthlyHoursHint": "Enter the client's timesheet for a month once it has fully ended.",
       "addMonthLabel": "Add this month's hours",

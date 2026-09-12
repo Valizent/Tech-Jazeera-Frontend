@@ -1,10 +1,21 @@
 /**
  * Client-side deployment form schemas — monthly hours entry/correction and
- * Release. No create/edit schema here on purpose — see deployments.api.js.
+ * Demobilise. No create/edit schema here on purpose — see deployments.api.js.
  */
 import { z } from 'zod';
+import { DEMOBILISATION_OUTCOME } from '../../lib/constants.js';
 
 const optionalStr = (max) => z.string().trim().max(max).optional().or(z.literal(''));
+
+/** Mirrors deployment.service.js's own outcome resolution exactly — used
+ *  client-side only for UI branching (the inline warning, and whether to
+ *  show the post-demobilise EOSB prompt), never trusted as authoritative:
+ *  the server independently recomputes and enforces the same rule. */
+export function resolveDemobiliseOutcome(workerType, reason, exitOutcome) {
+  if (workerType !== 'Employee') return 'Standby';
+  if (reason === 'Other') return exitOutcome ? 'Exit' : 'Standby';
+  return DEMOBILISATION_OUTCOME[reason] ?? 'Standby';
+}
 
 /** Real day count for a 'YYYY-MM' string (28-31) — mirrors the server's own
  *  daysInMonth (deployment.service.js) exactly, so the grid always renders
@@ -46,12 +57,20 @@ export function monthlyHoursEntryToForm(entry) {
   };
 }
 
-export const releaseFormSchema = z.object({
-  releaseDate: z.string().min(1, 'Release date is required.'),
+// `exitOutcome` only matters when reason === 'Other' — every other reason
+// has a fixed outcome (see deployment.model.js's DEMOBILISATION_OUTCOME,
+// mirrored in lib/constants.js). Kept as a plain boolean, not coerced from a
+// checkbox string, since DemobiliseForm controls it directly via setValue.
+export const demobiliseFormSchema = z.object({
+  releaseDate: z.string().min(1, 'Demobilisation date is required.'),
+  reason: z.string().min(1, 'Choose a reason.'),
+  exitOutcome: z.boolean().optional(),
   releaseNote: optionalStr(1000),
 });
 
-export const emptyReleaseForm = {
+export const emptyDemobiliseForm = {
   releaseDate: new Date().toISOString().slice(0, 10),
+  reason: '',
+  exitOutcome: false,
   releaseNote: '',
 };

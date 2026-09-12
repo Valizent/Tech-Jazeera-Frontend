@@ -1007,7 +1007,8 @@
     "exitReasonLabels": {
       "Resignation": "استقالة",
       "TerminationByEmployer": "إنهاء من قبل الشركة",
-      "EndOfContract": "انتهاء العقد"
+      "EndOfContract": "انتهاء العقد",
+      "SponsorshipTransfer": "تنازل الكفالة إلى شركة أخرى"
     },
     "list": {
       "pageTitle": "تسويات نهاية الخدمة",
@@ -1040,7 +1041,8 @@
       "reasonHints": {
         "Resignation": "الموظف يغادر بمحض إرادته — تُطبَّق شرائح المادة 85 حسب مدة الخدمة.",
         "TerminationByEmployer": "الشركة تنهي العقد — المكافأة كاملة دون خصم.",
-        "EndOfContract": "انتهت مدة العقد ولم يُجدَّد — المكافأة كاملة دون خصم."
+        "EndOfContract": "انتهت مدة العقد ولم يُجدَّد — المكافأة كاملة دون خصم.",
+        "SponsorshipTransfer": "كفالة الموظف تنتقل إلى صاحب عمل آخر — المكافأة كاملة دون خصم. يُفضَّل تأكيد هذه المعاملة مع المستشار القانوني/الموارد البشرية إن لم تكن متأكدًا."
       }
     },
     "view": {
@@ -1293,6 +1295,17 @@
     }
   },
   "staffDeployments": {
+    "status": {
+      "Active": "معبأ",
+      "Ended": "مُسرَّح"
+    },
+    "reasons": {
+      "ClientAssignmentEnded": "انتهت مهمة العميل",
+      "TerminatedByCompany": "إنهاء الخدمة من الشركة",
+      "Resigned": "استقالة",
+      "TransferredToAnotherCompany": "تنازل إلى شركة أخرى",
+      "Other": "أخرى"
+    },
     "list": {
       "pageTitle": "عمليات النشر",
       "pageDescription": "كل عامل يعمل فعليًا لدى عميل — تُنشأ تلقائيًا فور اعتماد التعبئة.",
@@ -1326,15 +1339,24 @@
         "subcontractor": "المقاول من الباطن",
         "contractHours": "ساعات العقد / الشهر",
         "since": "منشور منذ",
-        "released": "تاريخ الإطلاق"
+        "demobilisedOn": "تاريخ التسريح",
+        "reason": "السبب"
       },
       "viewMobilisation": "عرض التعبئة",
-      "release": "إطلاق",
-      "releaseModalTitle": "إطلاق {{name}}",
-      "releaseModalMessage": "سيُعتبر {{name}} في وضع الاستعداد ومتاحًا لتعبئة جديدة. سينهي هذا عملية النشر.",
-      "releaseDateLabel": "تاريخ الإطلاق *",
-      "releaseNoteLabel": "ملاحظة",
-      "releasedToast": "تم إطلاق {{name}}.",
+      "demobilise": "تسريح",
+      "demobiliseModalTitle": "تسريح {{name}}",
+      "demobiliseModalMessage": "سينهي هذا عملية النشر. ما سيحدث بعد ذلك يعتمد على السبب الذي تختاره أدناه.",
+      "demobiliseDateLabel": "تاريخ التسريح *",
+      "reasonLabel": "السبب *",
+      "chooseReason": "اختر سببًا",
+      "otherExitCheckbox": "هذا العامل لم يعد جزءًا من الشركة (وضعه كمنتهي الخدمة)",
+      "exitWarning": "سيؤدي هذا إلى تصنيف {{name}} كمنتهي الخدمة — لن يظهر بعد الآن كموظف نشط أو في كشف الرواتب، ولن يكون مؤهلاً لتعبئة جديدة حتى تتم إعادة تفعيله.",
+      "demobiliseNoteLabel": "ملاحظة",
+      "demobilisedToast": "تم تسريح {{name}}.",
+      "eosbPromptTitle": "حساب مكافأة نهاية الخدمة لـ {{name}}؟",
+      "eosbPromptMessage": "هذا سينهي عمل {{name}} في الشركة. يمكنك حساب مكافأة نهاية الخدمة الآن، أو لاحقًا من صفحته الشخصية.",
+      "eosbPromptLater": "لاحقًا",
+      "eosbPromptGo": "حساب المكافأة",
       "sectionMonthlyHours": "ساعات العميل الشهرية والوقت الإضافي",
       "monthlyHoursHint": "أدخل جدول ساعات العميل لشهر بعد انتهائه بالكامل.",
       "addMonthLabel": "إضافة ساعات هذا الشهر",

@@ -34,9 +34,10 @@ export async function decideMonthlyHours(id, entryId, payload) {
   return data.data;
 }
 
-/** Release the worker off this deployment — ends it and frees them to standby. */
-export async function releaseDeployment(id, payload) {
-  const { data } = await api.post(`/deployments/${id}/release`, payload);
+/** Demobilise — ends this deployment. `payload.reason` decides whether the
+ *  worker goes back to standby or exits the company (see deployments.schema.js). */
+export async function demobiliseDeployment(id, payload) {
+  const { data } = await api.post(`/deployments/${id}/demobilise`, payload);
   return data.data;
 }
 

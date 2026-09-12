@@ -1,6 +1,6 @@
 /**
  * DeploymentDetailPage — the workhorse: placement info, the monthly
- * client-hours/OT ledger (add + correct), and Release. This is the ONLY
+ * client-hours/OT ledger (add + correct), and Demobilise. This is the ONLY
  * place a deployment is managed — there is no separate create/edit page,
  * a Deployment is born automatically once its source Mobilisation is
  * Approved (see the Mobilisations module).
@@ -11,15 +11,17 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useTranslation } from 'react-i18next';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { getDeployment, addMonthlyHours, updateMonthlyHours, decideMonthlyHours, releaseDeployment } from '../deployments.api.js';
+import { getDeployment, addMonthlyHours, updateMonthlyHours, decideMonthlyHours, demobiliseDeployment } from '../deployments.api.js';
 import {
   monthlyHoursFormSchema,
   emptyMonthlyHoursForm,
   monthlyHoursEntryToForm,
   daysInMonth,
-  releaseFormSchema,
-  emptyReleaseForm,
+  demobiliseFormSchema,
+  emptyDemobiliseForm,
+  resolveDemobiliseOutcome,
 } from '../deployments.schema.js';
+import { DEMOBILISATION_REASONS, EMPLOYEE_ONLY_DEMOBILISATION_REASONS } from '../../../lib/constants.js';
 import { useAuth } from '../../auth/AuthContext.jsx';
 import { apiMessage, formatDate, formatMoney, cn } from '../../../lib/utils.js';
 import { useToast } from '../../../components/ui/Toast.jsx';
@@ -29,6 +31,7 @@ import Card from '../../../components/ui/Card.jsx';
 import Badge from '../../../components/ui/Badge.jsx';
 import Button from '../../../components/ui/Button.jsx';
 import Input from '../../../components/ui/Input.jsx';
+import Select from '../../../components/ui/Select.jsx';
 import Textarea from '../../../components/ui/Textarea.jsx';
 import Modal from '../../../components/ui/Modal.jsx';
 import Skeleton from '../../../components/ui/Skeleton.jsx';
@@ -46,6 +49,14 @@ function addMonthsToStr(monthStr, n) {
 function previousMonthStr() {
   return addMonthsToStr(monthStrOf(new Date()), -1);
 }
+
+/** Deployment reason → EOSB exit reason, for the post-demobilise deep link
+ *  (see resolveDemobiliseOutcome / SettlementNewPage.jsx's preset params). */
+const EOSB_REASON_BY_DEMOB_REASON = {
+  TerminatedByCompany: 'TerminationByEmployer',
+  Resigned: 'Resignation',
+  TransferredToAnotherCompany: 'SponsorshipTransfer',
+};
 
 /** The earliest eligible month not yet entered — a sensible default for the
  *  add-hours form, empty string when nothing is eligible yet (deployment
@@ -195,14 +206,17 @@ export default function DeploymentDetailPage() {
   const toast = useToast();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  const [releasing, setReleasing] = useState(false);
+  const [demobilising, setDemobilising] = useState(false);
+  const [eosbPrompt, setEosbPrompt] = useState(null); // { exitDate, exitReason } | null
   const [editingEntry, setEditingEntry] = useState(null);
 
   // Office Secretary is a hardcoded exception to the Section Access gate —
   // mirrors deployment.service.js's addMonthlyHours exactly (they aren't a
   // grantable Section Access role at all).
   const canEnterHours = user.role === 'Office Secretary' || Boolean(user.sectionAccessWrite?.includes('deploymentsHours'));
-  const canRelease = Boolean(user.sectionAccessWrite?.includes('deploymentsRelease'));
+  // Section Access key name is unchanged ('deploymentsRelease') even though
+  // the action itself is now called Demobilise — see deployment.routes.js.
+  const canDemobilise = Boolean(user.sectionAccessWrite?.includes('deploymentsRelease'));
   // Deliberately a separate grant from canEnterHours — no Office Secretary
   // bypass here, since she's usually the one entering, not approving.
   const canDecideHours = Boolean(user.sectionAccessWrite?.includes('deploymentsHoursDecide'));
@@ -253,11 +267,15 @@ export default function DeploymentDetailPage() {
     onError: (error) => toast.error(apiMessage(error)),
   });
 
-  const releaseMutation = useMutation({
-    mutationFn: (values) => releaseDeployment(id, values),
-    onSuccess: () => {
-      toast.success(t('staffDeployments.detail.releasedToast', { name: deployment.workerName }));
-      setReleasing(false);
+  const demobiliseMutation = useMutation({
+    mutationFn: (values) => demobiliseDeployment(id, values),
+    onSuccess: (_data, values) => {
+      toast.success(t('staffDeployments.detail.demobilisedToast', { name: deployment.workerName }));
+      setDemobilising(false);
+      const outcome = resolveDemobiliseOutcome(deployment.workerType, values.reason, values.exitOutcome);
+      if (outcome === 'Exit') {
+        setEosbPrompt({ exitDate: values.releaseDate, exitReason: EOSB_REASON_BY_DEMOB_REASON[values.reason] ?? '' });
+      }
       invalidate();
     },
     onError: (error) => toast.error(apiMessage(error)),
@@ -269,10 +287,20 @@ export default function DeploymentDetailPage() {
   }, [deployment]);
 
   const {
-    register: registerRelease,
-    handleSubmit: handleReleaseSubmit,
-    formState: { errors: releaseErrors },
-  } = useForm({ resolver: zodResolver(releaseFormSchema), defaultValues: emptyReleaseForm });
+    register: registerDemobilise,
+    handleSubmit: handleDemobiliseSubmit,
+    watch: watchDemobilise,
+    formState: { errors: demobiliseErrors },
+  } = useForm({ resolver: zodResolver(demobiliseFormSchema), defaultValues: emptyDemobiliseForm });
+  const demobiliseReason = watchDemobilise('reason');
+  const demobiliseExitOutcome = watchDemobilise('exitOutcome');
+  const availableDemobiliseReasons =
+    deployment?.workerType === 'Employee'
+      ? DEMOBILISATION_REASONS
+      : DEMOBILISATION_REASONS.filter((r) => !EMPLOYEE_ONLY_DEMOBILISATION_REASONS.includes(r));
+  const resolvedOutcome = deployment
+    ? resolveDemobiliseOutcome(deployment.workerType, demobiliseReason, demobiliseExitOutcome)
+    : 'Standby';
 
   if (isPending) {
     return (
@@ -304,10 +332,12 @@ export default function DeploymentDetailPage() {
         onBack={() => navigate(-1)}
         actions={
           <div className="flex items-center gap-2">
-            <Badge variant={isActive ? 'success' : 'default'}>{t(`common.status.${deployment.status}`, deployment.status)}</Badge>
-            {isActive && canRelease && (
-              <Button size="sm" variant="danger-ghost" onClick={() => setReleasing(true)}>
-                {t('staffDeployments.detail.release')}
+            <Badge variant={isActive ? 'success' : 'default'}>
+              {t(`staffDeployments.status.${deployment.status}`, deployment.status)}
+            </Badge>
+            {isActive && canDemobilise && (
+              <Button size="sm" variant="danger-ghost" onClick={() => setDemobilising(true)}>
+                {t('staffDeployments.detail.demobilise')}
               </Button>
             )}
           </div>
@@ -339,7 +369,16 @@ export default function DeploymentDetailPage() {
         )}
         <DetailRow label={t('staffDeployments.detail.fields.contractHours')}>{deployment.requiredTimesheetHours ?? '—'}</DetailRow>
         <DetailRow label={t('staffDeployments.detail.fields.since')}>{formatDate(deployment.startDate)}</DetailRow>
-        {!isActive && <DetailRow label={t('staffDeployments.detail.fields.released')}>{formatDate(deployment.endDate)}</DetailRow>}
+        {!isActive && (
+          <>
+            <DetailRow label={t('staffDeployments.detail.fields.demobilisedOn')}>{formatDate(deployment.endDate)}</DetailRow>
+            {deployment.endReason && (
+              <DetailRow label={t('staffDeployments.detail.fields.reason')}>
+                {t(`staffDeployments.reasons.${deployment.endReason}`, deployment.endReason)}
+              </DetailRow>
+            )}
+          </>
+        )}
         {deployment.releaseNote && (
           <div className="mt-3 border-t border-border pt-3">
             <p className="text-xs uppercase tracking-wide text-muted">{t('staffDeployments.detail.notesLabel')}</p>
@@ -579,33 +618,83 @@ export default function DeploymentDetailPage() {
         )}
       </Modal>
 
-      <Modal open={releasing} onClose={() => setReleasing(false)} title={t('staffDeployments.detail.releaseModalTitle', { name: deployment.workerName })}>
+      <Modal
+        open={demobilising}
+        onClose={() => setDemobilising(false)}
+        title={t('staffDeployments.detail.demobiliseModalTitle', { name: deployment.workerName })}
+      >
         <form
-          onSubmit={handleReleaseSubmit((values) => releaseMutation.mutate(values))}
+          onSubmit={handleDemobiliseSubmit((values) => demobiliseMutation.mutate(values))}
           noValidate
           className="space-y-4"
         >
-          <p className="text-sm text-muted">{t('staffDeployments.detail.releaseModalMessage', { name: deployment.workerName })}</p>
+          <p className="text-sm text-muted">{t('staffDeployments.detail.demobiliseModalMessage', { name: deployment.workerName })}</p>
           <Input
-            label={t('staffDeployments.detail.releaseDateLabel')}
+            label={t('staffDeployments.detail.demobiliseDateLabel')}
             type="date"
-            error={releaseErrors.releaseDate?.message}
-            {...registerRelease('releaseDate')}
+            error={demobiliseErrors.releaseDate?.message}
+            {...registerDemobilise('releaseDate')}
           />
+          <Select label={t('staffDeployments.detail.reasonLabel')} error={demobiliseErrors.reason?.message} {...registerDemobilise('reason')}>
+            <option value="">{t('staffDeployments.detail.chooseReason')}</option>
+            {availableDemobiliseReasons.map((r) => (
+              <option key={r} value={r}>
+                {t(`staffDeployments.reasons.${r}`, r)}
+              </option>
+            ))}
+          </Select>
+          {demobiliseReason === 'Other' && deployment.workerType === 'Employee' && (
+            <label className="flex items-center gap-2 text-sm">
+              <input type="checkbox" className="h-4 w-4 rounded border-border" {...registerDemobilise('exitOutcome')} />
+              {t('staffDeployments.detail.otherExitCheckbox')}
+            </label>
+          )}
+          {resolvedOutcome === 'Exit' && (
+            <p className="rounded-lg bg-warning/10 px-3 py-2 text-xs text-warning">
+              {t('staffDeployments.detail.exitWarning', { name: deployment.workerName })}
+            </p>
+          )}
           <Textarea
-            label={t('staffDeployments.detail.releaseNoteLabel')}
-            error={releaseErrors.releaseNote?.message}
-            {...registerRelease('releaseNote')}
+            label={t('staffDeployments.detail.demobiliseNoteLabel')}
+            error={demobiliseErrors.releaseNote?.message}
+            {...registerDemobilise('releaseNote')}
           />
           <div className="flex justify-end gap-2 pt-2">
-            <Button type="button" variant="secondary" onClick={() => setReleasing(false)} disabled={releaseMutation.isPending}>
+            <Button type="button" variant="secondary" onClick={() => setDemobilising(false)} disabled={demobiliseMutation.isPending}>
               {t('common.cancel')}
             </Button>
-            <Button type="submit" variant="danger" isLoading={releaseMutation.isPending}>
-              {t('staffDeployments.detail.release')}
+            <Button type="submit" variant="danger" isLoading={demobiliseMutation.isPending}>
+              {t('staffDeployments.detail.demobilise')}
             </Button>
           </div>
         </form>
+      </Modal>
+
+      <Modal
+        open={Boolean(eosbPrompt)}
+        onClose={() => setEosbPrompt(null)}
+        title={t('staffDeployments.detail.eosbPromptTitle', { name: deployment.workerName })}
+      >
+        {eosbPrompt && (
+          <div className="space-y-4">
+            <p className="text-sm text-muted">{t('staffDeployments.detail.eosbPromptMessage', { name: deployment.workerName })}</p>
+            <div className="flex justify-end gap-2 pt-2">
+              <Button type="button" variant="secondary" onClick={() => setEosbPrompt(null)}>
+                {t('staffDeployments.detail.eosbPromptLater')}
+              </Button>
+              <Button
+                type="button"
+                onClick={() =>
+                  navigate(
+                    `/eosb/new?employee=${deployment.worker?._id ?? ''}&exitDate=${eosbPrompt.exitDate}&exitReason=${eosbPrompt.exitReason}`
+                  )
+                }
+              >
+                {t('staffDeployments.detail.eosbPromptGo')}
+              </Button>
+            </div>
+          </div>
+        )}
       </Modal>
     </div>
   );
