@@ -109,8 +109,32 @@ function DetailRow({ label, children }) {
  *  it the same way (never trust a client-submitted total when the real
  *  breakdown is right there). Pressing Enter in a day's cell moves focus
  *  (and scrolls) to the next one, so a full month can be typed through
- *  without reaching for the mouse — added 2026-09-13 per the user's own ask. */
-function MonthlyHoursForm({ deployment, defaultValues, onSubmit, submitting, submitLabel, monthFixed, legacyActualHours }) {
+ *  without reaching for the mouse — added 2026-09-13 per the user's own ask.
+ *
+ * `contractHours` is the client agreement hours to compare against (the
+ * deployment's own `requiredTimesheetHours` when adding, or the entry's own
+ * snapshotted `contractHours` when correcting one already entered — see the
+ * two call sites below). There is no OT amount INPUT anymore — added
+ * 2026-09-13 per the user's own ask: it's always server-computed
+ * (otHours × the Mobilisation's OT client rate), never typed in, so whoever
+ * enters hours never has to know or guess it. `canDecideHours`/`otClientRate`
+ * gate a small commercial-only preview of it in the summary below — only
+ * whoever can decide this section (the "manager who has access") ever sees a
+ * money figure here; `otClientRate` is simply absent from the API response
+ * for anyone else (see deployment.service.js's getDeployment), so there's
+ * nothing to leak even if this check were somehow bypassed client-side. */
+function MonthlyHoursForm({
+  deployment,
+  defaultValues,
+  onSubmit,
+  submitting,
+  submitLabel,
+  monthFixed,
+  legacyActualHours,
+  contractHours,
+  canDecideHours,
+  otClientRate,
+}) {
   const { t, i18n } = useTranslation();
   const {
     register,
@@ -142,6 +166,9 @@ function MonthlyHoursForm({ deployment, defaultValues, onSubmit, submitting, sub
   }, [month]);
 
   const total = dailyHours.reduce((runningTotal, v) => runningTotal + (Number(v) || 0), 0);
+  const agreementHours = contractHours ?? 0;
+  const otHoursPreview = Math.max(0, total - agreementHours);
+  const otAmountPreview = otHoursPreview * (otClientRate ?? 0);
 
   // Enter advances to the next day instead of submitting the form — and
   // scrolls it into view, since the grid can be wider than its container.
@@ -158,26 +185,15 @@ function MonthlyHoursForm({ deployment, defaultValues, onSubmit, submitting, sub
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-4">
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-        <Input
-          label={t('staffDeployments.detail.monthLabel')}
-          type="month"
-          min={start}
-          max={max}
-          disabled={monthFixed}
-          error={errors.month?.message}
-          {...register('month')}
-        />
-        <Input
-          label={t('staffDeployments.detail.otAmountLabel')}
-          type="number"
-          step="0.01"
-          min="0"
-          placeholder={t('staffDeployments.detail.otAmountPlaceholder')}
-          error={errors.otAmount?.message}
-          {...register('otAmount')}
-        />
-      </div>
+      <Input
+        label={t('staffDeployments.detail.monthLabel')}
+        type="month"
+        min={start}
+        max={max}
+        disabled={monthFixed}
+        error={errors.month?.message}
+        {...register('month')}
+      />
 
       {legacyActualHours != null && (
         <p className="rounded-lg bg-warning/10 px-3 py-2 text-xs text-warning">
@@ -242,6 +258,27 @@ function MonthlyHoursForm({ deployment, defaultValues, onSubmit, submitting, sub
             </table>
           </div>
           {errors.dailyHours && <p className="mt-1.5 text-sm text-danger">{errors.dailyHours.message}</p>}
+
+          <div className="mt-3 grid grid-cols-2 gap-3 rounded-lg border border-border bg-bg/40 p-3 sm:grid-cols-4">
+            <div>
+              <p className="text-xs text-muted">{t('staffDeployments.detail.summaryContractHours')}</p>
+              <p className="text-sm font-semibold tabular-nums">{agreementHours}</p>
+            </div>
+            <div>
+              <p className="text-xs text-muted">{t('staffDeployments.detail.summaryActualHours')}</p>
+              <p className="text-sm font-semibold tabular-nums">{total}</p>
+            </div>
+            <div>
+              <p className="text-xs text-muted">{t('staffDeployments.detail.summaryOtHours')}</p>
+              <p className="text-sm font-semibold tabular-nums">{otHoursPreview}</p>
+            </div>
+            {canDecideHours && (
+              <div>
+                <p className="text-xs text-muted">{t('staffDeployments.detail.summaryOtAmount')}</p>
+                <p className="text-sm font-semibold tabular-nums">{formatMoney(otAmountPreview)}</p>
+              </div>
+            )}
+          </div>
         </div>
       )}
 
@@ -479,7 +516,12 @@ export default function DeploymentDetailPage() {
                   <th className="px-3 py-2">{t('staffDeployments.detail.columns.contractHours')}</th>
                   <th className="px-3 py-2">{t('staffDeployments.detail.columns.actualHours')}</th>
                   <th className="px-3 py-2">{t('staffDeployments.detail.columns.otHours')}</th>
-                  <th className="px-3 py-2">{t('staffDeployments.detail.columns.otAmount')}</th>
+                  {/* OT amount is commercial data — stripped server-side for
+                      anyone without deploymentsHoursDecide access (see
+                      deployment.service.js's getDeployment), same treatment
+                      as profit below. canDecideHours mirrors that exact
+                      check client-side. */}
+                  {canDecideHours && <th className="px-3 py-2">{t('staffDeployments.detail.columns.otAmount')}</th>}
                   {deployment.totalProfit != null && <th className="px-3 py-2">{t('staffDeployments.detail.columns.profit')}</th>}
                   <th className="px-3 py-2">{t('staffDeployments.detail.columns.status')}</th>
                   {(canEnterHours || canDecideHours) && isActive && <th className="px-3 py-2" />}
@@ -501,7 +543,7 @@ export default function DeploymentDetailPage() {
                       <td className="px-3 py-2">{entry.contractHours}</td>
                       <td className="px-3 py-2">{entry.actualHours}</td>
                       <td className="px-3 py-2">{entry.otHours}</td>
-                      <td className="px-3 py-2">{formatMoney(entry.otAmount)}</td>
+                      {canDecideHours && <td className="px-3 py-2">{formatMoney(entry.otAmount)}</td>}
                       {deployment.totalProfit != null && (
                         <td className={cn('px-3 py-2 font-medium tabular-nums', entry.profit >= 0 ? 'text-success' : 'text-danger')}>
                           {formatMoney(entry.profit)}
@@ -568,11 +610,13 @@ export default function DeploymentDetailPage() {
               defaultValues={addDefaultValues}
               submitting={addMutation.isPending}
               submitLabel={t('staffDeployments.detail.save')}
+              contractHours={deployment.requiredTimesheetHours ?? 0}
+              canDecideHours={canDecideHours}
+              otClientRate={deployment.mobilisation?.otClientRate}
               onSubmit={(values) =>
                 addMutation.mutate({
                   month: values.month,
                   dailyHours: values.dailyHours.map(parseDailyEntry),
-                  otAmount: values.otAmount ? Number(values.otAmount) : undefined,
                   notes: values.notes || undefined,
                 })
               }
@@ -596,12 +640,14 @@ export default function DeploymentDetailPage() {
             submitLabel={t('staffDeployments.detail.save')}
             monthFixed
             legacyActualHours={editingEntry.dailyHours?.length ? null : editingEntry.actualHours}
+            contractHours={editingEntry.contractHours}
+            canDecideHours={canDecideHours}
+            otClientRate={deployment.mobilisation?.otClientRate}
             onSubmit={(values) =>
               updateMutation.mutate({
                 entryId: editingEntry._id,
                 values: {
                   dailyHours: values.dailyHours.map(parseDailyEntry),
-                  otAmount: values.otAmount ? Number(values.otAmount) : undefined,
                   notes: values.notes || undefined,
                 },
               })
@@ -634,6 +680,28 @@ export default function DeploymentDetailPage() {
                 worker: deployment.workerName,
               })}
             </p>
+            {/* Reachable only when canDecideHours is true (see canDecideThis
+                above, which gates the button that opens this modal) — the
+                OT amount here is never a concern, only a decider ever sees
+                this modal at all. */}
+            <div className="grid grid-cols-2 gap-3 rounded-lg border border-border bg-bg/40 p-3 sm:grid-cols-4">
+              <div>
+                <p className="text-xs text-muted">{t('staffDeployments.detail.summaryContractHours')}</p>
+                <p className="text-sm font-semibold tabular-nums">{decidingEntry.contractHours}</p>
+              </div>
+              <div>
+                <p className="text-xs text-muted">{t('staffDeployments.detail.summaryActualHours')}</p>
+                <p className="text-sm font-semibold tabular-nums">{decidingEntry.actualHours}</p>
+              </div>
+              <div>
+                <p className="text-xs text-muted">{t('staffDeployments.detail.summaryOtHours')}</p>
+                <p className="text-sm font-semibold tabular-nums">{decidingEntry.otHours}</p>
+              </div>
+              <div>
+                <p className="text-xs text-muted">{t('staffDeployments.detail.summaryOtAmount')}</p>
+                <p className="text-sm font-semibold tabular-nums">{formatMoney(decidingEntry.otAmount)}</p>
+              </div>
+            </div>
             <Textarea
               label={
                 decision === 'Rejected'

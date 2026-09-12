@@ -45,14 +45,12 @@ export const monthlyHoursFormSchema = z.object({
     .refine((arr) => arr.every((v) => DAILY_ENTRY_PATTERN.test(v.trim())), {
       message: "Enter each day's hours (0-24), or F/S/A for Off/Sick/Absent.",
     }),
-  otAmount: z.string().optional().or(z.literal('')),
   notes: optionalStr(500),
 });
 
 export const emptyMonthlyHoursForm = {
   month: '',
   dailyHours: [],
-  otAmount: '',
   notes: '',
 };
 
@@ -82,7 +80,6 @@ export function monthlyHoursEntryToForm(entry) {
     dailyHours: entry.dailyHours?.length
       ? entry.dailyHours.map(dailyEntryToString)
       : Array(daysInMonth(entry.month)).fill(''),
-    otAmount: String(entry.otAmount ?? ''),
     notes: entry.notes ?? '',
   };
 }
