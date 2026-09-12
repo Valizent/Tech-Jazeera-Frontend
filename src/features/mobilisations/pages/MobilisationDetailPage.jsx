@@ -230,20 +230,8 @@ function CommercialDetailsForm({ m, canDecide, isFinalStep, onSave, saving, onAp
   const {
     register,
     handleSubmit,
-    watch,
     formState: { errors },
   } = useForm({ resolver: zodResolver(commercialDetailsFormSchema), defaultValues: commercialDetailsToForm(m) });
-
-  // Server-derived, never typed in (see mobilisation.service.js's
-  // computeProfitFields): max(0, client timesheet hours - required
-  // timesheet hours), live-updating as the reviewer types the client's
-  // actual hours in above.
-  const clientTimesheetHoursRaw = watch('clientTimesheetHours');
-  const clientTimesheetHours = Number(clientTimesheetHoursRaw);
-  const otHoursPreview =
-    clientTimesheetHoursRaw !== '' && Number.isFinite(clientTimesheetHours)
-      ? Math.max(0, clientTimesheetHours - (m.requiredTimesheetHours ?? 0))
-      : 0;
 
   return (
     <Card>
@@ -262,23 +250,9 @@ function CommercialDetailsForm({ m, canDecide, isFinalStep, onSave, saving, onAp
           <Input label={t('staffMobilisations.detail.subPODate')} type="date" error={errors.subPODate?.message} {...register('subPODate')} />
         </div>
         <div className="border-t border-border pt-4">
-          <h3 className="mb-3 text-xs font-semibold uppercase tracking-wide text-muted">{t('staffMobilisations.detail.sectionOvertimeTimesheet')}</h3>
+          <h3 className="mb-1 text-xs font-semibold uppercase tracking-wide text-muted">{t('staffMobilisations.detail.sectionOvertimeRates')}</h3>
+          <p className="mb-3 text-xs text-muted">{t('staffMobilisations.detail.overtimeRatesHint')}</p>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            <Input
-              label={t('staffMobilisations.detail.clientTimesheetHours')}
-              type="number"
-              step="0.01"
-              min="0"
-              error={errors.clientTimesheetHours?.message}
-              {...register('clientTimesheetHours')}
-            />
-            <Input
-              label={t('staffMobilisations.detail.otHours')}
-              type="text"
-              readOnly
-              disabled
-              value={otHoursPreview}
-            />
             <Input
               label={t('staffMobilisations.detail.otClientRate')}
               type="number"
@@ -652,7 +626,6 @@ export default function MobilisationDetailPage() {
               { label: t('staffMobilisations.detail.fields.fta'), value: formatMoney(m.fta) },
               { label: t('staffMobilisations.detail.fields.allowance'), value: formatMoney(m.allowance) },
               { label: t('staffMobilisations.detail.fields.requiredTimesheetHours'), value: m.requiredTimesheetHours ?? null },
-              { label: t('staffMobilisations.detail.fields.clientTimesheetHours'), value: m.clientTimesheetHours ?? null },
               ...(m.hasSubcontractor
                 ? [
                     { label: t('staffMobilisations.detail.fields.subcontractorRate'), value: formatMoney(m.subcontractorRate) },
@@ -668,7 +641,6 @@ export default function MobilisationDetailPage() {
                 value: m.profitPerMonth != null ? formatMoney(m.profitPerMonth) : null,
                 valueClassName: profitClass(m.profitPerMonth),
               },
-              { label: t('staffMobilisations.detail.fields.otHours'), value: m.otHours ?? null },
               {
                 label: t('staffMobilisations.detail.fields.otClientRate'),
                 value: m.otClientRate != null ? formatMoney(m.otClientRate) : null,
@@ -690,9 +662,9 @@ export default function MobilisationDetailPage() {
                   ]
                 : []),
               {
-                label: t('staffMobilisations.detail.fields.otProfitTotal'),
-                value: m.otProfitTotal ? formatMoney(m.otProfitTotal) : null,
-                valueClassName: profitClass(m.otProfitTotal),
+                label: t('staffMobilisations.detail.fields.otProfitPerHour'),
+                value: m.otProfitPerHour != null ? formatMoney(m.otProfitPerHour) : null,
+                valueClassName: profitClass(m.otProfitPerHour),
               },
             ]}
           />

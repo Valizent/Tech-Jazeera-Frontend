@@ -124,11 +124,13 @@ export const emptyMobilisationForm = {
 };
 
 // --- M3: current-step reviewer's Section 2 (Office Secretary, then
-// Marketing Manager, once configured) — quotation/PO, actual timesheet
-// hours, overtime rates, remark. Every field optional: a reviewer fills in
-// what they have as it arrives. `otHours` is NOT here — it's server-derived
-// from clientTimesheetHours - requiredTimesheetHours (see
-// mobilisation.service.js's computeProfitFields), never typed in. ---
+// Marketing Manager, once configured) — quotation/PO, overtime RATES,
+// remark. Every field optional: a reviewer fills in what they have as it
+// arrives. No actual-hours field here at all (removed 2026-09-12) — a real
+// worker isn't placed yet at this stage, so there's no timesheet to enter;
+// that now lives entirely on the Deployment this mobilisation produces once
+// Approved (see features/deployments/deployments.schema.js's day-by-day
+// grid, filled in month by month as the client's real timesheets arrive). ---
 
 export const commercialDetailsFormSchema = z.object({
   clientQuotation: optionalStr(100),
@@ -139,7 +141,6 @@ export const commercialDetailsFormSchema = z.object({
   subQuotationDate: z.string().optional().or(z.literal('')),
   subPO: optionalStr(100),
   subPODate: z.string().optional().or(z.literal('')),
-  clientTimesheetHours: optionalNumberString,
   otClientRate: optionalNumberString,
   otClientCommission: optionalNumberString,
   otSubcontractorRate: optionalNumberString,
@@ -156,7 +157,6 @@ export const emptyCommercialDetailsForm = {
   subQuotationDate: '',
   subPO: '',
   subPODate: '',
-  clientTimesheetHours: '',
   otClientRate: '',
   otClientCommission: '',
   otSubcontractorRate: '',
@@ -174,7 +174,6 @@ export function commercialDetailsToForm(m) {
     subQuotationDate: m.subQuotationDate ? m.subQuotationDate.slice(0, 10) : '',
     subPO: m.subPO ?? '',
     subPODate: m.subPODate ? m.subPODate.slice(0, 10) : '',
-    clientTimesheetHours: String(m.clientTimesheetHours ?? ''),
     otClientRate: String(m.otClientRate ?? ''),
     otClientCommission: String(m.otClientCommission ?? ''),
     otSubcontractorRate: String(m.otSubcontractorRate ?? ''),
