@@ -5,7 +5,7 @@
  * a Deployment is born automatically once its source Mobilisation is
  * Approved (see the Mobilisations module).
  */
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useTranslation } from 'react-i18next';
@@ -16,11 +16,12 @@ import {
   monthlyHoursFormSchema,
   emptyMonthlyHoursForm,
   monthlyHoursEntryToForm,
+  daysInMonth,
   releaseFormSchema,
   emptyReleaseForm,
 } from '../deployments.schema.js';
 import { useAuth } from '../../auth/AuthContext.jsx';
-import { apiMessage, formatDate, formatMoney } from '../../../lib/utils.js';
+import { apiMessage, formatDate, formatMoney, cn } from '../../../lib/utils.js';
 import { useToast } from '../../../components/ui/Toast.jsx';
 import PageHeader from '../../../components/shared/PageHeader.jsx';
 import BackButton from '../../../components/shared/BackButton.jsx';
@@ -71,15 +72,43 @@ function DetailRow({ label, children }) {
   );
 }
 
-function MonthlyHoursForm({ deployment, defaultValues, onSubmit, submitting, submitLabel, monthFixed }) {
+/** Day-by-day timesheet entry, replacing a single "actual hours" number —
+ *  see docs/DEPLOYMENT-notes.md's 2026-09-12 follow-up. One number input per
+ *  calendar day of the selected month; the monthly total is just their sum,
+ *  shown live but never itself submitted — the server derives it the same
+ *  way (never trust a client-submitted total when the real breakdown is
+ *  right there). */
+function MonthlyHoursForm({ deployment, defaultValues, onSubmit, submitting, submitLabel, monthFixed, legacyActualHours }) {
   const { t } = useTranslation();
   const {
     register,
     handleSubmit,
+    watch,
+    setValue,
     formState: { errors },
   } = useForm({ resolver: zodResolver(monthlyHoursFormSchema), defaultValues });
   const start = monthStrOf(deployment.startDate);
   const max = previousMonthStr();
+  const month = watch('month');
+  const dailyHours = watch('dailyHours') ?? [];
+
+  // Resize the grid whenever the selected month changes — grows/shrinks to
+  // that month's real day count, keeping already-typed values for the days
+  // that still exist. Deliberately keyed on `month` alone (not `dailyHours`
+  // itself, which changes on every keystroke) — see the module's own note
+  // on why this doesn't loop.
+  useEffect(() => {
+    const count = daysInMonth(month);
+    if (count === 0 || dailyHours.length === count) return;
+    setValue(
+      'dailyHours',
+      Array.from({ length: count }, (_, i) => dailyHours[i] ?? ''),
+      { shouldValidate: false }
+    );
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [month]);
+
+  const total = dailyHours.reduce((runningTotal, v) => runningTotal + (Number(v) || 0), 0);
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-4">
@@ -94,14 +123,6 @@ function MonthlyHoursForm({ deployment, defaultValues, onSubmit, submitting, sub
           {...register('month')}
         />
         <Input
-          label={t('staffDeployments.detail.actualHoursLabel')}
-          type="number"
-          step="0.01"
-          min="0"
-          error={errors.actualHours?.message}
-          {...register('actualHours')}
-        />
-        <Input
           label={t('staffDeployments.detail.otAmountLabel')}
           type="number"
           step="0.01"
@@ -111,6 +132,52 @@ function MonthlyHoursForm({ deployment, defaultValues, onSubmit, submitting, sub
           {...register('otAmount')}
         />
       </div>
+
+      {legacyActualHours != null && (
+        <p className="rounded-lg bg-warning/10 px-3 py-2 text-xs text-warning">
+          {t('staffDeployments.detail.legacyNoBreakdown', { hours: legacyActualHours })}
+        </p>
+      )}
+
+      {dailyHours.length > 0 && (
+        <div>
+          <div className="mb-1.5 flex items-center justify-between">
+            <span className="text-sm font-medium text-text">{t('staffDeployments.detail.dailyHoursLabel')}</span>
+            <span className="text-sm text-muted">{t('staffDeployments.detail.dailyHoursTotal', { total })}</span>
+          </div>
+          <div className="overflow-x-auto rounded-lg border border-border">
+            <table className="border-collapse text-sm">
+              <thead>
+                <tr>
+                  {dailyHours.map((_, i) => (
+                    <th key={i} className="border-b border-border bg-bg/40 px-1 py-1 text-center text-xs font-medium text-muted">
+                      {i + 1}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  {dailyHours.map((_, i) => (
+                    <td key={i} className="p-0.5">
+                      <input
+                        type="number"
+                        min="0"
+                        max="24"
+                        step="0.5"
+                        className="h-9 w-14 rounded border border-border bg-surface text-center text-sm text-text outline-none transition-colors focus:border-primary focus:ring-1 focus:ring-primary/30"
+                        {...register(`dailyHours.${i}`)}
+                      />
+                    </td>
+                  ))}
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          {errors.dailyHours && <p className="mt-1.5 text-sm text-danger">{errors.dailyHours.message}</p>}
+        </div>
+      )}
+
       <Textarea label={t('staffDeployments.detail.notesLabel')} error={errors.notes?.message} {...register('notes')} />
       <div className="flex justify-end">
         <Button type="submit" size="sm" isLoading={submitting}>
@@ -289,7 +356,21 @@ export default function DeploymentDetailPage() {
       </Card>
 
       <Card>
-        <h2 className="mb-1 text-sm font-semibold uppercase tracking-wide text-muted">{t('staffDeployments.detail.sectionMonthlyHours')}</h2>
+        <div className="mb-1 flex flex-wrap items-start justify-between gap-3">
+          <h2 className="text-sm font-semibold uppercase tracking-wide text-muted">{t('staffDeployments.detail.sectionMonthlyHours')}</h2>
+          {/* Profit is commercial data, stripped server-side for anyone
+              without deploymentsHoursDecide access — deployment.totalProfit
+              simply won't exist on the response for them, so this naturally
+              disappears rather than needing a separate client-side check. */}
+          {deployment.totalProfit != null && (
+            <div className="text-right">
+              <p className="text-xs uppercase tracking-wide text-muted">{t('staffDeployments.detail.totalProfit')}</p>
+              <p className={cn('text-lg font-semibold tabular-nums', deployment.totalProfit >= 0 ? 'text-success' : 'text-danger')}>
+                {formatMoney(deployment.totalProfit)}
+              </p>
+            </div>
+          )}
+        </div>
         <p className="mb-4 text-sm text-muted">{t('staffDeployments.detail.monthlyHoursHint')}</p>
 
         {sortedMonths.length === 0 ? (
@@ -304,6 +385,7 @@ export default function DeploymentDetailPage() {
                   <th className="px-3 py-2">{t('staffDeployments.detail.columns.actualHours')}</th>
                   <th className="px-3 py-2">{t('staffDeployments.detail.columns.otHours')}</th>
                   <th className="px-3 py-2">{t('staffDeployments.detail.columns.otAmount')}</th>
+                  {deployment.totalProfit != null && <th className="px-3 py-2">{t('staffDeployments.detail.columns.profit')}</th>}
                   <th className="px-3 py-2">{t('staffDeployments.detail.columns.status')}</th>
                   {(canEnterHours || canDecideHours) && isActive && <th className="px-3 py-2" />}
                 </tr>
@@ -311,7 +393,12 @@ export default function DeploymentDetailPage() {
               <tbody className="divide-y divide-border">
                 {sortedMonths.map((entry) => {
                   const statusVariant = entry.status === 'Approved' ? 'success' : entry.status === 'Rejected' ? 'danger' : 'warning';
-                  const canEditThis = canEnterHours && isActive && entry.status !== 'Approved';
+                  // The enterer can edit Pending/Rejected only; whoever can
+                  // DECIDE may also correct an Approved entry directly (the
+                  // server enforces this exactly the same way — see
+                  // deployment.service.js's updateMonthlyHours doc comment).
+                  const canEditThis =
+                    isActive && ((canEnterHours && entry.status !== 'Approved') || (canDecideHours && entry.status === 'Approved'));
                   const canDecideThis = canDecideHours && isActive && entry.status === 'Pending';
                   return (
                     <tr key={entry._id}>
@@ -320,6 +407,11 @@ export default function DeploymentDetailPage() {
                       <td className="px-3 py-2">{entry.actualHours}</td>
                       <td className="px-3 py-2">{entry.otHours}</td>
                       <td className="px-3 py-2">{formatMoney(entry.otAmount)}</td>
+                      {deployment.totalProfit != null && (
+                        <td className={cn('px-3 py-2 font-medium tabular-nums', entry.profit >= 0 ? 'text-success' : 'text-danger')}>
+                          {formatMoney(entry.profit)}
+                        </td>
+                      )}
                       <td className="px-3 py-2">
                         <Badge variant={statusVariant}>{t(`staffDeployments.detail.hoursStatus.${entry.status}`, entry.status)}</Badge>
                         {entry.status === 'Rejected' && entry.decisionNote && (
@@ -384,7 +476,7 @@ export default function DeploymentDetailPage() {
               onSubmit={(values) =>
                 addMutation.mutate({
                   month: values.month,
-                  actualHours: Number(values.actualHours),
+                  dailyHours: values.dailyHours.map(Number),
                   otAmount: values.otAmount ? Number(values.otAmount) : undefined,
                   notes: values.notes || undefined,
                 })
@@ -408,11 +500,12 @@ export default function DeploymentDetailPage() {
             submitting={updateMutation.isPending}
             submitLabel={t('staffDeployments.detail.save')}
             monthFixed
+            legacyActualHours={editingEntry.dailyHours?.length ? null : editingEntry.actualHours}
             onSubmit={(values) =>
               updateMutation.mutate({
                 entryId: editingEntry._id,
                 values: {
-                  actualHours: Number(values.actualHours),
+                  dailyHours: values.dailyHours.map(Number),
                   otAmount: values.otAmount ? Number(values.otAmount) : undefined,
                   notes: values.notes || undefined,
                 },

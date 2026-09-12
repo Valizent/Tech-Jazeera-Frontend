@@ -149,9 +149,25 @@ export default function MobilisationForm({
     }
   }, [jobTitles, pendingJobTitle, setValue]);
 
+  // Client-side (Zod) validation failures never reach onSubmit at all, so
+  // the mutation's own onError toast above never fires for them — silently
+  // doing nothing on a bad click is indistinguishable from a broken button.
+  // Bug found 2026-09-12: a validation error on a field the current
+  // worker type doesn't even render (phone, Own Employee) had genuinely no
+  // way to be seen. Every field's own Zod message is already
+  // human-readable, so surface it directly rather than a generic "check
+  // the form" toast that wouldn't have named the actual problem either.
+  function onInvalid(formErrors) {
+    const messages = Object.values(formErrors)
+      .map((err) => err?.message)
+      .filter(Boolean);
+    console.error('[MobilisationForm] validation failed:', formErrors);
+    toast.error(messages.length ? messages.join(' · ') : t('staffMobilisations.form.fixHighlighted'));
+  }
+
   return (
     <>
-    <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-6">
+    <form onSubmit={handleSubmit(onSubmit, onInvalid)} noValidate className="space-y-6">
       {/* Office Secretary only — creating this on behalf of a Coordinator
           who's busy. Every other creator never sees this (coordinatorCandidates
           is only passed by MobilisationNewPage when the logged-in user is

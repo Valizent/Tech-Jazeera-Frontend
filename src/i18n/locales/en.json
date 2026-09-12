@@ -1347,15 +1347,19 @@
         "actualHours": "Actual",
         "otHours": "OT hours",
         "otAmount": "OT amount",
+        "profit": "Profit",
         "status": "Status"
       },
+      "totalProfit": "Total profit",
       "hoursStatus": {
         "Pending": "Pending",
         "Approved": "Approved",
         "Rejected": "Rejected"
       },
       "monthLabel": "Month *",
-      "actualHoursLabel": "Actual hours (client timesheet) *",
+      "dailyHoursLabel": "Daily hours (client timesheet) *",
+      "dailyHoursTotal": "Total: {{total}}h",
+      "legacyNoBreakdown": "This entry has no daily breakdown yet — it was previously entered as a {{hours}}-hour total. Fill in each day below.",
       "otAmountLabel": "OT amount",
       "otAmountPlaceholder": "0.00",
       "notesLabel": "Notes",
@@ -1540,6 +1544,7 @@
       "clientLabel": "Client *",
       "selectClient": "Select a client…",
       "siteLabel": "Site",
+      "fixHighlighted": "Please fix the highlighted fields before saving.",
       "clientRate": "Client rate (SAR/hour)",
       "clientCommission": "Client commission (SAR/hour)",
       "fta": "FTA (SAR/month)",

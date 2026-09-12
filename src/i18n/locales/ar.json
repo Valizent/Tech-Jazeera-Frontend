@@ -1347,15 +1347,19 @@
         "actualHours": "الفعلي",
         "otHours": "ساعات إضافية",
         "otAmount": "مبلغ الإضافي",
+        "profit": "الربح",
         "status": "الحالة"
       },
+      "totalProfit": "إجمالي الربح",
       "hoursStatus": {
         "Pending": "قيد الانتظار",
         "Approved": "تمت الموافقة",
         "Rejected": "مرفوض"
       },
       "monthLabel": "الشهر *",
-      "actualHoursLabel": "الساعات الفعلية (جدول العميل) *",
+      "dailyHoursLabel": "الساعات اليومية (جدول العميل) *",
+      "dailyHoursTotal": "الإجمالي: {{total}} ساعة",
+      "legacyNoBreakdown": "لا يحتوي هذا السجل على تفصيل يومي بعد — تم إدخاله سابقًا كإجمالي {{hours}} ساعة. أدخل ساعات كل يوم أدناه.",
       "otAmountLabel": "مبلغ الوقت الإضافي",
       "otAmountPlaceholder": "0.00",
       "notesLabel": "ملاحظات",
@@ -1540,6 +1544,7 @@
       "clientLabel": "العميل *",
       "selectClient": "اختر عميلًا…",
       "siteLabel": "الموقع",
+      "fixHighlighted": "يرجى تصحيح الحقول المحددة قبل الحفظ.",
       "clientRate": "معدل العميل (ريال/ساعة)",
       "clientCommission": "عمولة العميل (ريال/ساعة)",
       "fta": "بدل الطعام والسفر والسكن (ريال/شهر)",
