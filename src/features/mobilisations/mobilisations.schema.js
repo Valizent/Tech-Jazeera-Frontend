@@ -60,19 +60,31 @@ const mobilisationFields = {
   nationality: optionalStr(80),
   phone: optionalSaudiPhone,
   jobTitle: z.string().trim().min(1, 'Job title is required.').max(150),
+  // Both moved into Worker & Job (2026-09-13, the user's own ask) — set by
+  // the coordinator/whoever creates this mobilisation up front, instead of
+  // the OT rate half waiting on the current-step reviewer's later Section 2
+  // pass (see commercialDetailsFormSchema below, which no longer has them).
+  requiredTimesheetHours: optionalNumberString,
+  otClientRate: optionalNumberString,
+  otClientCommission: optionalNumberString,
 
   client: z.string().min(1, 'Select a client.'),
   site: optionalStr(150),
-  clientRate: optionalNumberString,
+  // Required (2026-09-13, the user's own ask) — every mobilisation needs a
+  // real client rate from the start.
+  clientRate: z.string().min(1, 'Client rate is required.'),
   clientCommission: optionalNumberString,
   fta: optionalNumberString,
   allowance: optionalNumberString,
-  requiredTimesheetHours: optionalNumberString,
 
   // Subcontractor block only applies to SupplierEmployee — see superRefine.
   subcontractor: z.string().optional().or(z.literal('')),
   subcontractorRate: optionalNumberString,
   subcontractorCommission: optionalNumberString,
+  // Moved alongside subcontractorRate/subcontractorCommission above, same
+  // reasoning as otClientRate/otClientCommission.
+  otSubcontractorRate: optionalNumberString,
+  otSubcontractorCommission: optionalNumberString,
 
   mobilisationDate: z.string().min(1, 'Mobilisation date is required.'),
   checkoutDate: z.string().optional().or(z.literal('')),
@@ -107,16 +119,20 @@ export const emptyMobilisationForm = {
   nationality: '',
   phone: '+966',
   jobTitle: '',
+  requiredTimesheetHours: '',
+  otClientRate: '',
+  otClientCommission: '',
   client: '',
   site: '',
   clientRate: '',
   clientCommission: '',
   fta: '',
   allowance: '',
-  requiredTimesheetHours: '',
   subcontractor: '',
   subcontractorRate: '',
   subcontractorCommission: '',
+  otSubcontractorRate: '',
+  otSubcontractorCommission: '',
   mobilisationDate: new Date().toISOString().slice(0, 10),
   checkoutDate: '',
   remark: '',
@@ -124,13 +140,16 @@ export const emptyMobilisationForm = {
 };
 
 // --- M3: current-step reviewer's Section 2 (Office Secretary, then
-// Marketing Manager, once configured) — quotation/PO, overtime RATES,
-// remark. Every field optional: a reviewer fills in what they have as it
-// arrives. No actual-hours field here at all (removed 2026-09-12) — a real
-// worker isn't placed yet at this stage, so there's no timesheet to enter;
-// that now lives entirely on the Deployment this mobilisation produces once
-// Approved (see features/deployments/deployments.schema.js's day-by-day
-// grid, filled in month by month as the client's real timesheets arrive). ---
+// Marketing Manager, once configured) — the client/sub quotation-PO paper
+// trail, remark. Every field optional: a reviewer fills in what they have
+// as it arrives. No actual-hours field here at all (removed 2026-09-12) —
+// a real worker isn't placed yet at this stage, so there's no timesheet to
+// enter; that now lives entirely on the Deployment this mobilisation
+// produces once Approved (see features/deployments/deployments.schema.js's
+// day-by-day grid, filled in month by month as the client's real
+// timesheets arrive). No OT rate fields here either as of 2026-09-13 — the
+// user's own ask moved that responsibility to Section 1 (mobilisationFields
+// above), filled by the coordinator up front instead of the reviewer. ---
 
 export const commercialDetailsFormSchema = z.object({
   clientQuotation: optionalStr(100),
@@ -141,10 +160,6 @@ export const commercialDetailsFormSchema = z.object({
   subQuotationDate: z.string().optional().or(z.literal('')),
   subPO: optionalStr(100),
   subPODate: z.string().optional().or(z.literal('')),
-  otClientRate: optionalNumberString,
-  otClientCommission: optionalNumberString,
-  otSubcontractorRate: optionalNumberString,
-  otSubcontractorCommission: optionalNumberString,
   remark: optionalStr(1000),
 });
 
@@ -157,10 +172,6 @@ export const emptyCommercialDetailsForm = {
   subQuotationDate: '',
   subPO: '',
   subPODate: '',
-  otClientRate: '',
-  otClientCommission: '',
-  otSubcontractorRate: '',
-  otSubcontractorCommission: '',
   remark: '',
 };
 
@@ -174,10 +185,6 @@ export function commercialDetailsToForm(m) {
     subQuotationDate: m.subQuotationDate ? m.subQuotationDate.slice(0, 10) : '',
     subPO: m.subPO ?? '',
     subPODate: m.subPODate ? m.subPODate.slice(0, 10) : '',
-    otClientRate: String(m.otClientRate ?? ''),
-    otClientCommission: String(m.otClientCommission ?? ''),
-    otSubcontractorRate: String(m.otSubcontractorRate ?? ''),
-    otSubcontractorCommission: String(m.otSubcontractorCommission ?? ''),
     remark: m.remark ?? '',
   };
 }
@@ -209,16 +216,20 @@ export function mobilisationToForm(m) {
     nationality: m.nationality ?? '',
     phone: m.phone || '+966',
     jobTitle: m.jobTitle,
+    requiredTimesheetHours: String(m.requiredTimesheetHours ?? ''),
+    otClientRate: String(m.otClientRate ?? ''),
+    otClientCommission: String(m.otClientCommission ?? ''),
     client: m.client,
     site: m.site ?? '',
     clientRate: String(m.clientRate ?? ''),
     clientCommission: String(m.clientCommission ?? ''),
     fta: String(m.fta ?? ''),
     allowance: String(m.allowance ?? ''),
-    requiredTimesheetHours: String(m.requiredTimesheetHours ?? ''),
     subcontractor: m.subcontractor ?? '',
     subcontractorRate: String(m.subcontractorRate ?? ''),
     subcontractorCommission: String(m.subcontractorCommission ?? ''),
+    otSubcontractorRate: String(m.otSubcontractorRate ?? ''),
+    otSubcontractorCommission: String(m.otSubcontractorCommission ?? ''),
     mobilisationDate: m.mobilisationDate ? m.mobilisationDate.slice(0, 10) : '',
     checkoutDate: m.checkoutDate ? m.checkoutDate.slice(0, 10) : '',
     remark: m.remark ?? '',

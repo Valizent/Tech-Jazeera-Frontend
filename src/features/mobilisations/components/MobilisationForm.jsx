@@ -1,8 +1,12 @@
 /**
- * MobilisationForm — Section 1 fields (worker type/job/client billing/
- * subcontractor/dates), used by both the New and Edit pages. Section 2
- * (the current-step reviewer's quotation/PO/overtime fields) and the submit/
- * decide actions live on the detail page this form doesn't know about.
+ * MobilisationForm — Section 1 fields (worker type/job/client billing/OT
+ * rates/subcontractor/dates), used by both the New and Edit pages. Section 2
+ * (the current-step reviewer's quotation/PO paper trail) and the submit/
+ * decide actions live on the detail page this form doesn't know about. OT
+ * rate fields moved here from Section 2 (2026-09-13, the user's own ask) —
+ * the coordinator/whoever creates the mobilisation now sets them up front,
+ * same as every other rate on this form, instead of waiting on the later
+ * reviewer's own pass.
  *
  * `workerType` drives worker identity: 'Employee' keeps the original Employee
  * picker (Own-type only — Outsourced/Subcontracted employees go through
@@ -262,6 +266,30 @@ export default function MobilisationForm({
               ))}
             </Select>
           </div>
+          <Input
+            label={t('staffMobilisations.form.requiredTimesheetHours')}
+            type="number"
+            step="0.01"
+            min="0"
+            error={errors.requiredTimesheetHours?.message}
+            {...register('requiredTimesheetHours')}
+          />
+          <Input
+            label={t('staffMobilisations.form.otClientRate')}
+            type="number"
+            step="0.01"
+            min="0"
+            error={errors.otClientRate?.message}
+            {...register('otClientRate')}
+          />
+          <Input
+            label={t('staffMobilisations.form.otClientCommission')}
+            type="number"
+            step="0.01"
+            min="0"
+            error={errors.otClientCommission?.message}
+            {...register('otClientCommission')}
+          />
         </div>
       </section>
 
@@ -287,14 +315,6 @@ export default function MobilisationForm({
           <Input label={t('staffMobilisations.form.clientCommission')} type="number" step="0.01" min="0" error={errors.clientCommission?.message} {...register('clientCommission')} />
           <Input label={t('staffMobilisations.form.fta')} type="number" step="0.01" min="0" error={errors.fta?.message} {...register('fta')} />
           <Input label={t('staffMobilisations.form.allowance')} type="number" step="0.01" min="0" error={errors.allowance?.message} {...register('allowance')} />
-          <Input
-            label={t('staffMobilisations.form.requiredTimesheetHours')}
-            type="number"
-            step="0.01"
-            min="0"
-            error={errors.requiredTimesheetHours?.message}
-            {...register('requiredTimesheetHours')}
-          />
         </div>
       </section>
 
@@ -325,6 +345,22 @@ export default function MobilisationForm({
               min="0"
               error={errors.subcontractorCommission?.message}
               {...register('subcontractorCommission')}
+            />
+            <Input
+              label={t('staffMobilisations.form.otSubcontractorRate')}
+              type="number"
+              step="0.01"
+              min="0"
+              error={errors.otSubcontractorRate?.message}
+              {...register('otSubcontractorRate')}
+            />
+            <Input
+              label={t('staffMobilisations.form.otSubcontractorCommission')}
+              type="number"
+              step="0.01"
+              min="0"
+              error={errors.otSubcontractorCommission?.message}
+              {...register('otSubcontractorCommission')}
             />
           </div>
         </section>

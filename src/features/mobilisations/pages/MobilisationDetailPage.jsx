@@ -219,9 +219,10 @@ function CommercialDetailsCard({ m, canEdit, canDecide, isFinalStep, onSave, sav
   }
 
   // Editable (Office Secretary during their own turn, or Admin) — the real
-  // data-entry form. Overtime/timesheet fields stay here even though
-  // they're ALSO shown read-only in Rates & Financials above: that table
-  // reflects what's saved, this is where it actually gets typed in.
+  // data-entry form, now just the client/sub quotation-PO paper trail. OT
+  // rate fields moved to the New/Edit form (2026-09-13) — this page no
+  // longer types them in at all, only shows them read-only in Rates &
+  // Financials above (they're Section 1 data now, same as clientRate).
   return <CommercialDetailsForm m={m} canDecide={canDecide} isFinalStep={isFinalStep} onSave={onSave} saving={saving} onApprove={onApprove} onReject={onReject} />;
 }
 
@@ -248,48 +249,6 @@ function CommercialDetailsForm({ m, canDecide, isFinalStep, onSave, saving, onAp
           <Input label={t('staffMobilisations.detail.subQuotationDate')} type="date" error={errors.subQuotationDate?.message} {...register('subQuotationDate')} />
           <Input label={t('staffMobilisations.detail.subPO')} error={errors.subPO?.message} {...register('subPO')} />
           <Input label={t('staffMobilisations.detail.subPODate')} type="date" error={errors.subPODate?.message} {...register('subPODate')} />
-        </div>
-        <div className="border-t border-border pt-4">
-          <h3 className="mb-1 text-xs font-semibold uppercase tracking-wide text-muted">{t('staffMobilisations.detail.sectionOvertimeRates')}</h3>
-          <p className="mb-3 text-xs text-muted">{t('staffMobilisations.detail.overtimeRatesHint')}</p>
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            <Input
-              label={t('staffMobilisations.detail.otClientRate')}
-              type="number"
-              step="0.01"
-              min="0"
-              error={errors.otClientRate?.message}
-              {...register('otClientRate')}
-            />
-            <Input
-              label={t('staffMobilisations.detail.otClientCommission')}
-              type="number"
-              step="0.01"
-              min="0"
-              error={errors.otClientCommission?.message}
-              {...register('otClientCommission')}
-            />
-            {m.workerType === 'SupplierEmployee' && (
-              <>
-                <Input
-                  label={t('staffMobilisations.detail.otSubcontractorRate')}
-                  type="number"
-                  step="0.01"
-                  min="0"
-                  error={errors.otSubcontractorRate?.message}
-                  {...register('otSubcontractorRate')}
-                />
-                <Input
-                  label={t('staffMobilisations.detail.otSubcontractorCommission')}
-                  type="number"
-                  step="0.01"
-                  min="0"
-                  error={errors.otSubcontractorCommission?.message}
-                  {...register('otSubcontractorCommission')}
-                />
-              </>
-            )}
-          </div>
         </div>
         <Textarea label={t('staffMobilisations.form.remark')} error={errors.remark?.message} {...register('remark')} />
         <div className="flex flex-wrap justify-end gap-2 pt-2">
@@ -478,7 +437,7 @@ export default function MobilisationDetailPage() {
   // a server-only lookup this client has no way to answer itself.
   const canEditSection1 = canManage || Boolean(m.canEditSection1);
   const hasCommercialFields = 'clientRate' in m;
-  // Section 2 (quotation/PO/OT/timesheet/remark) is simply absent from the
+  // Section 2 (quotation/PO paper trail/remark) is simply absent from the
   // API response for a plain coordinator — the server strips it
   // unconditionally now (see mobilisation.service.js's REVIEW_FIELDS), so
   // its presence at all is the signal this viewer is entitled to see it
