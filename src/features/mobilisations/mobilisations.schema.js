@@ -27,11 +27,22 @@ const optionalIqama = z
 // 9 digits starting with 5). Mirrors the server's own regex in
 // mobilisation.validation.js — scoped to Mobilisation's phone field only.
 const SAUDI_PHONE_REGEX = /^(?:\+?9665\d{8}|05\d{8})$/;
+// '+966' alone is the form's own pre-filled placeholder (see
+// emptyMobilisationForm below), not a value the coordinator actually typed
+// — treat it the same as empty, or every Own Employee mobilisation (whose
+// phone field isn't even rendered — the real number lives on their
+// Employee record) fails validation on a placeholder that was never
+// really "filled in". Bug found 2026-09-12: this silently blocked every
+// Own Employee Draft save with no visible error, since the errored field
+// wasn't in the DOM for that worker type — the toast/error UI had nothing
+// to point at. The transform also means '+966' never reaches the server
+// as if it were a real value.
 const optionalSaudiPhone = z
   .string()
   .trim()
   .optional()
   .or(z.literal(''))
+  .transform((value) => (value === '+966' ? '' : value))
   .refine((value) => !value || SAUDI_PHONE_REGEX.test(value), {
     message: 'Enter a valid Saudi mobile number (e.g. 05XXXXXXXX or +9665XXXXXXXX).',
   });
