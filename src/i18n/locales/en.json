@@ -1381,6 +1381,7 @@
       "monthLabel": "Month *",
       "dailyHoursLabel": "Daily hours (client timesheet) *",
       "dailyHoursTotal": "Total: {{total}}h",
+      "dailyHoursHint": "Type hours worked (0-24) for each day, or F/S/A for Off/Sick/Absent. Press Enter to move to the next day.",
       "legacyNoBreakdown": "This entry has no daily breakdown yet — it was previously entered as a {{hours}}-hour total. Fill in each day below.",
       "otAmountLabel": "OT amount",
       "otAmountPlaceholder": "0.00",

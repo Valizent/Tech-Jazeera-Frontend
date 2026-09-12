@@ -28,14 +28,22 @@ export function daysInMonth(monthStr) {
 
 // One string per calendar day (day-by-day timesheet entry, not one
 // aggregate number — see docs/DEPLOYMENT-notes.md's 2026-09-12 follow-up).
-// Kept as strings through the form the same way every other numeric field
-// here is, coerced to Number only at submit time.
+// Each day is EITHER a plain number 0-24 (hours worked) OR one of the
+// single letters F/S/A (Off/Sick/Absent) — added the same day per the
+// user's own ask: a non-working day is marked directly in the same cell,
+// never a separate field, so it fully replaces the hours entry for that
+// day rather than sitting alongside it (see parseDailyEntry below, and
+// deployment.model.js's DAILY_ENTRY_STATUSES doc comment on the server
+// side this maps onto). Kept as strings through the form the same way
+// every other field here is, parsed only at submit time.
+const DAILY_ENTRY_PATTERN = /^((2[0-4]|1\d|\d)(\.\d+)?|[fFsSaA])$/;
+
 export const monthlyHoursFormSchema = z.object({
   month: z.string().regex(/^\d{4}-(0[1-9]|1[0-2])$/, 'Choose a month.'),
   dailyHours: z
     .array(z.string())
-    .refine((arr) => arr.every((v) => v.trim() !== '' && Number(v) >= 0 && Number(v) <= 24), {
-      message: 'Enter each day\'s hours (0-24).',
+    .refine((arr) => arr.every((v) => DAILY_ENTRY_PATTERN.test(v.trim())), {
+      message: "Enter each day's hours (0-24), or F/S/A for Off/Sick/Absent.",
     }),
   otAmount: z.string().optional().or(z.literal('')),
   notes: optionalStr(500),
@@ -48,10 +56,32 @@ export const emptyMonthlyHoursForm = {
   notes: '',
 };
 
+const DAILY_STATUS_LETTER = { Off: 'F', Sick: 'S', Absent: 'A' };
+const DAILY_LETTER_STATUS = { F: 'Off', S: 'Sick', A: 'Absent' };
+
+/** One day's typed-in string → what the server expects — {status, hours}.
+ *  A bare letter (case-insensitive) is Off/Sick/Absent with no hours;
+ *  anything else is parsed as the day's worked hours. */
+export function parseDailyEntry(value) {
+  const letter = value.trim().toUpperCase();
+  const status = DAILY_LETTER_STATUS[letter];
+  if (status) return { status };
+  return { status: 'Worked', hours: Number(value) };
+}
+
+/** The reverse of parseDailyEntry — a saved {status, hours} day → the
+ *  single string the grid displays and re-edits. */
+function dailyEntryToString(day) {
+  const letter = DAILY_STATUS_LETTER[day.status];
+  return letter ?? String(day.hours ?? '');
+}
+
 export function monthlyHoursEntryToForm(entry) {
   return {
     month: entry.month,
-    dailyHours: entry.dailyHours?.length ? entry.dailyHours.map(String) : Array(daysInMonth(entry.month)).fill(''),
+    dailyHours: entry.dailyHours?.length
+      ? entry.dailyHours.map(dailyEntryToString)
+      : Array(daysInMonth(entry.month)).fill(''),
     otAmount: String(entry.otAmount ?? ''),
     notes: entry.notes ?? '',
   };

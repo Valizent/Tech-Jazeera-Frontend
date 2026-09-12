@@ -5,7 +5,7 @@
  * a Deployment is born automatically once its source Mobilisation is
  * Approved (see the Mobilisations module).
  */
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useTranslation } from 'react-i18next';
@@ -17,6 +17,7 @@ import {
   emptyMonthlyHoursForm,
   monthlyHoursEntryToForm,
   daysInMonth,
+  parseDailyEntry,
   demobiliseFormSchema,
   emptyDemobiliseForm,
   resolveDemobiliseOutcome,
@@ -48,6 +49,21 @@ function addMonthsToStr(monthStr, n) {
 }
 function previousMonthStr() {
   return addMonthsToStr(monthStrOf(new Date()), -1);
+}
+
+/** Locale-aware weekday abbreviation for one calendar day of a 'YYYY-MM'
+ *  month — shown above each day's input so a reviewer can see at a glance
+ *  which days are weekends without cross-checking a calendar. Intl's 'short'
+ *  form is a compact 3-letter word in English ("Mon") but the FULL word in
+ *  Arabic ("الاثنين" — no shorter form exists in ICU's ar data), which would
+ *  blow out this grid's narrow columns; 'narrow' is a single unambiguous
+ *  letter in Arabic but collides in English (Tue/Thu both "T", Sat/Sun both
+ *  "S") — so each language gets whichever form is actually compact AND
+ *  unambiguous for it. */
+function weekdayAbbrev(monthStr, dayNum, locale) {
+  const [y, m] = monthStr.split('-').map(Number);
+  const style = locale?.startsWith('ar') ? 'narrow' : 'short';
+  return new Date(y, m - 1, dayNum).toLocaleDateString(locale, { weekday: style });
 }
 
 /** Deployment reason → EOSB exit reason, for the post-demobilise deep link
@@ -84,13 +100,18 @@ function DetailRow({ label, children }) {
 }
 
 /** Day-by-day timesheet entry, replacing a single "actual hours" number —
- *  see docs/DEPLOYMENT-notes.md's 2026-09-12 follow-up. One number input per
- *  calendar day of the selected month; the monthly total is just their sum,
- *  shown live but never itself submitted — the server derives it the same
- *  way (never trust a client-submitted total when the real breakdown is
- *  right there). */
+ *  see docs/DEPLOYMENT-notes.md's 2026-09-12 follow-up. One input per
+ *  calendar day of the selected month, each either a plain number (hours
+ *  worked) or a single letter — F/S/A for Off/Sick/Absent, fully replacing
+ *  the hours entry for that day rather than sitting alongside it (see
+ *  deployments.schema.js's parseDailyEntry). The monthly total only sums
+ *  worked days, shown live but never itself submitted — the server derives
+ *  it the same way (never trust a client-submitted total when the real
+ *  breakdown is right there). Pressing Enter in a day's cell moves focus
+ *  (and scrolls) to the next one, so a full month can be typed through
+ *  without reaching for the mouse — added 2026-09-13 per the user's own ask. */
 function MonthlyHoursForm({ deployment, defaultValues, onSubmit, submitting, submitLabel, monthFixed, legacyActualHours }) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const {
     register,
     handleSubmit,
@@ -102,6 +123,7 @@ function MonthlyHoursForm({ deployment, defaultValues, onSubmit, submitting, sub
   const max = previousMonthStr();
   const month = watch('month');
   const dailyHours = watch('dailyHours') ?? [];
+  const dayInputRefs = useRef([]);
 
   // Resize the grid whenever the selected month changes — grows/shrinks to
   // that month's real day count, keeping already-typed values for the days
@@ -120,6 +142,19 @@ function MonthlyHoursForm({ deployment, defaultValues, onSubmit, submitting, sub
   }, [month]);
 
   const total = dailyHours.reduce((runningTotal, v) => runningTotal + (Number(v) || 0), 0);
+
+  // Enter advances to the next day instead of submitting the form — and
+  // scrolls it into view, since the grid can be wider than its container.
+  // The last day intentionally does nothing further (no accidental submit).
+  function handleDayKeyDown(e, i) {
+    if (e.key !== 'Enter') return;
+    e.preventDefault();
+    const next = dayInputRefs.current[i + 1];
+    if (next) {
+      next.focus();
+      next.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+    }
+  }
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-4">
@@ -156,31 +191,52 @@ function MonthlyHoursForm({ deployment, defaultValues, onSubmit, submitting, sub
             <span className="text-sm font-medium text-text">{t('staffDeployments.detail.dailyHoursLabel')}</span>
             <span className="text-sm text-muted">{t('staffDeployments.detail.dailyHoursTotal', { total })}</span>
           </div>
+          <p className="mb-1.5 text-xs text-muted">{t('staffDeployments.detail.dailyHoursHint')}</p>
           <div className="overflow-x-auto rounded-lg border border-border">
             <table className="border-collapse text-sm">
               <thead>
                 <tr>
                   {dailyHours.map((_, i) => (
-                    <th key={i} className="border-b border-border bg-bg/40 px-1 py-1 text-center text-xs font-medium text-muted">
-                      {i + 1}
+                    <th key={i} className="border-b border-border bg-bg/40 px-1 py-1 text-center font-medium text-muted">
+                      <div className="text-xs leading-tight">{i + 1}</div>
+                      <div className="text-[10px] font-normal leading-tight text-muted/70">
+                        {weekdayAbbrev(month, i + 1, i18n.language)}
+                      </div>
                     </th>
                   ))}
                 </tr>
               </thead>
               <tbody>
                 <tr>
-                  {dailyHours.map((_, i) => (
-                    <td key={i} className="p-0.5">
-                      <input
-                        type="number"
-                        min="0"
-                        max="24"
-                        step="0.5"
-                        className="h-9 w-14 rounded border border-border bg-surface text-center text-sm text-text outline-none transition-colors focus:border-primary focus:ring-1 focus:ring-primary/30"
-                        {...register(`dailyHours.${i}`)}
-                      />
-                    </td>
-                  ))}
+                  {dailyHours.map((_, i) => {
+                    const { ref: rhfRef, ...rest } = register(`dailyHours.${i}`);
+                    const letter = (dailyHours[i] ?? '').trim().toUpperCase();
+                    const isOff = letter === 'F';
+                    const isSick = letter === 'S';
+                    const isAbsent = letter === 'A';
+                    return (
+                      <td key={i} className="p-0.5">
+                        <input
+                          type="text"
+                          inputMode="decimal"
+                          maxLength={5}
+                          className={cn(
+                            'h-9 w-14 rounded border text-center text-sm outline-none transition-colors focus:border-primary focus:ring-1 focus:ring-primary/30',
+                            isOff && 'border-border bg-border/30 font-semibold text-muted',
+                            isSick && 'border-primary/40 bg-primary/10 font-semibold text-primary',
+                            isAbsent && 'border-danger/40 bg-danger/10 font-semibold text-danger',
+                            !isOff && !isSick && !isAbsent && 'border-border bg-surface text-text'
+                          )}
+                          {...rest}
+                          ref={(el) => {
+                            rhfRef(el);
+                            dayInputRefs.current[i] = el;
+                          }}
+                          onKeyDown={(e) => handleDayKeyDown(e, i)}
+                        />
+                      </td>
+                    );
+                  })}
                 </tr>
               </tbody>
             </table>
@@ -515,7 +571,7 @@ export default function DeploymentDetailPage() {
               onSubmit={(values) =>
                 addMutation.mutate({
                   month: values.month,
-                  dailyHours: values.dailyHours.map(Number),
+                  dailyHours: values.dailyHours.map(parseDailyEntry),
                   otAmount: values.otAmount ? Number(values.otAmount) : undefined,
                   notes: values.notes || undefined,
                 })
@@ -544,7 +600,7 @@ export default function DeploymentDetailPage() {
               updateMutation.mutate({
                 entryId: editingEntry._id,
                 values: {
-                  dailyHours: values.dailyHours.map(Number),
+                  dailyHours: values.dailyHours.map(parseDailyEntry),
                   otAmount: values.otAmount ? Number(values.otAmount) : undefined,
                   notes: values.notes || undefined,
                 },
