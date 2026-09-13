@@ -1,7 +1,10 @@
 /**
  * HolidayListPage — the company holiday calendar (P3-B). Every staff role and
- * Worker can view it (mirrors the Leave-types read-open pattern); only
- * Admin/Manager/HR can add, edit, or remove an entry.
+ * Worker can view it unconditionally (mirrors the Leave-types read-open
+ * pattern); adding, editing, or removing an entry is gated by the
+ * admin-configurable Section Access 'holidays' write grant (Admin plus
+ * whichever ApprovalRole an Admin names — HR by default, preserving today's
+ * real access).
  */
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -13,7 +16,6 @@ import { listHolidays, createHoliday, updateHoliday, deleteHoliday } from '../ho
 import { holidayFormSchema, emptyHolidayForm, holidayToForm } from '../holidays.schema.js';
 import { useAuth } from '../../auth/AuthContext.jsx';
 import { apiMessage, formatDate } from '../../../lib/utils.js';
-import { HOLIDAY_MANAGE_ROLES } from '../../../lib/constants.js';
 import { useToast } from '../../../components/ui/Toast.jsx';
 import PageHeader from '../../../components/shared/PageHeader.jsx';
 import ConfirmDialog from '../../../components/shared/ConfirmDialog.jsx';
@@ -32,7 +34,7 @@ export default function HolidayListPage() {
   const { user } = useAuth();
   const toast = useToast();
   const queryClient = useQueryClient();
-  const canManage = HOLIDAY_MANAGE_ROLES.includes(user.role);
+  const canManage = Boolean(user.sectionAccessWrite?.includes('holidays'));
 
   const [editing, setEditing] = useState(null); // null = closed, {} = new, {...} = edit
   const [toDelete, setToDelete] = useState(null);

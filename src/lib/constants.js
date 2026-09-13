@@ -92,11 +92,6 @@ export const LEAVE_STATUS_VARIANT = {
 export const LEAVE_TYPE_MANAGE_ROLES = ['Admin', 'HR'];
 export const LEAVE_DECIDE_ROLES = ['Admin', 'Manager', 'HR', 'Coordinator'];
 
-/** Mirror of holiday.routes.js guards — read-open to everyone authenticated.
- *  Admin/HR only (moved off Manager — company calendar policy, not a
- *  day-to-day operational manager's job). */
-export const HOLIDAY_MANAGE_ROLES = ['Admin', 'HR'];
-
 /** Mirror of settlement.model.js. */
 export const EXIT_REASONS = ['Resignation', 'TerminationByEmployer', 'EndOfContract', 'SponsorshipTransfer'];
 export const EXIT_REASON_LABELS = {
