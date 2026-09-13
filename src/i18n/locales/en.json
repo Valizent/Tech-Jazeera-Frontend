@@ -956,52 +956,64 @@
   "staffTimesheets": {
     "page": {
       "title": "Timesheets",
-      "description": "Weekly hours submitted by workers, summarized from their attendance."
+      "description": "Monthly attendance-based timesheets for internal staff — pick someone to view their month."
     },
-    "tabs": {
-      "requests": "Requests",
-      "submit": "Submit Timesheet",
-      "monthlyReport": "Monthly Report"
+    "employeeList": {
+      "description": "Internal staff only — a deployed/mobilised field worker has their own timesheet on their Deployment record instead.",
+      "columns": {
+        "name": "Name"
+      },
+      "viewButton": "View timesheet",
+      "couldNotLoad": "Could not load employees",
+      "emptyTitle": "No internal staff yet",
+      "emptyDescription": "Add an employee with type \"Own\" first."
     },
-    "monthlyReport": {
-      "title": "Generate monthly report",
-      "description": "A full day-by-day report for one employee's whole month, built from their real attendance — same format as the Timesheet Processor's export. Available to Admin and anyone set up in the Approval Hierarchy.",
-      "employee": "Employee",
-      "selectEmployee": "Select employee…",
+    "detail": {
+      "backToList": "All employees",
       "month": "Month",
       "year": "Year",
-      "generate": "Generate report"
-    },
-    "submit": {
-      "title": "Submit your own timesheet",
-      "description": "Summarizes this week's attendance so far and sends it for approval.",
-      "submitButton": "Submit this week",
-      "submittedToast": "Timesheet submitted — {{hours}} hrs this week."
-    },
-    "queue": {
-      "title": "Timesheets",
-      "approveSelected": "Approve {{count}} selected",
-      "filterAriaLabel": "Filter by status",
-      "couldNotLoad": "Could not load timesheets",
-      "emptyTitle": "No timesheets",
-      "emptyDescription": "Nothing matches this filter.",
-      "selectAllSubmitted": "Select all submitted",
-      "overtimeSuffix": "({{hours}} overtime)",
-      "daysSummary": "{{present}} present, {{absent}} absent, {{leaveOrSick}} leave/sick, {{off}} off",
-      "incompleteWarning": "Only {{recorded}} of 7 days have attendance recorded.",
-      "noteLabel": "Note: {{note}}",
-      "approve": "Approve",
-      "reject": "Reject",
-      "approveTitle": "Approve timesheet?",
-      "rejectTitle": "Reject timesheet?",
-      "confirmMessage": "{{action}} {{name}}'s timesheet for {{start}} – {{end}}? This cannot be undone.",
-      "approvedToast": "Timesheet approved.",
-      "rejectedToast": "Timesheet rejected.",
-      "bulkApproveTitle": "Approve selected timesheets?",
-      "bulkApproveMessage": "Approve {{count}} selected timesheet(s)? Any not yet at their final step, or not yours to decide, will be skipped. This cannot be undone.",
-      "bulkResultSkipped": "{{approved}} approved, {{skipped}} skipped (not yet at their final step, or not yours to decide).",
-      "bulkResultAllApproved_one": "{{count}} timesheet approved.",
-      "bulkResultAllApproved_other": "{{count}} timesheets approved."
+      "exportExcel": "Export as Excel",
+      "exporting": "Exporting…",
+      "couldNotLoad": "Could not load this month's report",
+      "singlePunchNote": "Signed in but never signed out that day.",
+      "columns": {
+        "date": "Date",
+        "day": "Day",
+        "login": "Login",
+        "logout": "Logout",
+        "worked": "Worked",
+        "required": "Required",
+        "deficiency": "Deficiency",
+        "overtime": "Overtime",
+        "status": "Status"
+      },
+      "status": {
+        "Holiday": "Holiday",
+        "Off": "Off",
+        "No Attendance": "No Attendance",
+        "Leave": "Leave",
+        "Sick": "Sick",
+        "Absent": "Absent",
+        "Present": "Present",
+        "Overtime": "Overtime",
+        "Deficient": "Deficient",
+        "Single Punch": "Single Punch"
+      },
+      "summary": {
+        "workingDays": "Working days",
+        "presentDays": "Present",
+        "absentDays": "Absent",
+        "leaveDays": "Leave",
+        "sickDays": "Sick",
+        "offDays": "Off",
+        "holidayDays": "Holidays",
+        "singlePunchDays": "Single punch",
+        "noAttendanceDays": "No attendance",
+        "totalWorked": "Total worked",
+        "totalRequired": "Total required",
+        "totalDeficiency": "Total deficiency",
+        "totalOvertime": "Total overtime"
+      }
     }
   },
   "staffEosb": {

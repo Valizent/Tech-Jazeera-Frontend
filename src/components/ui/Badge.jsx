@@ -12,7 +12,7 @@ const variants = {
   danger: 'bg-danger/10 text-danger ring-1 ring-inset ring-danger/20',
 };
 
-export default function Badge({ variant = 'default', className, children }) {
+export default function Badge({ variant = 'default', className, children, ...rest }) {
   return (
     <span
       className={cn(
@@ -20,6 +20,7 @@ export default function Badge({ variant = 'default', className, children }) {
         variants[variant],
         className
       )}
+      {...rest}
     >
       {children}
     </span>
