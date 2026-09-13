@@ -3,8 +3,17 @@
  * Absent/Leave/Sick/Off — click-to-correct for writers, plus the "mark all
  * present" bulk action folded in from the old Mark tab), Sign In/Out (one
  * merged sign-in/sign-out log + self-punch card), and Office Location
- * (Admin-only geofence config). Summary lives at /attendance/summary,
- * reachable from the dashboard, not in this tab bar.
+ * (geofence config). Summary lives at /attendance/summary, reachable from
+ * the dashboard, not in this tab bar.
+ *
+ * Each tab is its own Section Access key now (split off the single
+ * 'attendanceManage' key 2026-09-13: 'attendanceRecords' /
+ * 'attendanceSignInOut' / 'attendanceOfficeLocation' — see
+ * sectionAccess.service.js) — a login only sees the tabs it can actually
+ * read, e.g. a Coordinator who can self-mark but not correct others' records
+ * sees only Sign In/Out; someone granted only Office Location sees only
+ * that. The page itself is reachable as long as at least one of the three
+ * is readable (see router.jsx's guarded() call for this route).
  */
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -20,15 +29,16 @@ export default function AttendancePage() {
   const navigate = useNavigate();
   const { user } = useAuth();
   const { t } = useTranslation();
-  const isAdmin = user.role === 'Admin';
+  const canReadRecords = user.role === 'Admin' || Boolean(user.sectionAccess?.includes('attendanceRecords'));
+  const canReadSignInOut = user.role === 'Admin' || Boolean(user.sectionAccess?.includes('attendanceSignInOut'));
+  const canReadOffice = user.role === 'Admin' || Boolean(user.sectionAccess?.includes('attendanceOfficeLocation'));
 
   const tabs = [
-    { key: 'records', label: t('staffAttendance.tabs.records') },
-    { key: 'signinout', label: t('staffAttendance.tabs.signInOut') },
-    // P2-M3: Worker self-mark geofence config — Admin-only, it's a security setting.
-    ...(isAdmin ? [{ key: 'office', label: t('staffAttendance.tabs.officeLocation') }] : []),
+    ...(canReadRecords ? [{ key: 'records', label: t('staffAttendance.tabs.records') }] : []),
+    ...(canReadSignInOut ? [{ key: 'signinout', label: t('staffAttendance.tabs.signInOut') }] : []),
+    ...(canReadOffice ? [{ key: 'office', label: t('staffAttendance.tabs.officeLocation') }] : []),
   ];
-  const [tab, setTab] = useState(tabs[0].key);
+  const [tab, setTab] = useState(tabs[0]?.key);
 
   return (
     <div className="mx-auto max-w-6xl">

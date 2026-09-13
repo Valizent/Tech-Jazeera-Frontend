@@ -758,6 +758,7 @@
       "title": "Office location",
       "hint": "Workers can only mark their own attendance from within this radius, or from an allow-listed office IP.",
       "notConfigured": " Not configured yet — self-marking is disabled until you set this up.",
+      "readOnlyHint": "You can view this setting but not edit it — ask an Admin to grant you Write access if you need to change it.",
       "locationName": "Location name",
       "latitude": "Latitude",
       "longitude": "Longitude",
