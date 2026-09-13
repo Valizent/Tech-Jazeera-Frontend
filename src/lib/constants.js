@@ -169,8 +169,6 @@ export const ASSET_DELETE_ROLES = ['Admin', 'HR'];
 /** Mirrors timesheet.model.js. Same write circle as Attendance. */
 export const TIMESHEET_STATUSES = ['Submitted', 'Approved', 'Rejected'];
 export const TIMESHEET_STATUS_VARIANT = { Submitted: 'warning', Approved: 'success', Rejected: 'danger' };
-/** Same roles as ATTENDANCE_WRITE_ROLES (defined below) — deciding a
- *  timesheet is the same supervisory circle as correcting an attendance day. */
 export const TIMESHEET_DECIDE_ROLES = ['Admin', 'Manager', 'HR'];
 
 /** Mirrors payrollRun.model.js. Access itself is no longer a static role
@@ -313,16 +311,15 @@ export const HOLIDAY_DISPLAY_META = { letter: 'H' };
 /** Mirrors Employee.weeklyOffDay's 0=Sun..6=Sat convention (Date#getUTCDay()). */
 export const WEEKDAY_LABELS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 
-/** Mirror of staffAttendance.routes.js's GET /all oversight guard (server
- *  enforces) — who sees the merged staff-attendance rows. Marking/adjusting
- *  Employee-based attendance is the separate, admin-configurable
- *  'attendanceManage' Section Access key now (default the same set, but the
- *  two can drift once an Admin customizes the grant — this one stays a
- *  hardcoded mirror since its own server route is untouched). */
-export const ATTENDANCE_WRITE_ROLES = ['Admin', 'Manager', 'HR'];
-/** Who clocks their own attendance in/out (mirrors staffAttendance.routes.js).
- *  Admin is exempt by design; Workers have their own equivalent via the ESS
- *  portal. Manager is included so a BDM-titled login can self-mark too. */
+/** Which login-role TYPES normally clock their own attendance in/out — a
+ *  display-roster convenience only (which rows get a "not signed in today"
+ *  placeholder in RecordsGrid's Coordinators & Staff group), NOT an access
+ *  gate. Real self-mark eligibility (who can actually punch, and who sees
+ *  the merged oversight log) is the admin-configurable Section Access key
+ *  'attendanceSignInOut' now (split off the old hardcoded
+ *  ATTENDANCE_WRITE_ROLES/this list 2026-09-13 — see
+ *  staffAttendance.routes.js). Admin is exempt from self-marking by design;
+ *  Workers have their own equivalent via the ESS portal. */
 export const STAFF_SELF_ATTENDANCE_ROLES = ['Coordinator', 'HR', 'Accounts', 'Manager'];
 
 /** Mirrors the Document model enums. */

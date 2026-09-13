@@ -1,11 +1,12 @@
 /**
  * Sign In/Out tab — replaces the old My Attendance / Time Log / Staff
- * Attendance split with one screen: a punch card (only for roles that
- * self-mark here — Coordinator/HR/Accounts; Admin/Manager are exempt by
- * design, Workers have their own equivalent in the ESS portal) on top, and
- * one merged chronological log below combining Employee-based Attendance
- * with User-based StaffAttendance (Admin/Manager/HR only see the latter —
- * same RBAC as before, just one screen instead of three).
+ * Attendance split with one screen: a punch card (only for whoever holds
+ * 'attendanceSignInOut' Write — self-mark eligibility, admin-configurable;
+ * Admin is exempt by design, Workers have their own equivalent in the ESS
+ * portal) on top, and one merged chronological log below combining
+ * Employee-based Attendance with User-based StaffAttendance (the staff rows
+ * only for whoever holds 'attendanceSignInOut' Read — Write always implies
+ * Read, so every self-marker sees them too).
  *
  * The two sources are never combined into one bare-id lookup — every row
  * carries a `kind` discriminator and its own record `_id` as the row key.
@@ -18,7 +19,7 @@ import { listAllStaffAttendance, listMyStaffAttendance, punchStaffAttendance } f
 import { todayKey } from '../attendance.dates.js';
 import { useAuth } from '../../auth/AuthContext.jsx';
 import { useDeviceLocation } from '../../../lib/useDeviceLocation.js';
-import { ATTENDANCE_STATUS_META, ATTENDANCE_WRITE_ROLES, STAFF_SELF_ATTENDANCE_ROLES } from '../../../lib/constants.js';
+import { ATTENDANCE_STATUS_META } from '../../../lib/constants.js';
 import { apiMessage, formatDate, formatHours, formatTime } from '../../../lib/utils.js';
 import { useToast } from '../../../components/ui/Toast.jsx';
 import Card from '../../../components/ui/Card.jsx';
@@ -28,7 +29,7 @@ import Button from '../../../components/ui/Button.jsx';
 import Table from '../../../components/ui/Table.jsx';
 import EmptyState from '../../../components/ui/EmptyState.jsx';
 
-/** The punch card — Coordinator/HR/Accounts sign themselves in/out here. */
+/** The punch card — whoever holds 'attendanceSignInOut' Write signs themselves in/out here. */
 function PunchCard() {
   const toast = useToast();
   const { t } = useTranslation();
@@ -108,8 +109,8 @@ function PunchCard() {
 export default function SignInOutTab() {
   const { user } = useAuth();
   const { t } = useTranslation();
-  const canSeeStaffRows = ATTENDANCE_WRITE_ROLES.includes(user.role);
-  const showPunchCard = STAFF_SELF_ATTENDANCE_ROLES.includes(user.role);
+  const canSeeStaffRows = Boolean(user.sectionAccess?.includes('attendanceSignInOut'));
+  const showPunchCard = Boolean(user.sectionAccessWrite?.includes('attendanceSignInOut'));
 
   const today = todayKey();
   const [from, setFrom] = useState(today);

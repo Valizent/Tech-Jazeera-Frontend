@@ -34,10 +34,17 @@ import Button from '../ui/Button.jsx';
 export default function RequireSectionRead({ sectionKey, officeSecretaryBypass, children }) {
   const { user } = useAuth();
   const { t } = useTranslation();
+  // sectionKey also accepts an array (added 2026-09-13, for a page whose
+  // internal tabs are each independently gated, e.g. Attendance's Records/
+  // Sign In-Out/Office Location): the route opens if the user can read ANY
+  // one of the listed keys, not all of them — a tab hides itself if its own
+  // key isn't granted, so the page as a whole shouldn't be unreachable just
+  // because one specific tab's key is missing.
+  const keys = Array.isArray(sectionKey) ? sectionKey : [sectionKey];
   const allowed =
     user.role === 'Admin' ||
     (officeSecretaryBypass && user.role === 'Office Secretary') ||
-    Boolean(user.sectionAccess?.includes(sectionKey));
+    keys.some((key) => user.sectionAccess?.includes(key));
 
   if (!allowed) {
     return (

@@ -27,7 +27,13 @@ export default function SectionHubPage({ title, titleKey, description, descripti
   const { t } = useTranslation();
   const visible = items.filter((item) => {
     if (item.roles && !item.roles.includes(user.role)) return false;
-    if (item.sectionKey && !user.sectionAccess?.includes(item.sectionKey)) return false;
+    // sectionKey may be an array (e.g. Attendance's split Records/Sign
+    // In-Out/Office Location keys) — visible if ANY one is readable, same
+    // "any of" semantics as RequireSectionRead's own route guard.
+    if (item.sectionKey) {
+      const keys = Array.isArray(item.sectionKey) ? item.sectionKey : [item.sectionKey];
+      if (!keys.some((key) => user.sectionAccess?.includes(key))) return false;
+    }
     return true;
   });
 
