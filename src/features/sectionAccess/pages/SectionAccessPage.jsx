@@ -9,29 +9,39 @@
  * app-wide per the user's own instruction — see docs/SECTION-ACCESS-notes.md's
  * 2026-09-13 follow-up.
  *
- * ~20 sections now (started at 2) — grouped under the same
- * Workforce/Sales/Financial/Admin categories as the sidebar itself
- * (navConfig.js's NAV_GROUPS) so the page stays scannable, each collapsible
- * via native <details> (no new dependency for a one-off grouping need).
+ * ~25 sections now (started at 2) — drilled down through the SAME structure
+ * the real sidebar uses (see sectionAccessModules.js's MODULE_GROUPS, built
+ * from navConfig.js's NAV_GROUPS): a category grid (Workforce/Sales &
+ * Clients/Financial/Admin & Tools) → that category's module grid, in the
+ * exact order/naming the real hub pages already show (Employees, Attendance,
+ * Leave, ...) → the module's own Read/Write editor(s). Added 2026-09-13 per
+ * the user's own ask, after the flat "~20 cards under a few `<details>`"
+ * layout this replaced grew too long to scan at a glance — most modules own
+ * exactly one section key; a couple (Deployments, Mobilisations) own several
+ * distinct permissions that appear as separate cards once you drill into
+ * that one module.
  *
  * State lives HERE, not per-card (added 2026-09-13, the user's own ask for
  * a "save all changes" option): every card's Read/Write selection is one
  * entry in `localValues`, keyed by sectionKey. A card is "dirty" when its
  * local entry differs from the section's own fresh server data — that's
  * the only thing driving both an individual card's Save button and the
- * page-level "Save all changes" button, so the two can never disagree about
- * what's actually unsaved. `localValues` is lazily seeded from server data
- * per key (see the effect below) and never force-reset wholesale — saving
- * one card (or several, via Save All) refetches the section-access query,
- * which naturally makes that card's local value match the server again
- * (and so no longer dirty) WITHOUT touching any other card's still-unsaved
- * edits sitting in the same state object.
+ * page-level "Save all changes" button (which stays available at every
+ * drill-down level, since it counts ALL unsaved sections, not just the ones
+ * currently in view), so the two can never disagree about what's actually
+ * unsaved. `localValues` is lazily seeded from server data per key (see the
+ * effect below) and never force-reset wholesale — saving one card (or
+ * several, via Save All) refetches the section-access query, which
+ * naturally makes that card's local value match the server again (and so no
+ * longer dirty) WITHOUT touching any other card's still-unsaved edits
+ * sitting in the same state object.
  */
 import { useEffect, useMemo, useState } from 'react';
 import { Navigate, useNavigate } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { listSectionAccess, updateSectionAccess } from '../sectionAccess.api.js';
 import { listApprovalRoles } from '../../approvals/approvals.api.js';
+import { MODULE_GROUPS } from '../sectionAccessModules.js';
 import { useAuth } from '../../auth/AuthContext.jsx';
 import { apiMessage, cn } from '../../../lib/utils.js';
 import { useToast } from '../../../components/ui/Toast.jsx';
@@ -42,49 +52,6 @@ import Skeleton from '../../../components/ui/Skeleton.jsx';
 import EmptyState from '../../../components/ui/EmptyState.jsx';
 import Badge from '../../../components/ui/Badge.jsx';
 import { PillChecklist } from '../../../components/ui/TogglePill.jsx';
-
-/** Mirrors navConfig.js's NAV_GROUPS membership for the same sections —
- *  a section not listed here (shouldn't happen once every key is mapped)
- *  falls into 'Other' rather than silently disappearing from the page. */
-const SECTION_CATEGORY = {
-  attendanceManage: 'Workforce',
-  eosb: 'Workforce',
-  employeeCreate: 'Workforce',
-  ramadanManage: 'Workforce',
-  clientsManage: 'Sales & Clients',
-  deploymentsHours: 'Sales & Clients',
-  deploymentsHoursDecide: 'Sales & Clients',
-  deploymentsRelease: 'Sales & Clients',
-  quotationsManage: 'Sales & Clients',
-  mobilisationsViewer: 'Sales & Clients',
-  mobilisationsSelfMobilise: 'Sales & Clients',
-  subcontractorsManage: 'Sales & Clients',
-  invoices: 'Financial',
-  payroll: 'Financial',
-  expenses: 'Financial',
-  financialRequests: 'Financial',
-  companySettings: 'Admin & Tools',
-  documentsManage: 'Admin & Tools',
-  assetsManage: 'Admin & Tools',
-  team: 'Admin & Tools',
-  approvalHierarchy: 'Admin & Tools',
-  timesheetProcessor: 'Admin & Tools',
-  nfc: 'Admin & Tools',
-  auditLog: 'Admin & Tools',
-};
-const CATEGORY_ORDER = ['Workforce', 'Sales & Clients', 'Financial', 'Admin & Tools', 'Other'];
-
-function groupByCategory(sections) {
-  const byCategory = new Map();
-  for (const section of sections) {
-    const category = SECTION_CATEGORY[section.sectionKey] ?? 'Other';
-    if (!byCategory.has(category)) byCategory.set(category, []);
-    byCategory.get(category).push(section);
-  }
-  return CATEGORY_ORDER.map((category) => ({ category, sections: byCategory.get(category) ?? [] })).filter(
-    (g) => g.sections.length > 0
-  );
-}
 
 const idsFromServer = (section) => ({
   readApprovalRoles: (section.readApprovalRoles ?? []).map((r) => r._id),
@@ -154,6 +121,44 @@ function SectionCard({ section, local, dirty, onToggleRead, onToggleWrite, onSav
         </Button>
       </div>
     </Card>
+  );
+}
+
+function GridTileIcon({ d }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="h-6 w-6">
+      <path strokeLinecap="round" strokeLinejoin="round" d={d} />
+    </svg>
+  );
+}
+
+/** One clickable tile in the category/module grid (level 1 and 2) —
+ *  deliberately not a <Card>: square-ish and icon-first so 3-4 fit per row,
+ *  unlike the single-column Read/Write editor cards shown at level 3. A
+ *  small warning-colored badge surfaces unsaved edits sitting inside this
+ *  tile (a category or a module can hide dirty sections you're not
+ *  currently looking at, since Save state is global — see this file's own
+ *  top doc comment). */
+function GridTile({ icon, label, hint, dirtyCount, onClick }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className="group flex flex-col items-center gap-2 rounded-2xl border border-border bg-surface px-4 py-5 text-center shadow-sm transition-all duration-200 ease-out-expo hover:border-primary/40 hover:shadow-md"
+    >
+      <div className="relative grid h-12 w-12 shrink-0 place-items-center rounded-xl bg-primary/10 text-primary">
+        <GridTileIcon d={icon} />
+        {dirtyCount > 0 && (
+          <span className="absolute -right-1.5 -top-1.5 grid h-5 min-w-5 place-items-center rounded-full bg-warning px-1 text-[10px] font-semibold text-white">
+            {dirtyCount}
+          </span>
+        )}
+      </div>
+      <div>
+        <p className="text-sm font-semibold text-text group-hover:text-primary">{label}</p>
+        {hint && <p className="mt-0.5 text-xs text-muted">{hint}</p>}
+      </div>
+    </button>
   );
 }
 
@@ -231,14 +236,48 @@ export default function SectionAccessPage() {
       return { ...prev, [sectionKey]: { ...prev[sectionKey], [tier]: nextList } };
     });
 
+  // Drill-down position: null/null = the category grid; a groupKey with no
+  // module index = that category's module grid; both set = one module's own
+  // Read/Write editor(s). Kept as plain component state, not a route, since
+  // this is a three-level zoom into one page, not three separate pages.
+  const [activeGroupKey, setActiveGroupKey] = useState(null);
+  const [activeModuleIndex, setActiveModuleIndex] = useState(null);
+  const activeGroup = activeGroupKey ? MODULE_GROUPS.find((g) => g.key === activeGroupKey) : null;
+  const activeModule = activeGroup && activeModuleIndex != null ? activeGroup.modules[activeModuleIndex] : null;
+  const openGroup = (key) => {
+    setActiveGroupKey(key);
+    setActiveModuleIndex(null);
+  };
+  const closeGroup = () => {
+    setActiveGroupKey(null);
+    setActiveModuleIndex(null);
+  };
+  const closeModule = () => setActiveModuleIndex(null);
+
+  const sectionFor = (key) => sections?.find((s) => s.sectionKey === key);
+  const moduleDirtyCount = (module) =>
+    module.sectionKeys.filter((key) => {
+      const section = sectionFor(key);
+      return section && isDirty(section, localValues[key]);
+    }).length;
+  const groupDirtyCount = (group) => group.modules.reduce((sum, m) => sum + moduleDirtyCount(m), 0);
+
   if (user.role !== 'Admin') return <Navigate to="/" replace />;
+
+  const headerTitle = activeModule ? activeModule.label : activeGroup ? activeGroup.label : 'Section Access';
+  const headerDescription = activeModule
+    ? activeModule.description
+    : activeGroup
+      ? 'Choose a module below to control who can read or write it — click one to see its Read/Write editor.'
+      : "Admin always has full access everywhere. Pick a category, then a module, to control who else gets in — each has two independent tiers, Read (can view) and Write (can create/edit/decide/delete, and always includes Read) — granted by an approval role you've named (e.g. Financial Manager, COO).";
+  const handleBack = activeModule ? closeModule : activeGroup ? closeGroup : () => navigate(-1);
 
   return (
     <div className="mx-auto max-w-2xl space-y-6">
       <PageHeader
-        title="Section Access"
-        description="Admin always has full access everywhere. Each section has two independent tiers — Read (can view) and Write (can create/edit/decide/delete, and always includes Read) — granted by an approval role you've named (e.g. Financial Manager, COO)."
-        onBack={() => navigate(-1)}
+        title={headerTitle}
+        description={headerDescription}
+        onBack={handleBack}
         actions={
           dirtySections.length > 0 && (
             <Button size="sm" onClick={saveAll} isLoading={savingAll}>
@@ -247,6 +286,26 @@ export default function SectionAccessPage() {
           )
         }
       />
+
+      {activeGroup && (
+        <nav className="flex items-center gap-1.5 text-xs font-medium text-muted">
+          <button type="button" onClick={closeGroup} className="hover:text-primary hover:underline">
+            Section Access
+          </button>
+          <span>/</span>
+          {activeModule ? (
+            <>
+              <button type="button" onClick={closeModule} className="hover:text-primary hover:underline">
+                {activeGroup.label}
+              </button>
+              <span>/</span>
+              <span className="text-text">{activeModule.label}</span>
+            </>
+          ) : (
+            <span className="text-text">{activeGroup.label}</span>
+          )}
+        </nav>
+      )}
 
       {isPending ? (
         <div className="space-y-4">
@@ -259,49 +318,62 @@ export default function SectionAccessPage() {
           description={apiMessage(error) || 'Please try again.'}
           action={<Button variant="secondary" onClick={() => refetch()}>Retry</Button>}
         />
-      ) : (
-        <div className="space-y-4">
-          {groupByCategory(sections).map(({ category, sections: categorySections }) => (
-            <details key={category} className="group" open>
-              <summary className="flex cursor-pointer list-none items-center justify-between gap-2 rounded-lg border border-border bg-surface px-4 py-3 text-sm font-semibold text-text transition-colors hover:border-primary/40">
-                <span>
-                  {category} <span className="font-normal text-muted">({categorySections.length})</span>
-                </span>
-                <svg
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="1.5"
-                  className="h-4 w-4 shrink-0 text-muted transition-transform group-open:rotate-180"
-                >
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
-                </svg>
-              </summary>
-              <div className="mt-4 space-y-4 pl-1">
-                {categorySections.map((section) => {
-                  const local = localValues[section.sectionKey];
-                  if (!local) return null; // not yet seeded (first render tick)
-                  return (
-                    <SectionCard
-                      key={section.sectionKey}
-                      section={section}
-                      local={local}
-                      dirty={isDirty(section, local)}
-                      onToggleRead={toggleIn(section.sectionKey, 'readApprovalRoles')}
-                      onToggleWrite={toggleIn(section.sectionKey, 'writeApprovalRoles')}
-                      onSave={() => {
-                        setSavingKey(section.sectionKey);
-                        saveMutation.mutate(section.sectionKey);
-                      }}
-                      saving={savingKey === section.sectionKey && saveMutation.isPending}
-                      approvalRoles={approvalRoles}
-                      approvalRolesLoading={approvalRolesLoading}
-                    />
-                  );
-                })}
-              </div>
-            </details>
+      ) : !activeGroup ? (
+        // Level 1 — categories, same four as the sidebar's own groups.
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+          {MODULE_GROUPS.map((group) => (
+            <GridTile
+              key={group.key}
+              icon={group.icon}
+              label={group.label}
+              hint={`${group.modules.length} module${group.modules.length === 1 ? '' : 's'}`}
+              dirtyCount={groupDirtyCount(group)}
+              onClick={() => openGroup(group.key)}
+            />
           ))}
+        </div>
+      ) : !activeModule ? (
+        // Level 2 — this category's modules, in the exact order/naming its
+        // real hub page already uses.
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
+          {activeGroup.modules.map((module, index) => (
+            <GridTile
+              key={module.label}
+              icon={module.icon}
+              label={module.label}
+              hint={module.sectionKeys.length > 1 ? `${module.sectionKeys.length} permissions` : null}
+              dirtyCount={moduleDirtyCount(module)}
+              onClick={() => setActiveModuleIndex(index)}
+            />
+          ))}
+        </div>
+      ) : (
+        // Level 3 — the module's own Read/Write editor(s). Most modules own
+        // exactly one section key; a few (e.g. Deployments) own several,
+        // each its own card.
+        <div className="space-y-4">
+          {activeModule.sectionKeys.map((key) => {
+            const section = sectionFor(key);
+            const local = localValues[key];
+            if (!section || !local) return null; // not yet seeded (first render tick)
+            return (
+              <SectionCard
+                key={key}
+                section={section}
+                local={local}
+                dirty={isDirty(section, local)}
+                onToggleRead={toggleIn(key, 'readApprovalRoles')}
+                onToggleWrite={toggleIn(key, 'writeApprovalRoles')}
+                onSave={() => {
+                  setSavingKey(key);
+                  saveMutation.mutate(key);
+                }}
+                saving={savingKey === key && saveMutation.isPending}
+                approvalRoles={approvalRoles}
+                approvalRolesLoading={approvalRolesLoading}
+              />
+            );
+          })}
         </div>
       )}
     </div>

@@ -1,7 +1,8 @@
 /**
- * Holidays API layer — the company holiday calendar (P3-B). Read-open to any
- * authenticated user; create/update/delete gated server-side to
- * Admin/Manager/HR (see lib/constants.js HOLIDAY_MANAGE_ROLES).
+ * Holidays API layer — the company holiday calendar (P3-B). Read stays open
+ * to any authenticated user, unconditionally; create/update/delete is gated
+ * server-side by the admin-configurable Section Access 'holidays' write
+ * grant (see docs/SECTION-ACCESS-notes.md).
  */
 import { api } from '../../lib/axios.js';
 
