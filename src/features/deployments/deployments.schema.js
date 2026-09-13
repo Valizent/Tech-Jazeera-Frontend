@@ -36,21 +36,36 @@ export function daysInMonth(monthStr) {
 // deployment.model.js's DAILY_ENTRY_STATUSES doc comment on the server
 // side this maps onto). Kept as strings through the form the same way
 // every other field here is, parsed only at submit time.
-const DAILY_ENTRY_PATTERN = /^((2[0-4]|1\d|\d)(\.\d+)?|[fFsSaA])$/;
+//
+// A real NUMERIC range check, not a digit-count regex — found via a real
+// user report (typed "25" into a day, which a naive `2[0-4]|1\d|\d` pattern
+// would reject, but a laxer version could easily let slip, and a plain
+// digit-count check would ALSO wrongly accept something like "24.9", which
+// looks in-range by shape but isn't). `Number(trimmed)` on an already
+// digit-shape-validated string is safe here — no NaN/Infinity path.
+export function isValidDailyEntry(value) {
+  const trimmed = value.trim();
+  if (/^[fFsSaA]$/.test(trimmed)) return true;
+  if (!/^\d+(\.\d+)?$/.test(trimmed)) return false;
+  const hours = Number(trimmed);
+  return hours >= 0 && hours <= 24;
+}
 
 export const monthlyHoursFormSchema = z.object({
   month: z.string().regex(/^\d{4}-(0[1-9]|1[0-2])$/, 'Choose a month.'),
   dailyHours: z
     .array(z.string())
-    .refine((arr) => arr.every((v) => DAILY_ENTRY_PATTERN.test(v.trim())), {
+    .refine((arr) => arr.every((v) => isValidDailyEntry(v)), {
       message: "Enter each day's hours (0-24), or F/S/A for Off/Sick/Absent.",
     }),
+  deductionAmount: z.string().optional().or(z.literal('')),
   notes: optionalStr(500),
 });
 
 export const emptyMonthlyHoursForm = {
   month: '',
   dailyHours: [],
+  deductionAmount: '',
   notes: '',
 };
 
@@ -80,6 +95,7 @@ export function monthlyHoursEntryToForm(entry) {
     dailyHours: entry.dailyHours?.length
       ? entry.dailyHours.map(dailyEntryToString)
       : Array(daysInMonth(entry.month)).fill(''),
+    deductionAmount: entry.deductionAmount ? String(entry.deductionAmount) : '',
     notes: entry.notes ?? '',
   };
 }
