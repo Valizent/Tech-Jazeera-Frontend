@@ -956,52 +956,64 @@
   "staffTimesheets": {
     "page": {
       "title": "الجداول الزمنية",
-      "description": "الساعات الأسبوعية المقدمة من العمال، ملخّصة من حضورهم."
+      "description": "جداول زمنية شهرية مبنية على الحضور الفعلي للموظفين الداخليين — اختر شخصًا لعرض شهره."
     },
-    "tabs": {
-      "requests": "الطلبات",
-      "submit": "تقديم جدول زمني",
-      "monthlyReport": "التقرير الشهري"
+    "employeeList": {
+      "description": "الموظفون الداخليون فقط — العامل الميداني المُنتدب لدى عميل له جدوله الزمني الخاص في سجل الانتداب.",
+      "columns": {
+        "name": "الاسم"
+      },
+      "viewButton": "عرض الجدول الزمني",
+      "couldNotLoad": "تعذر تحميل الموظفين",
+      "emptyTitle": "لا يوجد موظفون داخليون بعد",
+      "emptyDescription": "أضف موظفًا من النوع \"داخلي\" أولًا."
     },
-    "monthlyReport": {
-      "title": "إنشاء تقرير شهري",
-      "description": "تقرير يومي كامل لشهر موظف واحد، مبني من حضوره الفعلي — بنفس تنسيق تصدير معالج الجداول الزمنية. متاح للمدير العام ولأي شخص مُدرج في هرمية الموافقات.",
-      "employee": "الموظف",
-      "selectEmployee": "اختر موظفًا…",
+    "detail": {
+      "backToList": "جميع الموظفين",
       "month": "الشهر",
       "year": "السنة",
-      "generate": "إنشاء التقرير"
-    },
-    "submit": {
-      "title": "تقديم جدولك الزمني الخاص",
-      "description": "يلخّص حضور هذا الأسبوع حتى الآن ويرسله للموافقة.",
-      "submitButton": "تقديم هذا الأسبوع",
-      "submittedToast": "تم تقديم الجدول الزمني — {{hours}} ساعة هذا الأسبوع."
-    },
-    "queue": {
-      "title": "الجداول الزمنية",
-      "approveSelected": "الموافقة على {{count}} محدد",
-      "filterAriaLabel": "تصفية حسب الحالة",
-      "couldNotLoad": "تعذر تحميل الجداول الزمنية",
-      "emptyTitle": "لا توجد جداول زمنية",
-      "emptyDescription": "لا يوجد ما يطابق هذا الفلتر.",
-      "selectAllSubmitted": "تحديد جميع المُقدَّمة",
-      "overtimeSuffix": "({{hours}} وقت إضافي)",
-      "daysSummary": "{{present}} حاضر، {{absent}} غائب، {{leaveOrSick}} إجازة/مرضي، {{off}} إجازة أسبوعية",
-      "incompleteWarning": "تم تسجيل حضور {{recorded}} من أصل 7 أيام فقط.",
-      "noteLabel": "ملاحظة: {{note}}",
-      "approve": "موافقة",
-      "reject": "رفض",
-      "approveTitle": "الموافقة على الجدول الزمني؟",
-      "rejectTitle": "رفض الجدول الزمني؟",
-      "confirmMessage": "{{action}} جدول {{name}} الزمني لفترة {{start}} – {{end}}؟ لا يمكن التراجع عن هذا.",
-      "approvedToast": "تمت الموافقة على الجدول الزمني.",
-      "rejectedToast": "تم رفض الجدول الزمني.",
-      "bulkApproveTitle": "الموافقة على الجداول الزمنية المحددة؟",
-      "bulkApproveMessage": "الموافقة على {{count}} جدول زمني محدد؟ سيتم تخطي أي جدول لم يصل بعد إلى مرحلته النهائية، أو ليس من صلاحيتك البت فيه. لا يمكن التراجع عن هذا.",
-      "bulkResultSkipped": "تمت الموافقة على {{approved}}، وتم تخطي {{skipped}} (لم تصل بعد إلى مرحلتها النهائية، أو ليست من صلاحيتك البت فيها).",
-      "bulkResultAllApproved_one": "تمت الموافقة على {{count}} جدول زمني.",
-      "bulkResultAllApproved_other": "تمت الموافقة على {{count}} جداول زمنية."
+      "exportExcel": "تصدير كملف إكسل",
+      "exporting": "جارٍ التصدير…",
+      "couldNotLoad": "تعذر تحميل تقرير هذا الشهر",
+      "singlePunchNote": "سجّل حضوره لكن لم يسجّل انصرافه ذلك اليوم.",
+      "columns": {
+        "date": "التاريخ",
+        "day": "اليوم",
+        "login": "الحضور",
+        "logout": "الانصراف",
+        "worked": "ساعات العمل",
+        "required": "المطلوب",
+        "deficiency": "النقص",
+        "overtime": "الوقت الإضافي",
+        "status": "الحالة"
+      },
+      "status": {
+        "Holiday": "عطلة",
+        "Off": "إجازة أسبوعية",
+        "No Attendance": "لا يوجد حضور",
+        "Leave": "إجازة",
+        "Sick": "مرضي",
+        "Absent": "غائب",
+        "Present": "حاضر",
+        "Overtime": "وقت إضافي",
+        "Deficient": "ناقص",
+        "Single Punch": "بصمة واحدة"
+      },
+      "summary": {
+        "workingDays": "أيام العمل",
+        "presentDays": "حاضر",
+        "absentDays": "غائب",
+        "leaveDays": "إجازة",
+        "sickDays": "مرضي",
+        "offDays": "إجازة أسبوعية",
+        "holidayDays": "عطلات",
+        "singlePunchDays": "بصمة واحدة",
+        "noAttendanceDays": "لا يوجد حضور",
+        "totalWorked": "إجمالي ساعات العمل",
+        "totalRequired": "إجمالي المطلوب",
+        "totalDeficiency": "إجمالي النقص",
+        "totalOvertime": "إجمالي الوقت الإضافي"
+      }
     }
   },
   "staffEosb": {

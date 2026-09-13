@@ -166,10 +166,12 @@ export const ASSET_STATUS_VARIANT = { Available: 'success', Assigned: 'primary',
  *  own hardcoded, stricter circle (mirrors asset.routes.js). */
 export const ASSET_DELETE_ROLES = ['Admin', 'HR'];
 
-/** Mirrors timesheet.model.js. Same write circle as Attendance. */
+/** Mirrors timesheet.model.js — still used by the Worker ESS portal's own
+ *  submit/status display (MyAttendancePage.jsx); the staff-side review queue
+ *  that used to read these too was replaced by the Monthly Report list/view
+ *  2026-09-13 — see docs/TIMESHEETS-MONTHLY-REPORT-notes.md. */
 export const TIMESHEET_STATUSES = ['Submitted', 'Approved', 'Rejected'];
 export const TIMESHEET_STATUS_VARIANT = { Submitted: 'warning', Approved: 'success', Rejected: 'danger' };
-export const TIMESHEET_DECIDE_ROLES = ['Admin', 'Manager', 'HR'];
 
 /** Mirrors payrollRun.model.js. Access itself is no longer a static role
  *  list — see SectionAccess ('payroll') — Admin plus whoever is granted

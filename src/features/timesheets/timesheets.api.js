@@ -1,38 +1,30 @@
 /**
- * Timesheets API layer — the staff review queue. A worker's own submit/list
- * calls live in features/ess/ess.api.js (/api/me/timesheets), not here.
+ * Timesheets API layer — the Monthly Report list/view/export flow (rebuilt
+ * 2026-09-13; the old weekly submit/review-queue endpoints this file used to
+ * wrap have no client anymore — see docs/TIMESHEETS-MONTHLY-REPORT-notes.md
+ * for why the underlying server routes/model were deliberately left in
+ * place regardless, and what that means for Payroll's overtime figure going
+ * forward). A worker's own submit/list calls live in features/ess/ess.api.js
+ * (/api/me/timesheets), untouched by this — a completely separate flow.
  */
 import { api } from '../../lib/axios.js';
 
-export async function listTimesheets(params) {
-  const { data } = await api.get('/timesheets', { params });
-  return data.data; // { items, total, page, pages }
-}
-
-/** A STAFF member submitting their OWN timesheet (Coordinator/HR/Manager/
- *  Accounts) — mirrors ess.api.js's submitMyTimesheet exactly (same single
- *  "summarize this week" action, no free-form fields). */
-export async function submitTimesheet(payload) {
-  const { data } = await api.post('/timesheets', payload);
+/**
+ * The JSON preview behind the on-screen monthly grid — same eligibility
+ * floor and same underlying data as the .xlsx export below, just not
+ * converted to a file yet.
+ */
+export async function getMonthlyReport({ employeeId, month, year }) {
+  const { data } = await api.get('/timesheets/monthly-report', { params: { employeeId, month, year } });
   return data.data;
-}
-
-export async function decideTimesheet(id, payload) {
-  const { data } = await api.patch(`/timesheets/${id}/decide`, payload);
-  return data.data;
-}
-
-export async function bulkApproveTimesheets(ids) {
-  const { data } = await api.post('/timesheets/bulk-approve', { ids });
-  return data.data; // { requested, approved, skipped }
 }
 
 /**
- * A full day-by-day monthly report built from real Attendance records, in
- * the same formatted style as the Timesheet Processor's export. Only
- * Admin or a real Approval Role member can generate it — the server is the
- * real gate; a non-member gets a clear 403 here, same as the Approval Log.
- * Downloads an authenticated Blob, same pattern as every other export.
+ * A full day-by-day monthly report built from real attendance, in the same
+ * formatted style as the Timesheet Processor's export. Only Admin or a real
+ * Approval Role member can generate it — the server is the real gate; a
+ * non-member gets a clear 403, same as the Approval Log. Downloads an
+ * authenticated Blob, same pattern as every other export.
  */
 export async function generateMonthlyReport({ employeeId, month, year }, filename) {
   const res = await api.post(
