@@ -421,9 +421,6 @@
       "payroll": { "label": "Payroll", "description": "Monthly runs and payslips — if you've been granted access." },
       "expenses": { "label": "Expenses", "description": "Company spending — if you've been granted access." }
     },
-    "officeSecretary": {
-      "mobilisations": { "label": "Mobilisations", "description": "Mobilisations awaiting your review." }
-    },
     "workforce": {
       "label": "Workforce",
       "description": "Employees, attendance, leave and everything tied to their employment lifecycle.",

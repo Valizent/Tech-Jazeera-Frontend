@@ -14,7 +14,7 @@
  * you get today). Placed on each branch rather than one outer route so a
  * crash inside the signed-in shell doesn't strand a guest, and vice versa.
  */
-import { createBrowserRouter, Navigate, Outlet, useLocation } from 'react-router-dom';
+import { createBrowserRouter, Navigate, Outlet } from 'react-router-dom';
 import { useAuth } from '../features/auth/AuthContext.jsx';
 import AuthLayout from './layouts/AuthLayout.jsx';
 import DashboardLayout from './layouts/DashboardLayout.jsx';
@@ -115,32 +115,17 @@ const SELF_SERVICE_ROLES = ['Worker', 'Staff'];
  * redirect OUT of this branch entirely (to `/me`, under the sibling
  * WorkerRouter branch below) so RoleRouter never runs again for them.
  *
- * Office Secretary is a narrower case: it stays in the admin shell (not the
- * ESS portal), but is deny-by-default like Executive — unlike Executive, it
- * was never allow-listed into the Dashboard endpoint, so `/` — where every
- * login lands after sign-in — would just 403 on GET /api/dashboard. Its
- * legitimate destinations are Mobilisations and Deployments (added
- * 2026-09-13 — she also has a real, hardcoded server-side exception on
- * Deployment's read/monthly-hours routes, "she needs to find the deployment
- * she's about to enter hours against"; a direct link to one, e.g. from a
- * notification, was bouncing her straight back to Mobilisations before this
- * fix — found from a real user report). Unlike Worker/Staff's redirect
- * target, both are still INSIDE this same RoleRouter-guarded branch, so the
- * location check is required — without it, RoleRouter would re-run on the
- * redirected-to URL and redirect again, never once reaching <Outlet/> and
- * leaving the whole page blank.
+ * Office Secretary used to have her own narrower redirect here too (bounced
+ * to `/mobilisations` from anywhere else, since she was deny-by-default and
+ * `/api/dashboard` would just 403 for her). Moved into STAFF_ROLES
+ * 2026-09-13 (see rbac.js's own doc comment) — `/api/dashboard` now passes
+ * her through `requireStaffOrExecutive` like any other staff role, so the
+ * redirect is gone; she reaches `/` and anything else she's actually been
+ * granted, same as Coordinator/HR/Manager/Accounts.
  */
 function RoleRouter() {
   const { user } = useAuth();
-  const location = useLocation();
   if (SELF_SERVICE_ROLES.includes(user.role)) return <Navigate to="/me" replace />;
-  if (
-    user.role === 'Office Secretary' &&
-    !location.pathname.startsWith('/mobilisations') &&
-    !location.pathname.startsWith('/deployments')
-  ) {
-    return <Navigate to="/mobilisations" replace />;
-  }
   return <Outlet />;
 }
 
