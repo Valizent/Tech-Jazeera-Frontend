@@ -10,21 +10,20 @@
  * One component, reused across the route table, rather than a duplicated
  * guard in every page file.
  *
- * `officeSecretaryBypass` (added 2026-09-13): Office Secretary can never
- * appear in `user.sectionAccess` at all — canAccessSection's own floor
- * excludes her role outright, regardless of any Approval Role grant (see
- * sectionAccess.service.js). That's the right behavior for Section Access
- * itself, but a couple of modules ALSO give her a narrow, hardcoded
- * server-side exception outside that system entirely (deployment.routes.js's
- * `canReadDeployments` — "she needs to find the deployment she's about to
- * enter hours against"). Without this prop those two facts disagree: the
- * server would happily serve her the page, but this guard, only knowing
- * about the generic Section Access array, blocked her from ever reaching
- * it by direct navigation — found via a real user report. Pass this true
- * only at a route that has that exact same server-side hardcoded bypass;
- * it does not grant her anything this guard wouldn't otherwise — it just
- * stops the client from pre-emptively hiding a page the server already lets
- * her open. */
+ * `officeSecretaryBypass` (added 2026-09-13, before Office Secretary moved
+ * into STAFF_ROLES the same day — see rbac.js's own doc comment): a couple
+ * of modules give her a narrow, hardcoded server-side exception outside the
+ * Section Access system entirely (deployment.routes.js's `canReadDeployments`
+ * — "she needs to find the deployment she's about to enter hours against"),
+ * independent of whatever her real Section Access grant for that key is.
+ * Without this prop the server would happily serve her the page, but this
+ * guard, only knowing about the generic Section Access array, would block
+ * her from ever reaching it by direct navigation unless she'd also been
+ * separately granted that key for real — found via a real user report. Pass
+ * this true only at a route that has that exact same server-side hardcoded
+ * bypass; it does not grant her anything this guard wouldn't otherwise —
+ * it just stops the client from pre-emptively hiding a page the server
+ * already lets her open regardless of her actual grant. */
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../features/auth/AuthContext.jsx';

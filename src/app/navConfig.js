@@ -88,18 +88,12 @@ export const EXECUTIVE_NAV_ITEMS = [
   { to: '/expenses', sectionKey: 'expenses', label: 'Expenses', icon: ICON.expense, description: 'Company spending — if you\'ve been granted access.', labelKey: 'staffNav.executive.expenses.label', descriptionKey: 'staffNav.executive.expenses.description' },
 ];
 
-/**
- * The Office Secretary sidebar — same "short, explicit, opt-in flat list"
- * shape as EXECUTIVE_NAV_ITEMS, for the same reason: this role is
- * deny-by-default (excluded from STAFF_ROLES, see rbac.js), so an unguarded
- * item from the grouped nav would otherwise be visible to it for free. Its
- * only real destination is Mobilisations — which mobilisation(s) it can
- * actually act on is governed entirely by ApprovalRole membership on that
- * record's current workflow step, not by anything here.
- */
-export const OFFICE_SECRETARY_NAV_ITEMS = [
-  { to: '/mobilisations', label: 'Mobilisations', icon: ICON.team, description: 'Mobilisations awaiting your review.', labelKey: 'staffNav.officeSecretary.mobilisations.label', descriptionKey: 'staffNav.officeSecretary.mobilisations.description' },
-];
+// Office Secretary used to get her own short, explicit flat nav here (same
+// shape as EXECUTIVE_NAV_ITEMS), back when she was deny-by-default and
+// excluded from STAFF_ROLES. Moved into STAFF_ROLES 2026-09-13 (see
+// rbac.js's own doc comment) — she now gets the normal grouped nav below,
+// same as Coordinator/HR/Manager/Accounts, gated the normal way by her real
+// Section Access grants.
 
 export const NAV_GROUPS = [
   {
