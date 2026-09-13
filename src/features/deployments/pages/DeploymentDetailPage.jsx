@@ -18,6 +18,7 @@ import {
   monthlyHoursEntryToForm,
   daysInMonth,
   parseDailyEntry,
+  isValidDailyEntry,
   demobiliseFormSchema,
   emptyDemobiliseForm,
   resolveDemobiliseOutcome,
@@ -136,6 +137,7 @@ function MonthlyHoursForm({
   otClientRate,
 }) {
   const { t, i18n } = useTranslation();
+  const toast = useToast();
   const {
     register,
     handleSubmit,
@@ -169,6 +171,7 @@ function MonthlyHoursForm({
   const agreementHours = contractHours ?? 0;
   const otHoursPreview = Math.max(0, total - agreementHours);
   const otAmountPreview = otHoursPreview * (otClientRate ?? 0);
+  const deductionPreview = Number(watch('deductionAmount')) || 0;
 
   // Enter advances to the next day instead of submitting the form — and
   // scrolls it into view, since the grid can be wider than its container.
@@ -183,8 +186,34 @@ function MonthlyHoursForm({
     }
   }
 
+  // A client-side validation failure previously failed silently (react-hook-
+  // form never fires a mutation's own onError for one) — found via a real
+  // user report against this exact form (typed 25 into a day, got no
+  // feedback at all until wondering whether it would even be blocked).
+  // Every form in the app surfaces this as a toast now — see
+  // MobilisationForm.jsx's own onInvalid for the pattern this mirrors.
+  // Collected recursively (not just one level of Object.values) because an
+  // array-level `.refine()` error — dailyHours' own — lands nested under
+  // `dailyHours.root.message`, not `dailyHours.message` directly; a flat
+  // collector would silently find nothing and fall through to the generic
+  // fallback text instead of the real, specific message.
+  function collectErrorMessages(errorNode) {
+    const messages = [];
+    for (const value of Object.values(errorNode ?? {})) {
+      if (!value || typeof value !== 'object') continue;
+      if (typeof value.message === 'string') messages.push(value.message);
+      else messages.push(...collectErrorMessages(value));
+    }
+    return messages;
+  }
+  function onInvalid(formErrors) {
+    const messages = collectErrorMessages(formErrors);
+    console.error('[MonthlyHoursForm] validation failed:', formErrors);
+    toast.error(messages.length ? messages.join(' · ') : t('staffDeployments.detail.fixHighlighted'));
+  }
+
   return (
-    <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-4">
+    <form onSubmit={handleSubmit(onSubmit, onInvalid)} noValidate className="space-y-4">
       <Input
         label={t('staffDeployments.detail.monthLabel')}
         type="month"
@@ -226,22 +255,33 @@ function MonthlyHoursForm({
                 <tr>
                   {dailyHours.map((_, i) => {
                     const { ref: rhfRef, ...rest } = register(`dailyHours.${i}`);
-                    const letter = (dailyHours[i] ?? '').trim().toUpperCase();
+                    const trimmed = (dailyHours[i] ?? '').trim();
+                    const letter = trimmed.toUpperCase();
                     const isOff = letter === 'F';
                     const isSick = letter === 'S';
                     const isAbsent = letter === 'A';
+                    // Live, per-cell feedback the instant an out-of-range or
+                    // unrecognized value is typed (e.g. "25") — found via a
+                    // real user report that the old total simply summed
+                    // whatever was typed with no visual cue anything was
+                    // wrong, leaving no way to tell an invalid entry from a
+                    // valid one before hitting Save.
+                    const isInvalid = trimmed !== '' && !isValidDailyEntry(trimmed);
                     return (
                       <td key={i} className="p-0.5">
                         <input
                           type="text"
                           inputMode="decimal"
                           maxLength={5}
+                          title={isInvalid ? t('staffDeployments.detail.dailyHoursInvalidCell') : undefined}
+                          aria-invalid={isInvalid || undefined}
                           className={cn(
                             'h-9 w-14 rounded border text-center text-sm outline-none transition-colors focus:border-primary focus:ring-1 focus:ring-primary/30',
                             isOff && 'border-border bg-border/30 font-semibold text-muted',
                             isSick && 'border-primary/40 bg-primary/10 font-semibold text-primary',
                             isAbsent && 'border-danger/40 bg-danger/10 font-semibold text-danger',
-                            !isOff && !isSick && !isAbsent && 'border-border bg-surface text-text'
+                            isInvalid && 'border-danger bg-danger/10 font-semibold text-danger ring-1 ring-danger/40',
+                            !isOff && !isSick && !isAbsent && !isInvalid && 'border-border bg-surface text-text'
                           )}
                           {...rest}
                           ref={(el) => {
@@ -257,7 +297,12 @@ function MonthlyHoursForm({
               </tbody>
             </table>
           </div>
-          {errors.dailyHours && <p className="mt-1.5 text-sm text-danger">{errors.dailyHours.message}</p>}
+          {/* react-hook-form nests an array-FIELD-level `.refine()` error
+              under `.root`, not directly on the field — see onInvalid's own
+              doc comment above. `errors.dailyHours.message` was always
+              undefined here; a pre-existing display gap, not something this
+              same-day fix introduced. */}
+          {errors.dailyHours?.root && <p className="mt-1.5 text-sm text-danger">{errors.dailyHours.root.message}</p>}
 
           <div className="mt-3 grid grid-cols-2 gap-3 rounded-lg border border-border bg-bg/40 p-3 sm:grid-cols-4">
             <div>
@@ -278,10 +323,28 @@ function MonthlyHoursForm({
                 <p className="text-sm font-semibold tabular-nums">{formatMoney(otAmountPreview)}</p>
               </div>
             )}
+            {deductionPreview > 0 && (
+              <div>
+                <p className="text-xs text-muted">{t('staffDeployments.detail.summaryDeduction')}</p>
+                <p className="text-sm font-semibold tabular-nums text-danger">{formatMoney(deductionPreview)}</p>
+              </div>
+            )}
           </div>
         </div>
       )}
 
+      <div>
+        <Input
+          label={t('staffDeployments.detail.deductionAmountLabel')}
+          type="number"
+          step="0.01"
+          min="0"
+          placeholder={t('staffDeployments.detail.deductionAmountPlaceholder')}
+          error={errors.deductionAmount?.message}
+          {...register('deductionAmount')}
+        />
+        <p className="mt-1 text-xs text-muted">{t('staffDeployments.detail.deductionAmountHint')}</p>
+      </div>
       <Textarea label={t('staffDeployments.detail.notesLabel')} error={errors.notes?.message} {...register('notes')} />
       <div className="flex justify-end">
         <Button type="submit" size="sm" isLoading={submitting}>
@@ -522,6 +585,12 @@ export default function DeploymentDetailPage() {
                       as profit below. canDecideHours mirrors that exact
                       check client-side. */}
                   {canDecideHours && <th className="px-3 py-2">{t('staffDeployments.detail.columns.otAmount')}</th>}
+                  {/* Deduction is NOT commercial (unlike OT amount) — the
+                      user's own explicit call: whoever enters it already
+                      knows the number, it's transcribed straight off the
+                      client's own timesheet in front of her. Visible to
+                      everyone who can see this section at all. */}
+                  <th className="px-3 py-2">{t('staffDeployments.detail.columns.deduction')}</th>
                   {deployment.totalProfit != null && <th className="px-3 py-2">{t('staffDeployments.detail.columns.profit')}</th>}
                   <th className="px-3 py-2">{t('staffDeployments.detail.columns.status')}</th>
                   {(canEnterHours || canDecideHours) && isActive && <th className="px-3 py-2" />}
@@ -544,6 +613,13 @@ export default function DeploymentDetailPage() {
                       <td className="px-3 py-2">{entry.actualHours}</td>
                       <td className="px-3 py-2">{entry.otHours}</td>
                       {canDecideHours && <td className="px-3 py-2">{formatMoney(entry.otAmount)}</td>}
+                      <td className="px-3 py-2">
+                        {entry.deductionAmount > 0 ? (
+                          <span className="text-danger">{formatMoney(entry.deductionAmount)}</span>
+                        ) : (
+                          '—'
+                        )}
+                      </td>
                       {deployment.totalProfit != null && (
                         <td className={cn('px-3 py-2 font-medium tabular-nums', entry.profit >= 0 ? 'text-success' : 'text-danger')}>
                           {formatMoney(entry.profit)}
@@ -617,6 +693,7 @@ export default function DeploymentDetailPage() {
                 addMutation.mutate({
                   month: values.month,
                   dailyHours: values.dailyHours.map(parseDailyEntry),
+                  deductionAmount: values.deductionAmount ? Number(values.deductionAmount) : undefined,
                   notes: values.notes || undefined,
                 })
               }
@@ -648,6 +725,7 @@ export default function DeploymentDetailPage() {
                 entryId: editingEntry._id,
                 values: {
                   dailyHours: values.dailyHours.map(parseDailyEntry),
+                  deductionAmount: values.deductionAmount ? Number(values.deductionAmount) : undefined,
                   notes: values.notes || undefined,
                 },
               })
@@ -701,6 +779,12 @@ export default function DeploymentDetailPage() {
                 <p className="text-xs text-muted">{t('staffDeployments.detail.summaryOtAmount')}</p>
                 <p className="text-sm font-semibold tabular-nums">{formatMoney(decidingEntry.otAmount)}</p>
               </div>
+              {decidingEntry.deductionAmount > 0 && (
+                <div>
+                  <p className="text-xs text-muted">{t('staffDeployments.detail.summaryDeduction')}</p>
+                  <p className="text-sm font-semibold tabular-nums text-danger">{formatMoney(decidingEntry.deductionAmount)}</p>
+                </div>
+              )}
             </div>
             <Textarea
               label={
