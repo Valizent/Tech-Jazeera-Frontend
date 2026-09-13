@@ -1,9 +1,9 @@
 /**
  * RecentActivity — the latest audit-log entries as a human-readable feed.
  * The full, filterable, paginated trail lives on the Security Log page
- * (Admin-only) — this widget is just the newest 8, for a glance.
- * Admin/Manager/HR/Accounts only — a Coordinator's dashboard never renders
- * this (see DashboardPage.jsx / dashboard.service.js).
+ * (Admin-only) — this widget is just the newest 8, for a glance. Rendered
+ * only when the viewer has real `auditLog` read access (see
+ * dashboard.service.js/DashboardPage.jsx) — not a hardcoded role list.
  */
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';

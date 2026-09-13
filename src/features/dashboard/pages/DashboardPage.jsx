@@ -3,6 +3,15 @@
  * stats, a finance summary, workforce/quotation breakdowns, expiring-document
  * alerts, recent activity, and role-aware quick actions. Replaces the M3
  * placeholder.
+ *
+ * Widget visibility (added 2026-09-13): every field below is `null` from the
+ * server when the viewer lacks read access to that field's own underlying
+ * Section Access key (see dashboard.service.js's own doc comment) — this
+ * page never re-checks a role itself for whether to SHOW something, it just
+ * renders each widget only when its data is actually present. The one
+ * remaining role check (`isCoordinator`) is for SCOPING/labeling only — e.g.
+ * "Your Clients" vs. "Active Clients" — not for deciding whether a widget
+ * exists at all.
  */
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -63,11 +72,9 @@ export default function DashboardPage() {
 
   const firstName = user.name.split(' ')[0];
   const isCoordinator = user.role === 'Coordinator';
-  // A Manager (the generic login a BDM-titled person holds) — company-wide
-  // money figures (Pipeline, Profit, Recent Activity) are Admin/Executive
-  // territory; see dashboard.service.js's hideFinance for the full reasoning.
+  // Labeling/scoping only ("your drafts" vs. the company-wide count) — not
+  // an access gate. See this file's own top doc comment.
   const isManager = user.role === 'Manager';
-  const hideFinance = isCoordinator || isManager;
 
   if (isPending) {
     return (
@@ -121,90 +128,109 @@ export default function DashboardPage() {
         </Link>
       )}
 
-      {/* Headline stats */}
+      {/* Headline stats — each StatCard only renders when the server actually
+          sent a value; see this file's own top doc comment. */}
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-5">
-        <StatCard label={t('staffDashboard.stats.deployedNow')} value={stats.deployedActive} accent="primary" hint={t('staffDashboard.stats.activePlacements')} to="/deployments" />
-        <StatCard
-          label={t('staffDashboard.stats.activeWorkers')}
-          value={stats.activeWorkers}
-          accent="success"
-          hint={t('staffDashboard.stats.workersHint', { total: stats.totalWorkers, onLeave: stats.onLeave })}
-          to="/employees"
-        />
-        <StatCard label={isCoordinator ? t('staffDashboard.stats.yourClients') : t('staffDashboard.stats.activeClients')} value={stats.activeClients} to="/clients" />
-        {isCoordinator ? (
-          <StatCard label={t('staffDashboard.stats.expiringSoon')} value={stats.expiringSoon} accent="warning" hint={t('staffDashboard.stats.documentsNeedingAttention')} />
-        ) : (
+        {stats.deployedActive != null && (
+          <StatCard label={t('staffDashboard.stats.deployedNow')} value={stats.deployedActive} accent="primary" hint={t('staffDashboard.stats.activePlacements')} to="/deployments" />
+        )}
+        {stats.activeWorkers != null && (
           <StatCard
-            label={t('staffDashboard.stats.pendingQuotations')}
-            value={stats.pendingQuotations}
-            accent="warning"
-            hint={isManager ? t('staffDashboard.stats.yourDraftsAwaiting') : t('staffDashboard.stats.draftAwaiting')}
-            to="/quotations"
+            label={t('staffDashboard.stats.activeWorkers')}
+            value={stats.activeWorkers}
+            accent="success"
+            hint={t('staffDashboard.stats.workersHint', { total: stats.totalWorkers, onLeave: stats.onLeave })}
+            to="/employees"
           />
         )}
-        <StatCard
-          label={t('staffDashboard.stats.markedToday')}
-          value={stats.markedToday}
-          hint={t('staffDashboard.stats.ofActiveWorkers', { count: stats.activeWorkers })}
-          to="/attendance/summary"
-        />
+        {stats.activeClients != null && (
+          <StatCard label={isCoordinator ? t('staffDashboard.stats.yourClients') : t('staffDashboard.stats.activeClients')} value={stats.activeClients} to="/clients" />
+        )}
+        {isCoordinator
+          ? stats.expiringSoon != null && (
+              <StatCard label={t('staffDashboard.stats.expiringSoon')} value={stats.expiringSoon} accent="warning" hint={t('staffDashboard.stats.documentsNeedingAttention')} />
+            )
+          : stats.pendingQuotations != null && (
+              <StatCard
+                label={t('staffDashboard.stats.pendingQuotations')}
+                value={stats.pendingQuotations}
+                accent="warning"
+                hint={isManager ? t('staffDashboard.stats.yourDraftsAwaiting') : t('staffDashboard.stats.draftAwaiting')}
+                to="/quotations"
+              />
+            )}
+        {stats.markedToday != null && (
+          <StatCard
+            label={t('staffDashboard.stats.markedToday')}
+            value={stats.markedToday}
+            hint={t('staffDashboard.stats.ofActiveWorkers', { count: stats.activeWorkers })}
+            to="/attendance/summary"
+          />
+        )}
       </div>
 
       <MyPendingActions items={myPendingActions} />
 
-      {/* Finance summary — Admin/Executive/HR/Accounts only. Neither a
-          Coordinator nor a Manager (BDM) sees salary or revenue figures — see
-          dashboard.service.js's hideFinance. */}
-      {!hideFinance && (
-        <>
-          <Card>
-            <h2 className="mb-4 text-sm font-semibold uppercase tracking-wide text-muted">{t('staffDashboard.pipeline.title')}</h2>
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+      {/* Finance summary — each figure (and the whole Pipeline card, and
+          ProfitCard) only renders when the server actually sent it, driven
+          by real Section Access read grants, not a hardcoded role list —
+          see dashboard.service.js's own doc comment. */}
+      {(finance.approvedRevenue != null || finance.pendingRevenue != null || finance.monthlyPayroll != null) && (
+        <Card>
+          <h2 className="mb-4 text-sm font-semibold uppercase tracking-wide text-muted">{t('staffDashboard.pipeline.title')}</h2>
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+            {finance.approvedRevenue != null && (
               <FinanceItem label={t('staffDashboard.pipeline.approvedRevenue')} value={finance.approvedRevenue} accent="text-success" hint={t('staffDashboard.pipeline.approvedQuotations')} />
+            )}
+            {finance.pendingRevenue != null && (
               <FinanceItem label={t('staffDashboard.pipeline.pipeline')} value={finance.pendingRevenue} hint={t('staffDashboard.pipeline.draftQuotations')} />
+            )}
+            {finance.monthlyPayroll != null && (
               <FinanceItem label={t('staffDashboard.pipeline.monthlyPayroll')} value={finance.monthlyPayroll} hint={t('staffDashboard.pipeline.workforceSalariesRunRate')} />
-            </div>
-          </Card>
-
-          {/* P2-M8: real profit for a selected month — Revenue − Payroll −
-              Expenses, from Invoices/finalized Payroll/Expenses. */}
-          <ProfitCard profit={finance.profit} month={month} onMonthChange={setMonth} />
-        </>
+            )}
+          </div>
+        </Card>
       )}
 
-      {/* Breakdowns */}
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-        <StatusBreakdown
-          title={isCoordinator ? t('staffDashboard.yourTeamByStatus') : t('staffDashboard.workforceByStatus')}
-          data={workforceByStatus}
-          colors={{ Active: 'success', 'On Leave': 'warning', Exited: 'default' }}
-        />
-        {!isCoordinator && (
-          <StatusBreakdown
-            title={t('staffDashboard.quotationsByStatus')}
-            data={quotationsByStatus}
-            colors={{ Draft: 'default', Approved: 'success', Rejected: 'danger' }}
-          />
-        )}
-      </div>
+      {/* P2-M8: real profit for a selected month — Revenue − Payroll −
+          Expenses, from Invoices/finalized Payroll/Expenses. Requires read
+          on all three (see dashboard.service.js's canSeeProfit) — a partial
+          figure built from only some of its real inputs would be an actual
+          number that means something else entirely. */}
+      {finance.profit != null && <ProfitCard profit={finance.profit} month={month} onMonthChange={setMonth} />}
 
-      {/* Alerts + activity — Recent Activity is Admin/Executive/HR/Accounts
-          only, same visibility line as Finance above (see dashboard.service.js). */}
-      {isCoordinator ? (
-        <ExpiringDocuments
-          items={expiringDocuments}
-          thresholdDays={thresholdDays}
-          onThresholdChange={changeThreshold}
-          scopedToTeam
-        />
-      ) : isManager ? (
-        <ExpiringDocuments items={expiringDocuments} thresholdDays={thresholdDays} onThresholdChange={changeThreshold} />
-      ) : (
+      {/* Breakdowns */}
+      {(workforceByStatus != null || quotationsByStatus != null) && (
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-          <ExpiringDocuments items={expiringDocuments} thresholdDays={thresholdDays} onThresholdChange={changeThreshold} />
+          {workforceByStatus != null && (
+            <StatusBreakdown
+              title={isCoordinator ? t('staffDashboard.yourTeamByStatus') : t('staffDashboard.workforceByStatus')}
+              data={workforceByStatus}
+              colors={{ Active: 'success', 'On Leave': 'warning', Exited: 'default' }}
+            />
+          )}
+          {quotationsByStatus != null && (
+            <StatusBreakdown
+              title={t('staffDashboard.quotationsByStatus')}
+              data={quotationsByStatus}
+              colors={{ Draft: 'default', Approved: 'success', Rejected: 'danger' }}
+            />
+          )}
+        </div>
+      )}
+
+      {/* Alerts + activity — ExpiringDocuments always renders (it's a list
+          built from independently-gated sources, naturally empty rather
+          than absent when neither is readable, and shows its own empty
+          state); RecentActivity only when the server actually sent it.
+          Side-by-side only when both show. */}
+      {recentActivity != null ? (
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+          <ExpiringDocuments items={expiringDocuments} thresholdDays={thresholdDays} onThresholdChange={changeThreshold} scopedToTeam={isCoordinator} />
           <RecentActivity items={recentActivity} />
         </div>
+      ) : (
+        <ExpiringDocuments items={expiringDocuments} thresholdDays={thresholdDays} onThresholdChange={changeThreshold} scopedToTeam={isCoordinator} />
       )}
 
       <QuickActions />
