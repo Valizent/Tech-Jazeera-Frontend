@@ -1,7 +1,10 @@
 /**
  * NfcCompanyProfilePage — one company: its brand + details (editable) and the
  * people under it, each with the NFC card they hold and actions to assign,
- * change, edit, or remove. Admin-only.
+ * change, edit, or remove. Gated by the real 'nfc' Section Access grant
+ * (fixed 2026-09-14 — see NfcCompanyListPage's doc comment); every write
+ * action (edit/delete company, add/edit/delete a person, assign a card)
+ * additionally needs the Write tier specifically.
  */
 import { useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
@@ -40,7 +43,8 @@ export default function NfcCompanyProfilePage() {
   const toast = useToast();
   const queryClient = useQueryClient();
   const { user } = useAuth();
-  const isAdmin = user.role === 'Admin';
+  const canRead = Boolean(user.sectionAccess?.includes('nfc'));
+  const canWrite = Boolean(user.sectionAccessWrite?.includes('nfc'));
 
   const [editingCompany, setEditingCompany] = useState(false);
   const [deletingCompany, setDeletingCompany] = useState(false);
@@ -52,7 +56,7 @@ export default function NfcCompanyProfilePage() {
   const { data: company, isPending, isError } = useQuery({
     queryKey: ['nfc-company', id],
     queryFn: () => getNfcCompany(id),
-    enabled: isAdmin,
+    enabled: canRead,
   });
 
   // Loaded separately so the profile is never held up by an aggregation; the
@@ -60,7 +64,7 @@ export default function NfcCompanyProfilePage() {
   const { data: activity } = useQuery({
     queryKey: ['nfc-company-analytics', id, ANALYTICS_DAYS],
     queryFn: () => getNfcCompanyAnalytics(id, ANALYTICS_DAYS),
-    enabled: isAdmin,
+    enabled: canRead,
   });
   const tapsByPerson = new Map((activity?.byEmployee ?? []).map((r) => [r.employee, r]));
 
@@ -84,7 +88,7 @@ export default function NfcCompanyProfilePage() {
     onError: (error) => toast.error(apiMessage(error)),
   });
 
-  if (!isAdmin) return <Navigate to="/" replace />;
+  if (!canRead) return <Navigate to="/" replace />;
 
   if (isPending) {
     return (
@@ -143,19 +147,20 @@ export default function NfcCompanyProfilePage() {
     {
       key: 'actions',
       header: '',
-      render: (p) => (
-        <div className="flex justify-end gap-2">
-          <Button size="sm" variant="secondary" onClick={() => setAssigningTo(p)}>
-            {p.card ? 'Change card' : 'Assign card'}
-          </Button>
-          <Button size="sm" variant="ghost" onClick={() => setEditingPerson(p)}>
-            Edit
-          </Button>
-          <Button size="sm" variant="ghost" onClick={() => setDeletingPerson(p)}>
-            Delete
-          </Button>
-        </div>
-      ),
+      render: (p) =>
+        canWrite ? (
+          <div className="flex justify-end gap-2">
+            <Button size="sm" variant="secondary" onClick={() => setAssigningTo(p)}>
+              {p.card ? 'Change card' : 'Assign card'}
+            </Button>
+            <Button size="sm" variant="ghost" onClick={() => setEditingPerson(p)}>
+              Edit
+            </Button>
+            <Button size="sm" variant="ghost" onClick={() => setDeletingPerson(p)}>
+              Delete
+            </Button>
+          </div>
+        ) : null,
     },
   ];
 
@@ -179,14 +184,16 @@ export default function NfcCompanyProfilePage() {
         description={company.city || 'NFC customer'}
         onBack={() => navigate(-1)}
         actions={
-          <>
-            <Button variant="secondary" onClick={() => setEditingCompany(true)}>
-              Edit
-            </Button>
-            <Button variant="danger" onClick={() => setDeletingCompany(true)}>
-              Delete
-            </Button>
-          </>
+          canWrite && (
+            <>
+              <Button variant="secondary" onClick={() => setEditingCompany(true)}>
+                Edit
+              </Button>
+              <Button variant="danger" onClick={() => setDeletingCompany(true)}>
+                Delete
+              </Button>
+            </>
+          )
         }
       />
 
@@ -235,9 +242,11 @@ export default function NfcCompanyProfilePage() {
             <h2 className="text-sm font-semibold uppercase tracking-wide text-muted">
               People ({company.employees.length})
             </h2>
-            <Button size="sm" onClick={() => setAddingPerson(true)}>
-              Add person
-            </Button>
+            {canWrite && (
+              <Button size="sm" onClick={() => setAddingPerson(true)}>
+                Add person
+              </Button>
+            )}
           </div>
           <Table
             columns={columns}
@@ -247,7 +256,7 @@ export default function NfcCompanyProfilePage() {
               <EmptyState
                 title="No people yet"
                 description="Add the first person, then assign them a card."
-                action={<Button onClick={() => setAddingPerson(true)}>Add person</Button>}
+                action={canWrite && <Button onClick={() => setAddingPerson(true)}>Add person</Button>}
               />
             }
           />

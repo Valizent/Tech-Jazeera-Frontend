@@ -41,8 +41,6 @@ export const ACCOUNT_PROVISION_ROLES = ['Admin', 'HR'];
  *  this file isn't shared with the server. */
 export const EMPLOYEE_LOGIN_ROLES = ['Manager', 'HR', 'Accounts', 'Coordinator', 'Executive', 'Office Secretary', 'Staff', 'Worker'];
 
-/** P2-M2: roles this app assigns to a Coordinator's team-scoped queries. */
-export const COORDINATOR_ROLE = 'Coordinator';
 /** Mirror of user.routes.js — editing a staff login stays hardcoded
  *  Admin-only. Viewing the list is the admin-configurable SectionAccess
  *  ('team') mechanism now — see navConfig.js. */

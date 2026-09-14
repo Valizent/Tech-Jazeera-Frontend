@@ -1,7 +1,9 @@
 /**
  * NfcCardDetailPage — everything about one card: its public URL + QR, status,
  * current holder, full assignment history, and the lifecycle actions (unassign,
- * mark lost, return, disable, rotate token, edit chip UID). Admin-only.
+ * mark lost, return, disable, rotate token, edit chip UID). Gated by the real
+ * 'nfc' Section Access grant (fixed 2026-09-14 — see NfcCompanyListPage's doc
+ * comment); every lifecycle action additionally needs the Write tier.
  *
  * Assigning a card is done from a person's page (you pick who needs it); here we
  * manage a card that already exists.
@@ -29,7 +31,8 @@ import AssignCompanyModal from '../components/AssignCompanyModal.jsx';
 export default function NfcCardDetailPage() {
   const { id } = useParams();
   const { user } = useAuth();
-  const isAdmin = user.role === 'Admin';
+  const canRead = Boolean(user.sectionAccess?.includes('nfc'));
+  const canWrite = Boolean(user.sectionAccessWrite?.includes('nfc'));
   const toast = useToast();
   const queryClient = useQueryClient();
 
@@ -43,12 +46,12 @@ export default function NfcCardDetailPage() {
   const { data: card, isPending, isError } = useQuery({
     queryKey: ['nfc-card', id],
     queryFn: () => getNfcCard(id),
-    enabled: isAdmin,
+    enabled: canRead,
   });
 
   // Load the QR image (authenticated blob → object URL); revoke on change/unmount.
   useEffect(() => {
-    if (!isAdmin) return undefined;
+    if (!canRead) return undefined;
     let revoked = false;
     let url;
     getCardQrObjectUrl(id)
@@ -62,7 +65,7 @@ export default function NfcCardDetailPage() {
       revoked = true;
       if (url) URL.revokeObjectURL(url);
     };
-  }, [id, isAdmin, card?.token]); // reload when the token rotates
+  }, [id, canRead, card?.token]); // reload when the token rotates
 
   useEffect(() => {
     if (card) setChip(card.chipUid ?? '');
@@ -101,7 +104,7 @@ export default function NfcCardDetailPage() {
     onError: (error) => toast.error(apiMessage(error)),
   });
 
-  if (!isAdmin) return <Navigate to="/" replace />;
+  if (!canRead) return <Navigate to="/" replace />;
 
   if (isPending) {
     return (
@@ -185,15 +188,18 @@ export default function NfcCardDetailPage() {
                 </p>
               </div>
               <div className="flex items-end gap-2">
-                <Input label="Chip UID (optional)" value={chip} onChange={(e) => setChip(e.target.value)} className="flex-1" />
-                <Button variant="secondary" isLoading={chipMutation.isPending} onClick={() => chipMutation.mutate()}>
-                  Save
-                </Button>
+                <Input label="Chip UID (optional)" value={chip} onChange={(e) => setChip(e.target.value)} className="flex-1" disabled={!canWrite} />
+                {canWrite && (
+                  <Button variant="secondary" isLoading={chipMutation.isPending} onClick={() => chipMutation.mutate()}>
+                    Save
+                  </Button>
+                )}
               </div>
             </div>
           </div>
 
           {/* Lifecycle actions */}
+          {canWrite && (
           <div className="mt-6 flex flex-wrap gap-2 border-t border-border pt-4">
             {card.status === 'active' && (
               <Button size="sm" variant="secondary" onClick={() => actionMutation.mutate('unassign')}>
@@ -260,6 +266,7 @@ export default function NfcCardDetailPage() {
               Delete card
             </Button>
           </div>
+          )}
         </Card>
 
         <CardAnalyticsPanel cardId={id} />

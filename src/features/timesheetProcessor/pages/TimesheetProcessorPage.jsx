@@ -1,5 +1,10 @@
 /**
- * TimesheetProcessorPage — the admin-only monthly timesheet tool.
+ * TimesheetProcessorPage — the monthly timesheet tool, gated by the real
+ * 'timesheetProcessor' Section Access grant (fixed 2026-09-14, a real
+ * QA-audit-found gap — this used to hardcode Admin-only client-side even
+ * after the server moved to Section Access). Write-gated as a whole (no
+ * separate read-only view makes sense — per the section's own description,
+ * it's a stateless tool with nothing to view besides running it).
  *
  * Flow: pick an employee + month/year (+ optional required-hours override),
  * upload that employee's attendance .xlsx, Process to preview the computed
@@ -52,7 +57,7 @@ export default function TimesheetProcessorPage() {
   const navigate = useNavigate();
   const { user } = useAuth();
   const toast = useToast();
-  const isAdmin = user.role === 'Admin';
+  const canWrite = Boolean(user.sectionAccessWrite?.includes('timesheetProcessor'));
 
   const [employeeId, setEmployeeId] = useState('');
   const [month, setMonth] = useState(now.getMonth() + 1);
@@ -69,7 +74,7 @@ export default function TimesheetProcessorPage() {
     queryKey: ['employees', 'timesheet-picker'],
     // The list endpoint caps limit at 100 (matches the document-upload picker).
     queryFn: () => listEmployees({ limit: 100, sortBy: 'fullName', sortOrder: 'asc' }),
-    enabled: isAdmin,
+    enabled: canWrite,
   });
 
   const previewMutation = useMutation({
@@ -81,8 +86,7 @@ export default function TimesheetProcessorPage() {
     onError: (error) => toast.error(apiMessage(error)),
   });
 
-  // Admin-only tool (the API enforces this too); a stray direct visit goes home.
-  if (!isAdmin) return <Navigate to="/" replace />;
+  if (!canWrite) return <Navigate to="/" replace />;
 
   const employees = employeeData?.items ?? [];
 
