@@ -3,7 +3,9 @@
  * top of the Timesheet Processor's exported .xlsx AND every generated PDF's
  * letterhead (invoices, quotations, EOSB settlements, certificates,
  * payslips — see server's companySettings/letterhead.pdf.js). Lives on the
- * Company Settings page; whoever can reach that page can manage the logo.
+ * Company Settings page; `canWrite` (the page's own 'companySettings' write
+ * check) hides the upload/replace/remove actions for a read-only viewer —
+ * they can still see the logo, just not change it.
  */
 import { useRef, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
@@ -17,7 +19,7 @@ import Skeleton from '../../../components/ui/Skeleton.jsx';
 const MAX_MB = 2;
 const ACCEPT = 'image/png,image/jpeg,image/webp';
 
-export default function CompanyLogoCard() {
+export default function CompanyLogoCard({ canWrite }) {
   const toast = useToast();
   const queryClient = useQueryClient();
   const fileInputRef = useRef(null);
@@ -93,30 +95,34 @@ export default function CompanyLogoCard() {
             ) : (
               <span className="text-sm text-muted">No logo set — exports skip the logo band.</span>
             )}
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept={ACCEPT}
-              onChange={handleFileChange}
-              className="hidden"
-            />
-            <Button
-              type="button"
-              variant="secondary"
-              isLoading={uploadMutation.isPending}
-              onClick={() => fileInputRef.current?.click()}
-            >
-              {data?.logoUrl ? 'Replace' : 'Upload logo'}
-            </Button>
-            {data?.logoUrl && (
-              <Button
-                type="button"
-                variant="danger-ghost"
-                isLoading={removeMutation.isPending}
-                onClick={() => removeMutation.mutate()}
-              >
-                Remove
-              </Button>
+            {canWrite && (
+              <>
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept={ACCEPT}
+                  onChange={handleFileChange}
+                  className="hidden"
+                />
+                <Button
+                  type="button"
+                  variant="secondary"
+                  isLoading={uploadMutation.isPending}
+                  onClick={() => fileInputRef.current?.click()}
+                >
+                  {data?.logoUrl ? 'Replace' : 'Upload logo'}
+                </Button>
+                {data?.logoUrl && (
+                  <Button
+                    type="button"
+                    variant="danger-ghost"
+                    isLoading={removeMutation.isPending}
+                    onClick={() => removeMutation.mutate()}
+                  >
+                    Remove
+                  </Button>
+                )}
+              </>
             )}
           </div>
         )}

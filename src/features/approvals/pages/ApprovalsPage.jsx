@@ -131,24 +131,31 @@ function ApprovalRolesPanel() {
 
       <Modal open={!!editing} onClose={() => setEditing(null)} title={editing?._id ? 'Edit approval role' : 'New approval role'}>
         <form onSubmit={handleSubmit((values) => saveMutation.mutate(values))} noValidate className="space-y-4">
-          <Input label="Name *" placeholder="e.g. HR, BDM, COO" error={errors.name?.message} {...register('name')} />
-          <Input label="Description" error={errors.description?.message} {...register('description')} />
-          <div>
-            <label className="mb-2 block text-sm font-medium">Members</label>
-            <div className="max-h-48 overflow-y-auto rounded-lg border border-border p-2">
-              <PillChecklist
-                items={staffUsers ?? []}
-                selected={members}
-                onToggle={toggleMember}
-                getLabel={(u) => `${u.name} (${u.role})`}
-                emptyMessage="No staff accounts found."
-              />
+          {/* Read (opening this modal at all) is open to any staff member — see
+              the page's own top-level comment. Write ('approvalHierarchy')
+              disables every field below, not just the Save button (2026-09-14
+              fix, a real QA-audit-found gap: a read-only viewer previously got
+              a fully live name/description/members/active editor). */}
+          <fieldset disabled={!canManage} className="space-y-4 disabled:opacity-60">
+            <Input label="Name *" placeholder="e.g. HR, BDM, COO" error={errors.name?.message} {...register('name')} />
+            <Input label="Description" error={errors.description?.message} {...register('description')} />
+            <div>
+              <label className="mb-2 block text-sm font-medium">Members</label>
+              <div className="max-h-48 overflow-y-auto rounded-lg border border-border p-2">
+                <PillChecklist
+                  items={staffUsers ?? []}
+                  selected={members}
+                  onToggle={toggleMember}
+                  getLabel={(u) => `${u.name} (${u.role})`}
+                  emptyMessage="No staff accounts found."
+                />
+              </div>
             </div>
-          </div>
-          <label className="flex items-center gap-2 text-sm">
-            <input type="checkbox" className="h-4 w-4 rounded border-border" {...register('isActive')} />
-            Active
-          </label>
+            <label className="flex items-center gap-2 text-sm">
+              <input type="checkbox" className="h-4 w-4 rounded border-border" {...register('isActive')} />
+              Active
+            </label>
+          </fieldset>
 
           <div className="flex justify-end gap-2 pt-2">
             <Button variant="secondary" onClick={() => setEditing(null)} disabled={saveMutation.isPending}>
@@ -373,59 +380,67 @@ function ApprovalWorkflowsPanel() {
         title={editing?._id ? 'Edit approval workflow' : 'New approval workflow'}
       >
         <form onSubmit={handleSubmit((values) => saveMutation.mutate(values))} noValidate className="space-y-4">
-          <Input label="Name *" placeholder="e.g. Leave Chain" error={errors.name?.message} {...register('name')} />
+          {/* Read (opening this modal at all) is open to any staff member — see
+              the page's own top-level comment. Write ('approvalHierarchy')
+              disables every field below, not just the Save button (2026-09-14
+              fix, a real QA-audit-found gap: a read-only viewer could
+              previously add/reorder/remove steps and toggle role assignments,
+              only Save itself was gated). */}
+          <fieldset disabled={!canManage} className="space-y-4 disabled:opacity-60">
+            <Input label="Name *" placeholder="e.g. Leave Chain" error={errors.name?.message} {...register('name')} />
 
-          <div>
-            <div className="mb-2 flex items-center justify-between">
-              <label className="text-sm font-medium">Steps, in order *</label>
-              <Button type="button" size="sm" variant="secondary" onClick={() => appendStep({ label: '', roles: [] })}>
-                Add step
-              </Button>
+            <div>
+              <div className="mb-2 flex items-center justify-between">
+                <label className="text-sm font-medium">Steps, in order *</label>
+                <Button type="button" size="sm" variant="secondary" onClick={() => appendStep({ label: '', roles: [] })}>
+                  Add step
+                </Button>
+              </div>
+              <div className="mt-2">
+                <DndContext sensors={dndSensors} collisionDetection={closestCenter} onDragEnd={handleStepDragEnd}>
+                  <SortableContext items={stepFields.map((f) => f.id)} strategy={verticalListSortingStrategy}>
+                    {stepFields.map((field, i) => (
+                      <div key={field.id}>
+                        {i > 0 && <StepConnector />}
+                        <SortableStepCard
+                          id={field.id}
+                          index={i}
+                          register={register}
+                          roleError={errors.steps?.[i]?.roles?.message}
+                          roles={roles ?? []}
+                          stepRoles={watch(`steps.${i}.roles`) ?? []}
+                          onToggleRole={(roleId) => toggleStepRole(i, roleId)}
+                          onRemove={() => removeStep(i)}
+                          canRemove={stepFields.length > 1}
+                        />
+                      </div>
+                    ))}
+                  </SortableContext>
+                </DndContext>
+              </div>
+              {errors.steps?.message && <p className="mt-1 text-sm text-danger">{errors.steps.message}</p>}
             </div>
-            <div className="mt-2">
-              <DndContext sensors={dndSensors} collisionDetection={closestCenter} onDragEnd={handleStepDragEnd}>
-                <SortableContext items={stepFields.map((f) => f.id)} strategy={verticalListSortingStrategy}>
-                  {stepFields.map((field, i) => (
-                    <div key={field.id}>
-                      {i > 0 && <StepConnector />}
-                      <SortableStepCard
-                        id={field.id}
-                        index={i}
-                        register={register}
-                        roleError={errors.steps?.[i]?.roles?.message}
-                        roles={roles ?? []}
-                        stepRoles={watch(`steps.${i}.roles`) ?? []}
-                        onToggleRole={(roleId) => toggleStepRole(i, roleId)}
-                        onRemove={() => removeStep(i)}
-                        canRemove={stepFields.length > 1}
-                      />
-                    </div>
-                  ))}
-                </SortableContext>
-              </DndContext>
+
+            <div>
+              <label className="mb-2 block text-sm font-medium">Default for request types</label>
+              <PillChecklist
+                items={APPROVAL_REQUEST_TYPES}
+                selected={appliesTo}
+                onToggle={toggleAppliesTo}
+                getId={(t) => t}
+                getLabel={(t) => APPROVAL_REQUEST_TYPE_LABELS[t]}
+              />
+              <p className="mt-1 text-xs text-muted">
+                Only one active workflow may default to a given request type — an individual employee's profile can
+                still override this.
+              </p>
             </div>
-            {errors.steps?.message && <p className="mt-1 text-sm text-danger">{errors.steps.message}</p>}
-          </div>
 
-          <div>
-            <label className="mb-2 block text-sm font-medium">Default for request types</label>
-            <PillChecklist
-              items={APPROVAL_REQUEST_TYPES}
-              selected={appliesTo}
-              onToggle={toggleAppliesTo}
-              getId={(t) => t}
-              getLabel={(t) => APPROVAL_REQUEST_TYPE_LABELS[t]}
-            />
-            <p className="mt-1 text-xs text-muted">
-              Only one active workflow may default to a given request type — an individual employee's profile can
-              still override this.
-            </p>
-          </div>
-
-          <label className="flex items-center gap-2 text-sm">
-            <input type="checkbox" className="h-4 w-4 rounded border-border" {...register('isActive')} />
-            Active
-          </label>
+            <label className="flex items-center gap-2 text-sm">
+              <input type="checkbox" className="h-4 w-4 rounded border-border" {...register('isActive')} />
+              Active
+            </label>
+          </fieldset>
 
           <div className="flex justify-end gap-2 pt-2">
             <Button variant="secondary" onClick={() => setEditing(null)} disabled={saveMutation.isPending}>

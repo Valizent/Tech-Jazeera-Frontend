@@ -6,6 +6,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, useParams } from 'react-router-dom';
+import { useAuth } from '../../auth/AuthContext.jsx';
 import { getMobilisation, updateMobilisation } from '../mobilisations.api.js';
 import { mobilisationToForm } from '../mobilisations.schema.js';
 import { listEmployees } from '../../employees/employees.api.js';
@@ -25,6 +26,7 @@ export default function MobilisationEditPage() {
   const { id } = useParams();
   const navigate = useNavigate();
   const { t } = useTranslation();
+  const { user } = useAuth();
   const toast = useToast();
   const queryClient = useQueryClient();
 
@@ -87,12 +89,22 @@ export default function MobilisationEditPage() {
     );
   }
 
-  // Normally Draft/Rejected only — ALSO open throughout PendingReview to
-  // whoever holds step 0 (Office Secretary today), fixing whatever the
-  // coordinator entered wrong, even after the record has moved on to a
-  // later step (server-enforced in updateMobilisation; `canEditSection1` is
-  // the same server-computed flag the detail page's Edit button uses).
-  if (!['Draft', 'Rejected'].includes(mobilisation.status) && !mobilisation.canEditSection1) {
+  // Draft/Rejected: only the primary coordinator or Admin (server:
+  // assertPrimaryOrAdmin) — a joint (non-primary) coordinator, or a
+  // mobilisationsViewer Read-only grantee who can see a Rejected record,
+  // must NOT get a live edit form just because the record happens to be in
+  // an editable status. PendingReview: whoever holds step 0 right now
+  // (Office Secretary today), even after the record has moved past step 0
+  // (`canEditSection1` is the same server-computed flag the detail page's
+  // Edit button uses — see mobilisation.service.js's getMobilisation).
+  // Found 2026-09-14: the original check only gated the PendingReview
+  // branch, so a Draft/Rejected record was a live form for ANY viewer who
+  // could reach this URL at all, primary or not.
+  const isPrimary = mobilisation.coordinators.some((c) => (c.user._id ?? c.user) === user.id && c.isPrimary);
+  const isDraftOrRejected = ['Draft', 'Rejected'].includes(mobilisation.status);
+  const canEdit = isDraftOrRejected ? user.role === 'Admin' || isPrimary : Boolean(mobilisation.canEditSection1);
+
+  if (!canEdit) {
     return (
       <EmptyState
         title={t('staffMobilisations.edit.cannotEditTitle')}

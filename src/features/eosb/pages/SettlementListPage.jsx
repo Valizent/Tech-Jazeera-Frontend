@@ -1,13 +1,17 @@
 /**
  * EOSB settlements list — every computed end-of-service settlement (P3-A).
- * The whole module (view/PDF/compute/delete) is Section Access key 'eosb'
- * now — reaching this page at all already implies full access, same
- * "successful load implies full action access" pattern as Payroll/Expenses.
+ * The whole module (view/PDF/compute/delete) is Section Access key 'eosb',
+ * with a real Read/Write split — reaching this page only implies Read.
+ * `canWrite` (2026-09-14 fix, a real QA-audit-found gap: this page's own
+ * "reaching this page implies full access" assumption predated the
+ * Read/Write split and was never updated) hides "New settlement" for a
+ * read-only viewer, matching SettlementViewPage's own Delete gate.
  */
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { keepPreviousData, useQuery } from '@tanstack/react-query';
+import { useAuth } from '../../auth/AuthContext.jsx';
 import { listSettlements } from '../eosb.api.js';
 import { formatDate, formatMoney } from '../../../lib/utils.js';
 import { EXIT_REASON_LABELS } from '../../../lib/constants.js';
@@ -20,6 +24,8 @@ import EmptyState from '../../../components/ui/EmptyState.jsx';
 export default function SettlementListPage() {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const { user } = useAuth();
+  const canWrite = Boolean(user.sectionAccessWrite?.includes('eosb'));
 
   const [page, setPage] = useState(1);
   const limit = 20;
@@ -58,7 +64,7 @@ export default function SettlementListPage() {
         title={t('staffEosb.list.pageTitle')}
         description={t('staffEosb.list.pageDescription')}
         onBack={() => navigate(-1)}
-        actions={<Button onClick={() => navigate('/eosb/new')}>{t('staffEosb.list.newSettlement')}</Button>}
+        actions={canWrite && <Button onClick={() => navigate('/eosb/new')}>{t('staffEosb.list.newSettlement')}</Button>}
       />
 
       {isError ? (
@@ -75,7 +81,7 @@ export default function SettlementListPage() {
               <EmptyState
                 title={t('staffEosb.list.emptyTitle')}
                 description={t('staffEosb.list.emptyDescription')}
-                action={<Button onClick={() => navigate('/eosb/new')}>{t('staffEosb.list.newSettlement')}</Button>}
+                action={canWrite && <Button onClick={() => navigate('/eosb/new')}>{t('staffEosb.list.newSettlement')}</Button>}
               />
             }
           />
