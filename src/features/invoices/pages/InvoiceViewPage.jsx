@@ -41,10 +41,12 @@ export default function InvoiceViewPage() {
   const toast = useToast();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  // Reaching this page at all already implies the whole-module 'invoices'
-  // Section Access grant (payments included) — no separate write check
-  // needed, same "successful load implies full action access" pattern as
-  // Payroll/Expenses. Delete stays its own hardcoded, stricter circle.
+  // 'invoices' has a real Read/Write split — reaching this page only
+  // implies Read; Record Payment needs Write (2026-09-14 fix, a real
+  // QA-audit-found gap: this used to assume reaching the page implied full
+  // access). Delete stays its own hardcoded, stricter circle, unrelated to
+  // Section Access.
+  const canWrite = Boolean(user.sectionAccessWrite?.includes('invoices'));
   const canDelete = INVOICE_DELETE_ROLES.includes(user.role);
 
   const [recordingPayment, setRecordingPayment] = useState(false);
@@ -122,7 +124,7 @@ export default function InvoiceViewPage() {
               {t(`common.status.${inv.status}`, inv.status)}
             </Badge>
             <InvoicePdfButton id={inv._id} number={inv.invoiceNumber} />
-            {inv.status !== 'Paid' && <Button onClick={openRecordPayment}>{t('staffInvoices.view.recordPayment')}</Button>}
+            {inv.status !== 'Paid' && canWrite && <Button onClick={openRecordPayment}>{t('staffInvoices.view.recordPayment')}</Button>}
             {canDelete && inv.payments.length === 0 && (
               <Button variant="danger" onClick={() => setConfirmingDelete(true)}>
                 {t('common.delete')}

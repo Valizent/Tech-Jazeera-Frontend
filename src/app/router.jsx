@@ -80,6 +80,7 @@ import MyExitDocumentsPage from '../features/ess/pages/MyExitDocumentsPage.jsx';
 import MyAttendancePage from '../features/ess/pages/MyAttendancePage.jsx';
 import NoPortalAccessPage from '../features/ess/pages/NoPortalAccessPage.jsx';
 import RequireSectionRead from '../components/shared/RequireSectionRead.jsx';
+import RequireSectionWrite from '../components/shared/RequireSectionWrite.jsx';
 import ErrorPage from './pages/ErrorPage.jsx';
 import WorkforceHubPage from './pages/WorkforceHubPage.jsx';
 import SalesHubPage from './pages/SalesHubPage.jsx';
@@ -145,17 +146,29 @@ function WorkerRouter() {
 
 /** Wrap a route's element with the Read gate for its section (see
  *  RequireSectionRead) — only for the sections that are now Section-Access
- *  read-gated. Routes deliberately left unwrapped: Mobilisation routes
- *  (visibility is per-record, not a blanket section — see
- *  mobilisation.service.js), Financial Requests (list/submit stays on the
- *  broader requireStaffOrExecutive floor, unchanged), Company Settings/
- *  Approval Log (already have their own dynamic in-page 403 handling), and
- *  every "new"/"edit" sub-route (reached only via an already Write-gated
- *  button; the server is the real enforcement either way). */
+ *  read-gated. Routes deliberately left unwrapped: Mobilisation's list/
+ *  view/new routes (visibility is per-record, not a blanket section — see
+ *  mobilisation.service.js; MobilisationEditPage does its own in-page
+ *  isPrimary-or-Admin/canEditSection1 check since that's per-record too),
+ *  Financial Requests (list/submit stays on the broader
+ *  requireStaffOrExecutive floor, unchanged), Company Settings/Approval Log
+ *  (already have their own dynamic in-page 403 handling). */
 const guarded = (sectionKey, element, officeSecretaryBypass) => (
   <RequireSectionRead sectionKey={sectionKey} officeSecretaryBypass={officeSecretaryBypass}>
     {element}
   </RequireSectionRead>
+);
+
+/** Same idea as `guarded`, but for a "new"/"edit" sub-route: checks Write,
+ *  not Read (see RequireSectionWrite). These routes are normally reached
+ *  via a button that's already canWrite-gated, but a direct URL/bookmark
+ *  had no guard at all until this was added 2026-09-14 (found alongside the
+ *  Company Settings read-only-viewer-gets-a-live-form bug) — the server was
+ *  the only real backstop. */
+const guardedWrite = (sectionKey, element, officeSecretaryBypass) => (
+  <RequireSectionWrite sectionKey={sectionKey} officeSecretaryBypass={officeSecretaryBypass}>
+    {element}
+  </RequireSectionWrite>
 );
 
 export const router = createBrowserRouter([
@@ -180,20 +193,25 @@ export const router = createBrowserRouter([
               { path: '/financial', element: <FinancialHubPage /> },
               { path: '/admin-tools', element: <AdminToolsHubPage /> },
               { path: '/employees', element: guarded('employeeCreate', <EmployeeListPage />) },
-              { path: '/employees/new', element: <EmployeeNewPage /> },
+              { path: '/employees/new', element: guardedWrite('employeeCreate', <EmployeeNewPage />) },
               { path: '/employees/:id', element: guarded('employeeCreate', <EmployeeProfilePage />) },
+              // NOT guardedWrite('employeeCreate', ...): editing an employee is
+              // gated by a DIFFERENT, hardcoded role list (Admin/Manager/HR —
+              // see employee.routes.js's PATCH /:id) than creating one
+              // ('employeeCreate' Section Access, POST /). EmployeeEditPage
+              // does its own in-page EMPLOYEE_WRITE_ROLES check instead.
               { path: '/employees/:id/edit', element: <EmployeeEditPage /> },
               { path: '/clients', element: guarded('clientsManage', <ClientListPage />) },
-              { path: '/clients/new', element: <ClientNewPage /> },
+              { path: '/clients/new', element: guardedWrite('clientsManage', <ClientNewPage />) },
               { path: '/clients/:id', element: guarded('clientsManage', <ClientProfilePage />) },
-              { path: '/clients/:id/edit', element: <ClientEditPage /> },
+              { path: '/clients/:id/edit', element: guardedWrite('clientsManage', <ClientEditPage />) },
               // officeSecretaryBypass: true — mirrors deployment.routes.js's
               // own hardcoded canReadDeployments exception (she needs to
               // find the deployment she's about to enter hours against).
               { path: '/deployments', element: guarded('deploymentsRelease', <DeploymentListPage />, true) },
               { path: '/deployments/:id', element: guarded('deploymentsRelease', <DeploymentDetailPage />, true) },
               { path: '/mobilisations', element: <MobilisationListPage /> },
-              { path: '/mobilisations/new', element: <MobilisationNewPage /> },
+              { path: '/mobilisations/new', element: guardedWrite('mobilisationsSelfMobilise', <MobilisationNewPage />, true) },
               { path: '/mobilisations/:id', element: <MobilisationDetailPage /> },
               { path: '/mobilisations/:id/edit', element: <MobilisationEditPage /> },
               { path: '/mobilisation-settings', element: <MobilisationSettingsPage /> },
@@ -204,9 +222,9 @@ export const router = createBrowserRouter([
               { path: '/attendance/summary', element: guarded('attendanceRecords', <AttendanceSummaryPage />) },
               { path: '/documents', element: guarded('documentsManage', <DocumentListPage />) },
               { path: '/quotations', element: guarded('quotationsManage', <QuotationListPage />) },
-              { path: '/quotations/new', element: <QuotationNewPage /> },
+              { path: '/quotations/new', element: guardedWrite('quotationsManage', <QuotationNewPage />) },
               { path: '/quotations/:id', element: guarded('quotationsManage', <QuotationViewPage />) },
-              { path: '/quotations/:id/edit', element: <QuotationEditPage /> },
+              { path: '/quotations/:id/edit', element: guardedWrite('quotationsManage', <QuotationEditPage />) },
               { path: '/timesheet-processor', element: guarded('timesheetProcessor', <TimesheetProcessorPage />) },
               { path: '/team', element: guarded('team', <UserListPage />) },
               { path: '/coordinator-activity', element: <CoordinatorActivityPage /> },
@@ -214,7 +232,7 @@ export const router = createBrowserRouter([
               { path: '/holidays', element: <HolidayListPage /> },
               { path: '/eosb', element: guarded('eosb', <SettlementListPage />) },
               // Before the /eosb/:id catch-all, or "new" is read as a settlement id.
-              { path: '/eosb/new', element: guarded('eosb', <SettlementNewPage />) },
+              { path: '/eosb/new', element: guardedWrite('eosb', <SettlementNewPage />) },
               { path: '/eosb/:id', element: guarded('eosb', <SettlementViewPage />) },
               { path: '/financial-requests', element: <FinancialRequestsPage /> },
               { path: '/assets', element: guarded('assetsManage', <AssetListPage />) },

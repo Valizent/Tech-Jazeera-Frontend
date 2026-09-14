@@ -10,6 +10,7 @@ import { useNavigate } from 'react-router-dom';
 import { useForm, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useAuth } from '../../auth/AuthContext.jsx';
 import {
   listExpenses,
   getExpenseSummary,
@@ -74,6 +75,11 @@ export default function ExpenseListPage() {
   const navigate = useNavigate();
   const toast = useToast();
   const queryClient = useQueryClient();
+  const { user } = useAuth();
+  // 'expenses' has a real Read/Write split — reaching this page only
+  // implies Read (2026-09-14 fix, a real QA-audit-found gap: Add/Edit/
+  // Delete were all unconditional, never checking write access at all).
+  const canWrite = Boolean(user.sectionAccessWrite?.includes('expenses'));
 
   const [search, setSearch] = useState('');
   const [params, setParams] = useState({ page: 1, limit: 20, search: '', category: '', from: '', to: '' });
@@ -225,16 +231,17 @@ export default function ExpenseListPage() {
       key: 'actions',
       header: '',
       className: 'text-right',
-      render: (e) => (
-        <span className="flex justify-end gap-2">
-          <Button size="sm" variant="ghost" onClick={() => openEdit(e)}>
-            Edit
-          </Button>
-          <Button size="sm" variant="danger-ghost" onClick={() => setToDelete(e)}>
-            Delete
-          </Button>
-        </span>
-      ),
+      render: (e) =>
+        canWrite ? (
+          <span className="flex justify-end gap-2">
+            <Button size="sm" variant="ghost" onClick={() => openEdit(e)}>
+              Edit
+            </Button>
+            <Button size="sm" variant="danger-ghost" onClick={() => setToDelete(e)}>
+              Delete
+            </Button>
+          </span>
+        ) : null,
     },
   ];
 
@@ -247,7 +254,8 @@ export default function ExpenseListPage() {
         description="Company costs — rent, fuel, purchases, utilities — the other half of profit alongside invoices."
         onBack={() => navigate(-1)}
         actions={
-          !isError && (
+          !isError &&
+          canWrite && (
             <Button size="sm" onClick={openNew}>
               Add expense
             </Button>
@@ -311,7 +319,7 @@ export default function ExpenseListPage() {
               <EmptyState
                 title={noFilters ? 'No expenses recorded yet' : 'No expenses match'}
                 description={noFilters ? 'Record your first company expense above.' : 'Try clearing the search or filters.'}
-                action={noFilters && <Button variant="secondary" onClick={openNew}>Add expense</Button>}
+                action={noFilters && canWrite && <Button variant="secondary" onClick={openNew}>Add expense</Button>}
               />
             }
           />

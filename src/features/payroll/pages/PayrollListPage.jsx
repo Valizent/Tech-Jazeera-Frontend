@@ -7,6 +7,7 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useAuth } from '../../auth/AuthContext.jsx';
 import { listPayrollRuns, createPayrollRun } from '../payroll.api.js';
 import { apiMessage, formatMoney } from '../../../lib/utils.js';
 import { PAYROLL_STATUS_VARIANT, MONTH_NAMES } from '../../../lib/constants.js';
@@ -26,6 +27,11 @@ export default function PayrollListPage() {
   const toast = useToast();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const { user } = useAuth();
+  // 'payroll' has a real Read/Write split — reaching this page only implies
+  // Read (2026-09-14 fix, a real QA-audit-found gap: "Run payroll" was
+  // unconditional, relying only on the server to reject a read-only viewer).
+  const canWrite = Boolean(user.sectionAccessWrite?.includes('payroll'));
 
   const [creating, setCreating] = useState(false);
   const [periodYear, setPeriodYear] = useState(now.getFullYear());
@@ -70,7 +76,7 @@ export default function PayrollListPage() {
         title={t('staffPayroll.list.pageTitle')}
         description={t('staffPayroll.list.pageDescription')}
         onBack={() => navigate(-1)}
-        actions={!isError && <Button onClick={() => setCreating(true)}>{t('staffPayroll.list.runPayroll')}</Button>}
+        actions={!isError && canWrite && <Button onClick={() => setCreating(true)}>{t('staffPayroll.list.runPayroll')}</Button>}
       />
 
       {isError ? (
@@ -90,7 +96,7 @@ export default function PayrollListPage() {
             <EmptyState
               title={t('staffPayroll.list.emptyTitle')}
               description={t('staffPayroll.list.emptyDescription')}
-              action={<Button onClick={() => setCreating(true)}>{t('staffPayroll.list.runPayroll')}</Button>}
+              action={canWrite && <Button onClick={() => setCreating(true)}>{t('staffPayroll.list.runPayroll')}</Button>}
             />
           }
         />

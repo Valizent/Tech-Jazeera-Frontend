@@ -9,6 +9,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useForm, useFieldArray } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useAuth } from '../../auth/AuthContext.jsx';
 import { getPayrollRun, updatePayrollLine, finalizePayrollRun, deletePayrollRun, downloadPayslipPdf } from '../payroll.api.js';
 import { payrollLineFormSchema, lineToForm, formToLinePayload } from '../payroll.schema.js';
 import { apiMessage, formatMoney } from '../../../lib/utils.js';
@@ -31,6 +32,11 @@ export default function PayrollRunPage() {
   const toast = useToast();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const { user } = useAuth();
+  // 'payroll' has a real Read/Write split — reaching this page only implies
+  // Read (2026-09-14 fix, a real QA-audit-found gap: Finalize/Delete/Edit
+  // were only gated by isDraft, not by write access).
+  const canWrite = Boolean(user.sectionAccessWrite?.includes('payroll'));
 
   const [editingLine, setEditingLine] = useState(null);
   const [confirmingFinalize, setConfirmingFinalize] = useState(false);
@@ -136,10 +142,10 @@ export default function PayrollRunPage() {
             <Badge variant={PAYROLL_STATUS_VARIANT[run.status]} className="mr-1">
               {t(`common.status.${run.status}`, run.status)}
             </Badge>
-            {isDraft && (
+            {isDraft && canWrite && (
               <Button onClick={() => setConfirmingFinalize(true)}>{t('staffPayroll.run.finalize')}</Button>
             )}
-            {isDraft && (
+            {isDraft && canWrite && (
               <Button variant="danger-ghost" onClick={() => setConfirmingDelete(true)}>
                 {t('common.delete')}
               </Button>
@@ -191,7 +197,7 @@ export default function PayrollRunPage() {
                     <Button size="sm" variant="ghost" isLoading={downloadingId === line._id} onClick={() => handleDownload(line)}>
                       {t('staffPayroll.run.pdfButton')}
                     </Button>
-                    {isDraft && (
+                    {isDraft && canWrite && (
                       <Button size="sm" variant="ghost" onClick={() => openEdit(line)}>
                         {t('common.edit')}
                       </Button>

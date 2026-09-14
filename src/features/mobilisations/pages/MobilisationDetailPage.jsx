@@ -133,7 +133,7 @@ function userId(entry) {
 /** Approve/Reject, shared by both the read-only and editable renderings
  *  below — identical either way, just placed at the very end of whichever
  *  one is showing. */
-function DecideButtons({ canDecide, isFinalStep, onApprove, onReject }) {
+function DecideButtons({ canDecide, isFinalStep, onApprove, onReject, saving }) {
   const { t } = useTranslation();
   if (!canDecide) return null;
   if (!isFinalStep) {
@@ -142,17 +142,17 @@ function DecideButtons({ canDecide, isFinalStep, onApprove, onReject }) {
     // underlying call as Approve (advances currentStep), just never
     // offered a Reject alongside it.
     return (
-      <Button type="button" onClick={onApprove}>
+      <Button type="button" isLoading={saving} onClick={onApprove}>
         {t('staffMobilisations.detail.submitToNextStep')}
       </Button>
     );
   }
   return (
     <>
-      <Button type="button" variant="danger-ghost" onClick={onReject}>
+      <Button type="button" variant="danger-ghost" disabled={saving} onClick={onReject}>
         {t('common.reject')}
       </Button>
-      <Button type="button" onClick={onApprove}>
+      <Button type="button" isLoading={saving} onClick={onApprove}>
         {t('common.approve')}
       </Button>
     </>
@@ -211,7 +211,10 @@ function CommercialDetailsCard({ m, canEdit, canDecide, isFinalStep, onSave, sav
         />
         {canDecide && (
           <div className="mt-4 flex flex-wrap justify-end gap-2">
-            <DecideButtons canDecide={canDecide} isFinalStep={isFinalStep} onApprove={onApprove} onReject={onReject} />
+            {/* Called with no arguments (not the raw click event) — this
+                branch has no form to save, unlike CommercialDetailsForm's
+                own DecideButtons below. */}
+            <DecideButtons canDecide={canDecide} isFinalStep={isFinalStep} saving={saving} onApprove={() => onApprove()} onReject={() => onReject()} />
           </div>
         )}
       </Card>
@@ -255,7 +258,24 @@ function CommercialDetailsForm({ m, canDecide, isFinalStep, onSave, saving, onAp
           <Button type="submit" variant="secondary" isLoading={saving}>
             {t('staffMobilisations.detail.saveDetails')}
           </Button>
-          <DecideButtons canDecide={canDecide} isFinalStep={isFinalStep} onApprove={onApprove} onReject={onReject} />
+          {/* Approve/Reject ('Submit to next step') used to bypass this form
+              entirely — DecideButtons' buttons are type="button", so clicking
+              one skipped handleSubmit(onSave) and went straight to the
+              approval modal, silently discarding anything just typed here
+              (real bug found 2026-09-14: Office Secretary filled in every
+              field, clicked Submit, and the record moved to Marketing
+              Manager's step with every field still null). Routing both
+              through handleSubmit — the same validator "Save details" uses —
+              means the current field values are always saved (and the step
+              never advances) before the decide flow opens, whichever button
+              is clicked first. */}
+          <DecideButtons
+            canDecide={canDecide}
+            isFinalStep={isFinalStep}
+            saving={saving}
+            onApprove={handleSubmit((values) => onApprove(values))}
+            onReject={handleSubmit((values) => onReject(values))}
+          />
         </div>
       </form>
     </Card>
@@ -306,6 +326,26 @@ export default function MobilisationDetailPage() {
     },
     onError: (error) => toast.error(apiMessage(error)),
   });
+
+  // CommercialDetailsForm now routes its Approve/Reject clicks through
+  // handleSubmit too (see that component's own comment), so `values` is the
+  // form's current, validated field values when the reviewer is still in
+  // the editable Section 2 form — undefined from the read-only branch,
+  // which has no form to save. Saving before opening the decide modal is
+  // what actually closes the bug: without it, the step could advance with
+  // whatever was just typed never having reached the server. If the save
+  // fails, the mutation's own onError already toasts why — stop here rather
+  // than opening the decide modal on top of a failed save.
+  async function saveThenDecide(status, values) {
+    if (values) {
+      try {
+        await commercialMutation.mutateAsync(values);
+      } catch {
+        return;
+      }
+    }
+    setPendingDecision(status);
+  }
 
   const addMutation = useMutation({
     mutationFn: (uid) => addCoordinator(id, uid),
@@ -594,7 +634,11 @@ export default function MobilisationDetailPage() {
                     },
                   ]
                 : []),
-              { label: t('staffMobilisations.detail.fields.profitPerHour'), value: formatMoney(m.profitPerHour) },
+              {
+                label: t('staffMobilisations.detail.fields.profitPerHour'),
+                value: formatMoney(m.profitPerHour),
+                valueClassName: profitClass(m.profitPerHour),
+              },
               {
                 label: t('staffMobilisations.detail.fields.profitPerMonth'),
                 value: m.profitPerMonth != null ? formatMoney(m.profitPerMonth) : null,
@@ -710,8 +754,8 @@ export default function MobilisationDetailPage() {
           isFinalStep={isFinalStep}
           saving={commercialMutation.isPending}
           onSave={(values) => commercialMutation.mutate(values)}
-          onApprove={() => setPendingDecision('Approved')}
-          onReject={() => setPendingDecision('Rejected')}
+          onApprove={(values) => saveThenDecide('Approved', values)}
+          onReject={(values) => saveThenDecide('Rejected', values)}
         />
       )}
 
