@@ -147,6 +147,11 @@ export default function DeploymentListPage() {
         title={t('staffDeployments.list.pageTitle')}
         description={t('staffDeployments.list.pageDescription')}
         onBack={() => navigate(-1)}
+        actions={
+          <Button variant="secondary" onClick={() => navigate('/deployments/standby')}>
+            {t('staffDeployments.list.standbyList')}
+          </Button>
+        }
       />
 
       <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-end">

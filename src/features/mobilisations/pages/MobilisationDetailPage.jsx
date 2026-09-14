@@ -297,6 +297,7 @@ export default function MobilisationDetailPage() {
   const [files, setFiles] = useState([]);
   const [category, setCategory] = useState('Contract');
   const [previewDoc, setPreviewDoc] = useState(null);
+  const [confirmingUnuploadedFiles, setConfirmingUnuploadedFiles] = useState(false);
   // TEMPORARY — pre-production cleanup only. Remove confirmingDelete,
   // deleteMutation, the "Delete" button below, and its ConfirmDialog before
   // going live — see the note in mobilisations.api.js.
@@ -455,7 +456,15 @@ export default function MobilisationDetailPage() {
   const canManage = (user.role === 'Admin' || isPrimary) && ['Draft', 'Rejected'].includes(m.status);
   const needsMyConfirmation = myEntry && !myEntry.confirmed && ['Draft', 'Rejected'].includes(m.status);
   const unconfirmed = m.coordinators.filter((c) => !c.confirmed);
-  const canSubmit = canManage && unconfirmed.length === 0;
+  // Iqama/phone are only ever directly typed in for a SupplierEmployee/
+  // Freelancer worker — an Employee-type mobilisation gets both from the
+  // linked Employee's own record instead. Real QA-reported gap
+  // (2026-09-14): both fields were only ever format-validated when present,
+  // never required, so a mobilisation could be submitted with no way to
+  // identify or contact the worker at all — mirrors the server's own
+  // submitMobilisation check exactly.
+  const missingWorkerIdentity = m.workerType !== 'Employee' && (!m.iqamaNumber || !m.phone);
+  const canSubmit = canManage && unconfirmed.length === 0 && !missingWorkerIdentity;
   const canDecide = m.canDecideCurrentStep && m.status === 'PendingReview';
   // Only the workflow's final step gets a real Reject — see
   // CommercialDetailsCard's own comment on why an earlier step (Office
@@ -592,9 +601,23 @@ export default function MobilisationDetailPage() {
               label: t('staffMobilisations.detail.fields.workerType'),
               value: t(`staffMobilisations.form.workerType.${m.workerType}`, m.workerType),
             },
-            { label: t('staffMobilisations.detail.fields.iqamaNumber'), value: m.iqamaNumber },
+            {
+              label: t('staffMobilisations.detail.fields.iqamaNumber'),
+              value: m.iqamaNumber,
+              // Only ever typed in for a SupplierEmployee/Freelancer worker
+              // (an Employee-type mobilisation gets this from the linked
+              // Employee's own record) — matches submitMobilisation's own
+              // requirement, so it reads as "Missing" here rather than
+              // silently vanishing the same way an unset optional field
+              // does everywhere else on this page.
+              required: m.workerType !== 'Employee',
+            },
             { label: t('staffMobilisations.detail.fields.nationality'), value: m.nationality },
-            { label: t('staffMobilisations.detail.fields.phone'), value: m.phone },
+            {
+              label: t('staffMobilisations.detail.fields.phone'),
+              value: m.phone,
+              required: m.workerType !== 'Employee',
+            },
             { label: t('staffMobilisations.detail.fields.jobTitle'), value: m.jobTitle },
             { label: t('staffMobilisations.detail.fields.client'), value: m.clientName },
             { label: t('staffMobilisations.detail.fields.site'), value: m.site },
@@ -737,7 +760,25 @@ export default function MobilisationDetailPage() {
                 {t('staffMobilisations.detail.waitingOnConfirmation', { names: unconfirmed.map((c) => c.user.name ?? userId(c)).join(', ') })}
               </p>
             )}
-            <Button isLoading={submitMutation.isPending} disabled={!canSubmit} onClick={() => submitMutation.mutate()}>
+            {!canSubmit && missingWorkerIdentity && (
+              <p className="mb-2 text-xs text-danger">{t('staffMobilisations.detail.missingWorkerIdentity')}</p>
+            )}
+            <Button
+              isLoading={submitMutation.isPending}
+              disabled={!canSubmit}
+              onClick={() => {
+                // Chosen-but-not-yet-uploaded files (see the file input
+                // above) are only local browser state — real QA-reported
+                // gap (2026-09-14): submitting here never warned that they
+                // silently would never reach the server unless "Upload" was
+                // clicked separately first.
+                if (files.length > 0) {
+                  setConfirmingUnuploadedFiles(true);
+                } else {
+                  submitMutation.mutate();
+                }
+              }}
+            >
               {t('staffMobilisations.detail.submitForReview')}
             </Button>
           </div>
@@ -766,6 +807,20 @@ export default function MobilisationDetailPage() {
         loading={removeMutation.isPending}
         onConfirm={() => removeMutation.mutate(userId(toRemove))}
         onCancel={() => setToRemove(null)}
+      />
+
+      <ConfirmDialog
+        open={confirmingUnuploadedFiles}
+        title={t('staffMobilisations.detail.unuploadedFilesConfirmTitle')}
+        message={t('staffMobilisations.detail.unuploadedFilesConfirmMessage', { count: files.length })}
+        confirmLabel={t('staffMobilisations.detail.submitAnyway')}
+        confirmVariant="primary"
+        loading={submitMutation.isPending}
+        onConfirm={() => {
+          setConfirmingUnuploadedFiles(false);
+          submitMutation.mutate();
+        }}
+        onCancel={() => setConfirmingUnuploadedFiles(false)}
       />
 
       {/* TEMPORARY — pre-production cleanup only, see the note above confirmingDelete. */}

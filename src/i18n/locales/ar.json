@@ -1322,6 +1322,7 @@
       "filterStatusAriaLabel": "تصفية حسب الحالة",
       "filterClientAriaLabel": "تصفية حسب العميل",
       "allClients": "كل العملاء",
+      "standbyList": "قائمة الاحتياط",
       "columns": {
         "worker": "العامل",
         "clientSite": "العميل / الموقع",
@@ -1336,6 +1337,30 @@
       "deletedToast": "تم حذف عملية النشر.",
       "deleteConfirmTitle": "حذف عملية النشر هذه؟",
       "deleteConfirmMessage": "سيؤدي هذا إلى إزالة تعيين {{worker}} لدى {{client}} نهائيًا. لا يمكن التراجع عن هذا."
+    },
+    "standby": {
+      "pageTitle": "قائمة الاحتياط",
+      "pageDescription": "كل من تم تعيينه لدى عميل في وقت ما وهو غير معيّن حاليًا.",
+      "newMobilisation": "تعبئة جديدة",
+      "couldNotLoad": "تعذر تحميل قائمة الاحتياط",
+      "columns": {
+        "employee": "الموظف",
+        "worker": "العامل",
+        "designation": "المسمى الوظيفي",
+        "nationality": "الجنسية",
+        "mobile": "الجوال",
+        "subcontractor": "المقاول من الباطن",
+        "lastPlacement": "آخر تعيين"
+      },
+      "endedOn": "انتهى في {{date}}",
+      "ownEmployeesTitle": "الموظفون المباشرون",
+      "ownEmployeesDescription": "عمال ميدانيون موظفون مباشرة بلا عميل حالي.",
+      "ownEmployeesEmptyTitle": "لا أحد في الاحتياط",
+      "ownEmployeesEmptyDescription": "كل عامل من الموظفين المباشرين معيّن حاليًا لدى عميل.",
+      "subcontractedTitle": "عمال المقاولين من الباطن / المستقلون",
+      "subcontractedDescription": "عمال انتهى آخر تعيين لهم دون تعيين أحدث منذ ذلك — مُستنتج من سجل التعبئات، لأن هؤلاء العمال ليس لديهم سجل مستمر خاص بهم بين التعيينات.",
+      "subcontractedEmptyTitle": "لا يوجد أحد متاح",
+      "subcontractedEmptyDescription": "لا يوجد عامل مقاول من الباطن أو مستقل انتهى تعيينه دون تعيين أحدث منذ ذلك."
     },
     "detail": {
       "notFoundTitle": "عملية النشر غير موجودة",
@@ -1676,6 +1701,10 @@
       "invite": "دعوة",
       "waitingOnConfirmation": "بانتظار تأكيد من: {{names}}",
       "submitForReview": "تقديم للمراجعة",
+      "missingWorkerIdentity": "رقم الإقامة والهاتف مطلوبان قبل إمكانية تقديم هذا للمراجعة.",
+      "unuploadedFilesConfirmTitle": "لم يتم رفع الملفات",
+      "unuploadedFilesConfirmMessage": "{{count}} ملف (ملفات) محددة لم تُرفع بعد ولن تُرفق إذا تابعت. هل تريد التقديم للمراجعة على أي حال؟",
+      "submitAnyway": "تقديم على أي حال",
       "detailsSharedByClient": "تفاصيل مشتركة من شركة العميل",
       "missing": "مفقود",
       "clientQuotation": "عرض سعر العميل",

@@ -16,6 +16,15 @@ export async function getDeployment(id) {
   return data.data;
 }
 
+/** Who's currently free — every 'Own' Worker-login employee with no current
+ *  client, plus every subcontractor/freelancer worker whose most recent
+ *  placement has ended with nothing newer since. See the server's own
+ *  getStandbyWorkforce doc comment for why these are two different shapes. */
+export async function getStandbyWorkforce() {
+  const { data } = await api.get('/deployments/standby');
+  return data.data; // { ownEmployees, subcontractedWorkers }
+}
+
 /** Record a calendar month's actual client-timesheet hours + OT amount. */
 export async function addMonthlyHours(id, payload) {
   const { data } = await api.post(`/deployments/${id}/monthly-hours`, payload);
