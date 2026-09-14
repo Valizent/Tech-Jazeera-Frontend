@@ -31,6 +31,7 @@ import ClientProfilePage from '../features/clients/pages/ClientProfilePage.jsx';
 import ClientEditPage from '../features/clients/pages/ClientEditPage.jsx';
 import DeploymentListPage from '../features/deployments/pages/DeploymentListPage.jsx';
 import DeploymentDetailPage from '../features/deployments/pages/DeploymentDetailPage.jsx';
+import StandbyListPage from '../features/deployments/pages/StandbyListPage.jsx';
 import MobilisationListPage from '../features/mobilisations/pages/MobilisationListPage.jsx';
 import MobilisationNewPage from '../features/mobilisations/pages/MobilisationNewPage.jsx';
 import MobilisationDetailPage from '../features/mobilisations/pages/MobilisationDetailPage.jsx';
@@ -209,6 +210,8 @@ export const router = createBrowserRouter([
               // own hardcoded canReadDeployments exception (she needs to
               // find the deployment she's about to enter hours against).
               { path: '/deployments', element: guarded('deploymentsRelease', <DeploymentListPage />, true) },
+              // Before the /deployments/:id catch-all, or "standby" is read as a deployment id.
+              { path: '/deployments/standby', element: guarded('deploymentsRelease', <StandbyListPage />, true) },
               { path: '/deployments/:id', element: guarded('deploymentsRelease', <DeploymentDetailPage />, true) },
               { path: '/mobilisations', element: <MobilisationListPage /> },
               { path: '/mobilisations/new', element: guardedWrite('mobilisationsSelfMobilise', <MobilisationNewPage />, true) },

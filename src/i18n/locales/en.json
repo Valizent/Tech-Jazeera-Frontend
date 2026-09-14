@@ -1322,6 +1322,7 @@
       "filterStatusAriaLabel": "Filter by status",
       "filterClientAriaLabel": "Filter by client",
       "allClients": "All clients",
+      "standbyList": "Standby list",
       "columns": {
         "worker": "Worker",
         "clientSite": "Client / Site",
@@ -1336,6 +1337,30 @@
       "deletedToast": "Deployment deleted.",
       "deleteConfirmTitle": "Delete this deployment?",
       "deleteConfirmMessage": "This permanently removes {{worker}}'s placement at {{client}}. This cannot be undone."
+    },
+    "standby": {
+      "pageTitle": "Standby list",
+      "pageDescription": "Everyone who was placed with a client at some point and isn't right now.",
+      "newMobilisation": "New mobilisation",
+      "couldNotLoad": "Could not load the standby list",
+      "columns": {
+        "employee": "Employee",
+        "worker": "Worker",
+        "designation": "Designation",
+        "nationality": "Nationality",
+        "mobile": "Mobile",
+        "subcontractor": "Subcontractor",
+        "lastPlacement": "Last placement"
+      },
+      "endedOn": "Ended {{date}}",
+      "ownEmployeesTitle": "Own employees",
+      "ownEmployeesDescription": "Directly employed field workers with no current client assignment.",
+      "ownEmployeesEmptyTitle": "Nobody on standby",
+      "ownEmployeesEmptyDescription": "Every own-employee worker is currently placed with a client.",
+      "subcontractedTitle": "Subcontractor / freelancer workers",
+      "subcontractedDescription": "Workers whose most recent placement has ended, with nothing newer since — inferred from mobilisation history, since these workers have no ongoing record of their own between placements.",
+      "subcontractedEmptyTitle": "No one available",
+      "subcontractedEmptyDescription": "No subcontractor or freelancer worker has an ended placement with nothing newer since."
     },
     "detail": {
       "notFoundTitle": "Deployment not found",
@@ -1676,6 +1701,10 @@
       "invite": "Invite",
       "waitingOnConfirmation": "Waiting on confirmation from: {{names}}",
       "submitForReview": "Submit for review",
+      "missingWorkerIdentity": "Iqama number and phone are required before this can be submitted for review.",
+      "unuploadedFilesConfirmTitle": "Files not uploaded",
+      "unuploadedFilesConfirmMessage": "{{count}} selected file(s) haven't been uploaded yet and won't be attached if you continue. Submit for review anyway?",
+      "submitAnyway": "Submit anyway",
       "detailsSharedByClient": "Details shared by client company",
       "missing": "Missing",
       "clientQuotation": "Client quotation",
