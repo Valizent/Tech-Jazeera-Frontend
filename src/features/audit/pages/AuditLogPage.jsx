@@ -1,8 +1,12 @@
 /**
  * AuditLogPage ("Security Log") — the full, filterable, paginated audit
- * trail. Admin-only, mirroring the server route (GET /api/audit). The
- * dashboard's "Recent activity" widget is the 8-item glance version of this
- * same data; this is the complete record — who did what, when, from where.
+ * trail. Gated by the real 'auditLog' Section Access grant (fixed
+ * 2026-09-14, a real QA-audit-found gap — this used to hardcode Admin-only
+ * client-side even after the server moved to Section Access, so a
+ * genuinely-granted Manager still bounced straight home). Read-only — no
+ * write action exists for this key. The dashboard's "Recent activity"
+ * widget is the 8-item glance version of this same data; this is the
+ * complete record — who did what, when, from where.
  */
 import { useEffect, useState } from 'react';
 import { Navigate, useNavigate } from 'react-router-dom';
@@ -35,7 +39,7 @@ function MetaSummary({ meta }) {
 export default function AuditLogPage() {
   const navigate = useNavigate();
   const { user } = useAuth();
-  const isAdmin = user.role === 'Admin';
+  const canRead = Boolean(user.sectionAccess?.includes('auditLog'));
   const queryClient = useQueryClient();
 
   const [actionSearch, setActionSearch] = useState('');
@@ -59,12 +63,11 @@ export default function AuditLogPage() {
         ...(params.to && { to: params.to }),
       }),
     placeholderData: keepPreviousData,
-    enabled: isAdmin,
+    enabled: canRead,
   });
 
-  // Hooks must run before any early return (Rules of Hooks) — this is the
-  // same admin-only route guard TimesheetProcessorPage uses.
-  if (!isAdmin) return <Navigate to="/" replace />;
+  // Hooks must run before any early return (Rules of Hooks).
+  if (!canRead) return <Navigate to="/" replace />;
 
   const columns = [
     {

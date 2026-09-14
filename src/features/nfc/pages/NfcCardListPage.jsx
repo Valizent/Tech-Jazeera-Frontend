@@ -1,7 +1,8 @@
 /**
  * NfcCardListPage — the card inventory: every physical card as a row, with its
  * status, holder, and batch. Search by token/chip/holder, filter by status and
- * company, generate new blank batches. Admin-only.
+ * company, generate new blank batches. Gated by the real 'nfc' Section
+ * Access grant (fixed 2026-09-14 — see NfcCompanyListPage's doc comment).
  */
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
@@ -21,7 +22,8 @@ import BatchGenerateModal from '../components/BatchGenerateModal.jsx';
 export default function NfcCardListPage() {
   const navigate = useNavigate();
   const { user } = useAuth();
-  const isAdmin = user.role === 'Admin';
+  const canRead = Boolean(user.sectionAccess?.includes('nfc'));
+  const canWrite = Boolean(user.sectionAccessWrite?.includes('nfc'));
   const [search, setSearch] = useState('');
   const [status, setStatus] = useState('');
   const [company, setCompany] = useState('');
@@ -30,15 +32,15 @@ export default function NfcCardListPage() {
   const { data: cards = [], isPending } = useQuery({
     queryKey: ['nfc-cards', { search, status, company }],
     queryFn: () => listNfcCards({ search: search || undefined, status: status || undefined, company: company || undefined }),
-    enabled: isAdmin,
+    enabled: canRead,
   });
   const { data: companies = [] } = useQuery({
     queryKey: ['nfc-companies', ''],
     queryFn: () => listNfcCompanies({}),
-    enabled: isAdmin,
+    enabled: canRead,
   });
 
-  if (!isAdmin) return <Navigate to="/" replace />;
+  if (!canRead) return <Navigate to="/" replace />;
 
   const columns = [
     { key: 'token', header: 'Token', render: (c) => <span className="font-mono text-xs">{c.token}</span> },
@@ -83,7 +85,7 @@ export default function NfcCardListPage() {
             <Link to="/nfc">
               <Button variant="secondary">Companies</Button>
             </Link>
-            <Button onClick={() => setGenerating(true)}>Generate batch</Button>
+            {canWrite && <Button onClick={() => setGenerating(true)}>Generate batch</Button>}
           </>
         }
       />
@@ -122,7 +124,7 @@ export default function NfcCardListPage() {
                 ? 'Try clearing the filters.'
                 : 'Generate a batch of blank cards to get started.'
             }
-            action={!(search || status || company) && <Button onClick={() => setGenerating(true)}>Generate batch</Button>}
+            action={!(search || status || company) && canWrite && <Button onClick={() => setGenerating(true)}>Generate batch</Button>}
           />
         }
       />

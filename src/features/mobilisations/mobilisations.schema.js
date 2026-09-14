@@ -163,18 +163,6 @@ export const commercialDetailsFormSchema = z.object({
   remark: optionalStr(1000),
 });
 
-export const emptyCommercialDetailsForm = {
-  clientQuotation: '',
-  clientQuotationDate: '',
-  clientPO: '',
-  clientPODate: '',
-  subQuotation: '',
-  subQuotationDate: '',
-  subPO: '',
-  subPODate: '',
-  remark: '',
-};
-
 export function commercialDetailsToForm(m) {
   return {
     clientQuotation: m.clientQuotation ?? '',

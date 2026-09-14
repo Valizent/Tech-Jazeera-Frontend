@@ -25,17 +25,11 @@
  * the page visit — switching away and back preserves in-progress form input
  * instead of losing it. `tabs` shape: [{ key, label, content }].
  */
-import { createContext, useContext, useId, useRef } from 'react';
+import { createContext, useId, useRef } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { cn } from '../../lib/utils.js';
 
 const ActiveTabContext = createContext(null);
-
-/** The currently active tab's key, for a panel that wants to know (e.g. to
- *  pause its own polling while hidden) without Tabs needing to know about it. */
-export function useActiveTab() {
-  return useContext(ActiveTabContext);
-}
 
 /**
  * URL-backed tab state via ?tab=, so a tab is bookmarkable/shareable and a

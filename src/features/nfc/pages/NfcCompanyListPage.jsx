@@ -1,7 +1,10 @@
 /**
  * NfcCompanyListPage — the NFC Customers directory: every company with its
- * people count, searchable, row-clickable to the company page. Admin-only
- * (the nav hides it and the API enforces it).
+ * people count, searchable, row-clickable to the company page. Gated by the
+ * real 'nfc' Section Access grant (fixed 2026-09-14, a real QA-audit-found
+ * gap — this used to hardcode Admin-only client-side even after the server
+ * moved to Section Access, so a genuinely-granted Manager still bounced
+ * straight home).
  */
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
@@ -19,18 +22,18 @@ import NfcCompanyFormModal from '../components/NfcCompanyFormModal.jsx';
 export default function NfcCompanyListPage() {
   const navigate = useNavigate();
   const { user } = useAuth();
-  const isAdmin = user.role === 'Admin';
+  const canRead = Boolean(user.sectionAccess?.includes('nfc'));
+  const canWrite = Boolean(user.sectionAccessWrite?.includes('nfc'));
   const [search, setSearch] = useState('');
   const [adding, setAdding] = useState(false);
 
   const { data: companies = [], isPending } = useQuery({
     queryKey: ['nfc-companies', search],
     queryFn: () => listNfcCompanies({ search: search || undefined }),
-    enabled: isAdmin,
+    enabled: canRead,
   });
 
-  // Admin-only section (the API enforces this too); a stray direct visit goes home.
-  if (!isAdmin) return <Navigate to="/" replace />;
+  if (!canRead) return <Navigate to="/" replace />;
 
   const columns = [
     {
@@ -84,7 +87,7 @@ export default function NfcCompanyListPage() {
             <Link to="/nfc/cards">
               <Button variant="secondary">Cards</Button>
             </Link>
-            <Button onClick={() => setAdding(true)}>Add company</Button>
+            {canWrite && <Button onClick={() => setAdding(true)}>Add company</Button>}
           </>
         }
       />
@@ -111,7 +114,7 @@ export default function NfcCompanyListPage() {
                 ? 'Try a different search.'
                 : 'Add your first NFC customer company to start the register.'
             }
-            action={!search && <Button onClick={() => setAdding(true)}>Add company</Button>}
+            action={!search && canWrite && <Button onClick={() => setAdding(true)}>Add company</Button>}
           />
         }
       />

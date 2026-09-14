@@ -1,7 +1,8 @@
 /**
  * NfcAnalyticsPage — the "is this working?" screen. Totals across every card,
  * the daily trend, which cards are actually being tapped, and where the taps
- * come from. Admin-only (the nav hides it and the API enforces it).
+ * come from. Gated by the real 'nfc' Section Access grant (fixed 2026-09-14
+ * — see NfcCompanyListPage's doc comment); read-only, no write action here.
  */
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
@@ -29,17 +30,17 @@ import {
 export default function NfcAnalyticsPage() {
   const navigate = useNavigate();
   const { user } = useAuth();
-  const isAdmin = user.role === 'Admin';
+  const canRead = Boolean(user.sectionAccess?.includes('nfc'));
   const [days, setDays] = useState(30);
 
   const { data, isPending, isError, isFetching } = useQuery({
     queryKey: ['nfc-analytics', days],
     queryFn: () => getNfcOverviewAnalytics(days),
-    enabled: isAdmin,
+    enabled: canRead,
     placeholderData: (previous) => previous,
   });
 
-  if (!isAdmin) return <Navigate to="/" replace />;
+  if (!canRead) return <Navigate to="/" replace />;
 
   const header = (
     <PageHeader
