@@ -62,11 +62,14 @@ const mobilisationFields = {
   jobTitle: z.string().trim().min(1, 'Job title is required.').max(150),
   // Both moved into Worker & Job (2026-09-13, the user's own ask) — set by
   // the coordinator/whoever creates this mobilisation up front, instead of
-  // the OT rate half waiting on the current-step reviewer's later Section 2
-  // pass (see commercialDetailsFormSchema below, which no longer has them).
+  // waiting on the current-step reviewer's later Section 2 pass (see
+  // commercialDetailsFormSchema below, which no longer has them).
   requiredTimesheetHours: optionalNumberString,
+  // otClientRate = billed to the client per OT hour; otEmployeeRate = paid
+  // out per OT hour to whoever actually worked it, no matter their worker
+  // type (2026-09-14 correction — see mobilisation.model.js).
   otClientRate: optionalNumberString,
-  otClientCommission: optionalNumberString,
+  otEmployeeRate: optionalNumberString,
 
   client: z.string().min(1, 'Select a client.'),
   site: optionalStr(150),
@@ -81,10 +84,8 @@ const mobilisationFields = {
   subcontractor: z.string().optional().or(z.literal('')),
   subcontractorRate: optionalNumberString,
   subcontractorCommission: optionalNumberString,
-  // Moved alongside subcontractorRate/subcontractorCommission above, same
-  // reasoning as otClientRate/otClientCommission.
-  otSubcontractorRate: optionalNumberString,
-  otSubcontractorCommission: optionalNumberString,
+  // No otSubcontractorRate/otSubcontractorCommission here (removed
+  // 2026-09-14) — see otEmployeeRate above.
 
   mobilisationDate: z.string().min(1, 'Mobilisation date is required.'),
   checkoutDate: z.string().optional().or(z.literal('')),
@@ -121,7 +122,7 @@ export const emptyMobilisationForm = {
   jobTitle: '',
   requiredTimesheetHours: '',
   otClientRate: '',
-  otClientCommission: '',
+  otEmployeeRate: '',
   client: '',
   site: '',
   clientRate: '',
@@ -131,8 +132,6 @@ export const emptyMobilisationForm = {
   subcontractor: '',
   subcontractorRate: '',
   subcontractorCommission: '',
-  otSubcontractorRate: '',
-  otSubcontractorCommission: '',
   mobilisationDate: new Date().toISOString().slice(0, 10),
   checkoutDate: '',
   remark: '',
@@ -206,7 +205,7 @@ export function mobilisationToForm(m) {
     jobTitle: m.jobTitle,
     requiredTimesheetHours: String(m.requiredTimesheetHours ?? ''),
     otClientRate: String(m.otClientRate ?? ''),
-    otClientCommission: String(m.otClientCommission ?? ''),
+    otEmployeeRate: String(m.otEmployeeRate ?? ''),
     client: m.client,
     site: m.site ?? '',
     clientRate: String(m.clientRate ?? ''),
@@ -216,8 +215,6 @@ export function mobilisationToForm(m) {
     subcontractor: m.subcontractor ?? '',
     subcontractorRate: String(m.subcontractorRate ?? ''),
     subcontractorCommission: String(m.subcontractorCommission ?? ''),
-    otSubcontractorRate: String(m.otSubcontractorRate ?? ''),
-    otSubcontractorCommission: String(m.otSubcontractorCommission ?? ''),
     mobilisationDate: m.mobilisationDate ? m.mobilisationDate.slice(0, 10) : '',
     checkoutDate: m.checkoutDate ? m.checkoutDate.slice(0, 10) : '',
     remark: m.remark ?? '',
