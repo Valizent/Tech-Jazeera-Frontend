@@ -672,21 +672,9 @@ export default function MobilisationDetailPage() {
                 value: m.otClientRate != null ? formatMoney(m.otClientRate) : null,
               },
               {
-                label: t('staffMobilisations.detail.fields.otClientCommission'),
-                value: m.otClientCommission != null ? formatMoney(m.otClientCommission) : null,
+                label: t('staffMobilisations.detail.fields.otEmployeeRate'),
+                value: m.otEmployeeRate != null ? formatMoney(m.otEmployeeRate) : null,
               },
-              ...(m.hasSubcontractor
-                ? [
-                    {
-                      label: t('staffMobilisations.detail.fields.otSubcontractorRate'),
-                      value: m.otSubcontractorRate != null ? formatMoney(m.otSubcontractorRate) : null,
-                    },
-                    {
-                      label: t('staffMobilisations.detail.fields.otSubcontractorCommission'),
-                      value: m.otSubcontractorCommission != null ? formatMoney(m.otSubcontractorCommission) : null,
-                    },
-                  ]
-                : []),
               {
                 label: t('staffMobilisations.detail.fields.otProfitPerHour'),
                 value: m.otProfitPerHour != null ? formatMoney(m.otProfitPerHour) : null,

@@ -101,6 +101,27 @@ function useIqamaAutofill({ control, workerType, setValue, toast, t }) {
   }, [foundWorker, iqamaDigits, setValue, workerType, toast, t]);
 }
 
+/** Mirrors Client rate into OT client rate as it's typed — a sensible
+ *  default (OT usually bills at the same rate) — but only while OT client
+ *  rate is still empty, same "never fight a manual edit" rule as
+ *  useIqamaAutofill above: the moment the coordinator types their own OT
+ *  rate, further Client rate edits stop touching it. Skips the very first
+ *  run (mount) so opening Edit on an existing record with its own already-
+ *  different OT rate never gets silently overwritten. */
+function useOtClientRateAutofill({ control, getValues, setValue }) {
+  const clientRate = useWatch({ control, name: 'clientRate' });
+  const mountedRef = useRef(false);
+  useEffect(() => {
+    if (!mountedRef.current) {
+      mountedRef.current = true;
+      return;
+    }
+    if (!getValues('otClientRate')) {
+      setValue('otClientRate', clientRate, { shouldDirty: true });
+    }
+  }, [clientRate, getValues, setValue]);
+}
+
 export default function MobilisationForm({
   workers,
   clients,
@@ -121,11 +142,13 @@ export default function MobilisationForm({
     control,
     handleSubmit,
     setValue,
+    getValues,
     formState: { errors },
   } = useForm({ resolver: zodResolver(mobilisationFormSchema), defaultValues });
 
   const workerType = useWatch({ control, name: 'workerType' });
   useIqamaAutofill({ control, workerType, setValue, toast, t });
+  useOtClientRateAutofill({ control, getValues, setValue });
 
   const [addingJobTitle, setAddingJobTitle] = useState(false);
   const [newJobTitle, setNewJobTitle] = useState('');
@@ -308,12 +331,12 @@ export default function MobilisationForm({
             {...register('otClientRate')}
           />
           <Input
-            label={t('staffMobilisations.form.otClientCommission')}
+            label={t('staffMobilisations.form.otEmployeeRate')}
             type="number"
             step="0.01"
             min="0"
-            error={errors.otClientCommission?.message}
-            {...register('otClientCommission')}
+            error={errors.otEmployeeRate?.message}
+            {...register('otEmployeeRate')}
           />
         </div>
       </section>
@@ -345,22 +368,6 @@ export default function MobilisationForm({
               min="0"
               error={errors.subcontractorCommission?.message}
               {...register('subcontractorCommission')}
-            />
-            <Input
-              label={t('staffMobilisations.form.otSubcontractorRate')}
-              type="number"
-              step="0.01"
-              min="0"
-              error={errors.otSubcontractorRate?.message}
-              {...register('otSubcontractorRate')}
-            />
-            <Input
-              label={t('staffMobilisations.form.otSubcontractorCommission')}
-              type="number"
-              step="0.01"
-              min="0"
-              error={errors.otSubcontractorCommission?.message}
-              {...register('otSubcontractorCommission')}
             />
           </div>
         </section>
