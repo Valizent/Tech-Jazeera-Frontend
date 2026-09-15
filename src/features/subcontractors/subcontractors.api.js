@@ -8,11 +8,6 @@ export async function listSubcontractors(params) {
   return data.data; // { items, total, page, pages }
 }
 
-export async function getSubcontractor(id) {
-  const { data } = await api.get(`/subcontractors/${id}`);
-  return data.data;
-}
-
 export async function createSubcontractor(payload) {
   const { data } = await api.post('/subcontractors', payload);
   return data.data;

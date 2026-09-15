@@ -4,7 +4,6 @@
  * for the global view (per-owner panels don't need it).
  */
 import { currentVersion } from '../documents.schema.js';
-import { formatDate } from '../../../lib/utils.js';
 import Badge from '../../../components/ui/Badge.jsx';
 import ExpiryBadge from '../../../components/shared/ExpiryBadge.jsx';
 import DocumentActionsCell from './DocumentActionsCell.jsx';

@@ -12,11 +12,6 @@ export async function listDocuments(params) {
   return data.data; // { items, total, page, pages }
 }
 
-export async function getDocument(id) {
-  const { data } = await api.get(`/documents/${id}`);
-  return data.data;
-}
-
 /** POST /documents (multipart). `formData` carries file + title/category/owner. */
 export async function uploadDocument(formData) {
   const { data } = await api.post('/documents', formData);

@@ -15,11 +15,6 @@ export async function getExpenseSummary(params) {
   return data.data; // { from, to, total, byCategory }
 }
 
-export async function getExpense(id) {
-  const { data } = await api.get(`/expenses/${id}`);
-  return data.data;
-}
-
 /** `formData` carries the text fields plus an optional `file` (the receipt). */
 export async function createExpense(formData) {
   const { data } = await api.post('/expenses', formData);

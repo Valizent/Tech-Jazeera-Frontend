@@ -21,9 +21,6 @@ export const EMPLOYEE_TYPE_LABELS = {
   Outsourced: 'Outsourced — supplied workforce',
   Subcontracted: 'Subcontracted — sourced from a subcontractor',
 };
-/** The "not internal staff" set — mirrors employee.model.js's WORKFORCE_TYPES. */
-export const WORKFORCE_TYPES = ['Outsourced', 'Subcontracted'];
-
 /** Mirror of the server's route guards — used only to hide UI the API would
  *  reject anyway. The server is the real enforcement. */
 export const EMPLOYEE_WRITE_ROLES = ['Admin', 'Manager', 'HR'];
@@ -45,9 +42,6 @@ export const EMPLOYEE_LOGIN_ROLES = ['Manager', 'HR', 'Accounts', 'Coordinator',
  *  Admin-only. Viewing the list is the admin-configurable SectionAccess
  *  ('team') mechanism now — see navConfig.js. */
 export const STAFF_USER_MANAGE_ROLES = ['Admin'];
-/** Every role a staff login can be assigned (Worker is provisioned the same
- *  way, from an employee's profile, but isn't "staff" — see rbac.js). */
-export const STAFF_ASSIGNABLE_ROLES = ['Admin', 'Manager', 'HR', 'Accounts', 'Coordinator'];
 /** Roles eligible to be an Employee's manager (mirrors MANAGER_ELIGIBLE_ROLES
  *  on the server) — used by both the Coordinator-manager and Employee-manager
  *  pickers. */
@@ -168,13 +162,11 @@ export const ASSET_DELETE_ROLES = ['Admin', 'HR'];
  *  submit/status display (MyAttendancePage.jsx); the staff-side review queue
  *  that used to read these too was replaced by the Monthly Report list/view
  *  2026-09-13 — see docs/TIMESHEETS-MONTHLY-REPORT-notes.md. */
-export const TIMESHEET_STATUSES = ['Submitted', 'Approved', 'Rejected'];
 export const TIMESHEET_STATUS_VARIANT = { Submitted: 'warning', Approved: 'success', Rejected: 'danger' };
 
 /** Mirrors payrollRun.model.js. Access itself is no longer a static role
  *  list — see SectionAccess ('payroll') — Admin plus whoever is granted
  *  gets full read/write/finalize/delete, no separate tiers. */
-export const PAYROLL_STATUSES = ['Draft', 'Finalized'];
 export const PAYROLL_STATUS_VARIANT = { Draft: 'warning', Finalized: 'success' };
 export const MONTH_NAMES = [
   'January', 'February', 'March', 'April', 'May', 'June',
