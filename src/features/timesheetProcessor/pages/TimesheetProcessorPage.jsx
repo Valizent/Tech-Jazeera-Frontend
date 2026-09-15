@@ -70,7 +70,17 @@ export default function TimesheetProcessorPage() {
   const [lastRun, setLastRun] = useState(null);
   const [exporting, setExporting] = useState(false);
 
-  const { data: employeeData } = useQuery({
+  // Fixed 2026-09-15, a real QA-audit-found gap — A3: `timesheetProcessor`
+  // write access does not imply `employeeCreate` read access (two separate
+  // Section Access grants) — a Manager holding only the former saw this
+  // whole page render, but the employee dropdown silently came back empty,
+  // with no indication that the lookup itself had actually 403'd rather
+  // than the company simply having no employees. `isError` is now surfaced
+  // right under the picker (see the Select below) instead of swallowed.
+  const {
+    data: employeeData,
+    isError: employeeLookupFailed,
+  } = useQuery({
     queryKey: ['employees', 'timesheet-picker'],
     // The list endpoint caps limit at 100 (matches the document-upload picker).
     queryFn: () => listEmployees({ limit: 100, sortBy: 'fullName', sortOrder: 'asc' }),
@@ -132,19 +142,26 @@ export default function TimesheetProcessorPage() {
       <Card>
         <form onSubmit={handleProcess} noValidate className="space-y-4">
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            <Select
-              label="Employee"
-              value={employeeId}
-              onChange={(e) => setEmployeeId(e.target.value)}
-              className="sm:col-span-2"
-            >
-              <option value="">Select employee…</option>
-              {employees.map((emp) => (
-                <option key={emp._id} value={emp._id}>
-                  {emp.fullName} ({emp.employeeId})
-                </option>
-              ))}
-            </Select>
+            <div className="sm:col-span-2">
+              <Select
+                label="Employee"
+                value={employeeId}
+                onChange={(e) => setEmployeeId(e.target.value)}
+              >
+                <option value="">Select employee…</option>
+                {employees.map((emp) => (
+                  <option key={emp._id} value={emp._id}>
+                    {emp.fullName} ({emp.employeeId})
+                  </option>
+                ))}
+              </Select>
+              {employeeLookupFailed && (
+                <p className="mt-1.5 text-xs text-danger">
+                  Couldn't load the employee list — you may be missing read access to "Employees". Ask an
+                  admin to grant it under Section Access.
+                </p>
+              )}
+            </div>
             <Select
               label="Month"
               value={month}

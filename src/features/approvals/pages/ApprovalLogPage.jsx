@@ -8,10 +8,11 @@
  * run and render its result" approach the review screens use for
  * canDecideCurrentStep.
  *
- * Only Leave is wired to workflows so far (Milestone 4) — Salary Advance /
- * Reimbursement / Timesheet appear here automatically once their own
- * milestones add `workflow`/`approvalTrail` fields (see
- * approvals.service.js's LOG_SOURCES).
+ * Leave, ExitReentry, Certificate, Timesheet, SalaryAdvance, and
+ * Reimbursement are all wired in (see approvals.service.js's LOG_SOURCES).
+ * Mobilisation is the one deliberate holdout — its `coordinators` are Users
+ * directly, not an Employee ref, so it doesn't fit this log's shared
+ * `employee`-scoped shape without its own pass.
  */
 import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -29,9 +30,18 @@ import Select from '../../../components/ui/Select.jsx';
 import EmptyState from '../../../components/ui/EmptyState.jsx';
 import Skeleton from '../../../components/ui/Skeleton.jsx';
 
-const STATUS_OPTIONS = ['PendingReview', 'Approved', 'Rejected'];
-const STATUS_VARIANT = { PendingReview: 'warning', Approved: 'success', Rejected: 'danger' };
-const statusLabel = (s) => (s === 'PendingReview' ? 'Pending review' : s);
+// Fixed 2026-09-15, a real QA-audit-found gap — F9: the filter now sends
+// the server's normalized 'Pending' value (see approvals.validation.js),
+// not Leave's own literal 'PendingReview' — that string alone silently
+// excluded every other source type from the filtered results. Real ITEMS
+// still come back with their own source type's actual status literal
+// (Leave's 'PendingReview', Timesheet's 'Submitted', every other type's
+// 'Pending') — PENDING_STATUSES is how the badge/label below recognizes
+// all of them as the same "awaiting decision" state for display.
+const STATUS_OPTIONS = ['Pending', 'Approved', 'Rejected'];
+const PENDING_STATUSES = new Set(['Pending', 'PendingReview', 'Submitted']);
+const statusVariant = (s) => (PENDING_STATUSES.has(s) ? 'warning' : s === 'Approved' ? 'success' : s === 'Rejected' ? 'danger' : 'default');
+const statusLabel = (s) => (PENDING_STATUSES.has(s) ? 'Pending review' : s);
 
 export default function ApprovalLogPage() {
   const navigate = useNavigate();
@@ -120,7 +130,7 @@ export default function ApprovalLogPage() {
                       {APPROVAL_REQUEST_TYPE_LABELS[item.requestType]} · {item.typeName} · {formatDate(item.createdAt)}
                     </p>
                   </div>
-                  <Badge variant={STATUS_VARIANT[item.status] ?? 'default'}>{statusLabel(item.status)}</Badge>
+                  <Badge variant={statusVariant(item.status)}>{statusLabel(item.status)}</Badge>
                 </div>
                 <ApprovalTrailView request={item} />
               </div>

@@ -13,7 +13,7 @@ import { useAuth } from '../../auth/AuthContext.jsx';
 import { getPayrollRun, updatePayrollLine, finalizePayrollRun, deletePayrollRun, downloadPayslipPdf } from '../payroll.api.js';
 import { payrollLineFormSchema, lineToForm, formToLinePayload } from '../payroll.schema.js';
 import { apiMessage, formatMoney } from '../../../lib/utils.js';
-import { PAYROLL_STATUS_VARIANT, MONTH_NAMES } from '../../../lib/constants.js';
+import { PAYROLL_STATUS_VARIANT } from '../../../lib/constants.js';
 import { useToast } from '../../../components/ui/Toast.jsx';
 import PageHeader from '../../../components/shared/PageHeader.jsx';
 import BackButton from '../../../components/shared/BackButton.jsx';

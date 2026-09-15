@@ -114,7 +114,8 @@
     "changePassword": "تغيير كلمة المرور",
     "logOut": "تسجيل الخروج",
     "notifications": "الإشعارات",
-    "openMenu": "فتح القائمة"
+    "openMenu": "فتح القائمة",
+    "openUserMenu": "فتح قائمة الحساب"
   },
   "myDetailsModal": {
     "title": "بياناتي",

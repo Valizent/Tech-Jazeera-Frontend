@@ -3,20 +3,20 @@
  * (darkMode: 'class' in tailwind.config.js). Flipping the whole app is one
  * class on <html>; this is just the switch and its persistence.
  *
- * No stored preference = follow the OS setting, live (a user who never
- * touches the toggle keeps tracking prefers-color-scheme as it changes).
- * Once they toggle, that explicit choice is stuck in localStorage and wins
- * over the OS from then on. The initial class is already set by the inline
- * script in index.html, before this ever runs, so there's no flash.
+ * Fixed 2026-09-15, a real QA-audit-found gap — D3: the comment here used
+ * to describe a "follow the OS setting, live" default that was never
+ * actually implemented (the inline script in index.html that sets the
+ * initial class before first paint doesn't check prefers-color-scheme
+ * either — it only ever looks at a stored explicit choice). No stored
+ * preference = plain 'light', full stop; once a user toggles, that choice
+ * is stuck in localStorage and applies on every later visit. The initial
+ * class is already set by the inline script in index.html, before this
+ * ever runs, so there's no flash.
  */
 import { createContext, useCallback, useContext, useEffect, useState } from 'react';
 
 const STORAGE_KEY = 'theme';
 const ThemeContext = createContext(null);
-
-function getSystemTheme() {
-  return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-}
 
 function getStoredTheme() {
   try {
