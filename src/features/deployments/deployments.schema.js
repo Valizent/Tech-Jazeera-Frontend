@@ -1,6 +1,7 @@
 /**
- * Client-side deployment form schemas — monthly hours entry/correction and
- * Demobilise. No create/edit schema here on purpose — see deployments.api.js.
+ * Client-side deployment form schemas — monthly hours entry/correction,
+ * Demobilise, and a narrow details Edit (2026-09-16, the user's own ask —
+ * see deployments.api.js's updateDeployment).
  */
 import { z } from 'zod';
 import { DEMOBILISATION_OUTCOME } from '../../lib/constants.js';
@@ -87,3 +88,21 @@ export const emptyDemobiliseForm = {
   exitOutcome: false,
   releaseNote: '',
 };
+
+/** Mirrors the server's own updateDeploymentSchema exactly — see that
+ *  file's doc comment for why this stops at these 4 fields. */
+export const editDeploymentFormSchema = z.object({
+  site: optionalStr(150),
+  workerName: optionalStr(150),
+  requiredTimesheetHours: z.string().optional().or(z.literal('')),
+  notes: optionalStr(1000),
+});
+
+export function deploymentToEditForm(deployment) {
+  return {
+    site: deployment.site ?? '',
+    workerName: deployment.workerName ?? '',
+    requiredTimesheetHours: deployment.requiredTimesheetHours != null ? String(deployment.requiredTimesheetHours) : '',
+    notes: deployment.notes ?? '',
+  };
+}

@@ -11,7 +11,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useTranslation } from 'react-i18next';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { getDeployment, addMonthlyHours, updateMonthlyHours, decideMonthlyHours, demobiliseDeployment } from '../deployments.api.js';
+import { getDeployment, addMonthlyHours, updateMonthlyHours, decideMonthlyHours, demobiliseDeployment, updateDeployment } from '../deployments.api.js';
 import {
   monthlyHoursFormSchema,
   emptyMonthlyHoursForm,
@@ -20,6 +20,8 @@ import {
   demobiliseFormSchema,
   emptyDemobiliseForm,
   resolveDemobiliseOutcome,
+  editDeploymentFormSchema,
+  deploymentToEditForm,
 } from '../deployments.schema.js';
 import { DEMOBILISATION_REASONS, EMPLOYEE_ONLY_DEMOBILISATION_REASONS } from '../../../lib/constants.js';
 import { useAuth } from '../../auth/AuthContext.jsx';
@@ -301,6 +303,7 @@ export default function DeploymentDetailPage() {
   const [demobilising, setDemobilising] = useState(false);
   const [eosbPrompt, setEosbPrompt] = useState(null); // { exitDate, exitReason } | null
   const [editingEntry, setEditingEntry] = useState(null);
+  const [editingDeployment, setEditingDeployment] = useState(false);
 
   // Office Secretary is a hardcoded exception to the Section Access gate —
   // mirrors deployment.service.js's addMonthlyHours exactly (they aren't a
@@ -312,6 +315,10 @@ export default function DeploymentDetailPage() {
   // Deliberately a separate grant from canEnterHours — no Office Secretary
   // bypass here, since she's usually the one entering, not approving.
   const canDecideHours = Boolean(user.sectionAccessWrite?.includes('deploymentsHoursDecide'));
+  // New key (2026-09-16, the user's own ask) — Admin-only until granted; MM
+  // granted write immediately (see src/scripts/grant-deployments-edit.js).
+  // No Office Secretary bypass — purely Section-Access-driven.
+  const canEditDeployment = Boolean(user.sectionAccessWrite?.includes('deploymentsEdit'));
   const [decidingEntry, setDecidingEntry] = useState(null);
   const [decision, setDecision] = useState(null); // 'Approved' | 'Rejected'
   const [decisionNote, setDecisionNote] = useState('');
@@ -373,6 +380,28 @@ export default function DeploymentDetailPage() {
     onError: (error) => toast.error(apiMessage(error)),
   });
 
+  const editMutation = useMutation({
+    mutationFn: (values) => updateDeployment(id, values),
+    onSuccess: () => {
+      toast.success(t('staffDeployments.detail.editedToast'));
+      setEditingDeployment(false);
+      invalidate();
+    },
+    onError: (error) => toast.error(apiMessage(error)),
+  });
+
+  const {
+    register: registerEdit,
+    handleSubmit: handleEditSubmit,
+    reset: resetEditForm,
+    formState: { errors: editErrors },
+  } = useForm({ resolver: zodResolver(editDeploymentFormSchema), defaultValues: deploymentToEditForm(deployment ?? {}) });
+
+  function openEditDeployment() {
+    resetEditForm(deploymentToEditForm(deployment));
+    setEditingDeployment(true);
+  }
+
   const addDefaultValues = useMemo(() => {
     if (!deployment) return emptyMonthlyHoursForm;
     return { ...emptyMonthlyHoursForm, month: nextEligibleMonth(deployment) };
@@ -431,6 +460,11 @@ export default function DeploymentDetailPage() {
             <Badge variant={isActive ? 'success' : 'default'}>
               {t(`staffDeployments.status.${deployment.status}`, deployment.status)}
             </Badge>
+            {canEditDeployment && (
+              <Button size="sm" variant="secondary" onClick={openEditDeployment}>
+                {t('common.edit')}
+              </Button>
+            )}
             {isActive && canDemobilise && (
               <Button size="sm" variant="danger-ghost" onClick={() => setDemobilising(true)}>
                 {t('staffDeployments.detail.demobilise')}
@@ -479,6 +513,12 @@ export default function DeploymentDetailPage() {
           <div className="mt-3 border-t border-border pt-3">
             <p className="text-xs uppercase tracking-wide text-muted">{t('staffDeployments.detail.notesLabel')}</p>
             <p className="text-sm">{deployment.releaseNote}</p>
+          </div>
+        )}
+        {deployment.notes && (
+          <div className="mt-3 border-t border-border pt-3">
+            <p className="text-xs uppercase tracking-wide text-muted">{t('staffDeployments.detail.deploymentNotesLabel')}</p>
+            <p className="text-sm">{deployment.notes}</p>
           </div>
         )}
         {deployment.mobilisation && (
@@ -849,6 +889,34 @@ export default function DeploymentDetailPage() {
             </div>
           </div>
         )}
+      </Modal>
+
+      <Modal
+        open={editingDeployment}
+        onClose={() => setEditingDeployment(false)}
+        title={t('staffDeployments.detail.editDeploymentModalTitle', { name: deployment.workerName })}
+      >
+        <form onSubmit={handleEditSubmit((values) => editMutation.mutate(values))} noValidate className="space-y-4">
+          <Input label={t('staffDeployments.detail.fields.workerName')} error={editErrors.workerName?.message} {...registerEdit('workerName')} />
+          <Input label={t('staffDeployments.detail.fields.site')} error={editErrors.site?.message} {...registerEdit('site')} />
+          <Input
+            label={t('staffDeployments.detail.fields.contractHours')}
+            type="number"
+            step="0.01"
+            min="0"
+            error={editErrors.requiredTimesheetHours?.message}
+            {...registerEdit('requiredTimesheetHours')}
+          />
+          <Textarea label={t('staffDeployments.detail.deploymentNotesLabel')} error={editErrors.notes?.message} {...registerEdit('notes')} />
+          <div className="flex justify-end gap-2 pt-2">
+            <Button type="button" variant="secondary" onClick={() => setEditingDeployment(false)} disabled={editMutation.isPending}>
+              {t('common.cancel')}
+            </Button>
+            <Button type="submit" isLoading={editMutation.isPending}>
+              {t('common.save')}
+            </Button>
+          </div>
+        </form>
       </Modal>
     </div>
   );
