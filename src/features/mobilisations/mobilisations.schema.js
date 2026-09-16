@@ -51,8 +51,8 @@ export const WORKER_TYPES = ['Employee', 'SupplierEmployee', 'Freelancer'];
 
 // Mirrors the server's own FTA_TYPES in mobilisation.model.js — what the
 // `fta` amount actually covers. 'FTA' means Food+Travel+Accommodation
-// combined; the other two are the individual components.
-export const FTA_TYPES = ['FoodOnly', 'TravelOnly', 'FTA'];
+// combined; the other three are the individual components.
+export const FTA_TYPES = ['FoodOnly', 'TravelOnly', 'AccommodationOnly', 'FTA'];
 
 const mobilisationFields = {
   workerType: z.enum(WORKER_TYPES),

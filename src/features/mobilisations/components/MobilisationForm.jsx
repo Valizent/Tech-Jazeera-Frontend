@@ -20,8 +20,17 @@
  * to standby and mobilised again doesn't need re-typing from scratch. `site`
  * uses the same free-typed-with-suggestions pattern (SuggestInput, a themed
  * combobox — never the browser's own unstyled `<datalist>` popup, which
- * can't be styled at all) — unrelated to worker identity. The subcontractor
- * block only appears for 'SupplierEmployee'.
+ * can't be styled at all) — unrelated to worker identity.
+ *
+ * Layout order (2026-09-16, the user's own ask): worker type first, then —
+ * for SupplierEmployee/Freelancer only — the subcontractor block (Supplier
+ * only, since a Freelancer has no subcontractor at all) and a
+ * `PreviousWorkerPicker` BEFORE the identity fields, not after. Picking a
+ * subcontractor first, then a name off its own "who have we supplied
+ * before" list, is meant to be the fast path; the Iqama-typed autofill
+ * above stays as the alternative for a worker not on that list yet (or for
+ * Employee-adjacent muscle memory). Freelancer gets the "adjacent idea": no
+ * subcontractor to scope by, so its picker is just company-wide.
  */
 import { useEffect, useRef, useState } from 'react';
 import { useForm, useWatch, Controller } from 'react-hook-form';
@@ -30,7 +39,11 @@ import { useTranslation } from 'react-i18next';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { mobilisationFormSchema, WORKER_TYPES, FTA_TYPES } from '../mobilisations.schema.js';
 import { createJobTitle } from '../../jobTitles/jobTitles.api.js';
-import { getMobilisationSuggestions, lookupMobilisationWorkerByIqama } from '../mobilisations.api.js';
+import {
+  getMobilisationSuggestions,
+  lookupMobilisationWorkerByIqama,
+  listPreviousMobilisedWorkers,
+} from '../mobilisations.api.js';
 import { COUNTRIES } from '../../../lib/countries.js';
 import { apiMessage } from '../../../lib/utils.js';
 import { useToast } from '../../../components/ui/Toast.jsx';
@@ -71,7 +84,19 @@ function SuggestedInput({ field, label, error, control, placeholder }) {
  *  has been mobilised before and — if so — fills in name/nationality/phone/
  *  workerType/subcontractor. Applies at most once per distinct Iqama value
  *  (via `appliedRef`) so it never fights a coordinator's own edits to the
- *  same fields afterward. */
+ *  same fields afterward. Returns `markApplied` so a SIBLING autofill path
+ *  (PreviousWorkerPicker below) can pre-mark the Iqama it just wrote as
+ *  "already applied" — otherwise this effect would immediately re-fire for
+ *  that same value once the picker's own `setValue('iqamaNumber', ...)`
+ *  lands, showing a redundant second toast.
+ *
+ *  `appliedRef` is SEEDED with whatever Iqama the form already started with
+ *  (2026-09-16) rather than always starting at `null` — a form that arrives
+ *  already holding a full 10-digit Iqama (MobilisationEditPage's own
+ *  existing record, or MobilisationNewPage's new standby "Mobilise"
+ *  deep-link prefill) has nothing new to announce; without this, opening
+ *  Edit on any SupplierEmployee/Freelancer record re-fired this lookup and
+ *  showed "Found X..." on every single page load. */
 function useIqamaAutofill({ control, workerType, setValue, toast, t }) {
   const iqamaRaw = useWatch({ control, name: 'iqamaNumber' });
   const iqamaDigits = (iqamaRaw || '').replace(/\D/g, '');
@@ -84,7 +109,7 @@ function useIqamaAutofill({ control, workerType, setValue, toast, t }) {
     staleTime: 60_000,
   });
 
-  const appliedRef = useRef(null);
+  const appliedRef = useRef(iqamaDigits || null);
   useEffect(() => {
     if (!foundWorker || appliedRef.current === iqamaDigits) return;
     appliedRef.current = iqamaDigits;
@@ -99,6 +124,52 @@ function useIqamaAutofill({ control, workerType, setValue, toast, t }) {
     }
     toast.success(t('staffMobilisations.form.iqamaAutofillToast', { name: foundWorker.workerName }));
   }, [foundWorker, iqamaDigits, setValue, workerType, toast, t]);
+
+  return {
+    markApplied: (iqamaValue) => {
+      appliedRef.current = (iqamaValue || '').replace(/\D/g, '');
+    },
+  };
+}
+
+/** "Who have we mobilised before?" (2026-09-16, the user's own ask) — for
+ *  SupplierEmployee, scoped to the currently-picked subcontractor (hidden
+ *  until one is picked); for Freelancer, company-wide (no grouping entity
+ *  exists for them, the "adjacent idea"). A plain themed `<Select>`, same
+ *  as every other picker on this form — not a bound field, just a one-shot
+ *  action: choosing an option fires `onSelect` with that worker's snapshot
+ *  and immediately resets back to the placeholder. Hidden entirely when
+ *  there's nothing to pick from yet (a brand new subcontractor/freelancer),
+ *  rather than showing an empty picker. */
+function PreviousWorkerPicker({ workerType, subcontractorId, label, onSelect }) {
+  const { t } = useTranslation();
+  const enabled = workerType === 'Freelancer' || (workerType === 'SupplierEmployee' && Boolean(subcontractorId));
+  const { data: previousWorkers = [] } = useQuery({
+    queryKey: ['mobilisation-previous-workers', workerType, subcontractorId],
+    queryFn: () => listPreviousMobilisedWorkers({ workerType, subcontractor: subcontractorId }),
+    enabled,
+    staleTime: 30_000,
+  });
+
+  if (!enabled || previousWorkers.length === 0) return null;
+
+  return (
+    <Select
+      label={label}
+      value=""
+      onChange={(e) => {
+        const picked = previousWorkers.find((w) => w.iqamaNumber === e.target.value);
+        if (picked) onSelect(picked);
+      }}
+    >
+      <option value="">{t('staffMobilisations.form.selectPreviousWorker')}</option>
+      {previousWorkers.map((w) => (
+        <option key={w.iqamaNumber} value={w.iqamaNumber}>
+          {w.workerName} — {w.iqamaNumber}
+        </option>
+      ))}
+    </Select>
+  );
 }
 
 /** Mirrors Client rate into OT client rate as it's typed — a sensible
@@ -168,8 +239,24 @@ export default function MobilisationForm({
   const workerType = useWatch({ control, name: 'workerType' });
   const ftaType = useWatch({ control, name: 'ftaType' });
   const checkoutDate = useWatch({ control, name: 'checkoutDate' });
-  useIqamaAutofill({ control, workerType, setValue, toast, t });
+  const subcontractorValue = useWatch({ control, name: 'subcontractor' });
+  const { markApplied: markIqamaApplied } = useIqamaAutofill({ control, workerType, setValue, toast, t });
   useOtClientRateAutofill({ control, getValues, setValue });
+
+  // Fed to PreviousWorkerPicker for both SupplierEmployee (subcontractor-
+  // scoped) and Freelancer (company-wide) — same fields useIqamaAutofill
+  // fills in, plus markIqamaApplied so the Iqama-typed lookup above doesn't
+  // immediately re-fire a second, redundant toast for the same worker.
+  function applyPreviousWorker(picked) {
+    setValue('workerName', picked.workerName ?? '', { shouldValidate: true, shouldDirty: true });
+    setValue('nationality', picked.nationality ?? '', { shouldDirty: true });
+    setValue('phone', picked.phone || '+966', { shouldDirty: true });
+    if (picked.iqamaNumber) {
+      setValue('iqamaNumber', picked.iqamaNumber, { shouldValidate: true, shouldDirty: true });
+      markIqamaApplied(picked.iqamaNumber);
+    }
+    toast.success(t('staffMobilisations.form.previousWorkerAppliedToast', { name: picked.workerName }));
+  }
 
   const [addingJobTitle, setAddingJobTitle] = useState(false);
   const [newJobTitle, setNewJobTitle] = useState('');
@@ -248,6 +335,60 @@ export default function MobilisationForm({
             </option>
           ))}
         </Select>
+
+        {/* Moved here from its own section below Client & Billing
+            (2026-09-16, the user's own ask): filled FIRST for a
+            SupplierEmployee, before the identity fields, so the "who has
+            this subcontractor supplied before" picker right after it can
+            populate those fields instead of re-typing them. */}
+        {workerType === 'SupplierEmployee' && (
+          <div className="space-y-4 rounded-lg border border-border/60 bg-bg/40 p-4">
+            <h4 className="text-sm font-semibold uppercase tracking-wide text-muted">
+              {t('staffMobilisations.form.sectionSubcontractor')}
+            </h4>
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <Select label={t('staffMobilisations.form.subcontractorLabel')} error={errors.subcontractor?.message} {...register('subcontractor')}>
+                <option value="">{t('staffMobilisations.form.selectSubcontractor')}</option>
+                {subcontractors.map((s) => (
+                  <option key={s._id} value={s._id}>
+                    {s.name}
+                  </option>
+                ))}
+              </Select>
+              <Input
+                label={t('staffMobilisations.form.subcontractorRate')}
+                type="number"
+                step="0.01"
+                min="0"
+                error={errors.subcontractorRate?.message}
+                {...register('subcontractorRate')}
+              />
+              <Input
+                label={t('staffMobilisations.form.subcontractorCommission')}
+                type="number"
+                step="0.01"
+                min="0"
+                error={errors.subcontractorCommission?.message}
+                {...register('subcontractorCommission')}
+              />
+            </div>
+            <PreviousWorkerPicker
+              workerType="SupplierEmployee"
+              subcontractorId={subcontractorValue}
+              label={t('staffMobilisations.form.previousSupplierWorkerLabel')}
+              onSelect={applyPreviousWorker}
+            />
+          </div>
+        )}
+
+        {workerType === 'Freelancer' && (
+          <PreviousWorkerPicker
+            workerType="Freelancer"
+            label={t('staffMobilisations.form.previousFreelancerLabel')}
+            onSelect={applyPreviousWorker}
+          />
+        )}
+
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           {workerType === 'Employee' ? (
             <Select label={t('staffMobilisations.form.workerLabel')} error={errors.worker?.message} {...register('worker')}>
@@ -385,38 +526,6 @@ export default function MobilisationForm({
           />
         </div>
       </section>
-
-      {workerType === 'SupplierEmployee' && (
-        <section className="space-y-4">
-          <h3 className="text-sm font-semibold uppercase tracking-wide text-muted">{t('staffMobilisations.form.sectionSubcontractor')}</h3>
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            <Select label={t('staffMobilisations.form.subcontractorLabel')} error={errors.subcontractor?.message} {...register('subcontractor')}>
-              <option value="">{t('staffMobilisations.form.selectSubcontractor')}</option>
-              {subcontractors.map((s) => (
-                <option key={s._id} value={s._id}>
-                  {s.name}
-                </option>
-              ))}
-            </Select>
-            <Input
-              label={t('staffMobilisations.form.subcontractorRate')}
-              type="number"
-              step="0.01"
-              min="0"
-              error={errors.subcontractorRate?.message}
-              {...register('subcontractorRate')}
-            />
-            <Input
-              label={t('staffMobilisations.form.subcontractorCommission')}
-              type="number"
-              step="0.01"
-              min="0"
-              error={errors.subcontractorCommission?.message}
-              {...register('subcontractorCommission')}
-            />
-          </div>
-        </section>
-      )}
 
       <section className="space-y-4">
         <h3 className="text-sm font-semibold uppercase tracking-wide text-muted">{t('staffMobilisations.form.sectionEconomicsDates')}</h3>

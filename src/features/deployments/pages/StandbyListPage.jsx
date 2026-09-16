@@ -5,7 +5,17 @@
  * Worker-login employee's availability is a live field (`currentClient`);
  * a subcontractor/freelancer worker's is derived from their placement
  * history (no Employee record, no such field exists for them at all).
- * Read-only — mobilising someone starts on the regular New Mobilisation form.
+ *
+ * Each row's own "Mobilise" button (2026-09-16, the user's own ask) deep-
+ * links to New Mobilisation with that worker pre-filled — see
+ * MobilisationNewPage's own header comment for exactly which query params
+ * it reads. An Own Employee only needs `workerType`+`worker` (their live
+ * Employee record is the trustworthy source for everything else); a
+ * SupplierEmployee/Freelancer needs its identity snapshotted into the URL
+ * the same way MobilisationForm's own Iqama-autofill/PreviousWorkerPicker
+ * already fill those fields in. Table's own onRowClick already ignores
+ * clicks that land on a button, so this needed no extra wiring on the Own
+ * Employees table (still row-clickable → the Employee profile).
  */
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
@@ -18,6 +28,22 @@ import Table from '../../../components/ui/Table.jsx';
 import Button from '../../../components/ui/Button.jsx';
 import Skeleton from '../../../components/ui/Skeleton.jsx';
 import EmptyState from '../../../components/ui/EmptyState.jsx';
+
+/** Builds the New Mobilisation deep-link query string for one standby row —
+ *  see this file's own header comment and MobilisationNewPage's for what
+ *  each param does. */
+function mobiliseOwnEmployeeUrl(employee) {
+  return `/mobilisations/new?${new URLSearchParams({ workerType: 'Employee', worker: employee._id })}`;
+}
+
+function mobiliseWorkerUrl(worker) {
+  const params = new URLSearchParams({ workerType: worker.workerType, workerName: worker.workerName });
+  if (worker.iqamaNumber) params.set('iqamaNumber', worker.iqamaNumber);
+  if (worker.nationality) params.set('nationality', worker.nationality);
+  if (worker.phone) params.set('phone', worker.phone);
+  if (worker.workerType === 'SupplierEmployee' && worker.subcontractor) params.set('subcontractor', worker.subcontractor);
+  return `/mobilisations/new?${params}`;
+}
 
 export default function StandbyListPage() {
   const { t } = useTranslation();
@@ -42,6 +68,16 @@ export default function StandbyListPage() {
     { key: 'designation', header: t('staffDeployments.standby.columns.designation'), render: (e) => e.designation },
     { key: 'nationality', header: t('staffDeployments.standby.columns.nationality'), hideOnMobile: true, render: (e) => e.nationality },
     { key: 'mobile', header: t('staffDeployments.standby.columns.mobile'), hideOnMobile: true, render: (e) => e.mobile },
+    {
+      key: 'mobilise',
+      header: '',
+      className: 'text-right',
+      render: (e) => (
+        <Button size="sm" onClick={() => navigate(mobiliseOwnEmployeeUrl(e))}>
+          {t('staffDeployments.standby.mobiliseAction')}
+        </Button>
+      ),
+    },
   ];
 
   const subcontractedColumns = [
@@ -73,6 +109,16 @@ export default function StandbyListPage() {
           {w.lastClientName}
           {w.lastEndDate && <span className="block text-xs text-muted">{t('staffDeployments.standby.endedOn', { date: formatDate(w.lastEndDate) })}</span>}
         </span>
+      ),
+    },
+    {
+      key: 'mobilise',
+      header: '',
+      className: 'text-right',
+      render: (w) => (
+        <Button size="sm" onClick={() => navigate(mobiliseWorkerUrl(w))}>
+          {t('staffDeployments.standby.mobiliseAction')}
+        </Button>
       ),
     },
   ];
