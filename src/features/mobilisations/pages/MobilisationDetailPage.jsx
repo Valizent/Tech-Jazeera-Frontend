@@ -647,7 +647,12 @@ export default function MobilisationDetailPage() {
               { label: t('staffMobilisations.detail.fields.clientRate'), value: formatMoney(m.clientRate) },
               { label: t('staffMobilisations.detail.fields.clientCommission'), value: formatMoney(m.clientCommission) },
               { label: t('staffMobilisations.detail.fields.fta'), value: formatMoney(m.fta) },
+              {
+                label: t('staffMobilisations.detail.fields.ftaType'),
+                value: m.ftaType ? t(`staffMobilisations.form.ftaType.${m.ftaType}`) : null,
+              },
               { label: t('staffMobilisations.detail.fields.allowance'), value: formatMoney(m.allowance) },
+              { label: t('staffMobilisations.detail.fields.allowanceRemark'), value: m.allowanceRemark },
               { label: t('staffMobilisations.detail.fields.requiredTimesheetHours'), value: m.requiredTimesheetHours ?? null },
               ...(m.hasSubcontractor
                 ? [

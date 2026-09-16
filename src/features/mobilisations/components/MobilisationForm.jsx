@@ -28,7 +28,7 @@ import { useForm, useWatch, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useTranslation } from 'react-i18next';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { mobilisationFormSchema, WORKER_TYPES } from '../mobilisations.schema.js';
+import { mobilisationFormSchema, WORKER_TYPES, FTA_TYPES } from '../mobilisations.schema.js';
 import { createJobTitle } from '../../jobTitles/jobTitles.api.js';
 import { getMobilisationSuggestions, lookupMobilisationWorkerByIqama } from '../mobilisations.api.js';
 import { COUNTRIES } from '../../../lib/countries.js';
@@ -147,6 +147,7 @@ export default function MobilisationForm({
   } = useForm({ resolver: zodResolver(mobilisationFormSchema), defaultValues });
 
   const workerType = useWatch({ control, name: 'workerType' });
+  const ftaType = useWatch({ control, name: 'ftaType' });
   useIqamaAutofill({ control, workerType, setValue, toast, t });
   useOtClientRateAutofill({ control, getValues, setValue });
 
@@ -312,8 +313,32 @@ export default function MobilisationForm({
           />
           <Input label={t('staffMobilisations.form.clientRate')} type="number" step="0.01" min="0" error={errors.clientRate?.message} {...register('clientRate')} />
           <Input label={t('staffMobilisations.form.clientCommission')} type="number" step="0.01" min="0" error={errors.clientCommission?.message} {...register('clientCommission')} />
-          <Input label={t('staffMobilisations.form.fta')} type="number" step="0.01" min="0" error={errors.fta?.message} {...register('fta')} />
+          <Select label={t('staffMobilisations.form.ftaTypeLabel')} error={errors.ftaType?.message} {...register('ftaType')}>
+            <option value="">{t('staffMobilisations.form.selectFtaType')}</option>
+            {FTA_TYPES.map((ft) => (
+              <option key={ft} value={ft}>
+                {t(`staffMobilisations.form.ftaType.${ft}`)}
+              </option>
+            ))}
+          </Select>
+          <Input
+            label={t('staffMobilisations.form.fta')}
+            type="number"
+            step="0.01"
+            min="0"
+            disabled={!ftaType}
+            placeholder={ftaType ? undefined : t('staffMobilisations.form.selectFtaTypeFirst')}
+            error={errors.fta?.message}
+            {...register('fta')}
+          />
           <Input label={t('staffMobilisations.form.allowance')} type="number" step="0.01" min="0" error={errors.allowance?.message} {...register('allowance')} />
+          <Input
+            label={t('staffMobilisations.form.allowanceRemark')}
+            maxLength={200}
+            placeholder={t('staffMobilisations.form.allowanceRemarkPlaceholder')}
+            error={errors.allowanceRemark?.message}
+            {...register('allowanceRemark')}
+          />
           <Input
             label={t('staffMobilisations.form.requiredTimesheetHours')}
             type="number"
