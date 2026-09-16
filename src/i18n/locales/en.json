@@ -1344,6 +1344,7 @@
       "pageTitle": "Standby list",
       "pageDescription": "Everyone who was placed with a client at some point and isn't right now.",
       "newMobilisation": "New mobilisation",
+      "mobiliseAction": "Mobilise",
       "couldNotLoad": "Could not load the standby list",
       "columns": {
         "employee": "Employee",
@@ -1602,6 +1603,10 @@
       "iqamaNumberLabel": "Iqama / ID number",
       "iqamaNumberPlaceholder": "10 digits",
       "iqamaAutofillToast": "Found {{name}} from a previous mobilisation — details filled in.",
+      "previousSupplierWorkerLabel": "Previously mobilised via this subcontractor",
+      "previousFreelancerLabel": "Previously mobilised freelancer",
+      "selectPreviousWorker": "Select to auto-fill…",
+      "previousWorkerAppliedToast": "Filled in {{name}}'s details.",
       "nationalityLabel": "Nationality",
       "phoneLabel": "Phone",
       "jobTitleLabel": "Job title *",
@@ -1620,6 +1625,7 @@
       "ftaType": {
         "FoodOnly": "Food Only",
         "TravelOnly": "Travel Only",
+        "AccommodationOnly": "Accommodation Only",
         "FTA": "FTA"
       },
       "fta": "FTA (SAR/month)",

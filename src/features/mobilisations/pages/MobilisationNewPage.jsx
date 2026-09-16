@@ -2,12 +2,23 @@
  * MobilisationNewPage — loads the workers/clients/subcontractors pickers,
  * then hands off to MobilisationForm. Always creates a Draft; inviting
  * co-coordinators and submitting for review happen on MobilisationDetailPage.
+ *
+ * Can arrive pre-filled via query params (2026-09-16, the user's own ask) —
+ * StandbyListPage's "Mobilise" button deep-links here instead of making
+ * someone re-type/re-search a worker they just looked at. `workerType` +
+ * `worker` for an Employee (their live record already has trustworthy
+ * name/nationality/phone, no need to snapshot it into the URL); `workerType`
+ * + `workerName`/`iqamaNumber`/`nationality`/`phone`(+`subcontractor` for
+ * SupplierEmployee) for a SupplierEmployee/Freelancer, the same fields
+ * MobilisationForm's own PreviousWorkerPicker/Iqama-autofill already fill in
+ * — this is just a second way to arrive at the same filled-in state, read
+ * once into `defaultValues` rather than pushed in after mount.
  */
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { createMobilisation, listCoordinatorCandidates } from '../mobilisations.api.js';
-import { emptyMobilisationForm } from '../mobilisations.schema.js';
+import { emptyMobilisationForm, WORKER_TYPES } from '../mobilisations.schema.js';
 import { listEmployees } from '../../employees/employees.api.js';
 import { listClients } from '../../clients/clients.api.js';
 import { listSubcontractors } from '../../subcontractors/subcontractors.api.js';
@@ -21,6 +32,30 @@ import Card from '../../../components/ui/Card.jsx';
 import Skeleton from '../../../components/ui/Skeleton.jsx';
 import MobilisationForm from '../components/MobilisationForm.jsx';
 
+/** Reads the recognized prefill params (see this file's own header comment)
+ *  into a partial form-values object, ignoring anything unrecognized —
+ *  an unknown/garbled `workerType` just falls back to a blank form, same
+ *  as arriving here with no query string at all. */
+function prefillFromSearchParams(searchParams) {
+  const workerType = searchParams.get('workerType');
+  if (!WORKER_TYPES.includes(workerType)) return {};
+  const prefill = { workerType };
+  if (workerType === 'Employee') {
+    const worker = searchParams.get('worker');
+    if (worker) prefill.worker = worker;
+    return prefill;
+  }
+  for (const field of ['workerName', 'iqamaNumber', 'nationality', 'phone']) {
+    const value = searchParams.get(field);
+    if (value) prefill[field] = value;
+  }
+  if (workerType === 'SupplierEmployee') {
+    const subcontractor = searchParams.get('subcontractor');
+    if (subcontractor) prefill.subcontractor = subcontractor;
+  }
+  return prefill;
+}
+
 export default function MobilisationNewPage() {
   const navigate = useNavigate();
   const { t } = useTranslation();
@@ -28,6 +63,7 @@ export default function MobilisationNewPage() {
   const queryClient = useQueryClient();
   const { user } = useAuth();
   const isOfficeSecretary = user.role === 'Office Secretary';
+  const [searchParams] = useSearchParams();
 
   const { data: workerData, isPending: workersLoading, isError: workersError } = useQuery({
     queryKey: ['employees', { forMobilisation: true }],
@@ -110,7 +146,7 @@ export default function MobilisationNewPage() {
           subcontractors={subcontractors}
           jobTitles={jobTitles}
           coordinatorCandidates={isOfficeSecretary ? (coordinatorData ?? []) : undefined}
-          defaultValues={emptyMobilisationForm}
+          defaultValues={{ ...emptyMobilisationForm, ...prefillFromSearchParams(searchParams) }}
           onSubmit={handleSubmit}
           onCancel={() => navigate('/mobilisations')}
           submitLabel={t('staffMobilisations.new.submitLabel')}

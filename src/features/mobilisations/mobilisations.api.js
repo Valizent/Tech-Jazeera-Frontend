@@ -31,6 +31,15 @@ export async function lookupMobilisationWorkerByIqama(iqamaNumber) {
   return data.data;
 }
 
+/** "Who have we mobilised before?" — for SupplierEmployee, scoped to one
+ *  subcontractor; for Freelancer, company-wide (no grouping entity exists).
+ *  See MobilisationForm's PreviousWorkerPicker — click one, its fields
+ *  auto-fill, same as the Iqama-typed lookup above. */
+export async function listPreviousMobilisedWorkers({ workerType, subcontractor }) {
+  const { data } = await api.get('/mobilisations/previous-workers', { params: { workerType, subcontractor } });
+  return data.data;
+}
+
 export async function getMobilisation(id) {
   const { data } = await api.get(`/mobilisations/${id}`);
   return data.data;

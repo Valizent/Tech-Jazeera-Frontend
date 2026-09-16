@@ -1344,6 +1344,7 @@
       "pageTitle": "قائمة الاحتياط",
       "pageDescription": "كل من تم تعيينه لدى عميل في وقت ما وهو غير معيّن حاليًا.",
       "newMobilisation": "تعبئة جديدة",
+      "mobiliseAction": "تعبئة",
       "couldNotLoad": "تعذر تحميل قائمة الاحتياط",
       "columns": {
         "employee": "الموظف",
@@ -1602,6 +1603,10 @@
       "iqamaNumberLabel": "رقم الإقامة / الهوية",
       "iqamaNumberPlaceholder": "10 أرقام",
       "iqamaAutofillToast": "تم العثور على {{name}} من تعبئة سابقة — تم تعبئة التفاصيل.",
+      "previousSupplierWorkerLabel": "تمت تعبئته سابقًا عبر هذا المقاول من الباطن",
+      "previousFreelancerLabel": "عامل حر تمت تعبئته سابقًا",
+      "selectPreviousWorker": "اختر للتعبئة التلقائية…",
+      "previousWorkerAppliedToast": "تم تعبئة بيانات {{name}}.",
       "nationalityLabel": "الجنسية",
       "phoneLabel": "الهاتف",
       "jobTitleLabel": "المسمى الوظيفي *",
@@ -1620,6 +1625,7 @@
       "ftaType": {
         "FoodOnly": "الطعام فقط",
         "TravelOnly": "السفر فقط",
+        "AccommodationOnly": "السكن فقط",
         "FTA": "الكل (طعام وسفر وسكن)"
       },
       "fta": "بدل الطعام والسفر والسكن (ريال/شهر)",
