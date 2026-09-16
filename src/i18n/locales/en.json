@@ -1371,6 +1371,7 @@
       "sectionPlacement": "Placement",
       "fields": {
         "worker": "Worker",
+        "workerName": "Worker name",
         "workerType": "Worker type",
         "client": "Client",
         "site": "Site",
@@ -1381,6 +1382,9 @@
         "reason": "Reason"
       },
       "viewMobilisation": "View mobilisation",
+      "deploymentNotesLabel": "Notes",
+      "editDeploymentModalTitle": "Edit — {{name}}",
+      "editedToast": "Deployment updated.",
       "demobilise": "Demobilise",
       "demobiliseModalTitle": "Demobilise {{name}}",
       "demobiliseModalMessage": "This ends the deployment. What happens next depends on the reason you choose below.",

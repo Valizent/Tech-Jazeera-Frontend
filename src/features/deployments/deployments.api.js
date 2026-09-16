@@ -1,7 +1,8 @@
 /**
  * Deployments API layer — the only file that knows deployment endpoint URLs.
- * No create/edit here on purpose — a Deployment is born automatically once
- * its source Mobilisation is Approved (see mobilisations.api.js).
+ * No CREATE here on purpose — a Deployment is born automatically once its
+ * source Mobilisation is Approved (see mobilisations.api.js). A narrow EDIT
+ * exists (2026-09-16, the user's own ask) — see updateDeployment below.
  */
 import { api } from '../../lib/axios.js';
 
@@ -13,6 +14,14 @@ export async function listDeployments(params) {
 
 export async function getDeployment(id) {
   const { data } = await api.get(`/deployments/${id}`);
+  return data.data;
+}
+
+/** Correct a deployment's own recorded details — site/worker name/contracted
+ *  hours/notes only, see deployment.validation.js's updateDeploymentSchema
+ *  for exactly why the scope stops there. */
+export async function updateDeployment(id, payload) {
+  const { data } = await api.patch(`/deployments/${id}`, payload);
   return data.data;
 }
 

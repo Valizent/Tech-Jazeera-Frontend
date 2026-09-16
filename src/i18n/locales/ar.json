@@ -1371,6 +1371,7 @@
       "sectionPlacement": "التعيين",
       "fields": {
         "worker": "العامل",
+        "workerName": "اسم العامل",
         "workerType": "نوع العامل",
         "client": "العميل",
         "site": "الموقع",
@@ -1381,6 +1382,9 @@
         "reason": "السبب"
       },
       "viewMobilisation": "عرض التعبئة",
+      "deploymentNotesLabel": "ملاحظات",
+      "editDeploymentModalTitle": "تعديل — {{name}}",
+      "editedToast": "تم تحديث عملية النشر.",
       "demobilise": "تسريح",
       "demobiliseModalTitle": "تسريح {{name}}",
       "demobiliseModalMessage": "سينهي هذا عملية النشر. ما سيحدث بعد ذلك يعتمد على السبب الذي تختاره أدناه.",
