@@ -1599,6 +1599,7 @@
       },
       "workerLabel": "العامل *",
       "selectWorker": "اختر عاملًا…",
+      "loadingWorkers": "جارٍ تحميل العمال…",
       "workerNameLabel": "اسم العامل *",
       "iqamaNumberLabel": "رقم الإقامة / الهوية",
       "iqamaNumberPlaceholder": "10 أرقام",

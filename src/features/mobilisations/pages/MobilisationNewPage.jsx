@@ -1,7 +1,13 @@
 /**
- * MobilisationNewPage — loads the workers/clients/subcontractors pickers,
+ * MobilisationNewPage — loads the clients/subcontractors/job-titles pickers,
  * then hands off to MobilisationForm. Always creates a Draft; inviting
  * co-coordinators and submitting for review happen on MobilisationDetailPage.
+ * The Employees picker (for the "Own Employee" worker type) is NOT fetched
+ * here — MobilisationForm fetches it itself, only once that worker type is
+ * actually selected (2026-09-16, a real user-reported gap: fetching it
+ * unconditionally meant a Section-Access-denied Employees list broke this
+ * whole page for anyone who only ever mobilises SupplierEmployee/Freelancer
+ * workers).
  *
  * Can arrive pre-filled via query params (2026-09-16, the user's own ask) —
  * StandbyListPage's "Mobilise" button deep-links here instead of making
@@ -19,7 +25,6 @@ import { useTranslation } from 'react-i18next';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { createMobilisation, listCoordinatorCandidates } from '../mobilisations.api.js';
 import { emptyMobilisationForm, WORKER_TYPES } from '../mobilisations.schema.js';
-import { listEmployees } from '../../employees/employees.api.js';
 import { listClients } from '../../clients/clients.api.js';
 import { listSubcontractors } from '../../subcontractors/subcontractors.api.js';
 import { listJobTitles } from '../../jobTitles/jobTitles.api.js';
@@ -65,10 +70,6 @@ export default function MobilisationNewPage() {
   const isOfficeSecretary = user.role === 'Office Secretary';
   const [searchParams] = useSearchParams();
 
-  const { data: workerData, isPending: workersLoading, isError: workersError } = useQuery({
-    queryKey: ['employees', { forMobilisation: true }],
-    queryFn: () => listEmployees({ limit: 100, type: 'Own', loginRole: 'Worker' }),
-  });
   // Office Secretary only — the "create for a Coordinator who's busy" picker.
   const { data: coordinatorData, isPending: coordinatorsLoading, isError: coordinatorsError } = useQuery({
     queryKey: ['mobilisations', 'coordinator-candidates'],
@@ -102,7 +103,7 @@ export default function MobilisationNewPage() {
     mutation.mutate(values);
   }
 
-  if (workersLoading || clientsLoading || subcontractorsLoading || jobTitlesLoading || (isOfficeSecretary && coordinatorsLoading)) {
+  if (clientsLoading || subcontractorsLoading || jobTitlesLoading || (isOfficeSecretary && coordinatorsLoading)) {
     return (
       <div className="mx-auto max-w-3xl space-y-4">
         <Skeleton className="h-8 w-48" />
@@ -111,14 +112,6 @@ export default function MobilisationNewPage() {
     );
   }
 
-  // Own-type AND a real Worker login only — "Own Employee" means a field
-  // worker directly employed by the company, not any internal staff member
-  // who happens to have an Own-type Employee record for payroll (Admin,
-  // Manager, Coordinator, HR, Accounts, Office Secretary, Staff all can —
-  // see employee.service.js's loginRole filter). An Outsourced/Subcontracted
-  // worker is placed via the Supplier Employee/Freelancer types instead (see
-  // MobilisationForm's workerType selector).
-  const workers = (workerData?.items ?? []).filter((w) => w.status !== 'Exited' && w.type === 'Own');
   const clients = clientData?.items ?? [];
   const subcontractors = subcontractorData?.items ?? [];
   const jobTitles = jobTitleData ?? [];
@@ -133,7 +126,6 @@ export default function MobilisationNewPage() {
       <Card>
         <PickerLoadWarning
           failed={[
-            { label: 'workers', isError: workersError },
             { label: 'clients', isError: clientsError },
             { label: 'subcontractors', isError: subcontractorsError },
             { label: 'job titles', isError: jobTitlesError },
@@ -141,7 +133,6 @@ export default function MobilisationNewPage() {
           ]}
         />
         <MobilisationForm
-          workers={workers}
           clients={clients}
           subcontractors={subcontractors}
           jobTitles={jobTitles}

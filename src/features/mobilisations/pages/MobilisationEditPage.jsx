@@ -2,6 +2,14 @@
  * MobilisationEditPage — edits a Draft or Rejected mobilisation's Section 1
  * fields. MobilisationDetailPage is the "view" (coordinators, submit,
  * Marketing Manager review, documents); this page is Section 1 only.
+ * The Employees picker is NOT fetched here — MobilisationForm fetches it
+ * itself, only while the record's worker type is actually 'Employee' (see
+ * that file's own `useEmployeeWorkers` — 2026-09-16, a real user-reported
+ * gap where fetching it unconditionally broke this page for anyone missing
+ * Employees Section Access, even when editing a SupplierEmployee/Freelancer
+ * record that never needed that picker at all). `existingWorkerId` is
+ * passed through so an already-referenced employee stays selectable even if
+ * they wouldn't qualify under today's rules — see that hook's own comment.
  */
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
@@ -9,7 +17,6 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { useAuth } from '../../auth/AuthContext.jsx';
 import { getMobilisation, updateMobilisation } from '../mobilisations.api.js';
 import { mobilisationToForm } from '../mobilisations.schema.js';
-import { listEmployees } from '../../employees/employees.api.js';
 import { listClients } from '../../clients/clients.api.js';
 import { listSubcontractors } from '../../subcontractors/subcontractors.api.js';
 import { listJobTitles } from '../../jobTitles/jobTitles.api.js';
@@ -35,16 +42,6 @@ export default function MobilisationEditPage() {
     queryKey: ['mobilisation', id],
     queryFn: () => getMobilisation(id),
   });
-  // Unfiltered here (unlike the New page's server-side type+loginRole
-  // filter) — an existing mobilisation may already reference an employee
-  // that wouldn't qualify under today's rules (wrong type, or an office-
-  // staff login rather than a real Worker one) from before this restriction
-  // existed; the client-side filter below keeps that one selectable so
-  // editing an old record never shows a blank worker field.
-  const { data: workerData, isPending: workersLoading, isError: workersError } = useQuery({
-    queryKey: ['employees', { forMobilisation: true }],
-    queryFn: () => listEmployees({ limit: 100 }),
-  });
   const { data: clientData, isPending: clientsLoading, isError: clientsError } = useQuery({
     queryKey: ['clients', { active: true }],
     queryFn: () => listClients({ status: 'Active', approvalStatus: 'Approved', limit: 100 }),
@@ -69,7 +66,7 @@ export default function MobilisationEditPage() {
     onError: (error) => toast.error(apiMessage(error)),
   });
 
-  const loading = isPending || workersLoading || clientsLoading || subcontractorsLoading || jobTitlesLoading;
+  const loading = isPending || clientsLoading || subcontractorsLoading || jobTitlesLoading;
 
   if (loading) {
     return (
@@ -115,9 +112,6 @@ export default function MobilisationEditPage() {
     );
   }
 
-  const workers = (workerData?.items ?? []).filter(
-    (w) => w._id === mobilisation.worker || (w.status !== 'Exited' && w.type === 'Own' && w.login?.role === 'Worker')
-  );
   const clients = clientData?.items ?? [];
   const subcontractors = subcontractorData?.items ?? [];
   const jobTitles = jobTitleData ?? [];
@@ -132,17 +126,16 @@ export default function MobilisationEditPage() {
       <Card>
         <PickerLoadWarning
           failed={[
-            { label: 'workers', isError: workersError },
             { label: 'clients', isError: clientsError },
             { label: 'subcontractors', isError: subcontractorsError },
             { label: 'job titles', isError: jobTitlesError },
           ]}
         />
         <MobilisationForm
-          workers={workers}
           clients={clients}
           subcontractors={subcontractors}
           jobTitles={jobTitles}
+          existingWorkerId={mobilisation.worker}
           defaultValues={mobilisationToForm(mobilisation)}
           onSubmit={(values) => mutation.mutate(values)}
           onCancel={() => navigate(`/mobilisations/${id}`)}
