@@ -49,6 +49,11 @@ const optionalSaudiPhone = z
 
 export const WORKER_TYPES = ['Employee', 'SupplierEmployee', 'Freelancer'];
 
+// Mirrors the server's own FTA_TYPES in mobilisation.model.js — what the
+// `fta` amount actually covers. 'FTA' means Food+Travel+Accommodation
+// combined; the other two are the individual components.
+export const FTA_TYPES = ['FoodOnly', 'TravelOnly', 'FTA'];
+
 const mobilisationFields = {
   workerType: z.enum(WORKER_TYPES),
   // Employee: `worker` picks a real Employee record. SupplierEmployee/
@@ -78,7 +83,9 @@ const mobilisationFields = {
   clientRate: z.string().min(1, 'Client rate is required.'),
   clientCommission: optionalNumberString,
   fta: optionalNumberString,
+  ftaType: z.string().optional().or(z.literal('')),
   allowance: optionalNumberString,
+  allowanceRemark: optionalStr(200),
 
   // Subcontractor block only applies to SupplierEmployee — see superRefine.
   subcontractor: z.string().optional().or(z.literal('')),
@@ -110,6 +117,12 @@ export const mobilisationFormSchema = z.object(mobilisationFields).superRefine((
   if (data.workerType === 'SupplierEmployee' && !data.subcontractor) {
     ctx.addIssue({ code: 'custom', path: ['subcontractor'], message: 'Select a subcontractor.' });
   }
+  // Mirrors the server's own withFtaTypeRefine — the amount input is also
+  // disabled in the form until a type is picked, so this mostly guards
+  // against a stale value left over from unchecking the type.
+  if (data.fta && !data.ftaType) {
+    ctx.addIssue({ code: 'custom', path: ['ftaType'], message: 'Select what this FTA amount is for.' });
+  }
 });
 
 export const emptyMobilisationForm = {
@@ -128,7 +141,9 @@ export const emptyMobilisationForm = {
   clientRate: '',
   clientCommission: '',
   fta: '',
+  ftaType: '',
   allowance: '',
+  allowanceRemark: '',
   subcontractor: '',
   subcontractorRate: '',
   subcontractorCommission: '',
@@ -211,7 +226,9 @@ export function mobilisationToForm(m) {
     clientRate: String(m.clientRate ?? ''),
     clientCommission: String(m.clientCommission ?? ''),
     fta: String(m.fta ?? ''),
+    ftaType: m.ftaType ?? '',
     allowance: String(m.allowance ?? ''),
+    allowanceRemark: m.allowanceRemark ?? '',
     subcontractor: m.subcontractor ?? '',
     subcontractorRate: String(m.subcontractorRate ?? ''),
     subcontractorCommission: String(m.subcontractorCommission ?? ''),
