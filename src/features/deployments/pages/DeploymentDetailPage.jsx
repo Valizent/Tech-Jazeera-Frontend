@@ -5,7 +5,7 @@
  * a Deployment is born automatically once its source Mobilisation is
  * Approved (see the Mobilisations module).
  */
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useTranslation } from 'react-i18next';
@@ -16,9 +16,7 @@ import {
   monthlyHoursFormSchema,
   emptyMonthlyHoursForm,
   monthlyHoursEntryToForm,
-  daysInMonth,
-  parseDailyEntry,
-  isValidDailyEntry,
+  dailyEntryToString,
   demobiliseFormSchema,
   emptyDemobiliseForm,
   resolveDemobiliseOutcome,
@@ -75,12 +73,34 @@ const EOSB_REASON_BY_DEMOB_REASON = {
   TransferredToAnotherCompany: 'SponsorshipTransfer',
 };
 
+/** The latest month it's actually legitimate to enter/pick hours for.
+ *  Mirrors deployment.service.js's addMonthlyHours exactly (2026-09-16, the
+ *  user's own ask, in two parts):
+ *   - Active: a full calendar month must have passed (relative to today) —
+ *     a client's own timesheet for the CURRENT month isn't final yet while
+ *     the worker is still there, still accumulating hours.
+ *   - Ended: no such wait — "waiting for month completion is for people
+ *     who are still mobilised... and not demobilised" (the user's own
+ *     words). The whole placement is already history the moment it ends,
+ *     so every month through its own real end is immediately enterable,
+ *     even the still-in-progress current calendar month. Originally (this
+ *     same day, an earlier fix) only widened this to the FINAL month once
+ *     it had itself calendar-elapsed — this removes that wait entirely for
+ *     an Ended deployment. */
+function maxEligibleMonthFor(deployment) {
+  if (deployment.status === 'Ended' && deployment.endDate) {
+    return monthStrOf(deployment.endDate);
+  }
+  return previousMonthStr();
+}
+
 /** The earliest eligible month not yet entered — a sensible default for the
  *  add-hours form, empty string when nothing is eligible yet (deployment
- *  started this calendar month). */
+ *  started this calendar month, or — once Ended — every real month through
+ *  its own end has already been entered). */
 function nextEligibleMonth(deployment) {
   const start = monthStrOf(deployment.startDate);
-  const maxEligible = previousMonthStr();
+  const maxEligible = maxEligibleMonthFor(deployment);
   if (start > maxEligible) return '';
   const entered = new Set(deployment.monthlyHours.map((m) => m.month));
   let candidate = start;
@@ -100,114 +120,54 @@ function DetailRow({ label, children }) {
   );
 }
 
-/** Day-by-day timesheet entry, replacing a single "actual hours" number —
- *  see docs/DEPLOYMENT-notes.md's 2026-09-12 follow-up. One input per
- *  calendar day of the selected month, each either a plain number (hours
- *  worked) or a single letter — F/S/A for Off/Sick/Absent, fully replacing
- *  the hours entry for that day rather than sitting alongside it (see
- *  deployments.schema.js's parseDailyEntry). The monthly total only sums
- *  worked days, shown live but never itself submitted — the server derives
- *  it the same way (never trust a client-submitted total when the real
- *  breakdown is right there). Pressing Enter in a day's cell moves focus
- *  (and scrolls) to the next one, so a full month can be typed through
- *  without reaching for the mouse — added 2026-09-13 per the user's own ask.
+/** Two typed totals transcribed straight off the client's own timesheet —
+ *  reverted 2026-09-16 (the user's own ask) from the day-by-day grid this
+ *  briefly became (see docs/DEPLOYMENT-notes.md's 2026-09-12 follow-up) back
+ *  to the shape this app originally used before that (see
+ *  docs/MOBILISATION-notes.md's 2026-09-12 follow-up): "Client timesheet
+ *  hours" (→ `actualHours`) and "Days worked" (→ `daysWorked`, informational/
+ *  cross-check only — not part of the OT formula). OT hours = max(0,
+ *  actualHours - contractHours), unchanged formula, always server-computed
+ *  and previewed live here purely for feedback.
  *
  * `contractHours` is the client agreement hours to compare against (the
  * deployment's own `requiredTimesheetHours` when adding, or the entry's own
  * snapshotted `contractHours` when correcting one already entered — see the
- * two call sites below). There is no OT amount INPUT anymore — added
- * 2026-09-13 per the user's own ask: it's always server-computed
- * (otHours × the Mobilisation's OT client rate), never typed in, so whoever
- * enters hours never has to know or guess it. `canDecideHours`/`otClientRate`
- * gate a small commercial-only preview of it in the summary below — only
- * whoever can decide this section (the "manager who has access") ever sees a
- * money figure here; `otClientRate` is simply absent from the API response
- * for anyone else (see deployment.service.js's getDeployment), so there's
- * nothing to leak even if this check were somehow bypassed client-side. */
-function MonthlyHoursForm({
-  deployment,
-  defaultValues,
-  onSubmit,
-  submitting,
-  submitLabel,
-  monthFixed,
-  legacyActualHours,
-  contractHours,
-  canDecideHours,
-  otClientRate,
-}) {
-  const { t, i18n } = useTranslation();
+ * two call sites below). There is no OT amount INPUT — it's always
+ * server-computed (otHours × the Mobilisation's OT client rate), never typed
+ * in, so whoever enters hours never has to know or guess it.
+ * `canDecideHours`/`otClientRate` gate a small commercial-only preview of it
+ * below — only whoever can decide this section ever sees a money figure
+ * here; `otClientRate` is simply absent from the API response for anyone
+ * else (see deployment.service.js's getDeployment), so there's nothing to
+ * leak even if this check were somehow bypassed client-side. */
+function MonthlyHoursForm({ deployment, defaultValues, onSubmit, submitting, submitLabel, monthFixed, contractHours, canDecideHours, otClientRate }) {
+  const { t } = useTranslation();
   const toast = useToast();
   const {
     register,
     handleSubmit,
     watch,
-    setValue,
     formState: { errors },
   } = useForm({ resolver: zodResolver(monthlyHoursFormSchema), defaultValues });
   const start = monthStrOf(deployment.startDate);
-  const max = previousMonthStr();
-  const month = watch('month');
-  const dailyHours = watch('dailyHours') ?? [];
-  const dayInputRefs = useRef([]);
+  const max = maxEligibleMonthFor(deployment);
 
-  // Resize the grid whenever the selected month changes — grows/shrinks to
-  // that month's real day count, keeping already-typed values for the days
-  // that still exist. Deliberately keyed on `month` alone (not `dailyHours`
-  // itself, which changes on every keystroke) — see the module's own note
-  // on why this doesn't loop.
-  useEffect(() => {
-    const count = daysInMonth(month);
-    if (count === 0 || dailyHours.length === count) return;
-    setValue(
-      'dailyHours',
-      Array.from({ length: count }, (_, i) => dailyHours[i] ?? ''),
-      { shouldValidate: false }
-    );
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [month]);
-
-  const total = dailyHours.reduce((runningTotal, v) => runningTotal + (Number(v) || 0), 0);
   const agreementHours = contractHours ?? 0;
-  const otHoursPreview = Math.max(0, total - agreementHours);
+  const actualHoursPreview = Number(watch('actualHours')) || 0;
+  const otHoursPreview = Math.max(0, actualHoursPreview - agreementHours);
   const otAmountPreview = otHoursPreview * (otClientRate ?? 0);
   const deductionPreview = Number(watch('deductionAmount')) || 0;
 
-  // Enter advances to the next day instead of submitting the form — and
-  // scrolls it into view, since the grid can be wider than its container.
-  // The last day intentionally does nothing further (no accidental submit).
-  function handleDayKeyDown(e, i) {
-    if (e.key !== 'Enter') return;
-    e.preventDefault();
-    const next = dayInputRefs.current[i + 1];
-    if (next) {
-      next.focus();
-      next.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
-    }
-  }
-
   // A client-side validation failure previously failed silently (react-hook-
   // form never fires a mutation's own onError for one) — found via a real
-  // user report against this exact form (typed 25 into a day, got no
-  // feedback at all until wondering whether it would even be blocked).
-  // Every form in the app surfaces this as a toast now — see
-  // MobilisationForm.jsx's own onInvalid for the pattern this mirrors.
-  // Collected recursively (not just one level of Object.values) because an
-  // array-level `.refine()` error — dailyHours' own — lands nested under
-  // `dailyHours.root.message`, not `dailyHours.message` directly; a flat
-  // collector would silently find nothing and fall through to the generic
-  // fallback text instead of the real, specific message.
-  function collectErrorMessages(errorNode) {
-    const messages = [];
-    for (const value of Object.values(errorNode ?? {})) {
-      if (!value || typeof value !== 'object') continue;
-      if (typeof value.message === 'string') messages.push(value.message);
-      else messages.push(...collectErrorMessages(value));
-    }
-    return messages;
-  }
+  // user report against this form's earlier day-grid shape. Every form in
+  // the app surfaces this as a toast now — see MobilisationForm.jsx's own
+  // onInvalid for the pattern this mirrors.
   function onInvalid(formErrors) {
-    const messages = collectErrorMessages(formErrors);
+    const messages = Object.values(formErrors)
+      .map((err) => err?.message)
+      .filter(Boolean);
     console.error('[MonthlyHoursForm] validation failed:', formErrors);
     toast.error(messages.length ? messages.join(' · ') : t('staffDeployments.detail.fixHighlighted'));
   }
@@ -224,114 +184,48 @@ function MonthlyHoursForm({
         {...register('month')}
       />
 
-      {legacyActualHours != null && (
-        <p className="rounded-lg bg-warning/10 px-3 py-2 text-xs text-warning">
-          {t('staffDeployments.detail.legacyNoBreakdown', { hours: legacyActualHours })}
-        </p>
-      )}
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <Input
+          label={t('staffDeployments.detail.clientTimesheetHoursLabel')}
+          type="number"
+          step="0.01"
+          min="0"
+          error={errors.actualHours?.message}
+          {...register('actualHours')}
+        />
+        <Input
+          label={t('staffDeployments.detail.daysWorkedLabel')}
+          type="number"
+          step="1"
+          min="0"
+          max="31"
+          error={errors.daysWorked?.message}
+          {...register('daysWorked')}
+        />
+      </div>
 
-      {dailyHours.length > 0 && (
+      <div className="grid grid-cols-2 gap-3 rounded-lg border border-border bg-bg/40 p-3 sm:grid-cols-4">
         <div>
-          <div className="mb-1.5 flex items-center justify-between">
-            <span className="text-sm font-medium text-text">{t('staffDeployments.detail.dailyHoursLabel')}</span>
-            <span className="text-sm text-muted">{t('staffDeployments.detail.dailyHoursTotal', { total })}</span>
-          </div>
-          <p className="mb-1.5 text-xs text-muted">{t('staffDeployments.detail.dailyHoursHint')}</p>
-          <div className="overflow-x-auto rounded-lg border border-border">
-            <table className="border-collapse text-sm">
-              <thead>
-                <tr>
-                  {dailyHours.map((_, i) => (
-                    <th key={i} className="border-b border-border bg-bg/40 px-1 py-1 text-center font-medium text-muted">
-                      <div className="text-xs leading-tight">{i + 1}</div>
-                      <div className="text-[10px] font-normal leading-tight text-muted/70">
-                        {weekdayAbbrev(month, i + 1, i18n.language)}
-                      </div>
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  {dailyHours.map((_, i) => {
-                    const { ref: rhfRef, ...rest } = register(`dailyHours.${i}`);
-                    const trimmed = (dailyHours[i] ?? '').trim();
-                    const letter = trimmed.toUpperCase();
-                    const isOff = letter === 'F';
-                    const isSick = letter === 'S';
-                    const isAbsent = letter === 'A';
-                    // Live, per-cell feedback the instant an out-of-range or
-                    // unrecognized value is typed (e.g. "25") — found via a
-                    // real user report that the old total simply summed
-                    // whatever was typed with no visual cue anything was
-                    // wrong, leaving no way to tell an invalid entry from a
-                    // valid one before hitting Save.
-                    const isInvalid = trimmed !== '' && !isValidDailyEntry(trimmed);
-                    return (
-                      <td key={i} className="p-0.5">
-                        <input
-                          type="text"
-                          inputMode="decimal"
-                          maxLength={5}
-                          title={isInvalid ? t('staffDeployments.detail.dailyHoursInvalidCell') : undefined}
-                          aria-invalid={isInvalid || undefined}
-                          className={cn(
-                            'h-9 w-14 rounded border text-center text-sm outline-none transition-colors focus:border-primary focus:ring-1 focus:ring-primary/30',
-                            isOff && 'border-border bg-border/30 font-semibold text-muted',
-                            isSick && 'border-primary/40 bg-primary/10 font-semibold text-primary',
-                            isAbsent && 'border-danger/40 bg-danger/10 font-semibold text-danger',
-                            isInvalid && 'border-danger bg-danger/10 font-semibold text-danger ring-1 ring-danger/40',
-                            !isOff && !isSick && !isAbsent && !isInvalid && 'border-border bg-surface text-text'
-                          )}
-                          {...rest}
-                          ref={(el) => {
-                            rhfRef(el);
-                            dayInputRefs.current[i] = el;
-                          }}
-                          onKeyDown={(e) => handleDayKeyDown(e, i)}
-                        />
-                      </td>
-                    );
-                  })}
-                </tr>
-              </tbody>
-            </table>
-          </div>
-          {/* react-hook-form nests an array-FIELD-level `.refine()` error
-              under `.root`, not directly on the field — see onInvalid's own
-              doc comment above. `errors.dailyHours.message` was always
-              undefined here; a pre-existing display gap, not something this
-              same-day fix introduced. */}
-          {errors.dailyHours?.root && <p className="mt-1.5 text-sm text-danger">{errors.dailyHours.root.message}</p>}
-
-          <div className="mt-3 grid grid-cols-2 gap-3 rounded-lg border border-border bg-bg/40 p-3 sm:grid-cols-4">
-            <div>
-              <p className="text-xs text-muted">{t('staffDeployments.detail.summaryContractHours')}</p>
-              <p className="text-sm font-semibold tabular-nums">{agreementHours}</p>
-            </div>
-            <div>
-              <p className="text-xs text-muted">{t('staffDeployments.detail.summaryActualHours')}</p>
-              <p className="text-sm font-semibold tabular-nums">{total}</p>
-            </div>
-            <div>
-              <p className="text-xs text-muted">{t('staffDeployments.detail.summaryOtHours')}</p>
-              <p className="text-sm font-semibold tabular-nums">{otHoursPreview}</p>
-            </div>
-            {canDecideHours && (
-              <div>
-                <p className="text-xs text-muted">{t('staffDeployments.detail.summaryOtAmount')}</p>
-                <p className="text-sm font-semibold tabular-nums">{formatMoney(otAmountPreview)}</p>
-              </div>
-            )}
-            {deductionPreview > 0 && (
-              <div>
-                <p className="text-xs text-muted">{t('staffDeployments.detail.summaryDeduction')}</p>
-                <p className="text-sm font-semibold tabular-nums text-danger">{formatMoney(deductionPreview)}</p>
-              </div>
-            )}
-          </div>
+          <p className="text-xs text-muted">{t('staffDeployments.detail.summaryContractHours')}</p>
+          <p className="text-sm font-semibold tabular-nums">{agreementHours}</p>
         </div>
-      )}
+        <div>
+          <p className="text-xs text-muted">{t('staffDeployments.detail.summaryOtHours')}</p>
+          <p className="text-sm font-semibold tabular-nums">{otHoursPreview}</p>
+        </div>
+        {canDecideHours && (
+          <div>
+            <p className="text-xs text-muted">{t('staffDeployments.detail.summaryOtAmount')}</p>
+            <p className="text-sm font-semibold tabular-nums">{formatMoney(otAmountPreview)}</p>
+          </div>
+        )}
+        {deductionPreview > 0 && (
+          <div>
+            <p className="text-xs text-muted">{t('staffDeployments.detail.summaryDeduction')}</p>
+            <p className="text-sm font-semibold tabular-nums text-danger">{formatMoney(deductionPreview)}</p>
+          </div>
+        )}
+      </div>
 
       <div>
         <Input
@@ -355,9 +249,51 @@ function MonthlyHoursForm({
   );
 }
 
+/** Read-only breakdown of a pre-2026-09-16 entry's real day-by-day data —
+ *  see deployment.model.js's own doc comment on why `dailyHours` is never
+ *  written to again but stays visible on a record that still has it.
+ *  Collapsed by default so it doesn't dominate the (now much shorter)
+ *  monthly-hours history. */
+function LegacyDailyBreakdown({ entry, locale }) {
+  const { t } = useTranslation();
+  if (!entry.dailyHours?.length) return null;
+  return (
+    <details className="mt-2 text-xs text-muted">
+      <summary className="cursor-pointer select-none font-medium text-primary hover:underline">
+        {t('staffDeployments.detail.viewDailyBreakdown')}
+      </summary>
+      <div className="mt-2 overflow-x-auto rounded-lg border border-border">
+        <table className="border-collapse text-sm">
+          <thead>
+            <tr>
+              {entry.dailyHours.map((_, i) => (
+                <th key={i} className="border-b border-border bg-bg/40 px-1 py-1 text-center font-medium text-muted">
+                  <div className="text-xs leading-tight">{i + 1}</div>
+                  <div className="text-[10px] font-normal leading-tight text-muted/70">
+                    {weekdayAbbrev(entry.month, i + 1, locale)}
+                  </div>
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              {entry.dailyHours.map((day, i) => (
+                <td key={i} className="border-b border-border px-1 py-1 text-center tabular-nums text-text">
+                  {dailyEntryToString(day)}
+                </td>
+              ))}
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </details>
+  );
+}
+
 export default function DeploymentDetailPage() {
   const { id } = useParams();
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { user } = useAuth();
   const toast = useToast();
   const navigate = useNavigate();
@@ -477,7 +413,11 @@ export default function DeploymentDetailPage() {
   }
 
   const isActive = deployment.status === 'Active';
-  const canAddThisMonth = isActive && canEnterHours && Boolean(nextEligibleMonth(deployment));
+  // An Ended deployment can still have a real, never-entered FINAL month —
+  // deployment.service.js's addMonthlyHours has always allowed this
+  // server-side; the client just never gave a way to reach it (2026-09-16
+  // fix, see nextEligibleMonth's own doc comment).
+  const canAddThisMonth = canEnterHours && Boolean(nextEligibleMonth(deployment));
   const sortedMonths = [...deployment.monthlyHours].sort((a, b) => a.month.localeCompare(b.month));
 
   return (
@@ -578,6 +518,7 @@ export default function DeploymentDetailPage() {
                   <th className="px-3 py-2">{t('staffDeployments.detail.columns.month')}</th>
                   <th className="px-3 py-2">{t('staffDeployments.detail.columns.contractHours')}</th>
                   <th className="px-3 py-2">{t('staffDeployments.detail.columns.actualHours')}</th>
+                  <th className="px-3 py-2">{t('staffDeployments.detail.columns.daysWorked')}</th>
                   <th className="px-3 py-2">{t('staffDeployments.detail.columns.otHours')}</th>
                   {/* OT amount is commercial data — stripped server-side for
                       anyone without deploymentsHoursDecide access (see
@@ -608,9 +549,13 @@ export default function DeploymentDetailPage() {
                   const canDecideThis = canDecideHours && isActive && entry.status === 'Pending';
                   return (
                     <tr key={entry._id}>
-                      <td className="px-3 py-2 font-medium">{entry.month}</td>
+                      <td className="px-3 py-2 font-medium">
+                        {entry.month}
+                        <LegacyDailyBreakdown entry={entry} locale={i18n.language} />
+                      </td>
                       <td className="px-3 py-2">{entry.contractHours}</td>
                       <td className="px-3 py-2">{entry.actualHours}</td>
+                      <td className="px-3 py-2">{entry.daysWorked || '—'}</td>
                       <td className="px-3 py-2">{entry.otHours}</td>
                       {canDecideHours && <td className="px-3 py-2">{formatMoney(entry.otAmount)}</td>}
                       <td className="px-3 py-2">
@@ -676,9 +621,7 @@ export default function DeploymentDetailPage() {
           </div>
         )}
 
-        {!isActive ? (
-          <p className="text-sm text-muted">{t('staffDeployments.detail.endedNote')}</p>
-        ) : !canEnterHours ? null : canAddThisMonth ? (
+        {!canEnterHours ? null : canAddThisMonth ? (
           <div className="border-t border-border pt-4">
             <h3 className="mb-3 text-xs font-semibold uppercase tracking-wide text-muted">{t('staffDeployments.detail.addMonthLabel')}</h3>
             <MonthlyHoursForm
@@ -692,13 +635,16 @@ export default function DeploymentDetailPage() {
               onSubmit={(values) =>
                 addMutation.mutate({
                   month: values.month,
-                  dailyHours: values.dailyHours.map(parseDailyEntry),
+                  actualHours: Number(values.actualHours),
+                  daysWorked: Number(values.daysWorked),
                   deductionAmount: values.deductionAmount ? Number(values.deductionAmount) : undefined,
                   notes: values.notes || undefined,
                 })
               }
             />
           </div>
+        ) : !isActive ? (
+          <p className="text-sm text-muted">{t('staffDeployments.detail.endedNote')}</p>
         ) : (
           <p className="text-sm text-muted">{t('staffDeployments.detail.noEligibleMonth')}</p>
         )}
@@ -716,7 +662,6 @@ export default function DeploymentDetailPage() {
             submitting={updateMutation.isPending}
             submitLabel={t('staffDeployments.detail.save')}
             monthFixed
-            legacyActualHours={editingEntry.dailyHours?.length ? null : editingEntry.actualHours}
             contractHours={editingEntry.contractHours}
             canDecideHours={canDecideHours}
             otClientRate={deployment.mobilisation?.otClientRate}
@@ -724,7 +669,8 @@ export default function DeploymentDetailPage() {
               updateMutation.mutate({
                 entryId: editingEntry._id,
                 values: {
-                  dailyHours: values.dailyHours.map(parseDailyEntry),
+                  actualHours: Number(values.actualHours),
+                  daysWorked: Number(values.daysWorked),
                   deductionAmount: values.deductionAmount ? Number(values.deductionAmount) : undefined,
                   notes: values.notes || undefined,
                 },
