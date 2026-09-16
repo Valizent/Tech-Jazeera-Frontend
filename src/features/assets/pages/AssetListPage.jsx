@@ -42,6 +42,7 @@ import Select from '../../../components/ui/Select.jsx';
 import Textarea from '../../../components/ui/Textarea.jsx';
 import Modal from '../../../components/ui/Modal.jsx';
 import EmptyState from '../../../components/ui/EmptyState.jsx';
+import PickerLoadWarning from '../../../components/shared/PickerLoadWarning.jsx';
 
 export default function AssetListPage() {
   const navigate = useNavigate();
@@ -64,7 +65,7 @@ export default function AssetListPage() {
     queryFn: () => listAssets({ limit: 100, ...(category && { category }), ...(status && { status }) }),
   });
 
-  const { data: employeeData } = useQuery({
+  const { data: employeeData, isError: employeesError } = useQuery({
     queryKey: ['employees', { forAssets: true }],
     queryFn: () => listEmployees({ limit: 100, sortBy: 'fullName', sortOrder: 'asc' }),
     enabled: canWrite,
@@ -294,6 +295,7 @@ export default function AssetListPage() {
 
       <Modal open={!!assigning} onClose={() => setAssigning(null)} title={`Assign ${assigning?.assetTag ?? ''}`}>
         <form onSubmit={assignForm.handleSubmit((values) => assignMutation.mutate(values))} noValidate className="space-y-4">
+          <PickerLoadWarning failed={[{ label: 'employees', isError: employeesError }]} />
           <Select label="Employee *" error={assignForm.formState.errors.employee?.message} {...assignForm.register('employee')}>
             <option value="">Select an employee…</option>
             {employees.map((e) => (

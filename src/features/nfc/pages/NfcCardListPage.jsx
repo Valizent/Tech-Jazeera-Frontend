@@ -17,6 +17,7 @@ import Select from '../../../components/ui/Select.jsx';
 import Button from '../../../components/ui/Button.jsx';
 import Badge from '../../../components/ui/Badge.jsx';
 import EmptyState from '../../../components/ui/EmptyState.jsx';
+import PickerLoadWarning from '../../../components/shared/PickerLoadWarning.jsx';
 import BatchGenerateModal from '../components/BatchGenerateModal.jsx';
 
 export default function NfcCardListPage() {
@@ -29,12 +30,12 @@ export default function NfcCardListPage() {
   const [company, setCompany] = useState('');
   const [generating, setGenerating] = useState(false);
 
-  const { data: cards = [], isPending } = useQuery({
+  const { data: cards = [], isPending, isError } = useQuery({
     queryKey: ['nfc-cards', { search, status, company }],
     queryFn: () => listNfcCards({ search: search || undefined, status: status || undefined, company: company || undefined }),
     enabled: canRead,
   });
-  const { data: companies = [] } = useQuery({
+  const { data: companies = [], isError: companiesError } = useQuery({
     queryKey: ['nfc-companies', ''],
     queryFn: () => listNfcCompanies({}),
     enabled: canRead,
@@ -110,24 +111,29 @@ export default function NfcCardListPage() {
         </Select>
       </div>
 
-      <Table
-        columns={columns}
-        rows={cards}
-        rowKey={(c) => c._id}
-        loading={isPending}
-        onRowClick={(c) => navigate(`/nfc/cards/${c._id}`)}
-        emptyState={
-          <EmptyState
-            title={search || status || company ? 'No matching cards' : 'No cards yet'}
-            description={
-              search || status || company
-                ? 'Try clearing the filters.'
-                : 'Generate a batch of blank cards to get started.'
-            }
-            action={!(search || status || company) && canWrite && <Button onClick={() => setGenerating(true)}>Generate batch</Button>}
-          />
-        }
-      />
+      <PickerLoadWarning failed={[{ label: 'the company filter list', isError: companiesError }]} />
+      {isError ? (
+        <EmptyState title="Could not load cards" description="Check your permissions or connection, then try again." />
+      ) : (
+        <Table
+          columns={columns}
+          rows={cards}
+          rowKey={(c) => c._id}
+          loading={isPending}
+          onRowClick={(c) => navigate(`/nfc/cards/${c._id}`)}
+          emptyState={
+            <EmptyState
+              title={search || status || company ? 'No matching cards' : 'No cards yet'}
+              description={
+                search || status || company
+                  ? 'Try clearing the filters.'
+                  : 'Generate a batch of blank cards to get started.'
+              }
+              action={!(search || status || company) && canWrite && <Button onClick={() => setGenerating(true)}>Generate batch</Button>}
+            />
+          }
+        />
+      )}
 
       <BatchGenerateModal open={generating} onClose={() => setGenerating(false)} />
     </div>

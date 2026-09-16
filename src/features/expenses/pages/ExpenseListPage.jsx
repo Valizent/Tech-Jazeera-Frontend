@@ -35,6 +35,7 @@ import Select from '../../../components/ui/Select.jsx';
 import Textarea from '../../../components/ui/Textarea.jsx';
 import Modal from '../../../components/ui/Modal.jsx';
 import EmptyState from '../../../components/ui/EmptyState.jsx';
+import PickerLoadWarning from '../../../components/shared/PickerLoadWarning.jsx';
 import Skeleton from '../../../components/ui/Skeleton.jsx';
 
 const RECEIPT_ACCEPT = '.pdf,.jpg,.jpeg,.png,.webp';
@@ -109,7 +110,7 @@ export default function ExpenseListPage() {
     placeholderData: keepPreviousData,
   });
 
-  const { data: clientData } = useQuery({
+  const { data: clientData, isError: clientsError } = useQuery({
     queryKey: ['clients', 'all-for-expense'],
     queryFn: () => listClients({ limit: 100, sortBy: 'companyName', sortOrder: 'asc' }),
     enabled: Boolean(editing),
@@ -126,7 +127,7 @@ export default function ExpenseListPage() {
 
   const selectedClient = useWatch({ control, name: 'client' });
 
-  const { data: deploymentData } = useQuery({
+  const { data: deploymentData, isError: deploymentsError } = useQuery({
     queryKey: ['deployments', 'for-expense', selectedClient],
     queryFn: () => listDeployments({ client: selectedClient, limit: 100 }),
     enabled: Boolean(editing) && Boolean(selectedClient),
@@ -347,6 +348,12 @@ export default function ExpenseListPage() {
 
       <Modal open={!!editing} onClose={closeModal} title={editing?._id ? 'Edit expense' : 'Add expense'} size="lg">
         <form onSubmit={handleSubmit((values) => saveMutation.mutate(values))} noValidate className="space-y-4">
+          <PickerLoadWarning
+            failed={[
+              { label: 'clients', isError: clientsError },
+              { label: 'deployments', isError: Boolean(selectedClient) && deploymentsError },
+            ]}
+          />
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <Input label="Date *" type="date" error={errors.date?.message} {...register('date')} />
             <Select label="Category *" error={errors.category?.message} {...register('category')}>

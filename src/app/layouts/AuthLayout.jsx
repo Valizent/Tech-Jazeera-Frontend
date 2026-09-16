@@ -6,11 +6,14 @@
  * the app's indigo background wash. It's a first impression with no dense data
  * behind it, so the effect adds warmth without costing legibility.
  */
+import { Suspense } from 'react';
 import { Outlet } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import ThemeToggle from '../../components/shared/ThemeToggle.jsx';
 import LanguageSwitcher from '../../components/shared/LanguageSwitcher.jsx';
 import BrandLogo, { useBranding } from '../../components/shared/BrandLogo.jsx';
+import ErrorBoundary from '../../components/shared/ErrorBoundary.jsx';
+import RouteFallback from '../../components/shared/RouteFallback.jsx';
 
 export default function AuthLayout() {
   const { t } = useTranslation();
@@ -26,7 +29,11 @@ export default function AuthLayout() {
         <span className="text-lg font-semibold tracking-tight">{brandName}</span>
       </div>
       <div className="w-full max-w-sm rounded-2xl border border-white/60 bg-surface/70 p-6 shadow-xl backdrop-blur-xl animate-rise-in dark:border-white/10">
-        <Outlet />
+        <ErrorBoundary>
+          <Suspense fallback={<RouteFallback />}>
+            <Outlet />
+          </Suspense>
+        </ErrorBoundary>
       </div>
       <p className="text-xs text-muted">{t('auth.footerNotice')}</p>
     </div>

@@ -14,6 +14,7 @@ import Modal from '../../../components/ui/Modal.jsx';
 import Input from '../../../components/ui/Input.jsx';
 import Select from '../../../components/ui/Select.jsx';
 import Button from '../../../components/ui/Button.jsx';
+import PickerLoadWarning from '../../../components/shared/PickerLoadWarning.jsx';
 
 export default function BatchGenerateModal({ open, onClose }) {
   const toast = useToast();
@@ -27,7 +28,7 @@ export default function BatchGenerateModal({ open, onClose }) {
     formState: { errors },
   } = useForm({ resolver: zodResolver(batchFormSchema), defaultValues: { count: 10, label: '', note: '', company: '' } });
 
-  const { data: companies = [] } = useQuery({
+  const { data: companies = [], isError: companiesError } = useQuery({
     queryKey: ['nfc-companies', ''],
     queryFn: () => listNfcCompanies({}),
     enabled: open,
@@ -71,6 +72,7 @@ export default function BatchGenerateModal({ open, onClose }) {
         </div>
       ) : (
         <form onSubmit={handleSubmit((v) => mutation.mutate(v))} noValidate className="space-y-4">
+          <PickerLoadWarning failed={[{ label: 'companies', isError: companiesError }]} />
           <Input
             label="How many cards?"
             type="number"

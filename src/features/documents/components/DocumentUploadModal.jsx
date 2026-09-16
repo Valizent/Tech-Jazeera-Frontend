@@ -28,6 +28,7 @@ import {
 import { apiMessage } from '../../../lib/utils.js';
 import { useToast } from '../../../components/ui/Toast.jsx';
 import Modal from '../../../components/ui/Modal.jsx';
+import PickerLoadWarning from '../../../components/shared/PickerLoadWarning.jsx';
 import Input from '../../../components/ui/Input.jsx';
 import Select from '../../../components/ui/Select.jsx';
 import Button from '../../../components/ui/Button.jsx';
@@ -50,7 +51,7 @@ export default function DocumentUploadModal({ open, onClose, fixedOwner, onUploa
   } = useForm({ resolver: zodResolver(documentFormSchema), defaultValues: emptyDocumentForm });
 
   // Owner options for the global picker.
-  const { data: ownerOptions } = useQuery({
+  const { data: ownerOptions, isError: ownerOptionsError } = useQuery({
     queryKey: ['ownerPicker', ownerType],
     queryFn: () =>
       ownerType === 'Employee'
@@ -110,6 +111,7 @@ export default function DocumentUploadModal({ open, onClose, fixedOwner, onUploa
   return (
     <Modal open={open} onClose={closeAndReset} title={t('staffDocuments.upload.title')}>
       <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-4">
+        <PickerLoadWarning failed={[{ label: 'owner options', isError: !fixedOwner && ownerOptionsError }]} />
         {fixedOwner ? (
           <p className="rounded-lg bg-bg p-2.5 text-sm text-muted">
             {t('staffDocuments.upload.for')} <span className="font-medium text-text">{fixedOwner.name}</span>

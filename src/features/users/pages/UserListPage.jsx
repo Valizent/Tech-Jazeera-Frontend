@@ -153,7 +153,7 @@ export default function UserListPage() {
           <div className="flex flex-col gap-4">
             <p className="text-sm text-muted">
               Their old password no longer works. Hand this new one to{' '}
-              <span className="font-medium text-text">{created.user.name}</span> — it's shown{' '}
+              <span className="font-medium text-text">{created.user.name}</span> — it&apos;s shown{' '}
               <span className="font-medium text-text">once</span>, copy it now.
             </p>
             <div className="rounded-lg border border-border bg-bg p-3">

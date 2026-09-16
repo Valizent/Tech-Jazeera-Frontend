@@ -121,7 +121,7 @@ export default function NfcCompanyProfilePage() {
             <Link to={`/nfc/cards/${p.card._id}`} className="font-mono text-xs text-primary hover:underline">
               {p.card.token}
             </Link>
-            <a href={p.card.url} target="_blank" rel="noopener" title="Open tap page" className="text-muted hover:text-text">
+            <a href={p.card.url} target="_blank" rel="noopener noreferrer" title="Open tap page" className="text-muted hover:text-text">
               ↗
             </a>
           </span>
@@ -206,7 +206,7 @@ export default function NfcCompanyProfilePage() {
             <Field label="Email">{company.email}</Field>
             <Field label="Website">
               {company.website ? (
-                <a href={/^https?:\/\//i.test(company.website) ? company.website : `https://${company.website}`} target="_blank" rel="noopener" className="text-primary hover:underline">
+                <a href={/^https?:\/\//i.test(company.website) ? company.website : `https://${company.website}`} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
                   {company.website}
                 </a>
               ) : null}
@@ -214,7 +214,7 @@ export default function NfcCompanyProfilePage() {
             <Field label="Address">
               {company.address ? (
                 mapsHref ? (
-                  <a href={mapsHref} target="_blank" rel="noopener" className="text-primary hover:underline">
+                  <a href={mapsHref} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
                     {company.address}
                   </a>
                 ) : (

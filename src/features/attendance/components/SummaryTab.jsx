@@ -10,7 +10,6 @@ import { monthRange, todayKey } from '../attendance.dates.js';
 import { ATTENDANCE_STATUSES } from '../../../lib/constants.js';
 import { apiMessage } from '../../../lib/utils.js';
 import { useToast } from '../../../components/ui/Toast.jsx';
-import Card from '../../../components/ui/Card.jsx';
 import Input from '../../../components/ui/Input.jsx';
 import Button from '../../../components/ui/Button.jsx';
 import Table from '../../../components/ui/Table.jsx';

@@ -6,6 +6,7 @@ import { useToast } from '../../../components/ui/Toast.jsx';
 import Modal from '../../../components/ui/Modal.jsx';
 import Select from '../../../components/ui/Select.jsx';
 import Button from '../../../components/ui/Button.jsx';
+import PickerLoadWarning from '../../../components/shared/PickerLoadWarning.jsx';
 
 export default function AssignCompanyModal({ open, onClose, cardId }) {
   const toast = useToast();
@@ -16,7 +17,7 @@ export default function AssignCompanyModal({ open, onClose, cardId }) {
     if (open) setCompanyId('');
   }, [open]);
 
-  const { data: companies = [], isPending } = useQuery({
+  const { data: companies = [], isPending, isError: companiesError } = useQuery({
     queryKey: ['nfc-companies', ''],
     queryFn: () => listNfcCompanies({}),
     enabled: open,
@@ -36,6 +37,7 @@ export default function AssignCompanyModal({ open, onClose, cardId }) {
   return (
     <Modal open={open} onClose={onClose} title="Assign card to company">
       <div className="space-y-4">
+        <PickerLoadWarning failed={[{ label: 'companies', isError: companiesError }]} />
         <Select label="Select company" value={companyId} onChange={(e) => setCompanyId(e.target.value)}>
           <option value="">Select a company…</option>
           {companies.map((c) => (

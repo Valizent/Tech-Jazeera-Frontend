@@ -13,7 +13,7 @@
  * which had no scroll of its own (items past the fold were unreachable, not
  * just visually cluttered — a real bug, independent of the regrouping).
  */
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, Suspense } from 'react';
 import { useTranslation } from 'react-i18next';
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../features/auth/AuthContext.jsx';
@@ -24,6 +24,8 @@ import ThemeToggle from '../../components/shared/ThemeToggle.jsx';
 import NotificationBell from '../../components/shared/NotificationBell.jsx';
 import LanguageSwitcher from '../../components/shared/LanguageSwitcher.jsx';
 import BrandLogo, { useBranding } from '../../components/shared/BrandLogo.jsx';
+import ErrorBoundary from '../../components/shared/ErrorBoundary.jsx';
+import RouteFallback from '../../components/shared/RouteFallback.jsx';
 import { cn } from '../../lib/utils.js';
 import { DASHBOARD_ITEM, NAV_GROUPS, EXECUTIVE_NAV_ITEMS } from '../navConfig.js';
 
@@ -246,7 +248,11 @@ export default function DashboardLayout() {
         </header>
 
         <main className="p-4 sm:p-6">
-          <Outlet />
+          <ErrorBoundary>
+            <Suspense fallback={<RouteFallback />}>
+              <Outlet />
+            </Suspense>
+          </ErrorBoundary>
         </main>
       </div>
 
