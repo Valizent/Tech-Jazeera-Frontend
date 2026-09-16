@@ -26,65 +26,36 @@ export function daysInMonth(monthStr) {
   return new Date(y, m, 0).getDate();
 }
 
-// One string per calendar day (day-by-day timesheet entry, not one
-// aggregate number — see docs/DEPLOYMENT-notes.md's 2026-09-12 follow-up).
-// Each day is EITHER a plain number 0-24 (hours worked) OR one of the
-// single letters F/S/A (Off/Sick/Absent) — added the same day per the
-// user's own ask: a non-working day is marked directly in the same cell,
-// never a separate field, so it fully replaces the hours entry for that
-// day rather than sitting alongside it (see parseDailyEntry below, and
-// deployment.model.js's DAILY_ENTRY_STATUSES doc comment on the server
-// side this maps onto). Kept as strings through the form the same way
-// every other field here is, parsed only at submit time.
-//
-// A real NUMERIC range check, not a digit-count regex — found via a real
-// user report (typed "25" into a day, which a naive `2[0-4]|1\d|\d` pattern
-// would reject, but a laxer version could easily let slip, and a plain
-// digit-count check would ALSO wrongly accept something like "24.9", which
-// looks in-range by shape but isn't). `Number(trimmed)` on an already
-// digit-shape-validated string is safe here — no NaN/Infinity path.
-export function isValidDailyEntry(value) {
-  const trimmed = value.trim();
-  if (/^[fFsSaA]$/.test(trimmed)) return true;
-  if (!/^\d+(\.\d+)?$/.test(trimmed)) return false;
-  const hours = Number(trimmed);
-  return hours >= 0 && hours <= 24;
-}
-
+// Reverted 2026-09-16 (the user's own ask) from a day-by-day grid (added
+// 2026-09-12, see docs/DEPLOYMENT-notes.md's own follow-up on that) back to
+// two typed totals transcribed straight off the client's own timesheet —
+// the shape this app originally used before the daily grid existed (see
+// docs/MOBILISATION-notes.md's 2026-09-12 follow-up). `otHours` is still
+// always server-computed (`max(0, actualHours - contractHours)`, unchanged
+// formula — see deployment.service.js), never sent from here.
 export const monthlyHoursFormSchema = z.object({
   month: z.string().regex(/^\d{4}-(0[1-9]|1[0-2])$/, 'Choose a month.'),
-  dailyHours: z
-    .array(z.string())
-    .refine((arr) => arr.every((v) => isValidDailyEntry(v)), {
-      message: "Enter each day's hours (0-24), or F/S/A for Off/Sick/Absent.",
-    }),
+  actualHours: z.string().min(1, 'Enter the client timesheet hours.'),
+  daysWorked: z.string().min(1, 'Enter the number of days worked.'),
   deductionAmount: z.string().optional().or(z.literal('')),
   notes: optionalStr(500),
 });
 
 export const emptyMonthlyHoursForm = {
   month: '',
-  dailyHours: [],
+  actualHours: '',
+  daysWorked: '',
   deductionAmount: '',
   notes: '',
 };
 
 const DAILY_STATUS_LETTER = { Off: 'F', Sick: 'S', Absent: 'A' };
-const DAILY_LETTER_STATUS = { F: 'Off', S: 'Sick', A: 'Absent' };
 
-/** One day's typed-in string → what the server expects — {status, hours}.
- *  A bare letter (case-insensitive) is Off/Sick/Absent with no hours;
- *  anything else is parsed as the day's worked hours. */
-export function parseDailyEntry(value) {
-  const letter = value.trim().toUpperCase();
-  const status = DAILY_LETTER_STATUS[letter];
-  if (status) return { status };
-  return { status: 'Worked', hours: Number(value) };
-}
-
-/** The reverse of parseDailyEntry — a saved {status, hours} day → the
- *  single string the grid displays and re-edits. */
-function dailyEntryToString(day) {
+/** A saved {status, hours} day → the single display string — read-only use
+ *  only now (DeploymentDetailPage's collapsible breakdown for a pre-
+ *  2026-09-16 entry that still has real dailyHours; see deployment.model.js's
+ *  own doc comment on why that array is never written to again). */
+export function dailyEntryToString(day) {
   const letter = DAILY_STATUS_LETTER[day.status];
   return letter ?? String(day.hours ?? '');
 }
@@ -92,9 +63,8 @@ function dailyEntryToString(day) {
 export function monthlyHoursEntryToForm(entry) {
   return {
     month: entry.month,
-    dailyHours: entry.dailyHours?.length
-      ? entry.dailyHours.map(dailyEntryToString)
-      : Array(daysInMonth(entry.month)).fill(''),
+    actualHours: String(entry.actualHours ?? ''),
+    daysWorked: String(entry.daysWorked ?? ''),
     deductionAmount: entry.deductionAmount ? String(entry.deductionAmount) : '',
     notes: entry.notes ?? '',
   };
