@@ -44,9 +44,11 @@ import {
   lookupMobilisationWorkerByIqama,
   listPreviousMobilisedWorkers,
 } from '../mobilisations.api.js';
+import { listEmployees } from '../../employees/employees.api.js';
 import { COUNTRIES } from '../../../lib/countries.js';
 import { apiMessage } from '../../../lib/utils.js';
 import { useToast } from '../../../components/ui/Toast.jsx';
+import PickerLoadWarning from '../../../components/shared/PickerLoadWarning.jsx';
 import Input from '../../../components/ui/Input.jsx';
 import Select from '../../../components/ui/Select.jsx';
 import SuggestInput from '../../../components/ui/SuggestInput.jsx';
@@ -212,12 +214,47 @@ function useOtClientRateAutofill({ control, getValues, setValue }) {
   }, [clientRate, getValues, setValue]);
 }
 
+/**
+ * The Employee picker's own data (2026-09-16, a real user-reported gap):
+ * previously fetched unconditionally by whichever page rendered this form,
+ * which meant a Section-Access-denied Employees list (`employeeCreate`
+ * read — Admin-only by default) broke the form with a scary red banner for
+ * anyone who only ever mobilises SupplierEmployee/Freelancer workers and
+ * never touches "Own Employee" at all. Now fetched HERE, gated on the
+ * live (not just initial) `workerType`, so the request is never even made
+ * unless "Own Employee" is actually selected.
+ *
+ * `existingWorkerId` (MobilisationEditPage only) keeps an already-
+ * referenced employee selectable even if they wouldn't qualify under
+ * today's rules (wrong type, or an office-staff login rather than a real
+ * Worker one) from before this restriction existed — same "don't show a
+ * blank worker field on an old record" reasoning the filter always had,
+ * just relocated. MobilisationNewPage never passes this, so its list stays
+ * exactly as strict as before (server-filtered `type:'Own'`,
+ * `loginRole:'Worker'`).
+ */
+function useEmployeeWorkers({ workerType, existingWorkerId }) {
+  const enabled = workerType === 'Employee';
+  const { data, isPending, isError } = useQuery({
+    queryKey: ['employees', { forMobilisation: true, existingWorkerId: existingWorkerId ?? null }],
+    queryFn: () =>
+      existingWorkerId ? listEmployees({ limit: 100 }) : listEmployees({ limit: 100, type: 'Own', loginRole: 'Worker' }),
+    enabled,
+  });
+  const workers = (data?.items ?? []).filter((w) =>
+    existingWorkerId
+      ? w._id === existingWorkerId || (w.status !== 'Exited' && w.type === 'Own' && w.login?.role === 'Worker')
+      : w.status !== 'Exited' && w.type === 'Own'
+  );
+  return { workers, workersLoading: enabled && isPending, workersError: enabled && isError };
+}
+
 export default function MobilisationForm({
-  workers,
   clients,
   subcontractors,
   jobTitles,
   coordinatorCandidates,
+  existingWorkerId,
   defaultValues,
   onSubmit,
   onCancel,
@@ -242,6 +279,7 @@ export default function MobilisationForm({
   const subcontractorValue = useWatch({ control, name: 'subcontractor' });
   const { markApplied: markIqamaApplied } = useIqamaAutofill({ control, workerType, setValue, toast, t });
   useOtClientRateAutofill({ control, getValues, setValue });
+  const { workers, workersLoading, workersError } = useEmployeeWorkers({ workerType, existingWorkerId });
 
   // Fed to PreviousWorkerPicker for both SupplierEmployee (subcontractor-
   // scoped) and Freelancer (company-wide) — same fields useIqamaAutofill
@@ -391,14 +429,24 @@ export default function MobilisationForm({
 
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           {workerType === 'Employee' ? (
-            <Select label={t('staffMobilisations.form.workerLabel')} error={errors.worker?.message} {...register('worker')}>
-              <option value="">{t('staffMobilisations.form.selectWorker')}</option>
-              {workers.map((w) => (
-                <option key={w._id} value={w._id}>
-                  {w.fullName} ({w.employeeId})
+            <div className="space-y-2">
+              <PickerLoadWarning failed={[{ label: 'workers', isError: workersError }]} />
+              <Select
+                label={t('staffMobilisations.form.workerLabel')}
+                error={errors.worker?.message}
+                disabled={workersLoading}
+                {...register('worker')}
+              >
+                <option value="">
+                  {workersLoading ? t('staffMobilisations.form.loadingWorkers') : t('staffMobilisations.form.selectWorker')}
                 </option>
-              ))}
-            </Select>
+                {workers.map((w) => (
+                  <option key={w._id} value={w._id}>
+                    {w.fullName} ({w.employeeId})
+                  </option>
+                ))}
+              </Select>
+            </div>
           ) : (
             <>
               <Input
