@@ -103,21 +103,40 @@ function useIqamaAutofill({ control, workerType, setValue, toast, t }) {
 
 /** Mirrors Client rate into OT client rate as it's typed — a sensible
  *  default (OT usually bills at the same rate) — but only while OT client
- *  rate is still empty, same "never fight a manual edit" rule as
- *  useIqamaAutofill above: the moment the coordinator types their own OT
- *  rate, further Client rate edits stop touching it. Skips the very first
- *  run (mount) so opening Edit on an existing record with its own already-
- *  different OT rate never gets silently overwritten. */
+ *  rate is still empty OR still holds whatever value WE last wrote, same
+ *  "never fight a manual edit" rule as useIqamaAutofill above: the moment
+ *  the coordinator types their own OT rate, further Client rate edits stop
+ *  touching it. Skips the very first run (mount) so opening Edit on an
+ *  existing record with its own already-different OT rate never gets
+ *  silently overwritten.
+ *
+ *  `lastAutoValueRef` (2026-09-16, a real user-reported bug) is the fix for
+ *  a genuine multi-keystroke desync: typing a Client rate character by
+ *  character fires this effect once per keystroke, not once for the final
+ *  value — the ORIGINAL `!getValues('otClientRate')` check alone couldn't
+ *  tell "empty because nothing's been typed" apart from "non-empty because
+ *  I just autofilled it a moment ago," so after the very first digit
+ *  autofilled OT client rate to e.g. "3", the second digit's own check saw
+ *  a non-empty OT field and refused to update it further — leaving OT
+ *  client rate stuck on a leading digit while Client rate kept changing,
+ *  which reads exactly like "the autofill doesn't work" (the user's own
+ *  report: they gave up and typed a value in by hand). Tracking the exact
+ *  value we last wrote lets every subsequent keystroke recognize its own
+ *  prior output and keep mirroring, while a REAL manual edit (the field no
+ *  longer matches what we last set) still correctly stops it. */
 function useOtClientRateAutofill({ control, getValues, setValue }) {
   const clientRate = useWatch({ control, name: 'clientRate' });
   const mountedRef = useRef(false);
+  const lastAutoValueRef = useRef(undefined);
   useEffect(() => {
     if (!mountedRef.current) {
       mountedRef.current = true;
       return;
     }
-    if (!getValues('otClientRate')) {
+    const current = getValues('otClientRate');
+    if (!current || current === lastAutoValueRef.current) {
       setValue('otClientRate', clientRate, { shouldDirty: true });
+      lastAutoValueRef.current = clientRate;
     }
   }, [clientRate, getValues, setValue]);
 }
@@ -148,6 +167,7 @@ export default function MobilisationForm({
 
   const workerType = useWatch({ control, name: 'workerType' });
   const ftaType = useWatch({ control, name: 'ftaType' });
+  const checkoutDate = useWatch({ control, name: 'checkoutDate' });
   useIqamaAutofill({ control, workerType, setValue, toast, t });
   useOtClientRateAutofill({ control, getValues, setValue });
 
@@ -402,7 +422,20 @@ export default function MobilisationForm({
         <h3 className="text-sm font-semibold uppercase tracking-wide text-muted">{t('staffMobilisations.form.sectionEconomicsDates')}</h3>
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <Input label={t('staffMobilisations.form.mobilisationDate')} type="date" error={errors.mobilisationDate?.message} {...register('mobilisationDate')} />
-          <Input label={t('staffMobilisations.form.checkoutDate')} type="date" error={errors.checkoutDate?.message} {...register('checkoutDate')} />
+          <div className="flex flex-col gap-1.5">
+            <Input label={t('staffMobilisations.form.checkoutDate')} type="date" error={errors.checkoutDate?.message} {...register('checkoutDate')} />
+            {checkoutDate ? (
+              <button
+                type="button"
+                onClick={() => setValue('checkoutDate', '', { shouldDirty: true, shouldValidate: true })}
+                className="self-start text-xs font-medium text-muted hover:text-text"
+              >
+                {t('staffMobilisations.form.clearCheckoutDate')}
+              </button>
+            ) : (
+              <p className="text-xs text-muted">{t('staffMobilisations.form.checkoutDateHint')}</p>
+            )}
+          </div>
         </div>
       </section>
 

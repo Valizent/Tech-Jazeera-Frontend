@@ -299,6 +299,7 @@ export default function MobilisationDetailPage() {
   const [category, setCategory] = useState('Contract');
   const [previewDoc, setPreviewDoc] = useState(null);
   const [confirmingUnuploadedFiles, setConfirmingUnuploadedFiles] = useState(false);
+  const [confirmingNoDocuments, setConfirmingNoDocuments] = useState(false);
   // TEMPORARY — pre-production cleanup only. Remove confirmingDelete,
   // deleteMutation, the "Delete" button below, and its ConfirmDialog before
   // going live — see the note in mobilisations.api.js.
@@ -766,9 +767,19 @@ export default function MobilisationDetailPage() {
                 // above) are only local browser state — real QA-reported
                 // gap (2026-09-14): submitting here never warned that they
                 // silently would never reach the server unless "Upload" was
-                // clicked separately first.
+                // clicked separately first. Takes priority over the
+                // no-documents check below: these files DO exist, just not
+                // where the reviewer will see them yet.
                 if (files.length > 0) {
                   setConfirmingUnuploadedFiles(true);
+                } else if ((m.documents ?? []).length === 0) {
+                  // No file ever chosen AND nothing already uploaded — the
+                  // user's own ask (2026-09-16): a reviewer often needs a
+                  // real attachment (contract, ID copy) to actually decide
+                  // this; submitting with none should be a deliberate
+                  // choice, not a silent gap discovered only once it's
+                  // already in someone's review queue.
+                  setConfirmingNoDocuments(true);
                 } else {
                   submitMutation.mutate();
                 }
@@ -816,6 +827,20 @@ export default function MobilisationDetailPage() {
           submitMutation.mutate();
         }}
         onCancel={() => setConfirmingUnuploadedFiles(false)}
+      />
+
+      <ConfirmDialog
+        open={confirmingNoDocuments}
+        title={t('staffMobilisations.detail.noDocumentsConfirmTitle')}
+        message={t('staffMobilisations.detail.noDocumentsConfirmMessage')}
+        confirmLabel={t('staffMobilisations.detail.submitAnyway')}
+        confirmVariant="primary"
+        loading={submitMutation.isPending}
+        onConfirm={() => {
+          setConfirmingNoDocuments(false);
+          submitMutation.mutate();
+        }}
+        onCancel={() => setConfirmingNoDocuments(false)}
       />
 
       {/* TEMPORARY — pre-production cleanup only, see the note above confirmingDelete. */}
