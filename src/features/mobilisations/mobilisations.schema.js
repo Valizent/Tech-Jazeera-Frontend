@@ -119,8 +119,13 @@ export const mobilisationFormSchema = z.object(mobilisationFields).superRefine((
   }
   // Mirrors the server's own withFtaTypeRefine — the amount input is also
   // disabled in the form until a type is picked, so this mostly guards
-  // against a stale value left over from unchecking the type.
-  if (data.fta && !data.ftaType) {
+  // against a stale value left over from unchecking the type. `fta` stays a
+  // STRING here (see this file's own header comment — numeric fields aren't
+  // coerced client-side), so a real bug: `data.fta && ...` treated the
+  // string "0" as truthy, wrongly demanding a type on every record whose FTA
+  // amount is exactly zero (the model's own default). `Number(data.fta) > 0`
+  // is the actual "was a real amount entered" check.
+  if (Number(data.fta) > 0 && !data.ftaType) {
     ctx.addIssue({ code: 'custom', path: ['ftaType'], message: 'Select what this FTA amount is for.' });
   }
 });
