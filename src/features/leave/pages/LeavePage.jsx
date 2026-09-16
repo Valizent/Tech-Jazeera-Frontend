@@ -46,6 +46,7 @@ import UpcomingHolidays from '../../holidays/components/UpcomingHolidays.jsx';
 import PageHeader from '../../../components/shared/PageHeader.jsx';
 import ApprovalTrailView from '../../../components/shared/ApprovalTrailView.jsx';
 import ConfirmDialog from '../../../components/shared/ConfirmDialog.jsx';
+import PickerLoadWarning from '../../../components/shared/PickerLoadWarning.jsx';
 import Card from '../../../components/ui/Card.jsx';
 import Badge from '../../../components/ui/Badge.jsx';
 import Button from '../../../components/ui/Button.jsx';
@@ -285,7 +286,7 @@ function SubmitLeavePanel() {
   const fileInputRef = useRef(null);
   const [pendingFile, setPendingFile] = useState(null);
 
-  const { data: types } = useQuery({
+  const { data: types, isError: typesError } = useQuery({
     queryKey: ['leave-types', { activeOnly: true }],
     queryFn: () => listLeaveTypes({ activeOnly: 'true' }),
   });
@@ -333,6 +334,7 @@ function SubmitLeavePanel() {
     <Card>
       <h2 className="mb-4 text-sm font-semibold uppercase tracking-wide text-muted">{t('staffLeave.submit.title')}</h2>
       <form onSubmit={handleSubmit((values) => submitMutation.mutate(values))} noValidate className="space-y-4">
+        <PickerLoadWarning failed={[{ label: 'leave types', isError: typesError }]} />
         <Select label={t('staffLeave.submit.chooseType')} error={errors.leaveType?.message} {...register('leaveType')}>
           <option value="">{t('staffLeave.submit.choosePlaceholder')}</option>
           {(types ?? []).map((ty) => (

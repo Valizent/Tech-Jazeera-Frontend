@@ -17,6 +17,7 @@ import { useAuth } from '../../auth/AuthContext.jsx';
 import { CLIENT_APPROVAL_VARIANT } from '../../../lib/constants.js';
 import { formatDate, cn } from '../../../lib/utils.js';
 import PageHeader from '../../../components/shared/PageHeader.jsx';
+import PickerLoadWarning from '../../../components/shared/PickerLoadWarning.jsx';
 import DecideClientModal from '../../clients/components/DecideClientModal.jsx';
 import { canDecideClient } from '../../clients/clients.permissions.js';
 import Table from '../../../components/ui/Table.jsx';
@@ -32,7 +33,7 @@ export default function CoordinatorActivityPage() {
   const [coordinatorId, setCoordinatorId] = useState('');
   const [deciding, setDeciding] = useState(null);
 
-  const { data: coordinators } = useQuery({
+  const { data: coordinators, isError: coordinatorsError } = useQuery({
     queryKey: ['users', { role: 'Coordinator' }],
     queryFn: () => listStaffUsers({ role: 'Coordinator' }),
   });
@@ -132,6 +133,7 @@ export default function CoordinatorActivityPage() {
             </button>
           ))}
         </div>
+        <PickerLoadWarning failed={[{ label: 'the coordinator filter list', isError: coordinatorsError }]} />
         <Select
           value={coordinatorId}
           onChange={(e) => setCoordinatorId(e.target.value)}

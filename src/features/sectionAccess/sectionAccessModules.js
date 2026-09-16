@@ -16,7 +16,7 @@
  * label/icon are still read off the real nav item, just not its (absent)
  * `sectionKey`.
  */
-import { NAV_GROUPS } from '../../app/navConfig.js';
+import { NAV_GROUPS, DASHBOARD_ITEM } from '../../app/navConfig.js';
 
 function navGroup(groupKey) {
   return NAV_GROUPS.find((g) => g.key === groupKey);
@@ -73,6 +73,15 @@ export const MODULE_GROUPS = [
       { ...navItem('financial', '/payroll'), sectionKeys: ['payroll'] },
       { ...navItem('financial', '/expenses'), sectionKeys: ['expenses'] },
       { ...navItem('financial', '/financial-requests'), sectionKeys: ['financialRequests'] },
+      // No nav hub tile of its own — Dashboard is the landing page, outside
+      // the grouped nav (see navConfig.js's own DASHBOARD_ITEM), so its
+      // label/icon are borrowed directly rather than looked up via navItem().
+      {
+        label: `${DASHBOARD_ITEM.label} — profit`,
+        description: 'The dashboard\'s real monthly profit figure, without granting Invoices/Payroll/Expenses themselves.',
+        icon: DASHBOARD_ITEM.icon,
+        sectionKeys: ['dashboardProfit'],
+      },
     ],
   },
   {
@@ -89,6 +98,7 @@ export const MODULE_GROUPS = [
       { ...navItem('admin', '/timesheet-processor'), sectionKeys: ['timesheetProcessor'] },
       { ...navItem('admin', '/nfc'), sectionKeys: ['nfc'] },
       { ...navItem('admin', '/security-log'), sectionKeys: ['auditLog'] },
+      { ...navItem('admin', '/reconciliation'), sectionKeys: ['reconciliation'] },
       // Mobilisation Settings, Approval Log, and Coordinator Activity are
       // deliberately absent — none has a Section Access key of its own
       // (each is gated by a fixed login-role list instead, see navConfig.js).

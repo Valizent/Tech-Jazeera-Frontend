@@ -18,6 +18,7 @@ import Select from '../../../components/ui/Select.jsx';
 import Textarea from '../../../components/ui/Textarea.jsx';
 import Button from '../../../components/ui/Button.jsx';
 import Card from '../../../components/ui/Card.jsx';
+import PickerLoadWarning from '../../../components/shared/PickerLoadWarning.jsx';
 
 /** Live totals row — reads the current lineItems via useWatch. */
 function TotalsPreview({ control }) {
@@ -57,7 +58,7 @@ export default function QuotationForm({ defaultValues, onSubmit, submitLabel, su
   } = useForm({ resolver: zodResolver(quotationFormSchema), defaultValues });
   const { fields, append, remove } = useFieldArray({ control, name: 'lineItems' });
 
-  const { data: clientData } = useQuery({
+  const { data: clientData, isError: clientsError } = useQuery({
     queryKey: ['clients', 'all-for-quote'],
     // approvalStatus: 'Approved' — a Coordinator-submitted client not yet
     // approved shouldn't be quotable (see docs/PHASE2-PLAN.md). Status
@@ -69,6 +70,7 @@ export default function QuotationForm({ defaultValues, onSubmit, submitLabel, su
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-6">
+      <PickerLoadWarning failed={[{ label: 'clients', isError: clientsError }]} />
       <Card>
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
           <div className="sm:col-span-2">

@@ -42,6 +42,7 @@ import ApprovalTrailView from '../../../components/shared/ApprovalTrailView.jsx'
 import PageHeader from '../../../components/shared/PageHeader.jsx';
 import BackButton from '../../../components/shared/BackButton.jsx';
 import ConfirmDialog from '../../../components/shared/ConfirmDialog.jsx';
+import PickerLoadWarning from '../../../components/shared/PickerLoadWarning.jsx';
 import Card from '../../../components/ui/Card.jsx';
 import Badge from '../../../components/ui/Badge.jsx';
 import Button from '../../../components/ui/Button.jsx';
@@ -313,7 +314,7 @@ export default function MobilisationDetailPage() {
     queryClient.invalidateQueries({ queryKey: ['mobilisations'] });
   };
 
-  const { data: candidates } = useQuery({
+  const { data: candidates, isError: candidatesError } = useQuery({
     queryKey: ['mobilisations', 'coordinator-candidates'],
     queryFn: listCoordinatorCandidates,
     enabled: Boolean(m) && ['Draft', 'Rejected'].includes(m?.status),
@@ -716,6 +717,7 @@ export default function MobilisationDetailPage() {
 
         {canManage && (
           <div className="mt-4 flex flex-wrap items-end gap-2">
+            <PickerLoadWarning failed={[{ label: 'candidate coordinators', isError: candidatesError }]} />
             <Select
               label={t('staffMobilisations.detail.addJointCoordinator')}
               value={inviteId}

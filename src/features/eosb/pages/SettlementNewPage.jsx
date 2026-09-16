@@ -22,6 +22,7 @@ import { apiMessage } from '../../../lib/utils.js';
 import { EXIT_REASONS, EXIT_REASON_LABELS } from '../../../lib/constants.js';
 import { useToast } from '../../../components/ui/Toast.jsx';
 import PageHeader from '../../../components/shared/PageHeader.jsx';
+import PickerLoadWarning from '../../../components/shared/PickerLoadWarning.jsx';
 import Card from '../../../components/ui/Card.jsx';
 import Select from '../../../components/ui/Select.jsx';
 import Input from '../../../components/ui/Input.jsx';
@@ -37,7 +38,7 @@ export default function SettlementNewPage() {
   const presetExitDate = searchParams.get('exitDate') ?? '';
   const presetExitReason = searchParams.get('exitReason') ?? '';
 
-  const { data: employeeData } = useQuery({
+  const { data: employeeData, isError: employeesError } = useQuery({
     queryKey: ['employees', { forEosb: true }],
     queryFn: () => listEmployees({ limit: 100, sortBy: 'fullName', sortOrder: 'asc' }),
   });
@@ -91,6 +92,7 @@ export default function SettlementNewPage() {
       />
       <Card>
         <form onSubmit={handleSubmit((values) => mutation.mutate(values))} noValidate className="space-y-4">
+          <PickerLoadWarning failed={[{ label: 'employees', isError: employeesError }]} />
           <Select label={t('staffEosb.new.employee')} error={errors.employee?.message} {...register('employee')}>
             <option value="">{t('staffEosb.new.selectEmployee')}</option>
             {employees.map((e) => (

@@ -8,7 +8,7 @@
  * see i18n/index.js's doc comment for why it's scoped to the ESS portal
  * rather than also appearing on DashboardLayout.
  */
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, Suspense } from 'react';
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../features/auth/AuthContext.jsx';
@@ -18,6 +18,8 @@ import NotificationBell from '../../components/shared/NotificationBell.jsx';
 import LanguageSwitcher from '../../components/shared/LanguageSwitcher.jsx';
 import ThemeToggle from '../../components/shared/ThemeToggle.jsx';
 import BrandLogo, { useBranding } from '../../components/shared/BrandLogo.jsx';
+import ErrorBoundary from '../../components/shared/ErrorBoundary.jsx';
+import RouteFallback from '../../components/shared/RouteFallback.jsx';
 import { cn } from '../../lib/utils.js';
 
 const NAV_ITEMS = [
@@ -228,7 +230,11 @@ export default function EssLayout() {
         </header>
 
         <main className="p-4 sm:p-6">
-          <Outlet />
+          <ErrorBoundary>
+            <Suspense fallback={<RouteFallback />}>
+              <Outlet />
+            </Suspense>
+          </ErrorBoundary>
         </main>
       </div>
 

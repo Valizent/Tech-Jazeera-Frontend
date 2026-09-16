@@ -14,79 +14,94 @@
  * you get today). Placed on each branch rather than one outer route so a
  * crash inside the signed-in shell doesn't strand a guest, and vice versa.
  */
+import { lazy } from 'react';
 import { createBrowserRouter, Navigate, Outlet } from 'react-router-dom';
 import { useAuth } from '../features/auth/AuthContext.jsx';
 import AuthLayout from './layouts/AuthLayout.jsx';
 import DashboardLayout from './layouts/DashboardLayout.jsx';
 import EssLayout from './layouts/EssLayout.jsx';
-import LoginPage from '../features/auth/pages/LoginPage.jsx';
-import DashboardPage from '../features/dashboard/pages/DashboardPage.jsx';
-import EmployeeListPage from '../features/employees/pages/EmployeeListPage.jsx';
-import EmployeeNewPage from '../features/employees/pages/EmployeeNewPage.jsx';
-import EmployeeProfilePage from '../features/employees/pages/EmployeeProfilePage.jsx';
-import EmployeeEditPage from '../features/employees/pages/EmployeeEditPage.jsx';
-import ClientListPage from '../features/clients/pages/ClientListPage.jsx';
-import ClientNewPage from '../features/clients/pages/ClientNewPage.jsx';
-import ClientProfilePage from '../features/clients/pages/ClientProfilePage.jsx';
-import ClientEditPage from '../features/clients/pages/ClientEditPage.jsx';
-import DeploymentListPage from '../features/deployments/pages/DeploymentListPage.jsx';
-import DeploymentDetailPage from '../features/deployments/pages/DeploymentDetailPage.jsx';
-import StandbyListPage from '../features/deployments/pages/StandbyListPage.jsx';
-import MobilisationListPage from '../features/mobilisations/pages/MobilisationListPage.jsx';
-import MobilisationNewPage from '../features/mobilisations/pages/MobilisationNewPage.jsx';
-import MobilisationDetailPage from '../features/mobilisations/pages/MobilisationDetailPage.jsx';
-import MobilisationEditPage from '../features/mobilisations/pages/MobilisationEditPage.jsx';
-import MobilisationSettingsPage from '../features/mobilisationSettings/pages/MobilisationSettingsPage.jsx';
-import CompanySettingsPage from '../features/companySettings/pages/CompanySettingsPage.jsx';
-import SectionAccessPage from '../features/sectionAccess/pages/SectionAccessPage.jsx';
-import SubcontractorListPage from '../features/subcontractors/pages/SubcontractorListPage.jsx';
-import AttendancePage from '../features/attendance/pages/AttendancePage.jsx';
-import AttendanceSummaryPage from '../features/attendance/pages/AttendanceSummaryPage.jsx';
-import DocumentListPage from '../features/documents/pages/DocumentListPage.jsx';
-import QuotationListPage from '../features/quotations/pages/QuotationListPage.jsx';
-import QuotationNewPage from '../features/quotations/pages/QuotationNewPage.jsx';
-import QuotationViewPage from '../features/quotations/pages/QuotationViewPage.jsx';
-import QuotationEditPage from '../features/quotations/pages/QuotationEditPage.jsx';
-import TimesheetProcessorPage from '../features/timesheetProcessor/pages/TimesheetProcessorPage.jsx';
-import NfcCompanyListPage from '../features/nfc/pages/NfcCompanyListPage.jsx';
-import NfcCompanyProfilePage from '../features/nfc/pages/NfcCompanyProfilePage.jsx';
-import NfcCardListPage from '../features/nfc/pages/NfcCardListPage.jsx';
-import NfcCardDetailPage from '../features/nfc/pages/NfcCardDetailPage.jsx';
-import NfcAnalyticsPage from '../features/nfc/pages/NfcAnalyticsPage.jsx';
-import UserListPage from '../features/users/pages/UserListPage.jsx';
-import CoordinatorActivityPage from '../features/coordinatorActivity/pages/CoordinatorActivityPage.jsx';
-import LeavePage from '../features/leave/pages/LeavePage.jsx';
-import HolidayListPage from '../features/holidays/pages/HolidayListPage.jsx';
-import SettlementListPage from '../features/eosb/pages/SettlementListPage.jsx';
-import SettlementNewPage from '../features/eosb/pages/SettlementNewPage.jsx';
-import SettlementViewPage from '../features/eosb/pages/SettlementViewPage.jsx';
-import FinancialRequestsPage from '../features/financialRequests/pages/FinancialRequestsPage.jsx';
-import AssetListPage from '../features/assets/pages/AssetListPage.jsx';
-import ExitDocumentsPage from '../features/exitDocuments/pages/ExitDocumentsPage.jsx';
-import TimesheetsPage from '../features/timesheets/pages/TimesheetsPage.jsx';
-import PayrollListPage from '../features/payroll/pages/PayrollListPage.jsx';
-import PayrollRunPage from '../features/payroll/pages/PayrollRunPage.jsx';
-import InvoiceListPage from '../features/invoices/pages/InvoiceListPage.jsx';
-import InvoiceViewPage from '../features/invoices/pages/InvoiceViewPage.jsx';
-import ExpenseListPage from '../features/expenses/pages/ExpenseListPage.jsx';
-import AuditLogPage from '../features/audit/pages/AuditLogPage.jsx';
-import ApprovalsPage from '../features/approvals/pages/ApprovalsPage.jsx';
-import ApprovalLogPage from '../features/approvals/pages/ApprovalLogPage.jsx';
-import MyProfilePage from '../features/ess/pages/MyProfilePage.jsx';
-import MyDocumentsPage from '../features/ess/pages/MyDocumentsPage.jsx';
-import MyLeavePage from '../features/ess/pages/MyLeavePage.jsx';
-import MyRequestsPage from '../features/ess/pages/MyRequestsPage.jsx';
-import MyPayslipsPage from '../features/ess/pages/MyPayslipsPage.jsx';
-import MyExitDocumentsPage from '../features/ess/pages/MyExitDocumentsPage.jsx';
-import MyAttendancePage from '../features/ess/pages/MyAttendancePage.jsx';
+// Every page below is lazy-loaded (Vite/Rollup splits each `import()` into
+// its own chunk, fetched only when its route is actually visited) — this
+// file used to eagerly import all 66 of them, producing one 1.27MB bundle
+// regardless of which single page a login actually lands on. Composes with
+// `guarded`/`guardedWrite` below with ZERO changes to either, since they
+// just wrap whatever element they're given — a lazy component works as a
+// drop-in replacement for a normal one as long as something up the tree
+// provides a <Suspense> boundary, which each layout now does around its own
+// <Outlet> (see layouts/*.jsx). NoPortalAccessPage is the one deliberate
+// exception, kept eager: WorkerRouter renders it directly in place of
+// <EssLayout> (not through EssLayout's own <Outlet>/<Suspense>), so there is
+// no Suspense boundary above it to catch a lazy load.
+const LoginPage = lazy(() => import('../features/auth/pages/LoginPage.jsx'));
+const DashboardPage = lazy(() => import('../features/dashboard/pages/DashboardPage.jsx'));
+const EmployeeListPage = lazy(() => import('../features/employees/pages/EmployeeListPage.jsx'));
+const EmployeeNewPage = lazy(() => import('../features/employees/pages/EmployeeNewPage.jsx'));
+const EmployeeProfilePage = lazy(() => import('../features/employees/pages/EmployeeProfilePage.jsx'));
+const EmployeeEditPage = lazy(() => import('../features/employees/pages/EmployeeEditPage.jsx'));
+const ClientListPage = lazy(() => import('../features/clients/pages/ClientListPage.jsx'));
+const ClientNewPage = lazy(() => import('../features/clients/pages/ClientNewPage.jsx'));
+const ClientProfilePage = lazy(() => import('../features/clients/pages/ClientProfilePage.jsx'));
+const ClientEditPage = lazy(() => import('../features/clients/pages/ClientEditPage.jsx'));
+const DeploymentListPage = lazy(() => import('../features/deployments/pages/DeploymentListPage.jsx'));
+const DeploymentDetailPage = lazy(() => import('../features/deployments/pages/DeploymentDetailPage.jsx'));
+const StandbyListPage = lazy(() => import('../features/deployments/pages/StandbyListPage.jsx'));
+const MobilisationListPage = lazy(() => import('../features/mobilisations/pages/MobilisationListPage.jsx'));
+const MobilisationNewPage = lazy(() => import('../features/mobilisations/pages/MobilisationNewPage.jsx'));
+const MobilisationDetailPage = lazy(() => import('../features/mobilisations/pages/MobilisationDetailPage.jsx'));
+const MobilisationEditPage = lazy(() => import('../features/mobilisations/pages/MobilisationEditPage.jsx'));
+const MobilisationSettingsPage = lazy(() => import('../features/mobilisationSettings/pages/MobilisationSettingsPage.jsx'));
+const CompanySettingsPage = lazy(() => import('../features/companySettings/pages/CompanySettingsPage.jsx'));
+const SectionAccessPage = lazy(() => import('../features/sectionAccess/pages/SectionAccessPage.jsx'));
+const SubcontractorListPage = lazy(() => import('../features/subcontractors/pages/SubcontractorListPage.jsx'));
+const AttendancePage = lazy(() => import('../features/attendance/pages/AttendancePage.jsx'));
+const AttendanceSummaryPage = lazy(() => import('../features/attendance/pages/AttendanceSummaryPage.jsx'));
+const DocumentListPage = lazy(() => import('../features/documents/pages/DocumentListPage.jsx'));
+const QuotationListPage = lazy(() => import('../features/quotations/pages/QuotationListPage.jsx'));
+const QuotationNewPage = lazy(() => import('../features/quotations/pages/QuotationNewPage.jsx'));
+const QuotationViewPage = lazy(() => import('../features/quotations/pages/QuotationViewPage.jsx'));
+const QuotationEditPage = lazy(() => import('../features/quotations/pages/QuotationEditPage.jsx'));
+const TimesheetProcessorPage = lazy(() => import('../features/timesheetProcessor/pages/TimesheetProcessorPage.jsx'));
+const NfcCompanyListPage = lazy(() => import('../features/nfc/pages/NfcCompanyListPage.jsx'));
+const NfcCompanyProfilePage = lazy(() => import('../features/nfc/pages/NfcCompanyProfilePage.jsx'));
+const NfcCardListPage = lazy(() => import('../features/nfc/pages/NfcCardListPage.jsx'));
+const NfcCardDetailPage = lazy(() => import('../features/nfc/pages/NfcCardDetailPage.jsx'));
+const NfcAnalyticsPage = lazy(() => import('../features/nfc/pages/NfcAnalyticsPage.jsx'));
+const UserListPage = lazy(() => import('../features/users/pages/UserListPage.jsx'));
+const CoordinatorActivityPage = lazy(() => import('../features/coordinatorActivity/pages/CoordinatorActivityPage.jsx'));
+const LeavePage = lazy(() => import('../features/leave/pages/LeavePage.jsx'));
+const HolidayListPage = lazy(() => import('../features/holidays/pages/HolidayListPage.jsx'));
+const SettlementListPage = lazy(() => import('../features/eosb/pages/SettlementListPage.jsx'));
+const SettlementNewPage = lazy(() => import('../features/eosb/pages/SettlementNewPage.jsx'));
+const SettlementViewPage = lazy(() => import('../features/eosb/pages/SettlementViewPage.jsx'));
+const FinancialRequestsPage = lazy(() => import('../features/financialRequests/pages/FinancialRequestsPage.jsx'));
+const AssetListPage = lazy(() => import('../features/assets/pages/AssetListPage.jsx'));
+const ExitDocumentsPage = lazy(() => import('../features/exitDocuments/pages/ExitDocumentsPage.jsx'));
+const TimesheetsPage = lazy(() => import('../features/timesheets/pages/TimesheetsPage.jsx'));
+const PayrollListPage = lazy(() => import('../features/payroll/pages/PayrollListPage.jsx'));
+const PayrollRunPage = lazy(() => import('../features/payroll/pages/PayrollRunPage.jsx'));
+const InvoiceListPage = lazy(() => import('../features/invoices/pages/InvoiceListPage.jsx'));
+const InvoiceViewPage = lazy(() => import('../features/invoices/pages/InvoiceViewPage.jsx'));
+const ExpenseListPage = lazy(() => import('../features/expenses/pages/ExpenseListPage.jsx'));
+const AuditLogPage = lazy(() => import('../features/audit/pages/AuditLogPage.jsx'));
+const ReconciliationPage = lazy(() => import('../features/reconciliation/pages/ReconciliationPage.jsx'));
+const ApprovalsPage = lazy(() => import('../features/approvals/pages/ApprovalsPage.jsx'));
+const ApprovalLogPage = lazy(() => import('../features/approvals/pages/ApprovalLogPage.jsx'));
+const MyProfilePage = lazy(() => import('../features/ess/pages/MyProfilePage.jsx'));
+const MyDocumentsPage = lazy(() => import('../features/ess/pages/MyDocumentsPage.jsx'));
+const MyLeavePage = lazy(() => import('../features/ess/pages/MyLeavePage.jsx'));
+const MyRequestsPage = lazy(() => import('../features/ess/pages/MyRequestsPage.jsx'));
+const MyPayslipsPage = lazy(() => import('../features/ess/pages/MyPayslipsPage.jsx'));
+const MyExitDocumentsPage = lazy(() => import('../features/ess/pages/MyExitDocumentsPage.jsx'));
+const MyAttendancePage = lazy(() => import('../features/ess/pages/MyAttendancePage.jsx'));
+// Kept eager — see the doc comment above.
 import NoPortalAccessPage from '../features/ess/pages/NoPortalAccessPage.jsx';
 import RequireSectionRead from '../components/shared/RequireSectionRead.jsx';
 import RequireSectionWrite from '../components/shared/RequireSectionWrite.jsx';
 import ErrorPage from './pages/ErrorPage.jsx';
-import WorkforceHubPage from './pages/WorkforceHubPage.jsx';
-import SalesHubPage from './pages/SalesHubPage.jsx';
-import FinancialHubPage from './pages/FinancialHubPage.jsx';
-import AdminToolsHubPage from './pages/AdminToolsHubPage.jsx';
+const WorkforceHubPage = lazy(() => import('./pages/WorkforceHubPage.jsx'));
+const SalesHubPage = lazy(() => import('./pages/SalesHubPage.jsx'));
+const FinancialHubPage = lazy(() => import('./pages/FinancialHubPage.jsx'));
+const AdminToolsHubPage = lazy(() => import('./pages/AdminToolsHubPage.jsx'));
 import Spinner from '../components/ui/Spinner.jsx';
 
 function RequireAuth() {
@@ -247,6 +262,7 @@ export const router = createBrowserRouter([
               { path: '/invoices/:id', element: guarded('invoices', <InvoiceViewPage />) },
               { path: '/expenses', element: guarded('expenses', <ExpenseListPage />) },
               { path: '/security-log', element: guarded('auditLog', <AuditLogPage />) },
+              { path: '/reconciliation', element: guarded('reconciliation', <ReconciliationPage />) },
               { path: '/approvals', element: guarded('approvalHierarchy', <ApprovalsPage />) },
               { path: '/approvals/log', element: <ApprovalLogPage /> },
               { path: '/nfc', element: guarded('nfc', <NfcCompanyListPage />) },

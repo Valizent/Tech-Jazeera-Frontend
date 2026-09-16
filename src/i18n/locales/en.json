@@ -464,6 +464,7 @@
       "timesheetProcessor": { "label": "Timesheet Processor", "description": "Bulk-import device attendance exports." },
       "nfc": { "label": "NFC Customers", "description": "NFC business-card program." },
       "securityLog": { "label": "Security Log", "description": "Auth & CRUD audit trail." },
+      "reconciliation": { "label": "Data Reconciliation", "description": "A standing integrity check across ledgers, payroll, and deployments." },
       "coordinatorActivity": { "label": "Coordinator Activity", "description": "What Coordinators added themselves." }
     }
   },

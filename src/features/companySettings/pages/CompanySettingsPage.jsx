@@ -101,7 +101,7 @@ export default function CompanySettingsPage() {
 
       {!canWrite && (
         <p className="rounded-lg bg-muted/10 px-3 py-2 text-xs text-muted">
-          You can view company settings but don't have permission to change them.
+          You can view company settings but don&apos;t have permission to change them.
         </p>
       )}
 

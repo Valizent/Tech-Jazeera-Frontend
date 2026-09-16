@@ -16,6 +16,7 @@ import { useAuth } from '../../auth/AuthContext.jsx';
 import { apiMessage } from '../../../lib/utils.js';
 import { useToast } from '../../../components/ui/Toast.jsx';
 import PageHeader from '../../../components/shared/PageHeader.jsx';
+import PickerLoadWarning from '../../../components/shared/PickerLoadWarning.jsx';
 import Card from '../../../components/ui/Card.jsx';
 import Skeleton from '../../../components/ui/Skeleton.jsx';
 import MobilisationForm from '../components/MobilisationForm.jsx';
@@ -28,25 +29,25 @@ export default function MobilisationNewPage() {
   const { user } = useAuth();
   const isOfficeSecretary = user.role === 'Office Secretary';
 
-  const { data: workerData, isPending: workersLoading } = useQuery({
+  const { data: workerData, isPending: workersLoading, isError: workersError } = useQuery({
     queryKey: ['employees', { forMobilisation: true }],
     queryFn: () => listEmployees({ limit: 100, type: 'Own', loginRole: 'Worker' }),
   });
   // Office Secretary only — the "create for a Coordinator who's busy" picker.
-  const { data: coordinatorData, isPending: coordinatorsLoading } = useQuery({
+  const { data: coordinatorData, isPending: coordinatorsLoading, isError: coordinatorsError } = useQuery({
     queryKey: ['mobilisations', 'coordinator-candidates'],
     queryFn: listCoordinatorCandidates,
     enabled: isOfficeSecretary,
   });
-  const { data: clientData, isPending: clientsLoading } = useQuery({
+  const { data: clientData, isPending: clientsLoading, isError: clientsError } = useQuery({
     queryKey: ['clients', { active: true }],
     queryFn: () => listClients({ status: 'Active', approvalStatus: 'Approved', limit: 100 }),
   });
-  const { data: subcontractorData, isPending: subcontractorsLoading } = useQuery({
+  const { data: subcontractorData, isPending: subcontractorsLoading, isError: subcontractorsError } = useQuery({
     queryKey: ['subcontractors', { active: true }],
     queryFn: () => listSubcontractors({ status: 'Active', limit: 100 }),
   });
-  const { data: jobTitleData, isPending: jobTitlesLoading } = useQuery({
+  const { data: jobTitleData, isPending: jobTitlesLoading, isError: jobTitlesError } = useQuery({
     queryKey: ['job-titles'],
     queryFn: () => listJobTitles({ activeOnly: 'true' }),
   });
@@ -94,6 +95,15 @@ export default function MobilisationNewPage() {
         onBack={() => navigate(-1)}
       />
       <Card>
+        <PickerLoadWarning
+          failed={[
+            { label: 'workers', isError: workersError },
+            { label: 'clients', isError: clientsError },
+            { label: 'subcontractors', isError: subcontractorsError },
+            { label: 'job titles', isError: jobTitlesError },
+            ...(isOfficeSecretary ? [{ label: 'coordinators', isError: coordinatorsError }] : []),
+          ]}
+        />
         <MobilisationForm
           workers={workers}
           clients={clients}

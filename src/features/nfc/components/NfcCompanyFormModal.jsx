@@ -152,7 +152,7 @@ export default function NfcCompanyFormModal({ open, onClose, company, onSaved })
             />
             <Input className="flex-1" placeholder="#4F46E5" error={errors.brandColour?.message} {...register('brandColour')} />
           </div>
-          <p className="text-xs text-muted">The accent that drives this company's tap pages (and picks light/dark).</p>
+          <p className="text-xs text-muted">The accent that drives this company&apos;s tap pages (and picks light/dark).</p>
         </div>
         <Textarea label="Notes (internal)" rows={2} error={errors.notes?.message} {...register('notes')} />
         <div className="flex justify-end gap-2 pt-1">

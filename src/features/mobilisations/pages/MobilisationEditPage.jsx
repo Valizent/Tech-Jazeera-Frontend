@@ -17,6 +17,7 @@ import { apiMessage } from '../../../lib/utils.js';
 import { useToast } from '../../../components/ui/Toast.jsx';
 import PageHeader from '../../../components/shared/PageHeader.jsx';
 import BackButton from '../../../components/shared/BackButton.jsx';
+import PickerLoadWarning from '../../../components/shared/PickerLoadWarning.jsx';
 import Card from '../../../components/ui/Card.jsx';
 import Skeleton from '../../../components/ui/Skeleton.jsx';
 import EmptyState from '../../../components/ui/EmptyState.jsx';
@@ -40,19 +41,19 @@ export default function MobilisationEditPage() {
   // staff login rather than a real Worker one) from before this restriction
   // existed; the client-side filter below keeps that one selectable so
   // editing an old record never shows a blank worker field.
-  const { data: workerData, isPending: workersLoading } = useQuery({
+  const { data: workerData, isPending: workersLoading, isError: workersError } = useQuery({
     queryKey: ['employees', { forMobilisation: true }],
     queryFn: () => listEmployees({ limit: 100 }),
   });
-  const { data: clientData, isPending: clientsLoading } = useQuery({
+  const { data: clientData, isPending: clientsLoading, isError: clientsError } = useQuery({
     queryKey: ['clients', { active: true }],
     queryFn: () => listClients({ status: 'Active', approvalStatus: 'Approved', limit: 100 }),
   });
-  const { data: subcontractorData, isPending: subcontractorsLoading } = useQuery({
+  const { data: subcontractorData, isPending: subcontractorsLoading, isError: subcontractorsError } = useQuery({
     queryKey: ['subcontractors', { active: true }],
     queryFn: () => listSubcontractors({ status: 'Active', limit: 100 }),
   });
-  const { data: jobTitleData, isPending: jobTitlesLoading } = useQuery({
+  const { data: jobTitleData, isPending: jobTitlesLoading, isError: jobTitlesError } = useQuery({
     queryKey: ['job-titles'],
     queryFn: () => listJobTitles({ activeOnly: 'true' }),
   });
@@ -129,6 +130,14 @@ export default function MobilisationEditPage() {
         onBack={() => navigate(-1)}
       />
       <Card>
+        <PickerLoadWarning
+          failed={[
+            { label: 'workers', isError: workersError },
+            { label: 'clients', isError: clientsError },
+            { label: 'subcontractors', isError: subcontractorsError },
+            { label: 'job titles', isError: jobTitlesError },
+          ]}
+        />
         <MobilisationForm
           workers={workers}
           clients={clients}

@@ -36,6 +36,7 @@ import { APPROVAL_REQUEST_TYPES, APPROVAL_REQUEST_TYPE_LABELS } from '../../../l
 import { apiMessage, cn } from '../../../lib/utils.js';
 import { useToast } from '../../../components/ui/Toast.jsx';
 import PageHeader from '../../../components/shared/PageHeader.jsx';
+import PickerLoadWarning from '../../../components/shared/PickerLoadWarning.jsx';
 import Tabs, { useTabParam } from '../../../components/ui/Tabs.jsx';
 import Card from '../../../components/ui/Card.jsx';
 import Badge from '../../../components/ui/Badge.jsx';
@@ -54,7 +55,7 @@ function ApprovalRolesPanel() {
   const [editing, setEditing] = useState(null); // null = closed, {} = new, {...} = edit
 
   const { data: roles, isPending } = useQuery({ queryKey: ['approval-roles'], queryFn: listApprovalRoles });
-  const { data: staffUsers } = useQuery({ queryKey: ['users', {}], queryFn: () => listStaffUsers({}) });
+  const { data: staffUsers, isError: staffUsersError } = useQuery({ queryKey: ['users', {}], queryFn: () => listStaffUsers({}) });
 
   const {
     register,
@@ -131,6 +132,7 @@ function ApprovalRolesPanel() {
 
       <Modal open={!!editing} onClose={() => setEditing(null)} title={editing?._id ? 'Edit approval role' : 'New approval role'}>
         <form onSubmit={handleSubmit((values) => saveMutation.mutate(values))} noValidate className="space-y-4">
+          <PickerLoadWarning failed={[{ label: 'staff members', isError: staffUsersError }]} />
           {/* Read (opening this modal at all) is open to any staff member — see
               the page's own top-level comment. Write ('approvalHierarchy')
               disables every field below, not just the Save button (2026-09-14
@@ -263,7 +265,7 @@ function ApprovalWorkflowsPanel() {
   const [editing, setEditing] = useState(null);
 
   const { data: workflows, isPending } = useQuery({ queryKey: ['approval-workflows'], queryFn: listApprovalWorkflows });
-  const { data: roles } = useQuery({ queryKey: ['approval-roles'], queryFn: listApprovalRoles });
+  const { data: roles, isError: rolesError } = useQuery({ queryKey: ['approval-roles'], queryFn: listApprovalRoles });
 
   const {
     register,
@@ -332,7 +334,7 @@ function ApprovalWorkflowsPanel() {
         <div>
           <h2 className="text-sm font-semibold uppercase tracking-wide text-muted">Approval workflows</h2>
           <p className="mt-1 text-xs text-muted">
-            Ordered chains built from your approval roles — any one member of a step's role(s) can decide it.
+            Ordered chains built from your approval roles — any one member of a step&apos;s role(s) can decide it.
           </p>
         </div>
         {canManage && (
@@ -380,6 +382,7 @@ function ApprovalWorkflowsPanel() {
         title={editing?._id ? 'Edit approval workflow' : 'New approval workflow'}
       >
         <form onSubmit={handleSubmit((values) => saveMutation.mutate(values))} noValidate className="space-y-4">
+          <PickerLoadWarning failed={[{ label: 'approval roles', isError: rolesError }]} />
           {/* Read (opening this modal at all) is open to any staff member — see
               the page's own top-level comment. Write ('approvalHierarchy')
               disables every field below, not just the Save button (2026-09-14
@@ -431,7 +434,7 @@ function ApprovalWorkflowsPanel() {
                 getLabel={(t) => APPROVAL_REQUEST_TYPE_LABELS[t]}
               />
               <p className="mt-1 text-xs text-muted">
-                Only one active workflow may default to a given request type — an individual employee's profile can
+                Only one active workflow may default to a given request type — an individual employee&apos;s profile can
                 still override this.
               </p>
             </div>

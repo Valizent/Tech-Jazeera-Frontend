@@ -22,7 +22,7 @@ export default function AssignCardModal({ open, onClose, employee, companyId }) 
   }, [open]);
 
   // Assignable cards = unassigned or returned. Fetched fresh when the modal opens.
-  const { data: available = [], isPending } = useQuery({
+  const { data: available = [], isPending, isError } = useQuery({
     queryKey: ['nfc-cards', 'assignable'],
     queryFn: async () => {
       const all = await listNfcCards({});
@@ -51,10 +51,12 @@ export default function AssignCardModal({ open, onClose, employee, companyId }) 
     <Modal open={open} onClose={onClose} title={`Assign a card to ${employee?.name ?? ''}`}>
       <div className="space-y-4">
         {available.length === 0 ? (
-          <p className="text-sm text-muted">
+          <p className={`text-sm ${isError ? 'text-danger' : 'text-muted'}`} role={isError ? 'alert' : undefined}>
             {isPending
               ? 'Loading available cards…'
-              : 'No blank cards available. Generate a batch on the Cards page first.'}
+              : isError
+                ? "Couldn't load available cards — you may be missing read access, or this is a network issue. Try again."
+                : 'No blank cards available. Generate a batch on the Cards page first.'}
           </p>
         ) : (
           <Select label="Available card" value={cardId} onChange={(e) => setCardId(e.target.value)}>

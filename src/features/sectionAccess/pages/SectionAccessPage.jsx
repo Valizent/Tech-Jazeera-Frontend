@@ -66,7 +66,7 @@ const isDirty = (section, local) =>
     !sameIds(local.writeApprovalRoles, section.writeApprovalRoles.map((r) => r._id)));
 
 /** One tier's approval-role checklist, reused for both Read and Write below. */
-function TierChecklist({ title, hint, approvalRoleIds, onToggleApprovalRole, approvalRoles, approvalRolesLoading }) {
+function TierChecklist({ title, hint, approvalRoleIds, onToggleApprovalRole, approvalRoles, approvalRolesLoading, approvalRolesError }) {
   return (
     <div className="space-y-2 rounded-lg border border-border/60 p-3">
       <div>
@@ -80,14 +80,18 @@ function TierChecklist({ title, hint, approvalRoleIds, onToggleApprovalRole, app
           items={approvalRoles ?? []}
           selected={approvalRoleIds}
           onToggle={onToggleApprovalRole}
-          emptyMessage="No approval roles configured yet — add one on the Approval Hierarchy page first."
+          emptyMessage={
+            approvalRolesError
+              ? "Couldn't load approval roles — try refreshing the page."
+              : 'No approval roles configured yet — add one on the Approval Hierarchy page first.'
+          }
         />
       )}
     </div>
   );
 }
 
-function SectionCard({ section, local, dirty, onToggleRead, onToggleWrite, onSave, saving, approvalRoles, approvalRolesLoading }) {
+function SectionCard({ section, local, dirty, onToggleRead, onToggleWrite, onSave, saving, approvalRoles, approvalRolesLoading, approvalRolesError }) {
   return (
     <Card className={cn('space-y-4', dirty && 'ring-2 ring-primary/50')}>
       <div className="flex items-start justify-between gap-2">
@@ -105,6 +109,7 @@ function SectionCard({ section, local, dirty, onToggleRead, onToggleWrite, onSav
         onToggleApprovalRole={onToggleRead}
         approvalRoles={approvalRoles}
         approvalRolesLoading={approvalRolesLoading}
+        approvalRolesError={approvalRolesError}
       />
       <TierChecklist
         title="Write"
@@ -113,6 +118,7 @@ function SectionCard({ section, local, dirty, onToggleRead, onToggleWrite, onSav
         onToggleApprovalRole={onToggleWrite}
         approvalRoles={approvalRoles}
         approvalRolesLoading={approvalRolesLoading}
+        approvalRolesError={approvalRolesError}
       />
 
       <div className="flex justify-end">
@@ -172,7 +178,7 @@ export default function SectionAccessPage() {
     queryKey: ['section-access'],
     queryFn: listSectionAccess,
   });
-  const { data: approvalRoles, isPending: approvalRolesLoading } = useQuery({
+  const { data: approvalRoles, isPending: approvalRolesLoading, isError: approvalRolesError } = useQuery({
     queryKey: ['approval-roles'],
     queryFn: listApprovalRoles,
   });
@@ -371,6 +377,7 @@ export default function SectionAccessPage() {
                 saving={savingKey === key && saveMutation.isPending}
                 approvalRoles={approvalRoles}
                 approvalRolesLoading={approvalRolesLoading}
+                approvalRolesError={approvalRolesError}
               />
             );
           })}

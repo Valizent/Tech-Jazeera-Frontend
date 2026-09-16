@@ -148,7 +148,7 @@ export default function EmployeeLoginPanel({ employee }) {
               {created.reset ? (
                 <>
                   Their old password no longer works. Hand this new one to{' '}
-                  <span className="font-medium text-text">{employee.fullName}</span> — it's shown{' '}
+                  <span className="font-medium text-text">{employee.fullName}</span> — it&apos;s shown{' '}
                   <span className="font-medium text-text">once</span>, copy it now.
                 </>
               ) : (
@@ -183,8 +183,8 @@ export default function EmployeeLoginPanel({ employee }) {
         {login && (
           <div className="flex flex-col gap-4">
             <p className="text-sm text-muted">
-              Changing <span className="font-medium text-text">{employee.fullName}</span>'s role signs them
-              out everywhere — they'll need to log in again for the new role to take effect.
+              Changing <span className="font-medium text-text">{employee.fullName}</span>&apos;s role signs them
+              out everywhere — they&apos;ll need to log in again for the new role to take effect.
             </p>
             <Select label="Role" value={editingRole ?? ''} onChange={(e) => setEditingRole(e.target.value)}>
               {EMPLOYEE_LOGIN_ROLES.map((r) => (

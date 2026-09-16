@@ -166,7 +166,7 @@ export default function NfcCardDetailPage() {
                   <Button size="sm" variant="secondary" onClick={copyUrl}>
                     Copy
                   </Button>
-                  <a href={card.url} target="_blank" rel="noopener">
+                  <a href={card.url} target="_blank" rel="noopener noreferrer">
                     <Button size="sm" variant="ghost">
                       Open
                     </Button>
@@ -183,7 +183,7 @@ export default function NfcCardDetailPage() {
                       {card.assignedAt ? ` · since ${formatDate(card.assignedAt)}` : ''}
                     </>
                   ) : (
-                    <span className="text-muted">Not assigned. Assign from a person's page on the company.</span>
+                    <span className="text-muted">Not assigned. Assign from a person&apos;s page on the company.</span>
                   )}
                 </p>
               </div>

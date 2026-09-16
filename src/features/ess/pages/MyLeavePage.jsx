@@ -26,6 +26,7 @@ import Textarea from '../../../components/ui/Textarea.jsx';
 import EmptyState from '../../../components/ui/EmptyState.jsx';
 import Skeleton from '../../../components/ui/Skeleton.jsx';
 import ConfirmDialog from '../../../components/shared/ConfirmDialog.jsx';
+import PickerLoadWarning from '../../../components/shared/PickerLoadWarning.jsx';
 
 export default function MyLeavePage() {
   const { t } = useTranslation();
@@ -36,7 +37,7 @@ export default function MyLeavePage() {
   const [pendingFile, setPendingFile] = useState(null);
   const [downloadingId, setDownloadingId] = useState(null);
 
-  const { data: types } = useQuery({
+  const { data: types, isError: typesError } = useQuery({
     queryKey: ['leave-types', { activeOnly: true }],
     queryFn: () => listLeaveTypes({ activeOnly: 'true' }),
   });
@@ -124,6 +125,7 @@ export default function MyLeavePage() {
           noValidate
           className="space-y-4"
         >
+          <PickerLoadWarning failed={[{ label: 'leave types', isError: typesError }]} />
           <Select label={t('leave.leaveType')} error={errors.leaveType?.message} {...register('leaveType')}>
             <option value="">{t('leave.chooseLeaveType')}</option>
             {(types ?? []).map((ty) => (

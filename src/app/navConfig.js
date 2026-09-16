@@ -177,6 +177,7 @@ export const NAV_GROUPS = [
       { to: '/timesheet-processor', label: 'Timesheet Processor', icon: ICON.clock, sectionKey: 'timesheetProcessor', description: 'Bulk-import device attendance exports.', labelKey: 'staffNav.admin.timesheetProcessor.label', descriptionKey: 'staffNav.admin.timesheetProcessor.description' },
       { to: '/nfc', label: 'NFC Customers', icon: ICON.nfc, sectionKey: 'nfc', description: 'NFC business-card program.', labelKey: 'staffNav.admin.nfc.label', descriptionKey: 'staffNav.admin.nfc.description' },
       { to: '/security-log', label: 'Security Log', icon: ICON.check, sectionKey: 'auditLog', description: 'Auth & CRUD audit trail.', labelKey: 'staffNav.admin.securityLog.label', descriptionKey: 'staffNav.admin.securityLog.description' },
+      { to: '/reconciliation', label: 'Data Reconciliation', icon: ICON.list, sectionKey: 'reconciliation', description: 'A standing integrity check across ledgers, payroll, and deployments.', labelKey: 'staffNav.admin.reconciliation.label', descriptionKey: 'staffNav.admin.reconciliation.description' },
       { to: '/coordinator-activity', label: 'Coordinator Activity', icon: ICON.activity, roles: COORDINATOR_ACTIVITY_VIEW_ROLES, description: 'What Coordinators added themselves.', labelKey: 'staffNav.admin.coordinatorActivity.label', descriptionKey: 'staffNav.admin.coordinatorActivity.description' },
     ],
   },

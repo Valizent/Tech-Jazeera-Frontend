@@ -19,6 +19,17 @@ import { useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { listApprovalLog } from '../approvals.api.js';
 import { APPROVAL_REQUEST_TYPES, APPROVAL_REQUEST_TYPE_LABELS } from '../../../lib/constants.js';
+
+// Fixed 2026-09-15, the QA audit's own UX suggestion #7 ("the approval-log
+// UI should not offer a request type that is intentionally unimplemented
+// without explaining it"): Mobilisation is a real, valid
+// APPROVAL_REQUEST_TYPES member (used correctly elsewhere, e.g. the
+// Approval Hierarchy's own workflow-type picker) but is deliberately absent
+// from this log's own LOG_SOURCES (see approvals.service.js and this file's
+// own doc comment) — picking it here always silently returned zero results,
+// indistinguishable from "no decisions yet." Filtered out of THIS page's
+// own dropdown only; the shared constant itself is untouched.
+const LOG_FILTER_TYPES = APPROVAL_REQUEST_TYPES.filter((t) => t !== 'Mobilisation');
 import { apiMessage, formatDate } from '../../../lib/utils.js';
 import PageHeader from '../../../components/shared/PageHeader.jsx';
 import ApprovalTrailView from '../../../components/shared/ApprovalTrailView.jsx';
@@ -83,7 +94,7 @@ export default function ApprovalLogPage() {
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
           <Select label="Request type" value={type} onChange={(e) => setType(e.target.value)}>
             <option value="">All types</option>
-            {APPROVAL_REQUEST_TYPES.map((t) => (
+            {LOG_FILTER_TYPES.map((t) => (
               <option key={t} value={t}>
                 {APPROVAL_REQUEST_TYPE_LABELS[t]}
               </option>

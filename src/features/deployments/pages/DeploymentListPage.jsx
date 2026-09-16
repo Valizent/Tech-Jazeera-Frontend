@@ -22,6 +22,7 @@ import Badge from '../../../components/ui/Badge.jsx';
 import Button from '../../../components/ui/Button.jsx';
 import Select from '../../../components/ui/Select.jsx';
 import EmptyState from '../../../components/ui/EmptyState.jsx';
+import PickerLoadWarning from '../../../components/shared/PickerLoadWarning.jsx';
 
 const STATUS_VARIANT = { Active: 'success', Ended: 'default' };
 
@@ -47,7 +48,7 @@ export default function DeploymentListPage() {
   });
 
   // Clients for the filter dropdown (also confirms whether any client exists).
-  const { data: clientData } = useQuery({
+  const { data: clientData, isError: clientsError } = useQuery({
     queryKey: ['clients', 'all-for-filter'],
     queryFn: () => listClients({ limit: 100 }),
     staleTime: 60_000,
@@ -154,6 +155,7 @@ export default function DeploymentListPage() {
         }
       />
 
+      <PickerLoadWarning failed={[{ label: 'the client filter list', isError: clientsError }]} />
       <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-end">
         <Select
           value={params.status}

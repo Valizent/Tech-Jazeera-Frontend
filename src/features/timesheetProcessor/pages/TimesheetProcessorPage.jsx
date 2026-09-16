@@ -157,7 +157,7 @@ export default function TimesheetProcessorPage() {
               </Select>
               {employeeLookupFailed && (
                 <p className="mt-1.5 text-xs text-danger">
-                  Couldn't load the employee list — you may be missing read access to "Employees". Ask an
+                  Couldn&apos;t load the employee list — you may be missing read access to &quot;Employees&quot;. Ask an
                   admin to grant it under Section Access.
                 </p>
               )}

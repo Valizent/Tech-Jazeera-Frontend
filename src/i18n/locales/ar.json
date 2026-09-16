@@ -464,6 +464,7 @@
       "timesheetProcessor": { "label": "معالج سجلات الدوام", "description": "استيراد جماعي لملفات الحضور من الأجهزة." },
       "nfc": { "label": "عملاء NFC", "description": "برنامج بطاقات الأعمال بتقنية NFC." },
       "securityLog": { "label": "سجل الأمان", "description": "سجل تدقيق تسجيل الدخول والعمليات." },
+      "reconciliation": { "label": "تسوية البيانات", "description": "فحص سلامة دائم عبر السجلات المالية والرواتب والتعيينات." },
       "coordinatorActivity": { "label": "نشاط المنسقين", "description": "ما أضافه المنسقون بأنفسهم." }
     }
   },
