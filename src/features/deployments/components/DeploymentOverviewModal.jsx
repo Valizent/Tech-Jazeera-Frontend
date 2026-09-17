@@ -24,6 +24,27 @@
  * `deploymentsHoursDecide` — that column only renders here at all if the
  * loaded data actually has it on at least one entry, never a static
  * assumption re-checked client-side.
+ *
+ * 2026-09-17 follow-up (the user's own ask — a screenshot of this exact
+ * modal, "need every single data entered in mobilisation", plus "fill more
+ * screen" and "use a scroll wheel to right and left... like excel"): three
+ * changes. (1) `size="screen"` (new, see Modal.jsx) instead of 'full' — a
+ * near-edge-to-edge, taller dialog. (2) Horizontal scroll was already native
+ * (`overflow-auto` on the table's own wrapper) — a wide table with this many
+ * columns now genuinely needs it, same as any real Excel sheet; no custom
+ * wheel-hijacking added, the browser's own shift+wheel/trackpad/scrollbar
+ * already behaves exactly like Excel's own horizontal scroll. (3) Every
+ * Mobilisation field this app already treats as export-worthy (see
+ * mobilisation.export.js's own WORKER_COLUMNS+RATE_COLUMNS) is appended,
+ * read off the now-fully-populated `d.mobilisation` sub-document (see
+ * deployment.service.js's MOBILISATION_OVERVIEW_FIELDS) — MINUS whatever's a
+ * pure duplicate of a Deployment snapshot field already shown. The 9
+ * commercial columns (rates/commissions/profit) are gated exactly like
+ * `otAmount` above: server-stripped for anyone without
+ * `deploymentsHoursDecide` read access, and the columns themselves only
+ * render at all if the loaded data actually has them on at least one row —
+ * the user's own explicit choice from a direct question, put to them before
+ * building this (include, but gated the same way otAmount already is).
  */
 import { Fragment, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -69,12 +90,25 @@ export default function DeploymentOverviewModal({ open, onClose }) {
   // elsewhere on the page.
   const rows = useMemo(() => data?.items ?? [], [data]);
 
+  // Commercial Mobilisation fields (rates/commissions/profit) are stripped
+  // server-side for anyone without 'deploymentsHoursDecide' read access —
+  // same signal/reasoning as hasOtAmount below, applied to the whole
+  // commercial column group at once rather than per-field.
+  const hasCommercialMobilisation = useMemo(
+    () => rows.some((d) => d.mobilisation?.clientRate !== undefined),
+    [rows]
+  );
+
   // Columns match deployment.export.js's own list exactly, so the modal and
   // the downloaded .xlsx always read the same way. `getText` is what both
   // the free-text filter and the cell itself use — one source, so a column
-  // never filters on text different from what's actually on screen.
-  const columns = useMemo(
-    () => [
+  // never filters on text different from what's actually on screen. The
+  // Mobilisation-sourced columns (from staffDeployments.overview.columns.
+  // 4th group onward) reuse this app's OWN Mobilisation field labels
+  // (staffMobilisations.detail.fields.*) rather than new duplicate keys —
+  // the same field, same label, everywhere it appears.
+  const columns = useMemo(() => {
+    const cols = [
       { key: 'workerName', header: t('staffDeployments.overview.columns.worker'), getText: (d) => d.workerName ?? '' },
       {
         key: 'workerType',
@@ -112,9 +146,110 @@ export default function DeploymentOverviewModal({ open, onClose }) {
         getValue: (d) => d.endReason,
       },
       { key: 'notes', header: t('staffDeployments.overview.columns.notes'), getText: (d) => d.notes ?? '' },
-    ],
-    [t]
-  );
+      // --- Mobilisation-sourced (2026-09-17 follow-up, see this file's own
+      // module comment) — non-commercial fields, always shown ---
+      {
+        key: 'mobSerialNumber',
+        header: t('staffDeployments.overview.columns.mobilisationNumber'),
+        getText: (d) => d.mobilisation?.serialNumber ?? '',
+      },
+      {
+        key: 'mobJobTitle',
+        header: t('staffMobilisations.detail.fields.jobTitle'),
+        getText: (d) => d.mobilisation?.jobTitle ?? '',
+      },
+      {
+        key: 'mobIqamaNumber',
+        header: t('staffMobilisations.detail.fields.iqamaNumber'),
+        getText: (d) => d.mobilisation?.iqamaNumber ?? '',
+      },
+      {
+        key: 'mobNationality',
+        header: t('staffMobilisations.detail.fields.nationality'),
+        getText: (d) => d.mobilisation?.nationality ?? '',
+      },
+      { key: 'mobPhone', header: t('staffMobilisations.detail.fields.phone'), getText: (d) => d.mobilisation?.phone ?? '' },
+      {
+        key: 'mobCheckoutDate',
+        header: t('staffMobilisations.detail.fields.checkoutDate'),
+        getText: (d) => (d.mobilisation?.checkoutDate ? formatDate(d.mobilisation.checkoutDate) : ''),
+      },
+      {
+        key: 'mobFta',
+        header: t('staffMobilisations.detail.fields.fta'),
+        getText: (d) => (d.mobilisation?.fta ? formatMoney(d.mobilisation.fta) : ''),
+      },
+      {
+        key: 'mobFtaType',
+        header: t('staffMobilisations.detail.fields.ftaType'),
+        type: 'enum',
+        getText: (d) => (d.mobilisation?.ftaType ? t(`staffMobilisations.form.ftaType.${d.mobilisation.ftaType}`, d.mobilisation.ftaType) : ''),
+        getValue: (d) => d.mobilisation?.ftaType,
+      },
+      {
+        key: 'mobAllowance',
+        header: t('staffMobilisations.detail.fields.allowance'),
+        getText: (d) => (d.mobilisation?.allowance ? formatMoney(d.mobilisation.allowance) : ''),
+      },
+      {
+        key: 'mobAllowanceRemark',
+        header: t('staffMobilisations.detail.fields.allowanceRemark'),
+        getText: (d) => d.mobilisation?.allowanceRemark ?? '',
+      },
+    ];
+    // --- Mobilisation-sourced — commercial fields, gated (see
+    // hasCommercialMobilisation above) ---
+    if (hasCommercialMobilisation) {
+      cols.push(
+        {
+          key: 'mobClientRate',
+          header: t('staffMobilisations.detail.fields.clientRate'),
+          getText: (d) => (d.mobilisation?.clientRate ? formatMoney(d.mobilisation.clientRate) : ''),
+        },
+        {
+          key: 'mobClientCommission',
+          header: t('staffMobilisations.detail.fields.clientCommission'),
+          getText: (d) => (d.mobilisation?.clientCommission ? formatMoney(d.mobilisation.clientCommission) : ''),
+        },
+        {
+          key: 'mobSubcontractorRate',
+          header: t('staffMobilisations.detail.fields.subcontractorRate'),
+          getText: (d) => (d.mobilisation?.subcontractorRate ? formatMoney(d.mobilisation.subcontractorRate) : ''),
+        },
+        {
+          key: 'mobSubcontractorCommission',
+          header: t('staffMobilisations.detail.fields.subcontractorCommission'),
+          getText: (d) => (d.mobilisation?.subcontractorCommission ? formatMoney(d.mobilisation.subcontractorCommission) : ''),
+        },
+        {
+          key: 'mobOtClientRate',
+          header: t('staffMobilisations.detail.fields.otClientRate'),
+          getText: (d) => (d.mobilisation?.otClientRate ? formatMoney(d.mobilisation.otClientRate) : ''),
+        },
+        {
+          key: 'mobOtEmployeeRate',
+          header: t('staffMobilisations.detail.fields.otEmployeeRate'),
+          getText: (d) => (d.mobilisation?.otEmployeeRate ? formatMoney(d.mobilisation.otEmployeeRate) : ''),
+        },
+        {
+          key: 'mobProfitPerHour',
+          header: t('staffMobilisations.detail.fields.profitPerHour'),
+          getText: (d) => (d.mobilisation?.profitPerHour != null ? formatMoney(d.mobilisation.profitPerHour) : ''),
+        },
+        {
+          key: 'mobProfitPerMonth',
+          header: t('staffMobilisations.detail.fields.profitPerMonth'),
+          getText: (d) => (d.mobilisation?.profitPerMonth != null ? formatMoney(d.mobilisation.profitPerMonth) : ''),
+        },
+        {
+          key: 'mobOtProfitPerHour',
+          header: t('staffMobilisations.detail.fields.otProfitPerHour'),
+          getText: (d) => (d.mobilisation?.otProfitPerHour != null ? formatMoney(d.mobilisation.otProfitPerHour) : ''),
+        }
+      );
+    }
+    return cols;
+  }, [t, hasCommercialMobilisation]);
 
   // For an 'enum' column, the picklist is built from whatever values are
   // ACTUALLY present in the loaded data — a real Excel AutoFilter feel,
@@ -155,7 +290,7 @@ export default function DeploymentOverviewModal({ open, onClose }) {
   }
 
   return (
-    <Modal open={open} onClose={onClose} title={t('staffDeployments.overview.modalTitle')} size="full">
+    <Modal open={open} onClose={onClose} title={t('staffDeployments.overview.modalTitle')} size="screen">
       <div className="space-y-3">
         <div className="flex flex-wrap items-center justify-between gap-2">
           <p className="text-sm text-muted">
@@ -175,7 +310,7 @@ export default function DeploymentOverviewModal({ open, onClose }) {
         ) : rows.length === 0 ? (
           <EmptyState title={t('staffDeployments.overview.emptyTitle')} />
         ) : (
-          <div className="max-h-[65vh] overflow-auto rounded-xl border border-border">
+          <div className="max-h-[calc(97vh-170px)] overflow-auto rounded-xl border border-border">
             <table className="w-full text-sm">
               <thead className="sticky top-0 z-10 bg-surface">
                 <tr className="border-b border-border">
@@ -203,7 +338,9 @@ export default function DeploymentOverviewModal({ open, onClose }) {
                                 ? t(`staffMobilisations.form.workerType.${v}`, v)
                                 : col.key === 'status'
                                   ? t(`staffDeployments.status.${v}`, v)
-                                  : t(`staffDeployments.reasons.${v}`, v)}
+                                  : col.key === 'mobFtaType'
+                                    ? t(`staffMobilisations.form.ftaType.${v}`, v)
+                                    : t(`staffDeployments.reasons.${v}`, v)}
                             </option>
                           ))}
                         </select>

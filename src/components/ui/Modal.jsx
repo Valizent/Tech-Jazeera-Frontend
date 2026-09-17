@@ -7,6 +7,10 @@
  * with a long version list) never pushes its content off-screen.
  *
  * `size` picks the max width; default 'md' preserves every existing caller.
+ * 'screen' (added for DeploymentOverviewModal's spreadsheet-style table,
+ * 2026-09-17) goes further than 'full' — near-edge-to-edge width, a taller
+ * cap, and tighter outer padding, for a dialog whose content genuinely wants
+ * the whole viewport rather than just a wide card.
  * The backdrop is the app's one intentional use of glass: a frosted scrim that
  * pushes the page back without hiding it.
  */
@@ -20,6 +24,11 @@ const sizeClasses = {
   lg: 'max-w-2xl',
   xl: 'max-w-5xl',
   full: 'max-w-[calc(100vw-2rem)]',
+  screen: 'max-w-[calc(100vw-1rem)]',
+};
+
+const heightClasses = {
+  screen: 'max-h-[97vh]',
 };
 
 export default function Modal({ open, onClose, title, size = 'md', children }) {
@@ -39,7 +48,12 @@ export default function Modal({ open, onClose, title, size = 'md', children }) {
   if (!open) return null;
 
   return createPortal(
-    <div className="fixed inset-0 z-50 flex justify-center overflow-y-auto p-4 sm:items-center sm:p-6">
+    <div
+      className={cn(
+        'fixed inset-0 z-50 flex justify-center overflow-y-auto sm:items-center',
+        size === 'screen' ? 'p-2 sm:p-3' : 'p-4 sm:p-6'
+      )}
+    >
       <div
         className="fixed inset-0 bg-slate-950/50 backdrop-blur-sm animate-overlay-in"
         onClick={onClose}
@@ -50,8 +64,9 @@ export default function Modal({ open, onClose, title, size = 'md', children }) {
         aria-modal="true"
         aria-label={title}
         className={cn(
-          'relative my-auto flex max-h-[90vh] w-full flex-col overflow-hidden',
+          'relative my-auto flex w-full flex-col overflow-hidden',
           'rounded-2xl border border-border bg-surface shadow-xl animate-in fade-in zoom-in-95 duration-200 ease-out',
+          heightClasses[size] || 'max-h-[90vh]',
           sizeClasses[size] || sizeClasses.md
         )}
       >

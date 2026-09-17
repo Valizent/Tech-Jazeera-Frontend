@@ -1364,7 +1364,8 @@
         "endDate": "End date",
         "status": "Status",
         "endReason": "End reason",
-        "notes": "Notes"
+        "notes": "Notes",
+        "mobilisationNumber": "Mobilisation #"
       }
     },
     "standby": {
