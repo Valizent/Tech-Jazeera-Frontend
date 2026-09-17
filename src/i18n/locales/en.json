@@ -1324,7 +1324,10 @@
       "filterStatusAriaLabel": "Filter by status",
       "filterClientAriaLabel": "Filter by client",
       "allClients": "All clients",
+      "searchClientPlaceholder": "Search clients…",
       "standbyList": "Standby list",
+      "exportExcel": "Export to Excel",
+      "overview": "Overview",
       "columns": {
         "worker": "Worker",
         "clientSite": "Client / Site",
@@ -1339,6 +1342,30 @@
       "deletedToast": "Deployment deleted.",
       "deleteConfirmTitle": "Delete this deployment?",
       "deleteConfirmMessage": "This permanently removes {{worker}}'s placement at {{client}}. This cannot be undone."
+    },
+    "overview": {
+      "modalTitle": "Deployments overview",
+      "rowCount": "Showing {{shown}} of {{total}} deployments",
+      "clearFilters": "Clear filters",
+      "allValues": "All",
+      "filterPlaceholder": "Filter…",
+      "emptyTitle": "No deployments yet",
+      "expandMonthlyHours": "Show monthly hours",
+      "collapseMonthlyHours": "Hide monthly hours",
+      "noMonthlyHours": "No monthly hours entered yet for this deployment.",
+      "columns": {
+        "worker": "Worker",
+        "workerType": "Worker type",
+        "client": "Client",
+        "site": "Site",
+        "subcontractor": "Subcontractor",
+        "contractHours": "Contract hours / month",
+        "startDate": "Start date",
+        "endDate": "End date",
+        "status": "Status",
+        "endReason": "End reason",
+        "notes": "Notes"
+      }
     },
     "standby": {
       "pageTitle": "Standby list",

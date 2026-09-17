@@ -17,6 +17,21 @@ export async function getDeployment(id) {
   return data.data;
 }
 
+/** Download every deployment matching the given list filters as one .xlsx
+ *  (same filters the register itself uses — worker/client/status/sortOrder;
+ *  pagination doesn't apply to an export). 2026-09-16, the user's own ask. */
+export async function downloadDeploymentsExport(filters) {
+  const res = await api.get('/deployments/export', { params: filters, responseType: 'blob' });
+  const url = URL.createObjectURL(res.data);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `deployments_${new Date().toISOString().slice(0, 10)}.xlsx`;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+}
+
 /** Correct a deployment's own recorded details — site/worker name/contracted
  *  hours/notes only, see deployment.validation.js's updateDeploymentSchema
  *  for exactly why the scope stops there. */

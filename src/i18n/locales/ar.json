@@ -1324,7 +1324,10 @@
       "filterStatusAriaLabel": "تصفية حسب الحالة",
       "filterClientAriaLabel": "تصفية حسب العميل",
       "allClients": "كل العملاء",
+      "searchClientPlaceholder": "ابحث عن عميل…",
       "standbyList": "قائمة الاحتياط",
+      "exportExcel": "تصدير إلى Excel",
+      "overview": "نظرة عامة",
       "columns": {
         "worker": "العامل",
         "clientSite": "العميل / الموقع",
@@ -1339,6 +1342,30 @@
       "deletedToast": "تم حذف عملية النشر.",
       "deleteConfirmTitle": "حذف عملية النشر هذه؟",
       "deleteConfirmMessage": "سيؤدي هذا إلى إزالة تعيين {{worker}} لدى {{client}} نهائيًا. لا يمكن التراجع عن هذا."
+    },
+    "overview": {
+      "modalTitle": "نظرة عامة على عمليات النشر",
+      "rowCount": "عرض {{shown}} من {{total}} عملية نشر",
+      "clearFilters": "مسح عوامل التصفية",
+      "allValues": "الكل",
+      "filterPlaceholder": "تصفية…",
+      "emptyTitle": "لا توجد عمليات نشر بعد",
+      "expandMonthlyHours": "إظهار الساعات الشهرية",
+      "collapseMonthlyHours": "إخفاء الساعات الشهرية",
+      "noMonthlyHours": "لم تُسجَّل أي ساعات شهرية لعملية النشر هذه بعد.",
+      "columns": {
+        "worker": "العامل",
+        "workerType": "نوع العامل",
+        "client": "العميل",
+        "site": "الموقع",
+        "subcontractor": "المقاول من الباطن",
+        "contractHours": "ساعات العقد / الشهر",
+        "startDate": "تاريخ البدء",
+        "endDate": "تاريخ الانتهاء",
+        "status": "الحالة",
+        "endReason": "سبب الانتهاء",
+        "notes": "ملاحظات"
+      }
     },
     "standby": {
       "pageTitle": "قائمة الاحتياط",
