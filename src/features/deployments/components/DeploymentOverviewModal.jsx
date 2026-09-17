@@ -45,6 +45,32 @@
  * render at all if the loaded data actually has them on at least one row —
  * the user's own explicit choice from a direct question, put to them before
  * building this (include, but gated the same way otAmount already is).
+ *
+ * Second same-day follow-up (2026-09-17, from a screenshot of this exact
+ * modal): (1) the dialog now fills the viewport (see Modal.jsx's `screen`
+ * size, reworked to a fixed height + top alignment instead of a shrink-to-
+ * fit max-height) rather than sitting centered with dead space above/below a
+ * short table. (2) A Month filter (toolbar, not a per-column filter — it
+ * doesn't correspond to one flat field) narrows rows to deployments with a
+ * `monthlyHours` entry for that month, same client-side filtering as every
+ * other column. (3) `otProfitPerHour`/`profitPerMonth` swapped display
+ * order (the user's own ask). (4) A new `mobTotalProfitPerMonth` column —
+ * `profitPerMonth` (the pre-deployment ESTIMATE, no OT) plus that specific
+ * month's real OT contribution (`otProfitPerHour × otHours` off the
+ * matching monthlyHours entry, always present once a row passes the month
+ * filter) — only rendered once a month is actually selected (blank/estimate
+ * -only otherwise would be misleading; hidden entirely in the normal,
+ * no-month-selected view, same "don't show a number these terms don't
+ * apply to" posture as `hasCommercialMobilisation` itself). (5) A sticky
+ * totals row (mirrors the header's own `sticky top-0`) sums every numeric
+ * commercial column (rates/commissions/profit figures) across whatever
+ * rows are currently visible — so filtering to one month makes that row
+ * read as "this month's total profit" across the matching placements,
+ * which was the actual point of the whole feature. (6) Profit-labeled
+ * cells (`profitPerHour`/`otProfitPerHour`/`profitPerMonth`/the new total)
+ * color green/red by sign — reusing the exact `profitClass` convention
+ * MobilisationDetailPage.jsx already established for these same fields,
+ * not a new color scheme.
  */
 import { Fragment, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -63,10 +89,20 @@ function uniqueSorted(values) {
   return [...new Set(values.filter(Boolean))].sort();
 }
 
+// Same convention as MobilisationDetailPage.jsx's own profitClass — reused
+// here, not reinvented, so a profit figure reads the same color everywhere
+// it appears in the app.
+function profitClass(amount) {
+  if (amount > 0) return 'text-success';
+  if (amount < 0) return 'text-danger';
+  return undefined;
+}
+
 export default function DeploymentOverviewModal({ open, onClose }) {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const [filters, setFilters] = useState({});
+  const [monthFilter, setMonthFilter] = useState('');
   const [expandedIds, setExpandedIds] = useState(() => new Set());
 
   function toggleExpanded(id) {
@@ -96,6 +132,16 @@ export default function DeploymentOverviewModal({ open, onClose }) {
   // commercial column group at once rather than per-field.
   const hasCommercialMobilisation = useMemo(
     () => rows.some((d) => d.mobilisation?.clientRate !== undefined),
+    [rows]
+  );
+
+  // Every month any deployment actually has a monthlyHours entry for — the
+  // Month filter's own options, same "built from what's actually present"
+  // convention as enumOptions below. Raw 'YYYY-MM' strings, not a friendlier
+  // format — matches how a month already reads everywhere else in this same
+  // modal (the expanded monthly-hours sub-table's own Month column).
+  const monthOptions = useMemo(
+    () => uniqueSorted(rows.flatMap((d) => d.monthlyHours.map((m) => m.month))),
     [rows]
   );
 
@@ -198,58 +244,97 @@ export default function DeploymentOverviewModal({ open, onClose }) {
       },
     ];
     // --- Mobilisation-sourced — commercial fields, gated (see
-    // hasCommercialMobilisation above) ---
+    // hasCommercialMobilisation above). `getNumber` (in addition to
+    // getText) powers both the sticky totals row below and, for a
+    // `profit: true` column, the green/loss-red cell color — every
+    // commercial column gets summed, only the profit-labeled ones get
+    // colored. otProfitPerHour/profitPerMonth are swapped from their
+    // original order (the user's own ask, 2026-09-17).
     if (hasCommercialMobilisation) {
       cols.push(
         {
           key: 'mobClientRate',
           header: t('staffMobilisations.detail.fields.clientRate'),
           getText: (d) => (d.mobilisation?.clientRate ? formatMoney(d.mobilisation.clientRate) : ''),
+          getNumber: (d) => Number(d.mobilisation?.clientRate) || 0,
         },
         {
           key: 'mobClientCommission',
           header: t('staffMobilisations.detail.fields.clientCommission'),
           getText: (d) => (d.mobilisation?.clientCommission ? formatMoney(d.mobilisation.clientCommission) : ''),
+          getNumber: (d) => Number(d.mobilisation?.clientCommission) || 0,
         },
         {
           key: 'mobSubcontractorRate',
           header: t('staffMobilisations.detail.fields.subcontractorRate'),
           getText: (d) => (d.mobilisation?.subcontractorRate ? formatMoney(d.mobilisation.subcontractorRate) : ''),
+          getNumber: (d) => Number(d.mobilisation?.subcontractorRate) || 0,
         },
         {
           key: 'mobSubcontractorCommission',
           header: t('staffMobilisations.detail.fields.subcontractorCommission'),
           getText: (d) => (d.mobilisation?.subcontractorCommission ? formatMoney(d.mobilisation.subcontractorCommission) : ''),
+          getNumber: (d) => Number(d.mobilisation?.subcontractorCommission) || 0,
         },
         {
           key: 'mobOtClientRate',
           header: t('staffMobilisations.detail.fields.otClientRate'),
           getText: (d) => (d.mobilisation?.otClientRate ? formatMoney(d.mobilisation.otClientRate) : ''),
+          getNumber: (d) => Number(d.mobilisation?.otClientRate) || 0,
         },
         {
           key: 'mobOtEmployeeRate',
           header: t('staffMobilisations.detail.fields.otEmployeeRate'),
           getText: (d) => (d.mobilisation?.otEmployeeRate ? formatMoney(d.mobilisation.otEmployeeRate) : ''),
+          getNumber: (d) => Number(d.mobilisation?.otEmployeeRate) || 0,
         },
         {
           key: 'mobProfitPerHour',
           header: t('staffMobilisations.detail.fields.profitPerHour'),
+          profit: true,
           getText: (d) => (d.mobilisation?.profitPerHour != null ? formatMoney(d.mobilisation.profitPerHour) : ''),
-        },
-        {
-          key: 'mobProfitPerMonth',
-          header: t('staffMobilisations.detail.fields.profitPerMonth'),
-          getText: (d) => (d.mobilisation?.profitPerMonth != null ? formatMoney(d.mobilisation.profitPerMonth) : ''),
+          getNumber: (d) => Number(d.mobilisation?.profitPerHour) || 0,
         },
         {
           key: 'mobOtProfitPerHour',
           header: t('staffMobilisations.detail.fields.otProfitPerHour'),
+          profit: true,
           getText: (d) => (d.mobilisation?.otProfitPerHour != null ? formatMoney(d.mobilisation.otProfitPerHour) : ''),
+          getNumber: (d) => Number(d.mobilisation?.otProfitPerHour) || 0,
+        },
+        {
+          key: 'mobProfitPerMonth',
+          header: t('staffMobilisations.detail.fields.profitPerMonth'),
+          profit: true,
+          getText: (d) => (d.mobilisation?.profitPerMonth != null ? formatMoney(d.mobilisation.profitPerMonth) : ''),
+          getNumber: (d) => Number(d.mobilisation?.profitPerMonth) || 0,
         }
       );
+      // The real, month-specific total — the estimate plus that month's
+      // actual OT contribution (otProfitPerHour × the matching monthlyHours
+      // entry's otHours; every row here passed the Month filter, so that
+      // entry always exists). Only meaningful once a month is actually
+      // selected — hidden in the normal, unfiltered view (the user's own
+      // ask): an "estimate + 0 OT" number for a month nobody picked would
+      // just be a confusing duplicate of profitPerMonth itself.
+      if (monthFilter) {
+        cols.push({
+          key: 'mobTotalProfitPerMonth',
+          header: t('staffDeployments.overview.columns.totalProfitPerMonth'),
+          profit: true,
+          getNumber: (d) => {
+            const entry = d.monthlyHours.find((m) => m.month === monthFilter);
+            const otProfit = (Number(d.mobilisation?.otProfitPerHour) || 0) * (entry?.otHours ?? 0);
+            return (Number(d.mobilisation?.profitPerMonth) || 0) + otProfit;
+          },
+          getText(d) {
+            return formatMoney(this.getNumber(d));
+          },
+        });
+      }
     }
     return cols;
-  }, [t, hasCommercialMobilisation]);
+  }, [t, hasCommercialMobilisation, monthFilter]);
 
   // For an 'enum' column, the picklist is built from whatever values are
   // ACTUALLY present in the loaded data — a real Excel AutoFilter feel,
@@ -271,18 +356,23 @@ export default function DeploymentOverviewModal({ open, onClose }) {
 
   const filteredRows = useMemo(() => {
     const active = Object.entries(filters).filter(([, v]) => v);
-    if (active.length === 0) return rows;
-    return rows.filter((d) =>
-      active.every(([key, filterValue]) => {
+    return rows.filter((d) => {
+      if (monthFilter && !d.monthlyHours.some((m) => m.month === monthFilter)) return false;
+      return active.every(([key, filterValue]) => {
         const col = columns.find((c) => c.key === key);
         if (!col) return true;
         if (col.type === 'enum') return col.getValue(d) === filterValue;
         return col.getText(d).toLowerCase().includes(filterValue.toLowerCase());
-      })
-    );
-  }, [rows, filters, columns]);
+      });
+    });
+  }, [rows, filters, columns, monthFilter]);
 
-  const hasActiveFilters = Object.values(filters).some(Boolean);
+  // Every column with a getNumber — the commercial rate/commission/profit
+  // group, plus the conditional Total-profit-per-month column when it's
+  // showing — powers the sticky totals row below.
+  const summableColumns = useMemo(() => columns.filter((c) => c.getNumber), [columns]);
+
+  const hasActiveFilters = Object.values(filters).some(Boolean) || Boolean(monthFilter);
 
   function goToDeployment(id) {
     onClose();
@@ -291,16 +381,43 @@ export default function DeploymentOverviewModal({ open, onClose }) {
 
   return (
     <Modal open={open} onClose={onClose} title={t('staffDeployments.overview.modalTitle')} size="screen">
-      <div className="space-y-3">
+      <div className="flex h-full flex-col gap-3">
         <div className="flex flex-wrap items-center justify-between gap-2">
           <p className="text-sm text-muted">
             {t('staffDeployments.overview.rowCount', { shown: filteredRows.length, total: rows.length })}
           </p>
-          {hasActiveFilters && (
-            <Button size="sm" variant="secondary" onClick={() => setFilters({})}>
-              {t('staffDeployments.overview.clearFilters')}
-            </Button>
-          )}
+          <div className="flex items-center gap-2">
+            {hasCommercialMobilisation && monthOptions.length > 0 && (
+              <label className="flex items-center gap-1.5 text-xs text-muted">
+                {t('staffDeployments.overview.monthFilterLabel')}
+                <select
+                  value={monthFilter}
+                  onChange={(e) => setMonthFilter(e.target.value)}
+                  aria-label={t('staffDeployments.overview.monthFilterLabel')}
+                  className="h-8 rounded-md border border-border bg-surface px-2 text-xs text-text"
+                >
+                  <option value="">{t('staffDeployments.overview.allMonths')}</option>
+                  {monthOptions.map((m) => (
+                    <option key={m} value={m}>
+                      {m}
+                    </option>
+                  ))}
+                </select>
+              </label>
+            )}
+            {hasActiveFilters && (
+              <Button
+                size="sm"
+                variant="secondary"
+                onClick={() => {
+                  setFilters({});
+                  setMonthFilter('');
+                }}
+              >
+                {t('staffDeployments.overview.clearFilters')}
+              </Button>
+            )}
+          </div>
         </div>
 
         {isPending ? (
@@ -310,7 +427,7 @@ export default function DeploymentOverviewModal({ open, onClose }) {
         ) : rows.length === 0 ? (
           <EmptyState title={t('staffDeployments.overview.emptyTitle')} />
         ) : (
-          <div className="max-h-[calc(97vh-170px)] overflow-auto rounded-xl border border-border">
+          <div className="min-h-0 flex-1 overflow-auto rounded-xl border border-border">
             <table className="w-full text-sm">
               <thead className="sticky top-0 z-10 bg-surface">
                 <tr className="border-b border-border">
@@ -401,7 +518,10 @@ export default function DeploymentOverviewModal({ open, onClose }) {
                             </button>
                           </td>
                           {columns.map((col) => (
-                            <td key={col.key} className="whitespace-nowrap px-3 py-2 text-text">
+                            <td
+                              key={col.key}
+                              className={cn('whitespace-nowrap px-3 py-2', (col.profit && profitClass(col.getNumber(d))) || 'text-text')}
+                            >
                               {col.getText(d) || '—'}
                             </td>
                           ))}
@@ -481,6 +601,29 @@ export default function DeploymentOverviewModal({ open, onClose }) {
                   })
                 )}
               </tbody>
+              {hasCommercialMobilisation && summableColumns.length > 0 && (
+                <tfoot className="sticky bottom-0 z-10 bg-surface">
+                  <tr className="border-t-2 border-border">
+                    <td
+                      colSpan={columns.length - summableColumns.length + 1}
+                      className="whitespace-nowrap px-3 py-2 text-right text-xs font-semibold uppercase tracking-wide text-muted"
+                    >
+                      {t('staffDeployments.overview.totalRowLabel')}
+                    </td>
+                    {summableColumns.map((col) => {
+                      const sum = filteredRows.reduce((s, d) => s + col.getNumber(d), 0);
+                      return (
+                        <td
+                          key={col.key}
+                          className={cn('whitespace-nowrap px-3 py-2 font-semibold', (col.profit && profitClass(sum)) || 'text-text')}
+                        >
+                          {formatMoney(sum)}
+                        </td>
+                      );
+                    })}
+                  </tr>
+                </tfoot>
+              )}
             </table>
           </div>
         )}

@@ -1353,6 +1353,9 @@
       "expandMonthlyHours": "Show monthly hours",
       "collapseMonthlyHours": "Hide monthly hours",
       "noMonthlyHours": "No monthly hours entered yet for this deployment.",
+      "monthFilterLabel": "Month",
+      "allMonths": "All months",
+      "totalRowLabel": "Total",
       "columns": {
         "worker": "Worker",
         "workerType": "Worker type",
@@ -1365,7 +1368,8 @@
         "status": "Status",
         "endReason": "End reason",
         "notes": "Notes",
-        "mobilisationNumber": "Mobilisation #"
+        "mobilisationNumber": "Mobilisation #",
+        "totalProfitPerMonth": "Total profit per month"
       }
     },
     "standby": {
