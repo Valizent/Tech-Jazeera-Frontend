@@ -16,11 +16,11 @@
  */
 import { useState } from 'react';
 import { Navigate, useNavigate } from 'react-router-dom';
-import { useMutation, useQuery } from '@tanstack/react-query';
+import { useMutation } from '@tanstack/react-query';
 import { useAuth } from '../../auth/AuthContext.jsx';
 import { useToast } from '../../../components/ui/Toast.jsx';
 import { apiMessage } from '../../../lib/utils.js';
-import { listEmployees } from '../../employees/employees.api.js';
+import { useEmployeePicker } from '../../../lib/useEmployeePicker.js';
 import { previewTimesheet, exportTimesheet } from '../timesheet.api.js';
 import {
   MONTHS,
@@ -77,15 +77,7 @@ export default function TimesheetProcessorPage() {
   // with no indication that the lookup itself had actually 403'd rather
   // than the company simply having no employees. `isError` is now surfaced
   // right under the picker (see the Select below) instead of swallowed.
-  const {
-    data: employeeData,
-    isError: employeeLookupFailed,
-  } = useQuery({
-    queryKey: ['employees', 'timesheet-picker'],
-    // The list endpoint caps limit at 100 (matches the document-upload picker).
-    queryFn: () => listEmployees({ limit: 100, sortBy: 'fullName', sortOrder: 'asc' }),
-    enabled: canWrite,
-  });
+  const { data: employeeData, isError: employeeLookupFailed } = useEmployeePicker({ enabled: canWrite });
 
   const previewMutation = useMutation({
     mutationFn: (run) => previewTimesheet(buildFormData(run)),

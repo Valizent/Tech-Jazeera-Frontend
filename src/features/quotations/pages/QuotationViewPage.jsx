@@ -14,7 +14,7 @@ import { listInvoices, createInvoice } from '../../invoices/invoices.api.js';
 import { useAuth } from '../../auth/AuthContext.jsx';
 import { useToast } from '../../../components/ui/Toast.jsx';
 import { QUOTATION_DELETE_ROLES } from '../../../lib/constants.js';
-import { apiMessage, formatDate, formatMoney } from '../../../lib/utils.js';
+import { apiMessage, formatDate, formatMoney, lineAmount } from '../../../lib/utils.js';
 import PageHeader from '../../../components/shared/PageHeader.jsx';
 import BackButton from '../../../components/shared/BackButton.jsx';
 import ConfirmDialog from '../../../components/shared/ConfirmDialog.jsx';
@@ -23,13 +23,6 @@ import Badge from '../../../components/ui/Badge.jsx';
 import Button from '../../../components/ui/Button.jsx';
 import Skeleton from '../../../components/ui/Skeleton.jsx';
 import EmptyState from '../../../components/ui/EmptyState.jsx';
-
-/** Amount a line contributes to the total (net + its tax). */
-function lineAmount(li) {
-  const gross = li.quantity * li.unitPrice;
-  const net = gross - gross * ((li.discount ?? 0) / 100);
-  return net + net * ((li.taxRate ?? 0) / 100);
-}
 
 export default function QuotationViewPage() {
   const { id } = useParams();

@@ -13,11 +13,11 @@ import { useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useMutation, useQuery } from '@tanstack/react-query';
+import { useMutation } from '@tanstack/react-query';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { createSettlement } from '../eosb.api.js';
 import { settlementFormSchema, emptySettlementForm } from '../eosb.schema.js';
-import { listEmployees } from '../../employees/employees.api.js';
+import { useEmployeePicker } from '../../../lib/useEmployeePicker.js';
 import { apiMessage } from '../../../lib/utils.js';
 import { EXIT_REASONS, EXIT_REASON_LABELS } from '../../../lib/constants.js';
 import { useToast } from '../../../components/ui/Toast.jsx';
@@ -38,10 +38,7 @@ export default function SettlementNewPage() {
   const presetExitDate = searchParams.get('exitDate') ?? '';
   const presetExitReason = searchParams.get('exitReason') ?? '';
 
-  const { data: employeeData, isError: employeesError } = useQuery({
-    queryKey: ['employees', { forEosb: true }],
-    queryFn: () => listEmployees({ limit: 100, sortBy: 'fullName', sortOrder: 'asc' }),
-  });
+  const { data: employeeData, isError: employeesError } = useEmployeePicker();
   const employees = employeeData?.items ?? [];
 
   const {

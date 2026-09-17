@@ -80,6 +80,44 @@ export function formatMoney(value) {
   })}`;
 }
 
+/** Amount one line item (quotation/invoice) contributes to the grand total
+ *  (net + its tax) — display-only; the authoritative stored total is always
+ *  server-computed (see server/src/utils/moneyMath.js's own lineAmount,
+ *  the same formula, kept separately since client/server can't share a
+ *  file across repos). */
+export function lineAmount(li) {
+  const gross = li.quantity * li.unitPrice;
+  const net = gross - gross * ((li.discount ?? 0) / 100);
+  return net + net * ((li.taxRate ?? 0) / 100);
+}
+
+/** Bytes → "1.2 MB" / "340 KB". */
+export function formatFileSize(bytes) {
+  if (bytes >= 1024 * 1024) return `${(bytes / 1024 / 1024).toFixed(1)} MB`;
+  return `${Math.max(1, Math.round(bytes / 1024))} KB`;
+}
+
+/** Green when profit, red when loss — zero stays neutral (not a loss). */
+export function profitClass(amount) {
+  if (amount > 0) return 'text-success';
+  if (amount < 0) return 'text-danger';
+  return undefined;
+}
+
+/** Column-header sort toggle: clicking the same key again flips asc/desc,
+ *  a new key starts ascending, and either way resets to page 1. Pass the
+ *  list page's own `setParams` (any shape with sortBy/sortOrder/page) and
+ *  call the result from a column header's onClick. */
+export function createSortToggle(setParams) {
+  return (key) =>
+    setParams((p) => ({
+      ...p,
+      sortBy: key,
+      sortOrder: p.sortBy === key && p.sortOrder === 'asc' ? 'desc' : 'asc',
+      page: 1,
+    }));
+}
+
 /** Compact relative time: "just now", "5m ago", "3h ago", "2d ago", else a date. */
 export function timeAgo(value) {
   const diff = Date.now() - new Date(value).getTime();

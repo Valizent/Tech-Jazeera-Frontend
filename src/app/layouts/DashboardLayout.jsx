@@ -13,7 +13,7 @@
  * which had no scroll of its own (items past the fold were unreachable, not
  * just visually cluttered — a real bug, independent of the regrouping).
  */
-import { useState, useRef, useEffect, Suspense } from 'react';
+import { useState, Suspense } from 'react';
 import { useTranslation } from 'react-i18next';
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../features/auth/AuthContext.jsx';
@@ -27,6 +27,7 @@ import BrandLogo, { useBranding } from '../../components/shared/BrandLogo.jsx';
 import ErrorBoundary from '../../components/shared/ErrorBoundary.jsx';
 import RouteFallback from '../../components/shared/RouteFallback.jsx';
 import { cn } from '../../lib/utils.js';
+import { useCloseOnOutsideClick } from '../../lib/useCloseOnOutsideClick.js';
 import { DASHBOARD_ITEM, NAV_GROUPS, EXECUTIVE_NAV_ITEMS } from '../navConfig.js';
 
 function NavIcon({ d }) {
@@ -121,18 +122,7 @@ export default function DashboardLayout() {
   // does (see server/src/modules/me/profile.routes.js).
   const canUpdateDetails = user.role !== 'Admin';
   const [avatarMenuOpen, setAvatarMenuOpen] = useState(false);
-  const avatarMenuRef = useRef(null);
-
-  useEffect(() => {
-    if (!avatarMenuOpen) return undefined;
-    function onClickOutside(e) {
-      if (avatarMenuRef.current && !avatarMenuRef.current.contains(e.target)) {
-        setAvatarMenuOpen(false);
-      }
-    }
-    document.addEventListener('mousedown', onClickOutside);
-    return () => document.removeEventListener('mousedown', onClickOutside);
-  }, [avatarMenuOpen]);
+  const avatarMenuRef = useCloseOnOutsideClick(avatarMenuOpen, setAvatarMenuOpen);
 
   async function handleLogout() {
     await logout();

@@ -16,7 +16,7 @@ import {
   CLIENT_APPROVAL_STATUSES,
   CLIENT_APPROVAL_VARIANT,
 } from '../../../lib/constants.js';
-import { apiMessage } from '../../../lib/utils.js';
+import { apiMessage, createSortToggle } from '../../../lib/utils.js';
 import PageHeader from '../../../components/shared/PageHeader.jsx';
 import ConfirmDialog from '../../../components/shared/ConfirmDialog.jsx';
 import DecideClientModal from '../components/DecideClientModal.jsx';
@@ -94,14 +94,7 @@ export default function ClientListPage() {
     },
   });
 
-  function toggleSort(key) {
-    setParams((p) => ({
-      ...p,
-      sortBy: key,
-      sortOrder: p.sortBy === key && p.sortOrder === 'asc' ? 'desc' : 'asc',
-      page: 1,
-    }));
-  }
+  const toggleSort = createSortToggle(setParams);
 
   const columns = [
     {

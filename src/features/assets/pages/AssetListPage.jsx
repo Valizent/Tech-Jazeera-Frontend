@@ -18,7 +18,7 @@ import {
   assignAsset,
   returnAsset,
 } from '../assets.api.js';
-import { listEmployees } from '../../employees/employees.api.js';
+import { useEmployeePicker } from '../../../lib/useEmployeePicker.js';
 import {
   assetFormSchema,
   emptyAssetForm,
@@ -65,11 +65,7 @@ export default function AssetListPage() {
     queryFn: () => listAssets({ limit: 100, ...(category && { category }), ...(status && { status }) }),
   });
 
-  const { data: employeeData, isError: employeesError } = useQuery({
-    queryKey: ['employees', { forAssets: true }],
-    queryFn: () => listEmployees({ limit: 100, sortBy: 'fullName', sortOrder: 'asc' }),
-    enabled: canWrite,
-  });
+  const { data: employeeData, isError: employeesError } = useEmployeePicker({ enabled: canWrite });
 
   const { data: history, isPending: historyLoading } = useQuery({
     queryKey: ['assets', 'history', viewingHistory],
