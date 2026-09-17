@@ -71,8 +71,26 @@
  * color green/red by sign — reusing the exact `profitClass` convention
  * MobilisationDetailPage.jsx already established for these same fields,
  * not a new color scheme.
+ *
+ * Third same-day follow-up (2026-09-17, from another screenshot): the
+ * expandable-row/dropdown from the "Same-day follow-up" note above is GONE
+ * — the user's own explicit ask ("instead of this dropdown"), superseded by
+ * the Month filter mechanism above: once a month is picked, the figures
+ * that used to require expanding a row now show as flat columns instead —
+ * `mobMonthTotalHours` (that month's real `actualHours`, not commercial,
+ * shown regardless of `hasCommercialMobilisation`), `mobMonthOtAmount`
+ * (that month's `otAmount`, gated by `hasOtAmount` same as before), and
+ * `mobMonthTotalAmount` (`entry.contractHours × clientRate + otAmount` —
+ * "regular + OT combined," the user's own explicit choice between two
+ * options put to them directly). The sticky totals row was also reworked:
+ * it used to assume every summable column sat contiguously at the END of
+ * `columns` (true before this follow-up); now it maps the FULL `columns`
+ * array and sums whichever ones have a `getNumber`, blank otherwise — this
+ * is what fixes the user's own catch ("we missed FTA and Allowance") by
+ * simply giving those two existing columns a `getNumber` too, no longer
+ * requiring them to sit next to the other summed columns.
  */
-import { Fragment, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
@@ -103,16 +121,6 @@ export default function DeploymentOverviewModal({ open, onClose }) {
   const navigate = useNavigate();
   const [filters, setFilters] = useState({});
   const [monthFilter, setMonthFilter] = useState('');
-  const [expandedIds, setExpandedIds] = useState(() => new Set());
-
-  function toggleExpanded(id) {
-    setExpandedIds((prev) => {
-      const next = new Set(prev);
-      if (next.has(id)) next.delete(id);
-      else next.add(id);
-      return next;
-    });
-  }
 
   const { data, isPending, isError } = useQuery({
     queryKey: ['deployments', 'overview'],
@@ -134,6 +142,14 @@ export default function DeploymentOverviewModal({ open, onClose }) {
     () => rows.some((d) => d.mobilisation?.clientRate !== undefined),
     [rows]
   );
+
+  // otAmount is commercial (see this file's own header comment) — the
+  // server already strips it entirely for anyone without
+  // 'deploymentsHoursDecide' access, so its presence on even one loaded
+  // entry is a reliable, no-extra-request signal that the whole response
+  // has it. Never re-derived from the viewer's own role client-side. Gates
+  // the month-specific OT-amount column below.
+  const hasOtAmount = useMemo(() => rows.some((d) => d.monthlyHours.some((m) => m.otAmount !== undefined)), [rows]);
 
   // Every month any deployment actually has a monthlyHours entry for — the
   // Month filter's own options, same "built from what's actually present"
@@ -224,6 +240,7 @@ export default function DeploymentOverviewModal({ open, onClose }) {
         key: 'mobFta',
         header: t('staffMobilisations.detail.fields.fta'),
         getText: (d) => (d.mobilisation?.fta ? formatMoney(d.mobilisation.fta) : ''),
+        getNumber: (d) => Number(d.mobilisation?.fta) || 0,
       },
       {
         key: 'mobFtaType',
@@ -236,6 +253,7 @@ export default function DeploymentOverviewModal({ open, onClose }) {
         key: 'mobAllowance',
         header: t('staffMobilisations.detail.fields.allowance'),
         getText: (d) => (d.mobilisation?.allowance ? formatMoney(d.mobilisation.allowance) : ''),
+        getNumber: (d) => Number(d.mobilisation?.allowance) || 0,
       },
       {
         key: 'mobAllowanceRemark',
@@ -243,6 +261,25 @@ export default function DeploymentOverviewModal({ open, onClose }) {
         getText: (d) => d.mobilisation?.allowanceRemark ?? '',
       },
     ];
+    // --- Month-specific, non-commercial (the user's own ask: real hours
+    // worked that month, off the matching monthlyHours entry — always
+    // present once a row has passed the Month filter, so no fallback
+    // needed). Visible regardless of hasCommercialMobilisation, same as
+    // actualHours was always visible in the removed expand-row table. ---
+    if (monthFilter) {
+      cols.push({
+        key: 'mobMonthTotalHours',
+        header: t('staffDeployments.overview.columns.hoursThisMonth'),
+        getText: (d) => {
+          const entry = d.monthlyHours.find((m) => m.month === monthFilter);
+          return entry ? String(entry.actualHours) : '';
+        },
+        getNumber: (d) => {
+          const entry = d.monthlyHours.find((m) => m.month === monthFilter);
+          return entry?.actualHours ?? 0;
+        },
+      });
+    }
     // --- Mobilisation-sourced — commercial fields, gated (see
     // hasCommercialMobilisation above). `getNumber` (in addition to
     // getText) powers both the sticky totals row below and, for a
@@ -310,14 +347,53 @@ export default function DeploymentOverviewModal({ open, onClose }) {
           getNumber: (d) => Number(d.mobilisation?.profitPerMonth) || 0,
         }
       );
-      // The real, month-specific total — the estimate plus that month's
-      // actual OT contribution (otProfitPerHour × the matching monthlyHours
-      // entry's otHours; every row here passed the Month filter, so that
-      // entry always exists). Only meaningful once a month is actually
-      // selected — hidden in the normal, unfiltered view (the user's own
-      // ask): an "estimate + 0 OT" number for a month nobody picked would
-      // just be a confusing duplicate of profitPerMonth itself.
+      // Three more month-specific commercial figures — only meaningful (and
+      // only rendered) once a month is actually selected, same "don't show
+      // a number these terms don't apply to" posture as everywhere else in
+      // this file.
       if (monthFilter) {
+        // That month's real OT amount off the matching monthlyHours entry —
+        // gated by hasOtAmount too (belt and suspenders: both flags come
+        // from the same server-side deploymentsHoursDecide check, but this
+        // stays consistent with hasOtAmount's own long-standing "only if
+        // the data actually has it" rule).
+        if (hasOtAmount) {
+          cols.push({
+            key: 'mobMonthOtAmount',
+            header: t('staffDeployments.overview.columns.otAmountThisMonth'),
+            getText: (d) => {
+              const entry = d.monthlyHours.find((m) => m.month === monthFilter);
+              return entry?.otAmount != null ? formatMoney(entry.otAmount) : '';
+            },
+            getNumber: (d) => {
+              const entry = d.monthlyHours.find((m) => m.month === monthFilter);
+              return entry?.otAmount ?? 0;
+            },
+          });
+        }
+        // "Total amount we got" that month — regular + OT combined billing
+        // (entry.contractHours × clientRate + otAmount), the user's own
+        // explicit choice between that and "regular only" when asked
+        // directly. Uses entry.contractHours (the snapshot taken AT THAT
+        // MONTH's entry time), not the deployment's current
+        // requiredTimesheetHours — same historically-accurate figure
+        // deployment.service.js's own computeMonthlyProfit already reads.
+        cols.push({
+          key: 'mobMonthTotalAmount',
+          header: t('staffDeployments.overview.columns.totalAmountThisMonth'),
+          getNumber: (d) => {
+            const entry = d.monthlyHours.find((m) => m.month === monthFilter);
+            const regular = (entry?.contractHours ?? 0) * (Number(d.mobilisation?.clientRate) || 0);
+            return regular + (entry?.otAmount ?? 0);
+          },
+          getText(d) {
+            return formatMoney(this.getNumber(d));
+          },
+        });
+        // The real, month-specific total — the estimate plus that month's
+        // actual OT contribution (otProfitPerHour × the matching
+        // monthlyHours entry's otHours; every row here passed the Month
+        // filter, so that entry always exists).
         cols.push({
           key: 'mobTotalProfitPerMonth',
           header: t('staffDeployments.overview.columns.totalProfitPerMonth'),
@@ -334,7 +410,7 @@ export default function DeploymentOverviewModal({ open, onClose }) {
       }
     }
     return cols;
-  }, [t, hasCommercialMobilisation, monthFilter]);
+  }, [t, hasCommercialMobilisation, monthFilter, hasOtAmount]);
 
   // For an 'enum' column, the picklist is built from whatever values are
   // ACTUALLY present in the loaded data — a real Excel AutoFilter feel,
@@ -346,13 +422,6 @@ export default function DeploymentOverviewModal({ open, onClose }) {
     }
     return result;
   }, [columns, rows]);
-
-  // otAmount is commercial (see this file's own header comment) — the
-  // server already strips it entirely for anyone without
-  // 'deploymentsHoursDecide' access, so its presence on even one loaded
-  // entry is a reliable, no-extra-request signal that the whole response
-  // has it. Never re-derived from the viewer's own role client-side.
-  const hasOtAmount = useMemo(() => rows.some((d) => d.monthlyHours.some((m) => m.otAmount !== undefined)), [rows]);
 
   const filteredRows = useMemo(() => {
     const active = Object.entries(filters).filter(([, v]) => v);
@@ -366,11 +435,6 @@ export default function DeploymentOverviewModal({ open, onClose }) {
       });
     });
   }, [rows, filters, columns, monthFilter]);
-
-  // Every column with a getNumber — the commercial rate/commission/profit
-  // group, plus the conditional Total-profit-per-month column when it's
-  // showing — powers the sticky totals row below.
-  const summableColumns = useMemo(() => columns.filter((c) => c.getNumber), [columns]);
 
   const hasActiveFilters = Object.values(filters).some(Boolean) || Boolean(monthFilter);
 
@@ -387,7 +451,7 @@ export default function DeploymentOverviewModal({ open, onClose }) {
             {t('staffDeployments.overview.rowCount', { shown: filteredRows.length, total: rows.length })}
           </p>
           <div className="flex items-center gap-2">
-            {hasCommercialMobilisation && monthOptions.length > 0 && (
+            {monthOptions.length > 0 && (
               <label className="flex items-center gap-1.5 text-xs text-muted">
                 {t('staffDeployments.overview.monthFilterLabel')}
                 <select
@@ -431,7 +495,6 @@ export default function DeploymentOverviewModal({ open, onClose }) {
             <table className="w-full text-sm">
               <thead className="sticky top-0 z-10 bg-surface">
                 <tr className="border-b border-border">
-                  <th className="w-9 px-2 py-2" aria-hidden="true" />
                   {columns.map((col) => (
                     <th key={col.key} className="whitespace-nowrap px-3 py-2 text-left text-xs font-semibold uppercase tracking-wide text-muted">
                       {col.header}
@@ -439,7 +502,6 @@ export default function DeploymentOverviewModal({ open, onClose }) {
                   ))}
                 </tr>
                 <tr className="border-b border-border bg-bg/40">
-                  <th className="w-9 px-2 py-1.5" aria-hidden="true" />
                   {columns.map((col) => (
                     <th key={col.key} className="px-3 py-1.5">
                       {col.type === 'enum' ? (
@@ -477,140 +539,36 @@ export default function DeploymentOverviewModal({ open, onClose }) {
               <tbody className="divide-y divide-border">
                 {filteredRows.length === 0 ? (
                   <tr>
-                    <td colSpan={columns.length + 1} className="px-3 py-8 text-center text-sm text-muted">
+                    <td colSpan={columns.length} className="px-3 py-8 text-center text-sm text-muted">
                       {t('common.tryClearingFilters')}
                     </td>
                   </tr>
                 ) : (
-                  filteredRows.map((d) => {
-                    const expanded = expandedIds.has(d._id);
-                    const months = [...d.monthlyHours].sort((a, b) => a.month.localeCompare(b.month));
-                    return (
-                      <Fragment key={d._id}>
-                        <tr
-                          onClick={() => goToDeployment(d._id)}
-                          className="cursor-pointer transition-colors hover:bg-primary/[0.035]"
+                  filteredRows.map((d) => (
+                    <tr key={d._id} onClick={() => goToDeployment(d._id)} className="cursor-pointer transition-colors hover:bg-primary/[0.035]">
+                      {columns.map((col) => (
+                        <td
+                          key={col.key}
+                          className={cn('whitespace-nowrap px-3 py-2', (col.profit && profitClass(col.getNumber(d))) || 'text-text')}
                         >
-                          <td className="px-2 py-2">
-                            <button
-                              type="button"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                toggleExpanded(d._id);
-                              }}
-                              aria-expanded={expanded}
-                              aria-label={
-                                expanded
-                                  ? t('staffDeployments.overview.collapseMonthlyHours')
-                                  : t('staffDeployments.overview.expandMonthlyHours')
-                              }
-                              className="grid h-6 w-6 place-items-center rounded-md text-muted transition-colors hover:bg-border/60 hover:text-text"
-                            >
-                              <svg
-                                viewBox="0 0 24 24"
-                                fill="none"
-                                stroke="currentColor"
-                                strokeWidth="2"
-                                className={cn('h-3.5 w-3.5 transition-transform', expanded && 'rotate-90')}
-                              >
-                                <path strokeLinecap="round" strokeLinejoin="round" d="M9 6l6 6-6 6" />
-                              </svg>
-                            </button>
-                          </td>
-                          {columns.map((col) => (
-                            <td
-                              key={col.key}
-                              className={cn('whitespace-nowrap px-3 py-2', (col.profit && profitClass(col.getNumber(d))) || 'text-text')}
-                            >
-                              {col.getText(d) || '—'}
-                            </td>
-                          ))}
-                        </tr>
-                        {expanded && (
-                          <tr className="bg-bg/30">
-                            <td colSpan={columns.length + 1} className="px-4 py-3">
-                              {months.length === 0 ? (
-                                <p className="text-xs text-muted">{t('staffDeployments.overview.noMonthlyHours')}</p>
-                              ) : (
-                                <div className="overflow-x-auto rounded-lg border border-border">
-                                  <table className="w-full text-xs">
-                                    <thead>
-                                      <tr className="border-b border-border bg-surface">
-                                        <th className="whitespace-nowrap px-2 py-1.5 text-left font-semibold uppercase tracking-wide text-muted">
-                                          {t('staffDeployments.detail.columns.month')}
-                                        </th>
-                                        <th className="whitespace-nowrap px-2 py-1.5 text-left font-semibold uppercase tracking-wide text-muted">
-                                          {t('staffDeployments.detail.columns.contractHours')}
-                                        </th>
-                                        <th className="whitespace-nowrap px-2 py-1.5 text-left font-semibold uppercase tracking-wide text-muted">
-                                          {t('staffDeployments.detail.columns.actualHours')}
-                                        </th>
-                                        <th className="whitespace-nowrap px-2 py-1.5 text-left font-semibold uppercase tracking-wide text-muted">
-                                          {t('staffDeployments.detail.columns.daysWorked')}
-                                        </th>
-                                        <th className="whitespace-nowrap px-2 py-1.5 text-left font-semibold uppercase tracking-wide text-muted">
-                                          {t('staffDeployments.detail.columns.otHours')}
-                                        </th>
-                                        {hasOtAmount && (
-                                          <th className="whitespace-nowrap px-2 py-1.5 text-left font-semibold uppercase tracking-wide text-muted">
-                                            {t('staffDeployments.detail.columns.otAmount')}
-                                          </th>
-                                        )}
-                                        <th className="whitespace-nowrap px-2 py-1.5 text-left font-semibold uppercase tracking-wide text-muted">
-                                          {t('staffDeployments.detail.columns.deduction')}
-                                        </th>
-                                        <th className="whitespace-nowrap px-2 py-1.5 text-left font-semibold uppercase tracking-wide text-muted">
-                                          {t('staffDeployments.detail.columns.status')}
-                                        </th>
-                                        <th className="whitespace-nowrap px-2 py-1.5 text-left font-semibold uppercase tracking-wide text-muted">
-                                          {t('staffDeployments.detail.notesLabel')}
-                                        </th>
-                                      </tr>
-                                    </thead>
-                                    <tbody className="divide-y divide-border">
-                                      {months.map((m) => (
-                                        <tr key={m._id ?? m.month} onClick={(e) => e.stopPropagation()}>
-                                          <td className="whitespace-nowrap px-2 py-1.5 text-text">{m.month}</td>
-                                          <td className="whitespace-nowrap px-2 py-1.5 text-text">{m.contractHours}</td>
-                                          <td className="whitespace-nowrap px-2 py-1.5 text-text">{m.actualHours}</td>
-                                          <td className="whitespace-nowrap px-2 py-1.5 text-text">{m.daysWorked || '—'}</td>
-                                          <td className="whitespace-nowrap px-2 py-1.5 text-text">{m.otHours}</td>
-                                          {hasOtAmount && (
-                                            <td className="whitespace-nowrap px-2 py-1.5 text-text">
-                                              {m.otAmount != null ? formatMoney(m.otAmount) : '—'}
-                                            </td>
-                                          )}
-                                          <td className="whitespace-nowrap px-2 py-1.5 text-text">
-                                            {m.deductionAmount ? formatMoney(m.deductionAmount) : '—'}
-                                          </td>
-                                          <td className="whitespace-nowrap px-2 py-1.5 text-text">
-                                            {t(`staffDeployments.detail.hoursStatus.${m.status}`, m.status)}
-                                          </td>
-                                          <td className="px-2 py-1.5 text-text">{m.notes || '—'}</td>
-                                        </tr>
-                                      ))}
-                                    </tbody>
-                                  </table>
-                                </div>
-                              )}
-                            </td>
-                          </tr>
-                        )}
-                      </Fragment>
-                    );
-                  })
+                          {col.getText(d) || '—'}
+                        </td>
+                      ))}
+                    </tr>
+                  ))
                 )}
               </tbody>
-              {hasCommercialMobilisation && summableColumns.length > 0 && (
+              {hasCommercialMobilisation && (
                 <tfoot className="sticky bottom-0 z-10 bg-surface">
                   <tr className="border-t-2 border-border">
-                    <td
-                      colSpan={columns.length - summableColumns.length + 1}
-                      className="whitespace-nowrap px-3 py-2 text-right text-xs font-semibold uppercase tracking-wide text-muted"
-                    >
-                      {t('staffDeployments.overview.totalRowLabel')}
-                    </td>
-                    {summableColumns.map((col) => {
+                    {columns.map((col, i) => {
+                      if (!col.getNumber) {
+                        return (
+                          <td key={col.key} className="whitespace-nowrap px-3 py-2 text-xs font-semibold uppercase tracking-wide text-muted">
+                            {i === 0 ? t('staffDeployments.overview.totalRowLabel') : ''}
+                          </td>
+                        );
+                      }
                       const sum = filteredRows.reduce((s, d) => s + col.getNumber(d), 0);
                       return (
                         <td
