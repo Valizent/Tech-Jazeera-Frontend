@@ -1355,6 +1355,8 @@
       "monthFilterLabel": "Month",
       "selectMonth": "Select month…",
       "noDeploymentsForMonth": "No deployments for {{month}}",
+      "columnsMenuLabel": "Columns",
+      "setColumnsAsDefault": "Set as default layout",
       "resetColumns": "Reset columns",
       "dragColumnHint": "Drag to reorder this column",
       "totalRowLabel": "Total",
