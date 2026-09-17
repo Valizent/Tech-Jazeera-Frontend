@@ -18,7 +18,7 @@ import {
   EMPLOYEE_DELETE_ROLES,
   EXPIRY_WARNING_DAYS,
 } from '../../../lib/constants.js';
-import { apiMessage, daysUntil, formatDate } from '../../../lib/utils.js';
+import { apiMessage, daysUntil, formatDate, createSortToggle } from '../../../lib/utils.js';
 import PageHeader from '../../../components/shared/PageHeader.jsx';
 import ConfirmDialog from '../../../components/shared/ConfirmDialog.jsx';
 import Table from '../../../components/ui/Table.jsx';
@@ -113,14 +113,7 @@ export default function EmployeeListPage() {
     onError: (error) => toast.error(apiMessage(error)),
   });
 
-  function toggleSort(key) {
-    setParams((p) => ({
-      ...p,
-      sortBy: key,
-      sortOrder: p.sortBy === key && p.sortOrder === 'asc' ? 'desc' : 'asc',
-      page: 1,
-    }));
-  }
+  const toggleSort = createSortToggle(setParams);
 
   const columns = [
     {

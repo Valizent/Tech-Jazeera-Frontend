@@ -8,7 +8,7 @@
  * see i18n/index.js's doc comment for why it's scoped to the ESS portal
  * rather than also appearing on DashboardLayout.
  */
-import { useState, useRef, useEffect, Suspense } from 'react';
+import { useState, Suspense } from 'react';
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../features/auth/AuthContext.jsx';
@@ -21,6 +21,7 @@ import BrandLogo, { useBranding } from '../../components/shared/BrandLogo.jsx';
 import ErrorBoundary from '../../components/shared/ErrorBoundary.jsx';
 import RouteFallback from '../../components/shared/RouteFallback.jsx';
 import { cn } from '../../lib/utils.js';
+import { useCloseOnOutsideClick } from '../../lib/useCloseOnOutsideClick.js';
 
 const NAV_ITEMS = [
   {
@@ -116,18 +117,7 @@ export default function EssLayout() {
   const [changePasswordOpen, setChangePasswordOpen] = useState(false);
   const [avatarModalOpen, setAvatarModalOpen] = useState(false);
   const [avatarMenuOpen, setAvatarMenuOpen] = useState(false);
-  const avatarMenuRef = useRef(null);
-
-  useEffect(() => {
-    if (!avatarMenuOpen) return undefined;
-    function onClickOutside(e) {
-      if (avatarMenuRef.current && !avatarMenuRef.current.contains(e.target)) {
-        setAvatarMenuOpen(false);
-      }
-    }
-    document.addEventListener('mousedown', onClickOutside);
-    return () => document.removeEventListener('mousedown', onClickOutside);
-  }, [avatarMenuOpen]);
+  const avatarMenuRef = useCloseOnOutsideClick(avatarMenuOpen, setAvatarMenuOpen);
 
   async function handleLogout() {
     await logout();

@@ -35,7 +35,7 @@ import {
 } from '../mobilisations.schema.js';
 import MobilisationDocumentPreviewModal from '../components/MobilisationDocumentPreviewModal.jsx';
 import { useAuth } from '../../auth/AuthContext.jsx';
-import { apiMessage, cn, formatDate, formatMoney } from '../../../lib/utils.js';
+import { apiMessage, cn, formatDate, formatMoney, profitClass } from '../../../lib/utils.js';
 import { MOBILISATION_STATUS_VARIANT, MOBILISATION_DOCUMENT_CATEGORIES, MOBILISATION_DOCUMENT_CATEGORY_LABELS } from '../../../lib/constants.js';
 import { useToast } from '../../../components/ui/Toast.jsx';
 import ApprovalTrailView from '../../../components/shared/ApprovalTrailView.jsx';
@@ -52,13 +52,6 @@ import Textarea from '../../../components/ui/Textarea.jsx';
 import Modal from '../../../components/ui/Modal.jsx';
 import Skeleton from '../../../components/ui/Skeleton.jsx';
 import EmptyState from '../../../components/ui/EmptyState.jsx';
-
-/** Green when profit, red when loss — zero stays neutral (not a loss). */
-function profitClass(amount) {
-  if (amount > 0) return 'text-success';
-  if (amount < 0) return 'text-danger';
-  return undefined;
-}
 
 /** A small inline warning triangle — no icon library in this app (Tailwind
  *  only), so every icon here is a hand-drawn SVG, same as the header's

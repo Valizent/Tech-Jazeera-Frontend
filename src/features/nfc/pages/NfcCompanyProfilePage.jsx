@@ -21,21 +21,13 @@ import Button from '../../../components/ui/Button.jsx';
 import Table from '../../../components/ui/Table.jsx';
 import Skeleton from '../../../components/ui/Skeleton.jsx';
 import EmptyState from '../../../components/ui/EmptyState.jsx';
+import ProfileField from '../../../components/ui/ProfileField.jsx';
 import NfcCompanyFormModal from '../components/NfcCompanyFormModal.jsx';
 import NfcEmployeeFormModal from '../components/NfcEmployeeFormModal.jsx';
 import AssignCardModal from '../components/AssignCardModal.jsx';
 
 /** Window for the per-person tap counts shown beside each name. */
 const ANALYTICS_DAYS = 30;
-
-function Field({ label, children }) {
-  return (
-    <div>
-      <dt className="text-xs uppercase tracking-wide text-muted">{label}</dt>
-      <dd className="mt-0.5 text-sm">{children || '—'}</dd>
-    </div>
-  );
-}
 
 export default function NfcCompanyProfilePage() {
   const { id } = useParams();
@@ -201,17 +193,17 @@ export default function NfcCompanyProfilePage() {
         <Card>
           <h2 className="mb-4 text-sm font-semibold uppercase tracking-wide text-muted">Company</h2>
           <dl className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            <Field label="Contact person">{company.contactPerson}</Field>
-            <Field label="Phone">{company.phone}</Field>
-            <Field label="Email">{company.email}</Field>
-            <Field label="Website">
+            <ProfileField label="Contact person">{company.contactPerson}</ProfileField>
+            <ProfileField label="Phone">{company.phone}</ProfileField>
+            <ProfileField label="Email">{company.email}</ProfileField>
+            <ProfileField label="Website">
               {company.website ? (
                 <a href={/^https?:\/\//i.test(company.website) ? company.website : `https://${company.website}`} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
                   {company.website}
                 </a>
               ) : null}
-            </Field>
-            <Field label="Address">
+            </ProfileField>
+            <ProfileField label="Address">
               {company.address ? (
                 mapsHref ? (
                   <a href={mapsHref} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
@@ -221,13 +213,13 @@ export default function NfcCompanyProfilePage() {
                   company.address
                 )
               ) : null}
-            </Field>
-            <Field label="Brand colour">
+            </ProfileField>
+            <ProfileField label="Brand colour">
               <span className="inline-flex items-center gap-2">
                 <span className="inline-block h-3.5 w-3.5 rounded-full ring-1 ring-inset ring-black/10" style={{ backgroundColor: company.brandColour || '#4F46E5' }} />
                 <span className="font-mono text-xs">{company.brandColour || '#4F46E5'}</span>
               </span>
-            </Field>
+            </ProfileField>
           </dl>
           {company.notes && (
             <div className="mt-4">

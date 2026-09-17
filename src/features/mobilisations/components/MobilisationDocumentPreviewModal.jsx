@@ -14,18 +14,12 @@
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { fetchMobilisationDocumentBlob, downloadMobilisationDocument } from '../mobilisations.api.js';
-import { apiMessage, formatDate } from '../../../lib/utils.js';
+import { apiMessage, formatDate, formatFileSize } from '../../../lib/utils.js';
 import { MOBILISATION_DOCUMENT_CATEGORY_LABELS } from '../../../lib/constants.js';
 import Modal from '../../../components/ui/Modal.jsx';
 import Button from '../../../components/ui/Button.jsx';
 import Badge from '../../../components/ui/Badge.jsx';
 import Spinner from '../../../components/ui/Spinner.jsx';
-
-/** Bytes → "1.2 MB" / "340 KB". */
-function fileSize(bytes) {
-  if (bytes >= 1024 * 1024) return `${(bytes / 1024 / 1024).toFixed(1)} MB`;
-  return `${Math.max(1, Math.round(bytes / 1024))} KB`;
-}
 
 export default function MobilisationDocumentPreviewModal({ mobilisationId, doc, open, onClose }) {
   const { t } = useTranslation();
@@ -65,7 +59,7 @@ export default function MobilisationDocumentPreviewModal({ mobilisationId, doc, 
               {t(`staffMobilisations.documentCategoryLabels.${doc.category}`, MOBILISATION_DOCUMENT_CATEGORY_LABELS[doc.category])}
             </Badge>
             <span className="text-xs text-muted">
-              {formatDate(doc.uploadedAt)} · {fileSize(doc.size)}
+              {formatDate(doc.uploadedAt)} · {formatFileSize(doc.size)}
             </span>
           </div>
           <Button size="sm" variant="secondary" onClick={() => downloadMobilisationDocument(mobilisationId, doc._id, doc.originalName)}>

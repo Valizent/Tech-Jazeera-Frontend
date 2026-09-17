@@ -124,7 +124,7 @@ import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { listDeployments } from '../deployments.api.js';
-import { formatDate, formatMoney, cn } from '../../../lib/utils.js';
+import { formatDate, formatMoney, cn, profitClass } from '../../../lib/utils.js';
 import Modal from '../../../components/ui/Modal.jsx';
 import Button from '../../../components/ui/Button.jsx';
 import Skeleton from '../../../components/ui/Skeleton.jsx';
@@ -135,15 +135,6 @@ const COLUMN_ORDER_STORAGE_KEY = 'deploymentsOverviewColumnOrder';
 
 function uniqueSorted(values) {
   return [...new Set(values.filter(Boolean))].sort();
-}
-
-// Same convention as MobilisationDetailPage.jsx's own profitClass — reused
-// here, not reinvented, so a profit figure reads the same color everywhere
-// it appears in the app.
-function profitClass(amount) {
-  if (amount > 0) return 'text-success';
-  if (amount < 0) return 'text-danger';
-  return undefined;
 }
 
 // Full month names, '01'..'12' — a fixed list, unlike yearOptions below,

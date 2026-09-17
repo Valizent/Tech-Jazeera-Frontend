@@ -13,7 +13,7 @@ import { getInvoice, recordPayment, deleteInvoice } from '../invoices.api.js';
 import InvoicePdfButton from '../components/InvoicePdfButton.jsx';
 import { paymentFormSchema, emptyPaymentForm } from '../invoices.schema.js';
 import { useAuth } from '../../auth/AuthContext.jsx';
-import { apiMessage, formatDate, formatMoney } from '../../../lib/utils.js';
+import { apiMessage, formatDate, formatMoney, lineAmount } from '../../../lib/utils.js';
 import { INVOICE_STATUS_VARIANT, INVOICE_DELETE_ROLES } from '../../../lib/constants.js';
 import { useToast } from '../../../components/ui/Toast.jsx';
 import PageHeader from '../../../components/shared/PageHeader.jsx';
@@ -26,13 +26,6 @@ import Input from '../../../components/ui/Input.jsx';
 import Modal from '../../../components/ui/Modal.jsx';
 import Skeleton from '../../../components/ui/Skeleton.jsx';
 import EmptyState from '../../../components/ui/EmptyState.jsx';
-
-/** Amount a line contributes to the total (net + its tax) — same math as the PDF/server. */
-function lineAmount(li) {
-  const gross = li.quantity * li.unitPrice;
-  const net = gross - gross * ((li.discount ?? 0) / 100);
-  return net + net * ((li.taxRate ?? 0) / 100);
-}
 
 export default function InvoiceViewPage() {
   const { id } = useParams();

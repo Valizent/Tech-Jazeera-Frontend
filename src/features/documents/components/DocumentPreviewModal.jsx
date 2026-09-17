@@ -10,18 +10,12 @@ import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { fetchFileBlob, downloadDocumentFile } from '../documents.api.js';
 import { currentVersion } from '../documents.schema.js';
-import { apiMessage, formatDate } from '../../../lib/utils.js';
+import { apiMessage, formatDate, formatFileSize } from '../../../lib/utils.js';
 import Modal from '../../../components/ui/Modal.jsx';
 import Button from '../../../components/ui/Button.jsx';
 import Badge from '../../../components/ui/Badge.jsx';
 import ExpiryBadge from '../../../components/shared/ExpiryBadge.jsx';
 import Spinner from '../../../components/ui/Spinner.jsx';
-
-/** Bytes → "1.2 MB" / "340 KB". */
-function fileSize(bytes) {
-  if (bytes >= 1024 * 1024) return `${(bytes / 1024 / 1024).toFixed(1)} MB`;
-  return `${Math.max(1, Math.round(bytes / 1024))} KB`;
-}
 
 export default function DocumentPreviewModal({ doc, open, onClose }) {
   const { t } = useTranslation();
@@ -103,7 +97,7 @@ export default function DocumentPreviewModal({ doc, open, onClose }) {
                       v{v.version} · {v.originalName}
                     </p>
                     <p className="text-xs text-muted">
-                      {formatDate(v.uploadedAt)} · {fileSize(v.size)}
+                      {formatDate(v.uploadedAt)} · {formatFileSize(v.size)}
                     </p>
                   </div>
                   <Button

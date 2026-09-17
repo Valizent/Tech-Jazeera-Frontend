@@ -17,7 +17,7 @@
 import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { listEmployees } from '../../employees/employees.api.js';
+import { useEmployeePicker } from '../../../lib/useEmployeePicker.js';
 import { listStaffUsers } from '../../users/users.api.js';
 import { listAttendance, adjustAttendance, markBulk } from '../attendance.api.js';
 import { listAllStaffAttendance } from '../staffAttendance.api.js';
@@ -82,15 +82,11 @@ export default function RecordsGrid() {
 
   const range = useMemo(() => (mode === 'month' ? monthRange(ref) : weekRange(ref)), [mode, ref]);
 
-  const { data: employeeData, isPending: employeesLoading } = useQuery({
-    queryKey: ['employees', { forAttendance: true }],
-    // Not filtered by type server-side — the grid tracks the supplied
-    // workforce (Client + Subcontracted), filtered client-side below.
-    // Own-type employees (Manager/HR/Coordinator/Accounts) already have
-    // their own section below, sourced from StaffAttendance, not this
-    // Attendance query.
-    queryFn: () => listEmployees({ limit: 100, sortBy: 'fullName', sortOrder: 'asc' }),
-  });
+  // Not filtered by type server-side — the grid tracks the supplied
+  // workforce (Client + Subcontracted), filtered client-side below.
+  // Own-type employees (Manager/HR/Coordinator/Accounts) already have their
+  // own section below, sourced from StaffAttendance, not this query.
+  const { data: employeeData, isPending: employeesLoading } = useEmployeePicker();
   const { data: records, isPending: recordsLoading } = useQuery({
     queryKey: ['attendance', 'range', range.from, range.to],
     queryFn: () => listAttendance({ from: range.from, to: range.to }),
