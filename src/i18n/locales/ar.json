@@ -1353,6 +1353,9 @@
       "expandMonthlyHours": "إظهار الساعات الشهرية",
       "collapseMonthlyHours": "إخفاء الساعات الشهرية",
       "noMonthlyHours": "لم تُسجَّل أي ساعات شهرية لعملية النشر هذه بعد.",
+      "monthFilterLabel": "الشهر",
+      "allMonths": "كل الأشهر",
+      "totalRowLabel": "الإجمالي",
       "columns": {
         "worker": "العامل",
         "workerType": "نوع العامل",
@@ -1365,7 +1368,8 @@
         "status": "الحالة",
         "endReason": "سبب الانتهاء",
         "notes": "ملاحظات",
-        "mobilisationNumber": "رقم التعبئة"
+        "mobilisationNumber": "رقم التعبئة",
+        "totalProfitPerMonth": "إجمالي الربح الشهري"
       }
     },
     "standby": {
