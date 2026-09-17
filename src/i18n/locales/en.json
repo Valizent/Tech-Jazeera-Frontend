@@ -1350,8 +1350,11 @@
       "allValues": "All",
       "filterPlaceholder": "Filter…",
       "emptyTitle": "No deployments yet",
+      "yearFilterLabel": "Year",
+      "selectYear": "Select year…",
       "monthFilterLabel": "Month",
-      "allMonths": "All months",
+      "selectMonth": "Select month…",
+      "noDeploymentsForMonth": "No deployments for {{month}}",
       "totalRowLabel": "Total",
       "columns": {
         "worker": "Worker",

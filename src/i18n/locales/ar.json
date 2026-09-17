@@ -1350,8 +1350,11 @@
       "allValues": "الكل",
       "filterPlaceholder": "تصفية…",
       "emptyTitle": "لا توجد عمليات نشر بعد",
+      "yearFilterLabel": "السنة",
+      "selectYear": "اختر السنة…",
       "monthFilterLabel": "الشهر",
-      "allMonths": "كل الأشهر",
+      "selectMonth": "اختر الشهر…",
+      "noDeploymentsForMonth": "لا توجد عمليات نشر في {{month}}",
       "totalRowLabel": "الإجمالي",
       "columns": {
         "worker": "العامل",

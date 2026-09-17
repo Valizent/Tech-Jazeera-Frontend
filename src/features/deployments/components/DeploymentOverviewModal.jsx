@@ -116,11 +116,37 @@ function profitClass(amount) {
   return undefined;
 }
 
+// Full month names, '01'..'12' — a fixed list, unlike yearOptions below,
+// since every year has the same twelve months regardless of what data
+// exists. English only, matching lib/utils.js's own formatDate (this app's
+// documented scope boundary: dates stay English/unlocalized everywhere).
+const MONTHS = Array.from({ length: 12 }, (_, i) => ({
+  value: String(i + 1).padStart(2, '0'),
+  label: new Date(Date.UTC(2000, i, 1)).toLocaleDateString('en-GB', { month: 'long' }),
+}));
+
+// 'YYYY-MM' → 'March 2026' — the Month filter's own value formatted for a
+// human, reused by the empty-state message below.
+function monthLabel(monthStr) {
+  const [y, m] = monthStr.split('-').map(Number);
+  return new Date(Date.UTC(y, m - 1, 1)).toLocaleDateString('en-GB', { month: 'long', year: 'numeric' });
+}
+
 export default function DeploymentOverviewModal({ open, onClose }) {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const [filters, setFilters] = useState({});
-  const [monthFilter, setMonthFilter] = useState('');
+  // Year + Month are two independent selects (2026-09-17, the user's own
+  // ask) rather than one dropdown of only-the-months-that-have-data — this
+  // is what lets someone deliberately pick a month with NO data at all
+  // (e.g. "March 2026") and get a real, readable "no deployments that
+  // month" answer instead of that month simply never being selectable.
+  // `monthFilter` (the 'YYYY-MM' string every other piece of this file
+  // already reads) is DERIVED, not its own state — filtering only takes
+  // effect once both are chosen.
+  const [filterYear, setFilterYear] = useState('');
+  const [filterMonthNum, setFilterMonthNum] = useState('');
+  const monthFilter = filterYear && filterMonthNum ? `${filterYear}-${filterMonthNum}` : '';
 
   const { data, isPending, isError } = useQuery({
     queryKey: ['deployments', 'overview'],
@@ -151,15 +177,25 @@ export default function DeploymentOverviewModal({ open, onClose }) {
   // the month-specific OT-amount column below.
   const hasOtAmount = useMemo(() => rows.some((d) => d.monthlyHours.some((m) => m.otAmount !== undefined)), [rows]);
 
-  // Every month any deployment actually has a monthlyHours entry for — the
-  // Month filter's own options, same "built from what's actually present"
-  // convention as enumOptions below. Raw 'YYYY-MM' strings, not a friendlier
-  // format — matches how a month already reads everywhere else in this same
-  // modal (the expanded monthly-hours sub-table's own Month column).
-  const monthOptions = useMemo(
-    () => uniqueSorted(rows.flatMap((d) => d.monthlyHours.map((m) => m.month))),
-    [rows]
-  );
+  // The Year select's own options — a CONTIGUOUS range (not just years that
+  // have data, unlike the removed monthOptions this replaces), so a genuinely
+  // empty year in the middle of the range still selects cleanly. Spans every
+  // year touched by any deployment's own dates or monthlyHours entries, plus
+  // the current year — always at least one real, useful year even for a
+  // brand-new company with zero deployments yet.
+  const yearOptions = useMemo(() => {
+    const years = new Set([new Date().getFullYear()]);
+    for (const d of rows) {
+      years.add(new Date(d.startDate).getFullYear());
+      if (d.endDate) years.add(new Date(d.endDate).getFullYear());
+      for (const m of d.monthlyHours) years.add(Number(m.month.slice(0, 4)));
+    }
+    const min = Math.min(...years);
+    const max = Math.max(...years);
+    const result = [];
+    for (let y = min; y <= max; y++) result.push(y);
+    return result;
+  }, [rows]);
 
   // Columns match deployment.export.js's own list exactly, so the modal and
   // the downloaded .xlsx always read the same way. `getText` is what both
@@ -451,31 +487,46 @@ export default function DeploymentOverviewModal({ open, onClose }) {
             {t('staffDeployments.overview.rowCount', { shown: filteredRows.length, total: rows.length })}
           </p>
           <div className="flex items-center gap-2">
-            {monthOptions.length > 0 && (
-              <label className="flex items-center gap-1.5 text-xs text-muted">
-                {t('staffDeployments.overview.monthFilterLabel')}
-                <select
-                  value={monthFilter}
-                  onChange={(e) => setMonthFilter(e.target.value)}
-                  aria-label={t('staffDeployments.overview.monthFilterLabel')}
-                  className="h-8 rounded-md border border-border bg-surface px-2 text-xs text-text"
-                >
-                  <option value="">{t('staffDeployments.overview.allMonths')}</option>
-                  {monthOptions.map((m) => (
-                    <option key={m} value={m}>
-                      {m}
-                    </option>
-                  ))}
-                </select>
-              </label>
-            )}
+            <label className="flex items-center gap-1.5 text-xs text-muted">
+              {t('staffDeployments.overview.yearFilterLabel')}
+              <select
+                value={filterYear}
+                onChange={(e) => setFilterYear(e.target.value)}
+                aria-label={t('staffDeployments.overview.yearFilterLabel')}
+                className="h-8 rounded-md border border-border bg-surface px-2 text-xs text-text"
+              >
+                <option value="">{t('staffDeployments.overview.selectYear')}</option>
+                {yearOptions.map((y) => (
+                  <option key={y} value={y}>
+                    {y}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label className="flex items-center gap-1.5 text-xs text-muted">
+              {t('staffDeployments.overview.monthFilterLabel')}
+              <select
+                value={filterMonthNum}
+                onChange={(e) => setFilterMonthNum(e.target.value)}
+                aria-label={t('staffDeployments.overview.monthFilterLabel')}
+                className="h-8 rounded-md border border-border bg-surface px-2 text-xs text-text"
+              >
+                <option value="">{t('staffDeployments.overview.selectMonth')}</option>
+                {MONTHS.map((m) => (
+                  <option key={m.value} value={m.value}>
+                    {m.label}
+                  </option>
+                ))}
+              </select>
+            </label>
             {hasActiveFilters && (
               <Button
                 size="sm"
                 variant="secondary"
                 onClick={() => {
                   setFilters({});
-                  setMonthFilter('');
+                  setFilterYear('');
+                  setFilterMonthNum('');
                 }}
               >
                 {t('staffDeployments.overview.clearFilters')}
@@ -539,8 +590,15 @@ export default function DeploymentOverviewModal({ open, onClose }) {
               <tbody className="divide-y divide-border">
                 {filteredRows.length === 0 ? (
                   <tr>
-                    <td colSpan={columns.length} className="px-3 py-8 text-center text-sm text-muted">
-                      {t('common.tryClearingFilters')}
+                    {/* left-aligned, not centered: this cell's colSpan covers
+                        every column (now ~30 wide with the Mobilisation
+                        columns), so centered text would render far past the
+                        right edge of the visible, left-scrolled viewport —
+                        found live while verifying this exact empty state. */}
+                    <td colSpan={columns.length} className="px-3 py-8 text-left text-sm text-muted">
+                      {monthFilter
+                        ? t('staffDeployments.overview.noDeploymentsForMonth', { month: monthLabel(monthFilter) })
+                        : t('common.tryClearingFilters')}
                     </td>
                   </tr>
                 ) : (
