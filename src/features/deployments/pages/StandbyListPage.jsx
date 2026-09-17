@@ -20,6 +20,7 @@
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
+import { useAuth } from '../../auth/AuthContext.jsx';
 import { getStandbyWorkforce } from '../deployments.api.js';
 import { formatDate } from '../../../lib/utils.js';
 import PageHeader from '../../../components/shared/PageHeader.jsx';
@@ -47,6 +48,7 @@ function mobiliseWorkerUrl(worker) {
 
 export default function StandbyListPage() {
   const { t } = useTranslation();
+  const { user } = useAuth();
   const navigate = useNavigate();
 
   const { data, isPending, isError } = useQuery({
@@ -129,7 +131,16 @@ export default function StandbyListPage() {
         title={t('staffDeployments.standby.pageTitle')}
         description={t('staffDeployments.standby.pageDescription')}
         onBack={() => navigate(-1)}
-        actions={<Button onClick={() => navigate('/mobilisations/new')}>{t('staffDeployments.standby.newMobilisation')}</Button>}
+        actions={
+          <div className="flex items-center gap-2">
+            {user.role === 'Admin' && (
+              <Button variant="secondary" onClick={() => navigate('/mobilisations/worker-history')}>
+                {t('staffDeployments.standby.workerDataButton')}
+              </Button>
+            )}
+            <Button onClick={() => navigate('/mobilisations/new')}>{t('staffDeployments.standby.newMobilisation')}</Button>
+          </div>
+        }
       />
 
       {isPending ? (

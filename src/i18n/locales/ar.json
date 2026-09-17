@@ -1383,6 +1383,7 @@
       "pageTitle": "قائمة الاحتياط",
       "pageDescription": "كل من تم تعيينه لدى عميل في وقت ما وهو غير معيّن حاليًا.",
       "newMobilisation": "تعبئة جديدة",
+      "workerDataButton": "بيانات العامل",
       "mobiliseAction": "تعبئة",
       "couldNotLoad": "تعذر تحميل قائمة الاحتياط",
       "columns": {
@@ -1611,6 +1612,7 @@
       "pageTitle": "التعبئات",
       "pageDescription": "تعيينات العمال مع شروط الفوترة للعميل.",
       "newMobilisation": "تعبئة جديدة",
+      "workerDataButton": "بيانات العامل",
       "exportExcel": "تصدير إلى إكسل",
       "searchPlaceholderWithSerial": "البحث بالرقم أو العامل أو العميل أو المسمى الوظيفي…",
       "searchAriaLabel": "البحث في التعبئات",
@@ -1628,6 +1630,35 @@
       "emptyTitleNoFilters": "لا توجد تعبئات بعد",
       "emptyTitleFiltered": "لا توجد تعبئات مطابقة",
       "emptyDescriptionNoFilters": "أنشئ أول تعبئة أعلاه."
+    },
+    "workerHistory": {
+      "pageTitle": "بيانات العامل",
+      "pageDescription": "ابحث عن كل ما هو مسجل لعامل مستقل أو موفَّر من مقاول من الباطن برقم الإقامة، وأرشِف بياناته عندما لم يعد ذا صلة.",
+      "searchLabel": "رقم الإقامة",
+      "searchPlaceholder": "رقم إقامة مكوّن من 10 أرقام…",
+      "searchButton": "بحث",
+      "notFoundTitle": "لم يتم العثور على أي تعبئات",
+      "notFoundDescription": "لا يوجد سجل لرقم الإقامة هذا.",
+      "recordCount": "{{count}} تعبئة مسجلة",
+      "activeEngagementBadge": "نشط حاليًا",
+      "activeEngagementWarning": "لا يزال لهذا العامل تعبئة أو عملية نشر نشطة — أنهِ التعبئة أو النشر أولًا قبل الأرشفة.",
+      "archiveButton": "أرشفة بيانات العامل",
+      "archiveConfirmTitle": "أرشفة بيانات {{name}}؟",
+      "archiveConfirmMessage": "سيؤدي هذا إلى إخفاء جميع السجلات البالغ عددها {{count}} — وأي عملية نشر نتجت عنها — من كل القوائم وعمليات البحث في التطبيق. لا يُحذف شيء؛ يمكنك استعادتها في أي وقت.",
+      "archivedToast": "تم أرشفة بيانات العامل.",
+      "restoreButton": "استعادة بيانات العامل",
+      "restoreConfirmTitle": "استعادة بيانات {{name}}؟",
+      "restoreConfirmMessage": "سيؤدي هذا إلى إظهار جميع السجلات البالغ عددها {{count}} — وأي عملية نشر نتجت عنها — مجددًا في كل القوائم وعمليات البحث.",
+      "restoredToast": "تم استعادة بيانات العامل.",
+      "archivedBadge": "مؤرشف",
+      "columns": {
+        "mobilisationNumber": "رقم التعبئة",
+        "client": "العميل",
+        "status": "الحالة",
+        "mobilisationDate": "تاريخ التعبئة",
+        "deployment": "عملية النشر",
+        "archived": "مؤرشف"
+      }
     },
     "form": {
       "sectionOnBehalf": "الإنشاء نيابة عن",

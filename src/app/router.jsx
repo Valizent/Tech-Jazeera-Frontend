@@ -49,6 +49,7 @@ const MobilisationListPage = lazy(() => import('../features/mobilisations/pages/
 const MobilisationNewPage = lazy(() => import('../features/mobilisations/pages/MobilisationNewPage.jsx'));
 const MobilisationDetailPage = lazy(() => import('../features/mobilisations/pages/MobilisationDetailPage.jsx'));
 const MobilisationEditPage = lazy(() => import('../features/mobilisations/pages/MobilisationEditPage.jsx'));
+const WorkerHistoryPage = lazy(() => import('../features/mobilisations/pages/WorkerHistoryPage.jsx'));
 const MobilisationSettingsPage = lazy(() => import('../features/mobilisationSettings/pages/MobilisationSettingsPage.jsx'));
 const CompanySettingsPage = lazy(() => import('../features/companySettings/pages/CompanySettingsPage.jsx'));
 const SectionAccessPage = lazy(() => import('../features/sectionAccess/pages/SectionAccessPage.jsx'));
@@ -230,6 +231,12 @@ export const router = createBrowserRouter([
               { path: '/deployments/:id', element: guarded('deploymentsRelease', <DeploymentDetailPage />, true) },
               { path: '/mobilisations', element: <MobilisationListPage /> },
               { path: '/mobilisations/new', element: guardedWrite('mobilisationsSelfMobilise', <MobilisationNewPage />, true) },
+              // Before the /mobilisations/:id catch-all, same reasoning as
+              // /deployments/standby above. Admin-only, checked inside the
+              // page itself (same posture as /section-access) — not worth a
+              // dedicated Section Access key for a single hardcoded-Admin
+              // utility.
+              { path: '/mobilisations/worker-history', element: <WorkerHistoryPage /> },
               { path: '/mobilisations/:id', element: <MobilisationDetailPage /> },
               { path: '/mobilisations/:id/edit', element: <MobilisationEditPage /> },
               { path: '/mobilisation-settings', element: <MobilisationSettingsPage /> },
