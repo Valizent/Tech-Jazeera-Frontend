@@ -89,6 +89,24 @@
  * is what fixes the user's own catch ("we missed FTA and Allowance") by
  * simply giving those two existing columns a `getNumber` too, no longer
  * requiring them to sit next to the other summed columns.
+ *
+ * Sixth same-day follow-up (2026-09-17, the user's own ask — "can I
+ * rearrange each column... like drag and drop needed column space"):
+ * drag-and-drop column reordering, native HTML5 drag events on each
+ * header cell (row 1 only — row 2's filter inputs/selects stay
+ * non-draggable so clicking them still works normally). `columnOrder` is
+ * a plain array of column KEYS, not a second copy of the column
+ * definitions — `orderedColumns` (below) re-sorts the real `columns`
+ * array against it every render, so a column that appears/disappears
+ * (the whole commercial group, the month-specific ones) never desyncs:
+ * a stored key with no matching column is silently dropped, and any
+ * column not yet in the stored order (new, or the very first render)
+ * appends at the end. Persisted to localStorage (a personal display
+ * preference, not worth a server round trip — same convention
+ * DashboardPage.jsx's own expiry-threshold setting already uses), so the
+ * arrangement survives closing and reopening the modal. A "Reset
+ * columns" button (next to "Clear filters") clears it back to the
+ * built-in order.
  */
 import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -102,6 +120,7 @@ import Skeleton from '../../../components/ui/Skeleton.jsx';
 import EmptyState from '../../../components/ui/EmptyState.jsx';
 
 const OVERVIEW_ROW_LIMIT = 5000;
+const COLUMN_ORDER_STORAGE_KEY = 'deploymentsOverviewColumnOrder';
 
 function uniqueSorted(values) {
   return [...new Set(values.filter(Boolean))].sort();
@@ -147,6 +166,41 @@ export default function DeploymentOverviewModal({ open, onClose }) {
   const [filterYear, setFilterYear] = useState('');
   const [filterMonthNum, setFilterMonthNum] = useState('');
   const monthFilter = filterYear && filterMonthNum ? `${filterYear}-${filterMonthNum}` : '';
+
+  // Drag-and-drop column order (see this file's own module comment) —
+  // an array of column keys, or null for the built-in order. A personal
+  // display preference, so it's persisted the same way DashboardPage.jsx's
+  // own expiry-threshold setting already is: lazily read once here, written
+  // back on every change, never a server round trip.
+  const [columnOrder, setColumnOrder] = useState(() => {
+    try {
+      const raw = localStorage.getItem(COLUMN_ORDER_STORAGE_KEY);
+      return raw ? JSON.parse(raw) : null;
+    } catch {
+      return null;
+    }
+  });
+  const [draggedKey, setDraggedKey] = useState(null);
+  const [dragOverKey, setDragOverKey] = useState(null);
+
+  function persistColumnOrder(next) {
+    setColumnOrder(next);
+    try {
+      localStorage.setItem(COLUMN_ORDER_STORAGE_KEY, JSON.stringify(next));
+    } catch {
+      // Private window / storage blocked — the reorder still works for the
+      // rest of this session via state, it just won't survive a reload.
+    }
+  }
+
+  function resetColumnOrder() {
+    setColumnOrder(null);
+    try {
+      localStorage.removeItem(COLUMN_ORDER_STORAGE_KEY);
+    } catch {
+      // same as above — non-fatal either way.
+    }
+  }
 
   const { data, isPending, isError } = useQuery({
     queryKey: ['deployments', 'overview'],
@@ -448,6 +502,40 @@ export default function DeploymentOverviewModal({ open, onClose }) {
     return cols;
   }, [t, hasCommercialMobilisation, monthFilter, hasOtAmount]);
 
+  // `columns` re-sorted against the user's own drag-and-drop order (see
+  // this file's own module comment). Stale keys (a column that no longer
+  // exists this render) are dropped silently; any column not yet in the
+  // stored order (new, or nothing has ever been dragged) appends at the
+  // end in its normal position — so toggling the Month filter on/off, or
+  // a viewer's own commercial access, can never desync a saved
+  // arrangement or crash on a missing column.
+  const orderedColumns = useMemo(() => {
+    if (!columnOrder) return columns;
+    const byKey = new Map(columns.map((c) => [c.key, c]));
+    const ordered = columnOrder.filter((k) => byKey.has(k)).map((k) => byKey.get(k));
+    const seen = new Set(ordered.map((c) => c.key));
+    for (const c of columns) {
+      if (!seen.has(c.key)) ordered.push(c);
+    }
+    return ordered;
+  }, [columns, columnOrder]);
+
+  function handleHeaderDrop(targetKey) {
+    if (draggedKey && draggedKey !== targetKey) {
+      const order = orderedColumns.map((c) => c.key);
+      const from = order.indexOf(draggedKey);
+      const to = order.indexOf(targetKey);
+      if (from !== -1 && to !== -1) {
+        const next = [...order];
+        next.splice(from, 1);
+        next.splice(to, 0, draggedKey);
+        persistColumnOrder(next);
+      }
+    }
+    setDraggedKey(null);
+    setDragOverKey(null);
+  }
+
   // For an 'enum' column, the picklist is built from whatever values are
   // ACTUALLY present in the loaded data — a real Excel AutoFilter feel,
   // never a stale/theoretical option nothing currently uses.
@@ -532,6 +620,11 @@ export default function DeploymentOverviewModal({ open, onClose }) {
                 {t('staffDeployments.overview.clearFilters')}
               </Button>
             )}
+            {columnOrder && (
+              <Button size="sm" variant="secondary" onClick={resetColumnOrder}>
+                {t('staffDeployments.overview.resetColumns')}
+              </Button>
+            )}
           </div>
         </div>
 
@@ -546,14 +639,49 @@ export default function DeploymentOverviewModal({ open, onClose }) {
             <table className="w-full text-sm">
               <thead className="sticky top-0 z-10 bg-surface">
                 <tr className="border-b border-border">
-                  {columns.map((col) => (
-                    <th key={col.key} className="whitespace-nowrap px-3 py-2 text-left text-xs font-semibold uppercase tracking-wide text-muted">
-                      {col.header}
+                  {orderedColumns.map((col) => (
+                    <th
+                      key={col.key}
+                      draggable
+                      onDragStart={(e) => {
+                        setDraggedKey(col.key);
+                        e.dataTransfer.effectAllowed = 'move';
+                      }}
+                      onDragOver={(e) => {
+                        e.preventDefault();
+                        if (dragOverKey !== col.key) setDragOverKey(col.key);
+                      }}
+                      onDrop={(e) => {
+                        e.preventDefault();
+                        handleHeaderDrop(col.key);
+                      }}
+                      onDragEnd={() => {
+                        setDraggedKey(null);
+                        setDragOverKey(null);
+                      }}
+                      title={t('staffDeployments.overview.dragColumnHint')}
+                      className={cn(
+                        'group cursor-grab select-none whitespace-nowrap px-3 py-2 text-left text-xs font-semibold uppercase tracking-wide text-muted active:cursor-grabbing',
+                        draggedKey === col.key && 'opacity-40',
+                        dragOverKey === col.key && draggedKey !== col.key && 'bg-primary/10 ring-1 ring-inset ring-primary/50'
+                      )}
+                    >
+                      <span className="inline-flex items-center gap-1">
+                        <svg viewBox="0 0 16 16" fill="currentColor" className="h-3 w-3 shrink-0 opacity-0 transition-opacity group-hover:opacity-50">
+                          <circle cx="5" cy="3" r="1.3" />
+                          <circle cx="11" cy="3" r="1.3" />
+                          <circle cx="5" cy="8" r="1.3" />
+                          <circle cx="11" cy="8" r="1.3" />
+                          <circle cx="5" cy="13" r="1.3" />
+                          <circle cx="11" cy="13" r="1.3" />
+                        </svg>
+                        {col.header}
+                      </span>
                     </th>
                   ))}
                 </tr>
                 <tr className="border-b border-border bg-bg/40">
-                  {columns.map((col) => (
+                  {orderedColumns.map((col) => (
                     <th key={col.key} className="px-3 py-1.5">
                       {col.type === 'enum' ? (
                         <select
@@ -604,7 +732,7 @@ export default function DeploymentOverviewModal({ open, onClose }) {
                 ) : (
                   filteredRows.map((d) => (
                     <tr key={d._id} onClick={() => goToDeployment(d._id)} className="cursor-pointer transition-colors hover:bg-primary/[0.035]">
-                      {columns.map((col) => (
+                      {orderedColumns.map((col) => (
                         <td
                           key={col.key}
                           className={cn('whitespace-nowrap px-3 py-2', (col.profit && profitClass(col.getNumber(d))) || 'text-text')}
@@ -619,7 +747,7 @@ export default function DeploymentOverviewModal({ open, onClose }) {
               {hasCommercialMobilisation && (
                 <tfoot className="sticky bottom-0 z-10 bg-surface">
                   <tr className="border-t-2 border-border">
-                    {columns.map((col, i) => {
+                    {orderedColumns.map((col, i) => {
                       if (!col.getNumber) {
                         return (
                           <td key={col.key} className="whitespace-nowrap px-3 py-2 text-xs font-semibold uppercase tracking-wide text-muted">
