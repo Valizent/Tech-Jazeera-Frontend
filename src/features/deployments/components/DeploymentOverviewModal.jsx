@@ -101,14 +101,25 @@
  * (the whole commercial group, the month-specific ones) never desyncs:
  * a stored key with no matching column is silently dropped, and any
  * column not yet in the stored order (new, or the very first render)
- * appends at the end. Persisted to localStorage (a personal display
- * preference, not worth a server round trip — same convention
- * DashboardPage.jsx's own expiry-threshold setting already uses), so the
- * arrangement survives closing and reopening the modal. A "Reset
- * columns" button (next to "Clear filters") clears it back to the
- * built-in order.
+ * appends at the end.
+ *
+ * Seventh same-day follow-up (2026-09-17, the user's own ask — "have an
+ * option to set it as a default layout... along with reset column[s],
+ * give these two options under one button"): a drag no longer
+ * auto-persists to localStorage — it only updates `columnOrder` for the
+ * rest of THIS session, so trying an arrangement never silently
+ * overwrites a saved one. A single "Columns" button opens a small menu
+ * (same outside-click-closes pattern as SearchableSelect.jsx) with two
+ * explicit actions: "Set as default" writes the CURRENT order to
+ * localStorage (a personal display preference, not worth a server round
+ * trip — same convention DashboardPage.jsx's own expiry-threshold setting
+ * already uses) so it's what loads next time the modal opens; "Reset
+ * columns" clears both the session order and the saved default back to
+ * the built-in order. Both are disabled when there's nothing to act on
+ * (`columnOrder === null` — the built-in order, never touched this
+ * session and nothing saved from before).
  */
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
@@ -167,11 +178,13 @@ export default function DeploymentOverviewModal({ open, onClose }) {
   const [filterMonthNum, setFilterMonthNum] = useState('');
   const monthFilter = filterYear && filterMonthNum ? `${filterYear}-${filterMonthNum}` : '';
 
-  // Drag-and-drop column order (see this file's own module comment) —
-  // an array of column keys, or null for the built-in order. A personal
-  // display preference, so it's persisted the same way DashboardPage.jsx's
-  // own expiry-threshold setting already is: lazily read once here, written
-  // back on every change, never a server round trip.
+  // Drag-and-drop column order (see this file's own module comment) — an
+  // array of column keys, or null for the built-in order. Dragging only
+  // updates this SESSION state; it's a genuinely separate, explicit action
+  // ("Set as default" below) that writes it to localStorage, so trying an
+  // arrangement can never silently clobber a saved one. Lazily read once
+  // here so a previously-saved default still applies the moment the modal
+  // opens.
   const [columnOrder, setColumnOrder] = useState(() => {
     try {
       const raw = localStorage.getItem(COLUMN_ORDER_STORAGE_KEY);
@@ -182,15 +195,28 @@ export default function DeploymentOverviewModal({ open, onClose }) {
   });
   const [draggedKey, setDraggedKey] = useState(null);
   const [dragOverKey, setDragOverKey] = useState(null);
+  const [columnsMenuOpen, setColumnsMenuOpen] = useState(false);
+  const columnsMenuRef = useRef(null);
 
-  function persistColumnOrder(next) {
-    setColumnOrder(next);
-    try {
-      localStorage.setItem(COLUMN_ORDER_STORAGE_KEY, JSON.stringify(next));
-    } catch {
-      // Private window / storage blocked — the reorder still works for the
-      // rest of this session via state, it just won't survive a reload.
+  useEffect(() => {
+    if (!columnsMenuOpen) return undefined;
+    function handleClickOutside(e) {
+      if (columnsMenuRef.current && !columnsMenuRef.current.contains(e.target)) {
+        setColumnsMenuOpen(false);
+      }
     }
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [columnsMenuOpen]);
+
+  function setColumnOrderAsDefault() {
+    if (!columnOrder) return;
+    try {
+      localStorage.setItem(COLUMN_ORDER_STORAGE_KEY, JSON.stringify(columnOrder));
+    } catch {
+      // Private window / storage blocked — non-fatal, just won't survive a reload.
+    }
+    setColumnsMenuOpen(false);
   }
 
   function resetColumnOrder() {
@@ -200,6 +226,7 @@ export default function DeploymentOverviewModal({ open, onClose }) {
     } catch {
       // same as above — non-fatal either way.
     }
+    setColumnsMenuOpen(false);
   }
 
   const { data, isPending, isError } = useQuery({
@@ -529,7 +556,10 @@ export default function DeploymentOverviewModal({ open, onClose }) {
         const next = [...order];
         next.splice(from, 1);
         next.splice(to, 0, draggedKey);
-        persistColumnOrder(next);
+        // Session-only (see this file's own module comment) — "Set as
+        // default" in the Columns menu is the explicit, separate step that
+        // actually persists this to localStorage.
+        setColumnOrder(next);
       }
     }
     setDraggedKey(null);
@@ -620,11 +650,51 @@ export default function DeploymentOverviewModal({ open, onClose }) {
                 {t('staffDeployments.overview.clearFilters')}
               </Button>
             )}
-            {columnOrder && (
-              <Button size="sm" variant="secondary" onClick={resetColumnOrder}>
-                {t('staffDeployments.overview.resetColumns')}
+            <div className="relative" ref={columnsMenuRef}>
+              <Button
+                size="sm"
+                variant="secondary"
+                onClick={() => setColumnsMenuOpen((v) => !v)}
+                aria-expanded={columnsMenuOpen}
+                aria-haspopup="menu"
+              >
+                {t('staffDeployments.overview.columnsMenuLabel')}
+                <svg
+                  viewBox="0 0 16 16"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  className={cn('h-3 w-3 transition-transform', columnsMenuOpen && 'rotate-180')}
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M4 6l4 4 4-4" />
+                </svg>
               </Button>
-            )}
+              {columnsMenuOpen && (
+                <div
+                  role="menu"
+                  className="absolute right-0 top-full z-20 mt-1 w-56 overflow-hidden rounded-lg border border-border bg-surface py-1 shadow-lg"
+                >
+                  <button
+                    type="button"
+                    role="menuitem"
+                    disabled={!columnOrder}
+                    onClick={setColumnOrderAsDefault}
+                    className="block w-full px-3 py-2 text-left text-sm text-text hover:bg-primary/10 disabled:cursor-not-allowed disabled:text-muted disabled:hover:bg-transparent"
+                  >
+                    {t('staffDeployments.overview.setColumnsAsDefault')}
+                  </button>
+                  <button
+                    type="button"
+                    role="menuitem"
+                    disabled={!columnOrder}
+                    onClick={resetColumnOrder}
+                    className="block w-full px-3 py-2 text-left text-sm text-text hover:bg-primary/10 disabled:cursor-not-allowed disabled:text-muted disabled:hover:bg-transparent"
+                  >
+                    {t('staffDeployments.overview.resetColumns')}
+                  </button>
+                </div>
+              )}
+            </div>
           </div>
         </div>
 
