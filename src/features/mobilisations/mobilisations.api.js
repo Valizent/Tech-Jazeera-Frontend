@@ -40,6 +40,24 @@ export async function listPreviousMobilisedWorkers({ workerType, subcontractor }
   return data.data;
 }
 
+/** Everything known about one Freelancer/SupplierEmployee worker, by their
+ *  exact 10-digit Iqama — Admin only. See WorkerHistoryPage.jsx. */
+export async function getWorkerHistory(iqamaNumber) {
+  const { data } = await api.get('/mobilisations/worker-history', { params: { iqamaNumber } });
+  return data.data;
+}
+
+/** Archives every Mobilisation (and resulting Deployment) for this worker —
+ *  hidden from lists/lookups, not deleted; reversible. Admin only. */
+export async function archiveWorkerData(iqamaNumber) {
+  await api.post('/mobilisations/worker-history/archive', { iqamaNumber });
+}
+
+/** Reverses archiveWorkerData above. Admin only. */
+export async function unarchiveWorkerData(iqamaNumber) {
+  await api.post('/mobilisations/worker-history/unarchive', { iqamaNumber });
+}
+
 export async function getMobilisation(id) {
   const { data } = await api.get(`/mobilisations/${id}`);
   return data.data;

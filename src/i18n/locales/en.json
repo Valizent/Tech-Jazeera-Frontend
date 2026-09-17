@@ -1383,6 +1383,7 @@
       "pageTitle": "Standby list",
       "pageDescription": "Everyone who was placed with a client at some point and isn't right now.",
       "newMobilisation": "New mobilisation",
+      "workerDataButton": "Worker data",
       "mobiliseAction": "Mobilise",
       "couldNotLoad": "Could not load the standby list",
       "columns": {
@@ -1611,6 +1612,7 @@
       "pageTitle": "Mobilisations",
       "pageDescription": "Worker placements with client billing terms.",
       "newMobilisation": "New mobilisation",
+      "workerDataButton": "Worker data",
       "exportExcel": "Export to Excel",
       "searchPlaceholderWithSerial": "Search #, worker, client, job title…",
       "searchAriaLabel": "Search mobilisations",
@@ -1628,6 +1630,35 @@
       "emptyTitleNoFilters": "No mobilisations yet",
       "emptyTitleFiltered": "No mobilisations match",
       "emptyDescriptionNoFilters": "Create your first mobilisation above."
+    },
+    "workerHistory": {
+      "pageTitle": "Worker data",
+      "pageDescription": "Look up everything on record for a Freelancer or subcontractor-supplied worker by their Iqama number, and archive it once they're no longer relevant.",
+      "searchLabel": "Iqama number",
+      "searchPlaceholder": "10-digit Iqama number…",
+      "searchButton": "Search",
+      "notFoundTitle": "No mobilisations found",
+      "notFoundDescription": "Nothing on record for this Iqama number.",
+      "recordCount": "{{count}} mobilisation(s) on record",
+      "activeEngagementBadge": "Currently active",
+      "activeEngagementWarning": "This worker still has an active mobilisation or deployment — demobilise or complete it first before archiving.",
+      "archiveButton": "Archive worker data",
+      "archiveConfirmTitle": "Archive data for {{name}}?",
+      "archiveConfirmMessage": "This hides all {{count}} record(s) — and any deployment they produced — from every list and lookup across the app. Nothing is deleted; you can restore it anytime.",
+      "archivedToast": "Worker data archived.",
+      "restoreButton": "Restore worker data",
+      "restoreConfirmTitle": "Restore data for {{name}}?",
+      "restoreConfirmMessage": "This makes all {{count}} record(s) — and any deployment they produced — visible again in every list and lookup.",
+      "restoredToast": "Worker data restored.",
+      "archivedBadge": "Archived",
+      "columns": {
+        "mobilisationNumber": "Mobilisation #",
+        "client": "Client",
+        "status": "Status",
+        "mobilisationDate": "Mobilisation date",
+        "deployment": "Deployment",
+        "archived": "Archived"
+      }
     },
     "form": {
       "sectionOnBehalf": "Creating for",

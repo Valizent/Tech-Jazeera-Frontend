@@ -7,6 +7,7 @@ import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { keepPreviousData, useMutation, useQuery } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../../auth/AuthContext.jsx';
 import { listMobilisations, downloadMobilisationsExport } from '../mobilisations.api.js';
 import { apiMessage, formatDate } from '../../../lib/utils.js';
 import { MOBILISATION_STATUSES, MOBILISATION_STATUS_VARIANT } from '../../../lib/constants.js';
@@ -21,6 +22,7 @@ import EmptyState from '../../../components/ui/EmptyState.jsx';
 
 export default function MobilisationListPage() {
   const { t } = useTranslation();
+  const { user } = useAuth();
   const navigate = useNavigate();
   const toast = useToast();
 
@@ -103,6 +105,11 @@ export default function MobilisationListPage() {
             >
               {t('staffMobilisations.list.exportExcel')}
             </Button>
+            {user.role === 'Admin' && (
+              <Button size="sm" variant="secondary" onClick={() => navigate('/mobilisations/worker-history')}>
+                {t('staffMobilisations.list.workerDataButton')}
+              </Button>
+            )}
             <Button size="sm" onClick={() => navigate('/mobilisations/new')}>
               {t('staffMobilisations.list.newMobilisation')}
             </Button>
