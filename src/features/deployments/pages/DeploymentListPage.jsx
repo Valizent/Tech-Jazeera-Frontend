@@ -4,12 +4,26 @@
  * once its source Mobilisation is Approved (see the Mobilisations module) and
  * ended via Release on the deployment's own detail page — there is no manual
  * create/assign here.
+ *
+ * 2026-09-16, the user's own asks, all four: (1) the status filter now
+ * DEFAULTS to 'Active' ("Mobilised") — this register is checked far more
+ * often for "who's out right now" than for history, same reasoning as
+ * Deployment's own default sort putting the newest first; a real click on
+ * "All statuses" still shows everything, this only changes what loads first.
+ * (2) the client filter is now a searchable combobox (SearchableSelect),
+ * not a plain `<select>` — a company with 50+ clients turned that into a
+ * long scroll. (3) "Export to Excel" — same filters as the on-screen list,
+ * mirrors MobilisationListPage's own button+mutation pattern exactly.
+ * (4) "Overview" — a full-width modal showing EVERY deployment (not just
+ * this page's filtered/paginated slice) in one spreadsheet-style table,
+ * every column the Excel export itself has, each with its own Excel-style
+ * column filter — see DeploymentOverviewModal.jsx.
  */
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { listDeployments, deleteDeployment } from '../deployments.api.js';
+import { listDeployments, deleteDeployment, downloadDeploymentsExport } from '../deployments.api.js';
 import { listClients } from '../../clients/clients.api.js';
 import { useAuth } from '../../auth/AuthContext.jsx';
 import { apiMessage, formatDate } from '../../../lib/utils.js';
@@ -21,8 +35,10 @@ import Table from '../../../components/ui/Table.jsx';
 import Badge from '../../../components/ui/Badge.jsx';
 import Button from '../../../components/ui/Button.jsx';
 import Select from '../../../components/ui/Select.jsx';
+import SearchableSelect from '../../../components/ui/SearchableSelect.jsx';
 import EmptyState from '../../../components/ui/EmptyState.jsx';
 import PickerLoadWarning from '../../../components/shared/PickerLoadWarning.jsx';
+import DeploymentOverviewModal from '../components/DeploymentOverviewModal.jsx';
 
 const STATUS_VARIANT = { Active: 'success', Ended: 'default' };
 
@@ -38,11 +54,12 @@ export default function DeploymentListPage() {
   // see the note in deployments.api.js.
   const isAdmin = user.role === 'Admin';
   const [toDelete, setToDelete] = useState(null);
+  const [overviewOpen, setOverviewOpen] = useState(false);
 
   const [params, setParams] = useState({
     page: 1,
     limit: 20,
-    status: '',
+    status: 'Active',
     client: '',
     sortOrder: 'desc',
   });
@@ -74,6 +91,16 @@ export default function DeploymentListPage() {
       setToDelete(null);
       queryClient.invalidateQueries({ queryKey: ['deployments'] });
     },
+    onError: (error) => toast.error(apiMessage(error)),
+  });
+
+  const exportMutation = useMutation({
+    mutationFn: () =>
+      downloadDeploymentsExport({
+        sortOrder: params.sortOrder,
+        ...(params.status && { status: params.status }),
+        ...(params.client && { client: params.client }),
+      }),
     onError: (error) => toast.error(apiMessage(error)),
   });
 
@@ -149,9 +176,17 @@ export default function DeploymentListPage() {
         description={t('staffDeployments.list.pageDescription')}
         onBack={() => navigate(-1)}
         actions={
-          <Button variant="secondary" onClick={() => navigate('/deployments/standby')}>
-            {t('staffDeployments.list.standbyList')}
-          </Button>
+          <div className="flex flex-wrap items-center gap-2">
+            <Button size="sm" variant="secondary" isLoading={exportMutation.isPending} onClick={() => exportMutation.mutate()}>
+              {t('staffDeployments.list.exportExcel')}
+            </Button>
+            <Button size="sm" variant="secondary" onClick={() => setOverviewOpen(true)}>
+              {t('staffDeployments.list.overview')}
+            </Button>
+            <Button size="sm" variant="secondary" onClick={() => navigate('/deployments/standby')}>
+              {t('staffDeployments.list.standbyList')}
+            </Button>
+          </div>
         }
       />
 
@@ -170,19 +205,17 @@ export default function DeploymentListPage() {
             </option>
           ))}
         </Select>
-        <Select
+        <SearchableSelect
           value={params.client}
-          onChange={(e) => setParams((p) => ({ ...p, client: e.target.value, page: 1 }))}
+          onChange={(value) => setParams((p) => ({ ...p, client: value, page: 1 }))}
+          placeholder={t('staffDeployments.list.searchClientPlaceholder')}
           className="sm:max-w-xs"
           aria-label={t('staffDeployments.list.filterClientAriaLabel')}
-        >
-          <option value="">{t('staffDeployments.list.allClients')}</option>
-          {(clientData?.items ?? []).map((c) => (
-            <option key={c._id} value={c._id}>
-              {c.companyName}
-            </option>
-          ))}
-        </Select>
+          options={[
+            { value: '', label: t('staffDeployments.list.allClients') },
+            ...(clientData?.items ?? []).map((c) => ({ value: c._id, label: c.companyName })),
+          ]}
+        />
       </div>
 
       {isError ? (
@@ -240,6 +273,8 @@ export default function DeploymentListPage() {
         onConfirm={() => deleteMutation.mutate(toDelete._id)}
         onCancel={() => setToDelete(null)}
       />
+
+      <DeploymentOverviewModal open={overviewOpen} onClose={() => setOverviewOpen(false)} />
     </div>
   );
 }
