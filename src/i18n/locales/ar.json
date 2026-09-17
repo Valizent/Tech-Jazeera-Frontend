@@ -1355,6 +1355,8 @@
       "monthFilterLabel": "الشهر",
       "selectMonth": "اختر الشهر…",
       "noDeploymentsForMonth": "لا توجد عمليات نشر في {{month}}",
+      "resetColumns": "إعادة ضبط الأعمدة",
+      "dragColumnHint": "اسحب لإعادة ترتيب هذا العمود",
       "totalRowLabel": "الإجمالي",
       "columns": {
         "worker": "العامل",
