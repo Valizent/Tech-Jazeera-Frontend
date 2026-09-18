@@ -13,6 +13,7 @@
  */
 import { Component } from 'react';
 import Button from '../ui/Button.jsx';
+import { captureError } from '../../lib/sentry.js';
 
 export default class ErrorBoundary extends Component {
   state = { hasError: false };
@@ -22,10 +23,12 @@ export default class ErrorBoundary extends Component {
   }
 
   componentDidCatch(error, info) {
-    // No error-reporting service wired up yet — this is the one place that
-    // catches what would otherwise be a silent blank screen, so at minimum
-    // it must reach the browser console.
+    // Always reaches the browser console (works with zero setup); also
+    // reported to error tracking when configured (see lib/sentry.js) —
+    // this is the one place that catches what would otherwise be a silent
+    // blank screen for the user.
     console.error('Caught by ErrorBoundary:', error, info.componentStack);
+    captureError(error, { componentStack: info.componentStack });
   }
 
   render() {
