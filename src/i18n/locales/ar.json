@@ -1338,10 +1338,7 @@
       "couldNotLoadDescription": "يرجى المحاولة مرة أخرى.",
       "emptyTitleNoFilters": "لا توجد عمليات نشر بعد",
       "emptyTitleFiltered": "لا توجد عمليات نشر مطابقة",
-      "emptyDescriptionNoFilters": "تُنشأ عملية النشر تلقائيًا فور اعتماد التعبئة.",
-      "deletedToast": "تم حذف عملية النشر.",
-      "deleteConfirmTitle": "حذف عملية النشر هذه؟",
-      "deleteConfirmMessage": "سيؤدي هذا إلى إزالة تعيين {{worker}} لدى {{client}} نهائيًا. لا يمكن التراجع عن هذا."
+      "emptyDescriptionNoFilters": "تُنشأ عملية النشر تلقائيًا فور اعتماد التعبئة."
     },
     "overview": {
       "modalTitle": "نظرة عامة على عمليات النشر",
@@ -1846,10 +1843,7 @@
         "downloadToView": "قم بتنزيله لعرضه."
       },
       "defaultRejectError": "اشرح ما الذي يحتاج إلى تصحيح قبل الرفض.",
-      "viewDeployment": "عرض النشر",
-      "deleteConfirmTitle": "حذف عملية التعبئة هذه؟",
-      "deleteConfirmMessage": "سيؤدي هذا إلى حذف سجل تعبئة {{name}} نهائيًا، بما في ذلك مستنداته. لا يمكن التراجع عن هذا.",
-      "deletedToast": "تم حذف عملية التعبئة."
+      "viewDeployment": "عرض النشر"
     }
   },
   "staffSubcontractors": {

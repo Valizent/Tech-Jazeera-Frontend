@@ -73,10 +73,3 @@ export async function demobiliseDeployment(id, payload) {
   const { data } = await api.post(`/deployments/${id}/demobilise`, payload);
   return data.data;
 }
-
-// TEMPORARY — pre-production cleanup only, Admin-only. Remove this function
-// along with its call sites and the server route/service/controller behind
-// it before going live.
-export async function deleteDeployment(id) {
-  await api.delete(`/deployments/${id}`);
-}
