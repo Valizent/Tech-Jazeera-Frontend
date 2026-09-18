@@ -1,6 +1,7 @@
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import AppProviders from './app/AppProviders.jsx';
+import './lib/sentry.js';
 import './i18n/index.js';
 import './index.css';
 

@@ -12,7 +12,7 @@ import { useEffect, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Navigate, useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../auth/AuthContext.jsx';
-import { getNfcCard, cardAction, updateNfcCard, getCardQrObjectUrl, deleteNfcCard } from '../nfc.api.js';
+import { getNfcCard, cardAction, updateNfcCard, getCardQrObjectUrl, getCardQrOfflineObjectUrl, deleteNfcCard } from '../nfc.api.js';
 import { CARD_STATUS_META } from '../nfc.constants.js';
 import { apiMessage, formatDate } from '../../../lib/utils.js';
 import { useToast } from '../../../components/ui/Toast.jsx';
@@ -37,6 +37,7 @@ export default function NfcCardDetailPage() {
   const queryClient = useQueryClient();
 
   const [qrUrl, setQrUrl] = useState(null);
+  const [qrOfflineUrl, setQrOfflineUrl] = useState(null);
   const [chip, setChip] = useState('');
   const [confirm, setConfirm] = useState(null); // { action, title, message, confirmLabel }
   const [assignCompanyOpen, setAssignCompanyOpen] = useState(false);
@@ -66,6 +67,25 @@ export default function NfcCardDetailPage() {
       if (url) URL.revokeObjectURL(url);
     };
   }, [id, canRead, card?.token]); // reload when the token rotates
+
+  // Offline-contact QR: only meaningful once a person is assigned (needs a
+  // name/phone/email to encode), so only fetched then.
+  useEffect(() => {
+    if (!canRead || !card?.employee) return undefined;
+    let revoked = false;
+    let url;
+    getCardQrOfflineObjectUrl(id)
+      .then((u) => {
+        if (revoked) return;
+        url = u;
+        setQrOfflineUrl(u);
+      })
+      .catch(() => {});
+    return () => {
+      revoked = true;
+      if (url) URL.revokeObjectURL(url);
+    };
+  }, [id, canRead, card?.employee?._id, card?.token]);
 
   useEffect(() => {
     if (card) setChip(card.chipUid ?? '');
@@ -152,12 +172,28 @@ export default function NfcCardDetailPage() {
               ) : (
                 <Skeleton className="mx-auto h-40 w-40" />
               )}
+              <p className="mt-2 text-xs text-muted">Links to profile page</p>
               {qrUrl && (
-                <a href={qrUrl} download={`nfc_${card.token}.png`} className="mt-2 inline-block text-xs font-medium text-primary hover:underline">
+                <a href={qrUrl} download={`nfc_${card.token}.png`} className="inline-block text-xs font-medium text-primary hover:underline">
                   Download PNG
                 </a>
               )}
             </div>
+            {card.employee && (
+              <div className="shrink-0 text-center">
+                {qrOfflineUrl ? (
+                  <img src={qrOfflineUrl} alt="Offline contact QR code" className="mx-auto h-40 w-40 rounded-lg border border-border" />
+                ) : (
+                  <Skeleton className="mx-auto h-40 w-40" />
+                )}
+                <p className="mt-2 text-xs text-muted">Saves contact, no internet needed</p>
+                {qrOfflineUrl && (
+                  <a href={qrOfflineUrl} download={`nfc_${card.token}_offline.png`} className="inline-block text-xs font-medium text-primary hover:underline">
+                    Download PNG
+                  </a>
+                )}
+              </div>
+            )}
             <div className="min-w-0 flex-1 space-y-4">
               <div>
                 <p className="text-xs uppercase tracking-wide text-muted">Public URL (write this to the chip)</p>
