@@ -1338,10 +1338,7 @@
       "couldNotLoadDescription": "Please try again.",
       "emptyTitleNoFilters": "No deployments yet",
       "emptyTitleFiltered": "No deployments match",
-      "emptyDescriptionNoFilters": "A deployment is created automatically once a mobilisation is approved.",
-      "deletedToast": "Deployment deleted.",
-      "deleteConfirmTitle": "Delete this deployment?",
-      "deleteConfirmMessage": "This permanently removes {{worker}}'s placement at {{client}}. This cannot be undone."
+      "emptyDescriptionNoFilters": "A deployment is created automatically once a mobilisation is approved."
     },
     "overview": {
       "modalTitle": "Deployments overview",
@@ -1846,10 +1843,7 @@
         "downloadToView": "Download it to view."
       },
       "defaultRejectError": "Explain what needs fixing before rejecting.",
-      "viewDeployment": "View deployment",
-      "deleteConfirmTitle": "Delete this mobilisation?",
-      "deleteConfirmMessage": "This permanently removes {{name}}'s mobilisation record, including its documents. This cannot be undone.",
-      "deletedToast": "Mobilisation deleted."
+      "viewDeployment": "View deployment"
     }
   },
   "staffSubcontractors": {

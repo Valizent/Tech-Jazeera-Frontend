@@ -20,7 +20,6 @@ import {
   removeCoordinator,
   confirmCoordinator,
   submitMobilisation,
-  deleteMobilisation,
   saveCommercialDetails,
   decideMobilisation,
   uploadMobilisationDocuments,
@@ -293,10 +292,6 @@ export default function MobilisationDetailPage() {
   const [previewDoc, setPreviewDoc] = useState(null);
   const [confirmingUnuploadedFiles, setConfirmingUnuploadedFiles] = useState(false);
   const [confirmingNoDocuments, setConfirmingNoDocuments] = useState(false);
-  // TEMPORARY — pre-production cleanup only. Remove confirmingDelete,
-  // deleteMutation, the "Delete" button below, and its ConfirmDialog before
-  // going live — see the note in mobilisations.api.js.
-  const [confirmingDelete, setConfirmingDelete] = useState(false);
 
   const { data: m, isPending, isError } = useQuery({
     queryKey: ['mobilisation', id],
@@ -374,16 +369,6 @@ export default function MobilisationDetailPage() {
     onSuccess: () => {
       toast.success(t('staffMobilisations.detail.submittedToast'));
       invalidate();
-    },
-    onError: (error) => toast.error(apiMessage(error)),
-  });
-  // TEMPORARY — pre-production cleanup only, see the note above confirmingDelete.
-  const deleteMutation = useMutation({
-    mutationFn: () => deleteMobilisation(id),
-    onSuccess: () => {
-      toast.success(t('staffMobilisations.detail.deletedToast'));
-      queryClient.invalidateQueries({ queryKey: ['mobilisations'] });
-      navigate('/mobilisations');
     },
     onError: (error) => toast.error(apiMessage(error)),
   });
@@ -519,12 +504,6 @@ export default function MobilisationDetailPage() {
                   {t('staffMobilisations.detail.viewDeployment')}
                 </Button>
               </Link>
-            )}
-            {/* TEMPORARY — pre-production cleanup only, see the note above confirmingDelete. */}
-            {user.role === 'Admin' && (
-              <Button size="sm" variant="danger-ghost" onClick={() => setConfirmingDelete(true)}>
-                {t('common.delete')}
-              </Button>
             )}
           </div>
         }
@@ -834,16 +813,6 @@ export default function MobilisationDetailPage() {
           submitMutation.mutate();
         }}
         onCancel={() => setConfirmingNoDocuments(false)}
-      />
-
-      {/* TEMPORARY — pre-production cleanup only, see the note above confirmingDelete. */}
-      <ConfirmDialog
-        open={confirmingDelete}
-        title={t('staffMobilisations.detail.deleteConfirmTitle')}
-        message={t('staffMobilisations.detail.deleteConfirmMessage', { name: m.workerName })}
-        loading={deleteMutation.isPending}
-        onConfirm={() => deleteMutation.mutate()}
-        onCancel={() => setConfirmingDelete(false)}
       />
 
       <Modal
