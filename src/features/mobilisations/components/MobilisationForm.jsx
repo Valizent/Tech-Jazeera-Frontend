@@ -46,7 +46,7 @@ import {
 } from '../mobilisations.api.js';
 import { listEmployees } from '../../employees/employees.api.js';
 import { COUNTRIES } from '../../../lib/countries.js';
-import { apiMessage } from '../../../lib/utils.js';
+import { apiMessage, formatMoney } from '../../../lib/utils.js';
 import { useToast } from '../../../components/ui/Toast.jsx';
 import PickerLoadWarning from '../../../components/shared/PickerLoadWarning.jsx';
 import Input from '../../../components/ui/Input.jsx';
@@ -98,7 +98,19 @@ function SuggestedInput({ field, label, error, control, placeholder }) {
  *  existing record, or MobilisationNewPage's new standby "Mobilise"
  *  deep-link prefill) has nothing new to announce; without this, opening
  *  Edit on any SupplierEmployee/Freelancer record re-fired this lookup and
- *  showed "Found X..." on every single page load. */
+ *  showed "Found X..." on every single page load.
+ *
+ *  Also returns `previousWorker` (2026-09-19, the user's own ask) — the raw
+ *  lookup result, exposed regardless of whether the autofill effect above
+ *  actually applied it (a worker picked via PreviousWorkerPicker already has
+ *  every identity field applied directly by `applyPreviousWorker`, but its
+ *  Iqama still flows through THIS SAME query once set, so this stays the one
+ *  source of truth either way). Used for two things: hiding
+ *  PreviousWorkerPicker once a specific worker is actually resolved (no
+ *  point suggesting alternates once one's already picked), and showing that
+ *  worker's own last-known client/subcontractor rate as a read-only
+ *  reference label next to this mobilisation's own (independently-editable)
+ *  rate inputs. */
 function useIqamaAutofill({ control, workerType, setValue, toast, t }) {
   const iqamaRaw = useWatch({ control, name: 'iqamaNumber' });
   const iqamaDigits = (iqamaRaw || '').replace(/\D/g, '');
@@ -131,6 +143,7 @@ function useIqamaAutofill({ control, workerType, setValue, toast, t }) {
     markApplied: (iqamaValue) => {
       appliedRef.current = (iqamaValue || '').replace(/\D/g, '');
     },
+    previousWorker: enabled ? foundWorker : null,
   };
 }
 
@@ -277,7 +290,7 @@ export default function MobilisationForm({
   const ftaType = useWatch({ control, name: 'ftaType' });
   const checkoutDate = useWatch({ control, name: 'checkoutDate' });
   const subcontractorValue = useWatch({ control, name: 'subcontractor' });
-  const { markApplied: markIqamaApplied } = useIqamaAutofill({ control, workerType, setValue, toast, t });
+  const { markApplied: markIqamaApplied, previousWorker } = useIqamaAutofill({ control, workerType, setValue, toast, t });
   useOtClientRateAutofill({ control, getValues, setValue });
   const { workers, workersLoading, workersError } = useEmployeeWorkers({ workerType, existingWorkerId });
 
@@ -410,16 +423,28 @@ export default function MobilisationForm({
                 {...register('subcontractorCommission')}
               />
             </div>
-            <PreviousWorkerPicker
-              workerType="SupplierEmployee"
-              subcontractorId={subcontractorValue}
-              label={t('staffMobilisations.form.previousSupplierWorkerLabel')}
-              onSelect={applyPreviousWorker}
-            />
+            {previousWorker?.subcontractorRate != null && (
+              <p className="text-xs text-muted">
+                {t('staffMobilisations.form.previousSubcontractorRateHint', { rate: formatMoney(previousWorker.subcontractorRate) })}
+              </p>
+            )}
+            {/* Hidden once a specific worker is already resolved (Iqama typed
+                directly, or already picked from this very list) — 2026-09-19,
+                the user's own ask: "we already selected him, so why show rest
+                people?" Still shown when only a subcontractor is picked with
+                no worker identified yet — the actual discovery step. */}
+            {!previousWorker && (
+              <PreviousWorkerPicker
+                workerType="SupplierEmployee"
+                subcontractorId={subcontractorValue}
+                label={t('staffMobilisations.form.previousSupplierWorkerLabel')}
+                onSelect={applyPreviousWorker}
+              />
+            )}
           </div>
         )}
 
-        {workerType === 'Freelancer' && (
+        {workerType === 'Freelancer' && !previousWorker && (
           <PreviousWorkerPicker
             workerType="Freelancer"
             label={t('staffMobilisations.form.previousFreelancerLabel')}
@@ -520,7 +545,14 @@ export default function MobilisationForm({
             error={errors.site?.message}
             control={control}
           />
-          <Input label={t('staffMobilisations.form.clientRate')} type="number" step="0.01" min="0" error={errors.clientRate?.message} {...register('clientRate')} />
+          <div>
+            <Input label={t('staffMobilisations.form.clientRate')} type="number" step="0.01" min="0" error={errors.clientRate?.message} {...register('clientRate')} />
+            {previousWorker?.clientRate != null && (
+              <p className="mt-1 text-xs text-muted">
+                {t('staffMobilisations.form.previousClientRateHint', { rate: formatMoney(previousWorker.clientRate) })}
+              </p>
+            )}
+          </div>
           <Input label={t('staffMobilisations.form.clientCommission')} type="number" step="0.01" min="0" error={errors.clientCommission?.message} {...register('clientCommission')} />
           <Select label={t('staffMobilisations.form.ftaTypeLabel')} error={errors.ftaType?.message} {...register('ftaType')}>
             <option value="">{t('staffMobilisations.form.selectFtaType')}</option>
@@ -555,6 +587,15 @@ export default function MobilisationForm({
             min="0"
             error={errors.requiredTimesheetHours?.message}
             {...register('requiredTimesheetHours')}
+          />
+          <Input
+            label={t('staffMobilisations.form.mobilisationCost')}
+            type="number"
+            step="0.01"
+            min="0"
+            placeholder={t('common.optional')}
+            error={errors.mobilisationCost?.message}
+            {...register('mobilisationCost')}
           />
           <Input
             label={t('staffMobilisations.form.otClientRate')}

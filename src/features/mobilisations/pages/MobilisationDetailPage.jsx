@@ -626,6 +626,7 @@ export default function MobilisationDetailPage() {
               },
               { label: t('staffMobilisations.detail.fields.allowance'), value: formatMoney(m.allowance) },
               { label: t('staffMobilisations.detail.fields.allowanceRemark'), value: m.allowanceRemark },
+              { label: t('staffMobilisations.detail.fields.mobilisationCost'), value: m.mobilisationCost ? formatMoney(m.mobilisationCost) : null },
               { label: t('staffMobilisations.detail.fields.requiredTimesheetHours'), value: m.requiredTimesheetHours ?? null },
               ...(m.hasSubcontractor
                 ? [

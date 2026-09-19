@@ -32,19 +32,33 @@ export function daysInMonth(monthStr) {
 // two typed totals transcribed straight off the client's own timesheet —
 // the shape this app originally used before the daily grid existed (see
 // docs/MOBILISATION-notes.md's 2026-09-12 follow-up). `otHours` is still
-// always server-computed (`max(0, actualHours - contractHours)`, unchanged
-// formula — see deployment.service.js), never sent from here.
-export const monthlyHoursFormSchema = z.object({
-  month: z.string().regex(/^\d{4}-(0[1-9]|1[0-2])$/, 'Choose a month.'),
-  actualHours: z.string().min(1, 'Enter the client timesheet hours.'),
-  daysWorked: z.string().min(1, 'Enter the number of days worked.'),
-  deductionAmount: z.string().optional().or(z.literal('')),
-  notes: optionalStr(500),
-});
+// always server-computed, never sent from here — the formula itself now
+// depends on worker type (2026-09-19, the user's own ask): SupplierEmployee
+// is `max(0, actualHours - supplierHours)`, Employee/Freelancer stay
+// `max(0, actualHours - contractHours)` — see deployment.service.js's
+// computeOtHours.
+//
+// `supplierHours` is required only for a SupplierEmployee deployment — this
+// schema is built per-form-instance (via `workerType`) rather than static,
+// since only DeploymentDetailPage knows which deployment it's rendering for.
+export function buildMonthlyHoursFormSchema(workerType) {
+  return z.object({
+    month: z.string().regex(/^\d{4}-(0[1-9]|1[0-2])$/, 'Choose a month.'),
+    actualHours: z.string().min(1, 'Enter the client timesheet hours.'),
+    supplierHours:
+      workerType === 'SupplierEmployee'
+        ? z.string().min(1, 'Enter the supplier timesheet hours.')
+        : z.string().optional().or(z.literal('')),
+    daysWorked: z.string().min(1, 'Enter the number of days worked.'),
+    deductionAmount: z.string().optional().or(z.literal('')),
+    notes: optionalStr(500),
+  });
+}
 
 export const emptyMonthlyHoursForm = {
   month: '',
   actualHours: '',
+  supplierHours: '',
   daysWorked: '',
   deductionAmount: '',
   notes: '',
@@ -65,6 +79,7 @@ export function monthlyHoursEntryToForm(entry) {
   return {
     month: entry.month,
     actualHours: String(entry.actualHours ?? ''),
+    supplierHours: entry.supplierHours != null ? String(entry.supplierHours) : '',
     daysWorked: String(entry.daysWorked ?? ''),
     deductionAmount: entry.deductionAmount ? String(entry.deductionAmount) : '',
     notes: entry.notes ?? '',
