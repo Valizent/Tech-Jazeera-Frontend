@@ -86,6 +86,9 @@ const mobilisationFields = {
   ftaType: z.string().optional().or(z.literal('')),
   allowance: optionalNumberString,
   allowanceRemark: optionalStr(200),
+  // One-time cost of mobilising this worker (2026-09-19, the user's own
+  // ask) — mirrors mobilisation.model.js's own field.
+  mobilisationCost: optionalNumberString,
 
   // Subcontractor block only applies to SupplierEmployee — see superRefine.
   subcontractor: z.string().optional().or(z.literal('')),
@@ -149,6 +152,7 @@ export const emptyMobilisationForm = {
   ftaType: '',
   allowance: '',
   allowanceRemark: '',
+  mobilisationCost: '',
   subcontractor: '',
   subcontractorRate: '',
   subcontractorCommission: '',
@@ -234,6 +238,7 @@ export function mobilisationToForm(m) {
     ftaType: m.ftaType ?? '',
     allowance: String(m.allowance ?? ''),
     allowanceRemark: m.allowanceRemark ?? '',
+    mobilisationCost: String(m.mobilisationCost ?? ''),
     subcontractor: m.subcontractor ?? '',
     subcontractorRate: String(m.subcontractorRate ?? ''),
     subcontractorCommission: String(m.subcontractorCommission ?? ''),

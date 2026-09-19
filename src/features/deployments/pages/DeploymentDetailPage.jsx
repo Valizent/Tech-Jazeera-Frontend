@@ -13,7 +13,7 @@ import { Link, useNavigate, useParams } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { getDeployment, addMonthlyHours, updateMonthlyHours, decideMonthlyHours, demobiliseDeployment, updateDeployment } from '../deployments.api.js';
 import {
-  monthlyHoursFormSchema,
+  buildMonthlyHoursFormSchema,
   emptyMonthlyHoursForm,
   monthlyHoursEntryToForm,
   dailyEntryToString,
@@ -128,9 +128,14 @@ function DetailRow({ label, children }) {
  *  to the shape this app originally used before that (see
  *  docs/MOBILISATION-notes.md's 2026-09-12 follow-up): "Client timesheet
  *  hours" (→ `actualHours`) and "Days worked" (→ `daysWorked`, informational/
- *  cross-check only — not part of the OT formula). OT hours = max(0,
- *  actualHours - contractHours), unchanged formula, always server-computed
- *  and previewed live here purely for feedback.
+ *  cross-check only — not part of the OT formula). OT hours is always
+ *  server-computed and previewed live here purely for feedback; the formula
+ *  depends on worker type (2026-09-19, the user's own ask): a
+ *  SupplierEmployee deployment also enters "Supplier timesheet hours" (the
+ *  subcontractor's own record, which can legitimately differ from the
+ *  client's) and OT is Client hours − Supplier hours; Employee/Freelancer
+ *  have no such second timesheet, so they keep the original
+ *  max(0, actualHours - contractHours).
  *
  * `contractHours` is the client agreement hours to compare against (the
  * deployment's own `requiredTimesheetHours` when adding, or the entry's own
@@ -146,18 +151,26 @@ function DetailRow({ label, children }) {
 function MonthlyHoursForm({ deployment, defaultValues, onSubmit, submitting, submitLabel, monthFixed, contractHours, canDecideHours, otClientRate }) {
   const { t } = useTranslation();
   const toast = useToast();
+  const isSupplierEmployee = deployment.workerType === 'SupplierEmployee';
+  const schema = useMemo(() => buildMonthlyHoursFormSchema(deployment.workerType), [deployment.workerType]);
   const {
     register,
     handleSubmit,
     watch,
     formState: { errors },
-  } = useForm({ resolver: zodResolver(monthlyHoursFormSchema), defaultValues });
+  } = useForm({ resolver: zodResolver(schema), defaultValues });
   const start = monthStrOf(deployment.startDate);
   const max = maxEligibleMonthFor(deployment);
 
   const agreementHours = contractHours ?? 0;
   const actualHoursPreview = Number(watch('actualHours')) || 0;
-  const otHoursPreview = Math.max(0, actualHoursPreview - agreementHours);
+  const supplierHoursPreview = Number(watch('supplierHours')) || 0;
+  // Formula depends on worker type (2026-09-19, the user's own ask) — see
+  // deployment.service.js's computeOtHours, mirrored here purely for live
+  // feedback.
+  const otHoursPreview = isSupplierEmployee
+    ? Math.max(0, actualHoursPreview - supplierHoursPreview)
+    : Math.max(0, actualHoursPreview - agreementHours);
   const otAmountPreview = otHoursPreview * (otClientRate ?? 0);
   const deductionPreview = Number(watch('deductionAmount')) || 0;
 
@@ -186,7 +199,7 @@ function MonthlyHoursForm({ deployment, defaultValues, onSubmit, submitting, sub
         {...register('month')}
       />
 
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+      <div className={cn('grid grid-cols-1 gap-4', isSupplierEmployee ? 'sm:grid-cols-3' : 'sm:grid-cols-2')}>
         <Input
           label={t('staffDeployments.detail.clientTimesheetHoursLabel')}
           type="number"
@@ -195,6 +208,16 @@ function MonthlyHoursForm({ deployment, defaultValues, onSubmit, submitting, sub
           error={errors.actualHours?.message}
           {...register('actualHours')}
         />
+        {isSupplierEmployee && (
+          <Input
+            label={t('staffDeployments.detail.supplierTimesheetHoursLabel')}
+            type="number"
+            step="0.01"
+            min="0"
+            error={errors.supplierHours?.message}
+            {...register('supplierHours')}
+          />
+        )}
         <Input
           label={t('staffDeployments.detail.daysWorkedLabel')}
           type="number"
@@ -211,6 +234,12 @@ function MonthlyHoursForm({ deployment, defaultValues, onSubmit, submitting, sub
           <p className="text-xs text-muted">{t('staffDeployments.detail.summaryContractHours')}</p>
           <p className="text-sm font-semibold tabular-nums">{agreementHours}</p>
         </div>
+        {isSupplierEmployee && (
+          <div>
+            <p className="text-xs text-muted">{t('staffDeployments.detail.summarySupplierHours')}</p>
+            <p className="text-sm font-semibold tabular-nums">{supplierHoursPreview}</p>
+          </div>
+        )}
         <div>
           <p className="text-xs text-muted">{t('staffDeployments.detail.summaryOtHours')}</p>
           <p className="text-sm font-semibold tabular-nums">{otHoursPreview}</p>
@@ -558,6 +587,9 @@ export default function DeploymentDetailPage() {
                   <th className="px-3 py-2">{t('staffDeployments.detail.columns.month')}</th>
                   <th className="px-3 py-2">{t('staffDeployments.detail.columns.contractHours')}</th>
                   <th className="px-3 py-2">{t('staffDeployments.detail.columns.actualHours')}</th>
+                  {deployment.workerType === 'SupplierEmployee' && (
+                    <th className="px-3 py-2">{t('staffDeployments.detail.columns.supplierHours')}</th>
+                  )}
                   <th className="px-3 py-2">{t('staffDeployments.detail.columns.daysWorked')}</th>
                   <th className="px-3 py-2">{t('staffDeployments.detail.columns.otHours')}</th>
                   {/* OT amount is commercial data — stripped server-side for
@@ -595,6 +627,9 @@ export default function DeploymentDetailPage() {
                       </td>
                       <td className="px-3 py-2">{entry.contractHours}</td>
                       <td className="px-3 py-2">{entry.actualHours}</td>
+                      {deployment.workerType === 'SupplierEmployee' && (
+                        <td className="px-3 py-2">{entry.supplierHours ?? '—'}</td>
+                      )}
                       <td className="px-3 py-2">{entry.daysWorked || '—'}</td>
                       <td className="px-3 py-2">{entry.otHours}</td>
                       {canDecideHours && <td className="px-3 py-2">{formatMoney(entry.otAmount)}</td>}
@@ -676,6 +711,7 @@ export default function DeploymentDetailPage() {
                 addMutation.mutate({
                   month: values.month,
                   actualHours: Number(values.actualHours),
+                  supplierHours: values.supplierHours !== '' ? Number(values.supplierHours) : undefined,
                   daysWorked: Number(values.daysWorked),
                   deductionAmount: values.deductionAmount ? Number(values.deductionAmount) : undefined,
                   notes: values.notes || undefined,
@@ -710,6 +746,7 @@ export default function DeploymentDetailPage() {
                 entryId: editingEntry._id,
                 values: {
                   actualHours: Number(values.actualHours),
+                  supplierHours: values.supplierHours !== '' ? Number(values.supplierHours) : undefined,
                   daysWorked: Number(values.daysWorked),
                   deductionAmount: values.deductionAmount ? Number(values.deductionAmount) : undefined,
                   notes: values.notes || undefined,
@@ -757,6 +794,12 @@ export default function DeploymentDetailPage() {
                 <p className="text-xs text-muted">{t('staffDeployments.detail.summaryActualHours')}</p>
                 <p className="text-sm font-semibold tabular-nums">{decidingEntry.actualHours}</p>
               </div>
+              {deployment.workerType === 'SupplierEmployee' && (
+                <div>
+                  <p className="text-xs text-muted">{t('staffDeployments.detail.summarySupplierHours')}</p>
+                  <p className="text-sm font-semibold tabular-nums">{decidingEntry.supplierHours ?? 0}</p>
+                </div>
+              )}
               <div>
                 <p className="text-xs text-muted">{t('staffDeployments.detail.summaryOtHours')}</p>
                 <p className="text-sm font-semibold tabular-nums">{decidingEntry.otHours}</p>
