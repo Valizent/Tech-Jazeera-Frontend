@@ -132,6 +132,7 @@ export const NAV_GROUPS = [
       { to: '/mobilisations', label: 'Mobilisations', icon: ICON.team, description: 'Worker placements with client billing terms.', labelKey: 'staffNav.sales.mobilisations.label', descriptionKey: 'staffNav.sales.mobilisations.description' },
       { to: '/subcontractors', label: 'Subcontractors', icon: ICON.building, sectionKey: 'subcontractorsManage', description: 'Companies a mobilisation is sometimes routed through.', labelKey: 'staffNav.sales.subcontractors.label', descriptionKey: 'staffNav.sales.subcontractors.description' },
       { to: '/daily-updates', label: 'Daily Updates', icon: ICON.list, sectionKey: ['dailyUpdatesOwn', 'dailyUpdatesTeam'], description: "Coordinators' day-to-day tasks and work log.", labelKey: 'staffNav.sales.dailyUpdates.label', descriptionKey: 'staffNav.sales.dailyUpdates.description' },
+      { to: '/requirements', label: 'Requirements', icon: ICON.hierarchy, sectionKey: ['requirementsOwn', 'requirementsTeam'], description: 'Client requirements moving from first request to mobilised.', labelKey: 'staffNav.sales.requirements.label', descriptionKey: 'staffNav.sales.requirements.description' },
     ],
   },
   {

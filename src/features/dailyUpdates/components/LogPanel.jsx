@@ -21,6 +21,7 @@ import Skeleton from '../../../components/ui/Skeleton.jsx';
 import EmptyState from '../../../components/ui/EmptyState.jsx';
 import LogEntryForm from './LogEntryForm.jsx';
 import PagerBar from './PagerBar.jsx';
+import RequirementTag from './RequirementTag.jsx';
 
 const LIMIT = 20;
 
@@ -28,7 +29,7 @@ export default function LogPanel({ access, coordinators }) {
   const { t } = useTranslation();
   const toast = useToast();
   const queryClient = useQueryClient();
-  const { canSeeAll, canAddLog } = access;
+  const { canSeeAll, canAddLog, canOpenBoard } = access;
 
   const [filters, setFilters] = useState({ coordinator: '', from: '', to: '', page: 1 });
   const [editing, setEditing] = useState(null);
@@ -179,6 +180,11 @@ export default function LogPanel({ access, coordinators }) {
                       <span className="w-12 shrink-0 pt-0.5 text-xs tabular-nums text-muted">{formatTime(entry.createdAt)}</span>
                       <div className="min-w-0 flex-1">
                         {canSeeAll && <p className="mb-0.5 text-xs font-medium text-primary">{entry.coordinator?.name}</p>}
+                        {entry.requirement && (
+                          <p className="mb-0.5">
+                            <RequirementTag requirement={entry.requirement} linked={canOpenBoard} />
+                          </p>
+                        )}
                         <p className="whitespace-pre-wrap break-words text-sm">{entry.text}</p>
                         {entry.backdated && (
                           <p className="mt-1 text-xs text-muted">

@@ -92,6 +92,16 @@ export const ACTION_LABELS = {
   'dailyUpdate.task.status': 'changed a daily task status',
   'dailyUpdate.task.delete': 'deleted a daily task',
 
+  'requirement.create': 'added a requirement',
+  'requirement.update': 'edited a requirement',
+  'requirement.stage.move': 'moved a requirement to another stage',
+  'requirement.delete': 'deleted a requirement',
+  'requirementStage.create': 'added a requirement board stage',
+  'requirementStage.update': 'edited a requirement board stage',
+  'requirementStage.reorder': 'reordered the requirement board stages',
+  'requirementStage.delete': 'deleted a requirement board stage',
+  'requirementStage.defaults': 'set up the suggested requirement board stages',
+
   'admin.fresh_start_cleanup': 'ran a bulk data cleanup',
 };
 

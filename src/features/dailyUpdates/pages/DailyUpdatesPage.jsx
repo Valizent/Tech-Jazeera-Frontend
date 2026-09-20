@@ -31,6 +31,8 @@ export default function DailyUpdatesPage() {
     canAssign: write.includes('dailyUpdatesTeam'),
     canAddLog: isCoordinator && ownWrite,
     canAddTask: write.includes('dailyUpdatesTeam') || (isCoordinator && ownWrite),
+    // Whether a log entry's "REQ-0007" tag can link to the board (no dead-end 403 link).
+    canOpenBoard: read.includes('requirementsOwn') || read.includes('requirementsTeam'),
   };
 
   const { data: coordinators, isError: coordinatorsError } = useQuery({

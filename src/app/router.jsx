@@ -86,6 +86,7 @@ const ExpenseListPage = lazy(() => import('../features/expenses/pages/ExpenseLis
 const AuditLogPage = lazy(() => import('../features/audit/pages/AuditLogPage.jsx'));
 const ReconciliationPage = lazy(() => import('../features/reconciliation/pages/ReconciliationPage.jsx'));
 const DailyUpdatesPage = lazy(() => import('../features/dailyUpdates/pages/DailyUpdatesPage.jsx'));
+const RequirementsBoardPage = lazy(() => import('../features/requirements/pages/RequirementsBoardPage.jsx'));
 const ApprovalsPage = lazy(() => import('../features/approvals/pages/ApprovalsPage.jsx'));
 const ApprovalLogPage = lazy(() => import('../features/approvals/pages/ApprovalLogPage.jsx'));
 const MyProfilePage = lazy(() => import('../features/ess/pages/MyProfilePage.jsx'));
@@ -274,6 +275,9 @@ export const router = createBrowserRouter([
               // Two independently-granted keys (own workspace / every coordinator) —
               // the route opens for either; the page and the server sort out which.
               { path: '/daily-updates', element: guarded(['dailyUpdatesOwn', 'dailyUpdatesTeam'], <DailyUpdatesPage />) },
+              // Same two-key shape; `requirementStages` (who edits the columns) is
+              // deliberately not an entry key — it only unlocks a button on the board.
+              { path: '/requirements', element: guarded(['requirementsOwn', 'requirementsTeam'], <RequirementsBoardPage />) },
               { path: '/approvals', element: guarded('approvalHierarchy', <ApprovalsPage />) },
               { path: '/approvals/log', element: <ApprovalLogPage /> },
               { path: '/nfc', element: guarded('nfc', <NfcCompanyListPage />) },

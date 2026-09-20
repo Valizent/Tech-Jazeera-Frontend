@@ -62,6 +62,7 @@ export const MODULE_GROUPS = [
       { ...navItem('sales', '/mobilisations'), sectionKeys: ['mobilisationsViewer', 'mobilisationsSelfMobilise'] },
       { ...navItem('sales', '/subcontractors'), sectionKeys: ['subcontractorsManage'] },
       { ...navItem('sales', '/daily-updates'), sectionKeys: ['dailyUpdatesOwn', 'dailyUpdatesTeam'] },
+      { ...navItem('sales', '/requirements'), sectionKeys: ['requirementsOwn', 'requirementsTeam', 'requirementStages'] },
     ],
   },
   {

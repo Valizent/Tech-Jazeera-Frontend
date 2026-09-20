@@ -441,7 +441,8 @@
       "quotations": { "label": "عروض الأسعار", "description": "الأسعار المرسلة للعملاء، قبل الفوترة." },
       "mobilisations": { "label": "التعبئة والتنسيب", "description": "تنسيب العمالة مع شروط الفوترة للعميل." },
       "subcontractors": { "label": "الباطن", "description": "الشركات التي يُوجَّه إليها التنسيب أحيانًا عبر مقاول باطن." },
-      "dailyUpdates": { "label": "التحديثات اليومية", "description": "مهام المنسقين اليومية وسجل عملهم." }
+      "dailyUpdates": { "label": "التحديثات اليومية", "description": "مهام المنسقين اليومية وسجل عملهم." },
+      "requirements": { "label": "الطلبات", "description": "طلبات العملاء من أول طلب حتى التنسيب." }
     },
     "financial": {
       "label": "الشؤون المالية",
@@ -2081,6 +2082,118 @@
       "modalEditTitle": "تعديل إدخال السجل",
       "deleteConfirmTitle": "حذف إدخال السجل؟",
       "deleteConfirmMessage": "سيتم حذف هذا الإدخال نهائيًا."
+    }
+  },
+  "staffRequirements": {
+    "pageTitle": "الطلبات",
+    "pageDescription": "طلبات العملاء التي وردت ولم يتم تنسيبها بعد — من أول طلب حتى التنسيب.",
+    "addRequirement": "إضافة طلب",
+    "manageStages": "إدارة المراحل",
+    "coordinatorFilterAll": "جميع المنسقين",
+    "coordinatorFilterAria": "تصفية حسب المنسق",
+    "showOlderClosed": "عرض البطاقات المغلقة الأقدم من 30 يومًا",
+    "staleCount": "{{count}} متأخرة",
+    "truncated": "يتم عرض أول 1,000 طلب فقط — ضيّق العرض باستخدام تصفية المنسق.",
+    "cannotMove": "ليس لديك صلاحية نقل هذا الطلب.",
+    "couldNotLoad": "تعذّر تحميل اللوحة",
+    "couldNotLoadDescription": "يرجى المحاولة مرة أخرى.",
+    "formInvalid": "يرجى مراجعة النموذج والمحاولة مرة أخرى.",
+    "noStages": {
+      "title": "لا توجد مراحل في اللوحة بعد",
+      "descriptionAdmin": "المراحل هي الأعمدة التي ينتقل عبرها الطلب. ابدأ بمجموعة مقترحة — ويمكنك بعدها إعادة تسمية أي مرحلة أو ترتيبها أو حذفها — أو أنشئ مراحلك الخاصة.",
+      "descriptionOther": "المراحل هي الأعمدة التي ينتقل عبرها الطلب. اطلب من المدير إعدادها.",
+      "useSuggested": "استخدام المراحل المقترحة",
+      "setUp": "إعداد المراحل"
+    },
+    "column": {
+      "empty": "لا شيء هنا",
+      "staleTitle": "بطاقات متأخرة في هذه المرحلة"
+    },
+    "stage": {
+      "flagAfter": "تنبيه بعد {{count}} يوم",
+      "notifies": "يُخطر الفريق",
+      "closed": "مغلقة"
+    },
+    "card": {
+      "stale": "متأخر",
+      "neededBy": "مطلوب بحلول {{date}}",
+      "daysInStage": "{{count}} يوم في المرحلة",
+      "updatedToday": "تم التحديث اليوم",
+      "updatedDaysAgo": "آخر تحديث قبل {{count}} يوم",
+      "noUpdates": "لا توجد تحديثات بعد",
+      "moveTo": "نقل إلى {{name}}",
+      "moveToAria": "نقل {{name}} إلى مرحلة أخرى"
+    },
+    "toasts": {
+      "added": "تمت إضافة الطلب.",
+      "updated": "تم تحديث الطلب.",
+      "moved": "تم النقل إلى {{stage}}.",
+      "deleted": "تم حذف الطلب.",
+      "updateAdded": "تمت إضافة التحديث."
+    },
+    "form": {
+      "addTitle": "إضافة طلب",
+      "editTitle": "تعديل الطلب",
+      "client": "شركة العميل *",
+      "clientHint": "اكتب اسم الشركة — واختر اقتراحًا لربطها بعميل موجود. لا بأس إن لم تكن الشركة عميلًا بعد.",
+      "clientHintNoSuggestions": "قائمة العملاء غير متاحة لك، فلا توجد اقتراحات — اكتب اسم الشركة فقط. وسيُربط تلقائيًا بعميل موجود إن تطابق الاسم.",
+      "jobTitle": "المسمى الوظيفي *",
+      "headcount": "عدد العمال المطلوب *",
+      "neededBy": "مطلوب بحلول",
+      "site": "الموقع",
+      "notes": "ملاحظات",
+      "coordinators": "المنسقون *",
+      "noCoordinators": "لا يوجد منسقون للاختيار من بينهم.",
+      "jobTitleLabel": "المسمى الوظيفي",
+      "neededByLabel": "مطلوب بحلول",
+      "siteLabel": "الموقع",
+      "coordinatorsLabel": "المنسقون",
+      "notesLabel": "ملاحظات"
+    },
+    "detail": {
+      "loading": "الطلب",
+      "notFoundTitle": "تعذّر فتح هذا الطلب",
+      "notFoundDescription": "ربما تم حذفه، أو أنه ليس من طلباتك.",
+      "linkedClient": "عميل مرتبط",
+      "createdBy": "أضافه",
+      "stage": "المرحلة",
+      "addUpdateHeading": "إضافة تحديث",
+      "updatePlaceholder": "ماذا حدث؟ مثال: استلمنا سيرتين ذاتيتين من ABC للقوى العاملة، والجوازات قيد الانتظار…",
+      "alsoMove": "نقل البطاقة أيضًا إلى",
+      "keepInStage": "إبقاؤها في {{stage}}",
+      "addUpdate": "إضافة تحديث",
+      "timeline": "الخط الزمني",
+      "createdIn": "أُضيف في {{stage}}",
+      "movedTo": "نُقل إلى {{stage}}",
+      "deleteConfirmTitle": "حذف الطلب؟",
+      "deleteConfirmMessage": "سيتم حذف {{name}} نهائيًا. وتبقى التحديثات المكتوبة عليه في السجلات اليومية لكاتبيها."
+    },
+    "stages": {
+      "title": "مراحل اللوحة",
+      "addTitle": "إضافة مرحلة",
+      "editTitle": "تعديل المرحلة",
+      "description": "الأعمدة التي ينتقل عبرها الطلب بالترتيب. تنطبق التغييرات على الجميع.",
+      "addStage": "إضافة مرحلة",
+      "moveUp": "تقديم {{name}}",
+      "moveDown": "تأخير {{name}}",
+      "form": {
+        "name": "اسم المرحلة *",
+        "staleAfter": "التنبيه بالتأخير بعد (أيام)",
+        "staleAfterPlaceholder": "أبدًا",
+        "staleAfterHint": "تتحول البطاقة إلى اللون الأحمر إذا بقيت في هذه المرحلة هذه المدة. اتركه فارغًا لعدم التنبيه أبدًا.",
+        "isTerminal": "مرحلة مغلقة",
+        "isTerminalHint": "انتهى العمل هنا (مثل: تم التنسيب، مفقود). لا يُنبَّه بتأخرها، وتغادر بطاقاتها اللوحة بعد شهر من وصولها.",
+        "notifyOnEnter": "إخطار الفريق عند وصول بطاقة",
+        "notifyOnEnterHint": "يُخطَر كل من لديه صلاحية الفريق للطلبات — مثلًا عند \"جاهز للتنسيب\"."
+      },
+      "toasts": {
+        "added": "تمت إضافة المرحلة.",
+        "updated": "تم تحديث المرحلة.",
+        "deleted": "تم حذف المرحلة.",
+        "suggestedAdded": "تمت إضافة المراحل المقترحة."
+      },
+      "deleteConfirmTitle": "حذف المرحلة؟",
+      "deleteConfirmMessage": "سيتم حذف \"{{name}}\". يمكن حذف المرحلة الفارغة فقط."
     }
   },
   "staffExpenses": {

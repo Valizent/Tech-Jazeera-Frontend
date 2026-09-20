@@ -441,7 +441,8 @@
       "quotations": { "label": "Quotations", "description": "Pricing sent to clients, pre-invoice." },
       "mobilisations": { "label": "Mobilisations", "description": "Worker placements with client billing terms." },
       "subcontractors": { "label": "Subcontractors", "description": "Companies a mobilisation is sometimes routed through." },
-      "dailyUpdates": { "label": "Daily Updates", "description": "Coordinators' day-to-day tasks and work log." }
+      "dailyUpdates": { "label": "Daily Updates", "description": "Coordinators' day-to-day tasks and work log." },
+      "requirements": { "label": "Requirements", "description": "Client requirements moving from first request to mobilised." }
     },
     "financial": {
       "label": "Financial",
@@ -2081,6 +2082,118 @@
       "modalEditTitle": "Edit log entry",
       "deleteConfirmTitle": "Delete log entry?",
       "deleteConfirmMessage": "This entry will be permanently removed."
+    }
+  },
+  "staffRequirements": {
+    "pageTitle": "Requirements",
+    "pageDescription": "Client requirements that have come in but aren't mobilised yet — from first request to mobilised.",
+    "addRequirement": "Add requirement",
+    "manageStages": "Manage stages",
+    "coordinatorFilterAll": "All coordinators",
+    "coordinatorFilterAria": "Filter by coordinator",
+    "showOlderClosed": "Show closed cards older than 30 days",
+    "staleCount": "{{count}} stale",
+    "truncated": "Only the first 1,000 requirements are shown — narrow the view with the coordinator filter.",
+    "cannotMove": "You don't have permission to move this requirement.",
+    "couldNotLoad": "Could not load the board",
+    "couldNotLoadDescription": "Please try again.",
+    "formInvalid": "Please check the form and try again.",
+    "noStages": {
+      "title": "The board has no stages yet",
+      "descriptionAdmin": "Stages are the columns a requirement moves through. Start from a suggested set — you can rename, reorder or remove anything afterwards — or build your own.",
+      "descriptionOther": "Stages are the columns a requirement moves through. Ask an admin to set them up.",
+      "useSuggested": "Use suggested stages",
+      "setUp": "Set up stages"
+    },
+    "column": {
+      "empty": "Nothing here",
+      "staleTitle": "Stale cards in this stage"
+    },
+    "stage": {
+      "flagAfter": "Flag after {{count}}d",
+      "notifies": "Notifies team",
+      "closed": "Closed"
+    },
+    "card": {
+      "stale": "Stale",
+      "neededBy": "Needed by {{date}}",
+      "daysInStage": "{{count}}d in stage",
+      "updatedToday": "Updated today",
+      "updatedDaysAgo": "Updated {{count}}d ago",
+      "noUpdates": "No updates yet",
+      "moveTo": "Move to {{name}}",
+      "moveToAria": "Move {{name}} to another stage"
+    },
+    "toasts": {
+      "added": "Requirement added.",
+      "updated": "Requirement updated.",
+      "moved": "Moved to {{stage}}.",
+      "deleted": "Requirement deleted.",
+      "updateAdded": "Update added."
+    },
+    "form": {
+      "addTitle": "Add requirement",
+      "editTitle": "Edit requirement",
+      "client": "Client company *",
+      "clientHint": "Type the company name — pick a suggestion to link an existing client. A company that isn't a client yet is fine.",
+      "clientHintNoSuggestions": "The client list isn't available to you, so there are no suggestions — just type the company name. It links to an existing client automatically if the name matches.",
+      "jobTitle": "Job title *",
+      "headcount": "Workers needed *",
+      "neededBy": "Needed by",
+      "site": "Site / location",
+      "notes": "Notes",
+      "coordinators": "Coordinators *",
+      "noCoordinators": "No coordinators to pick from.",
+      "jobTitleLabel": "Job title",
+      "neededByLabel": "Needed by",
+      "siteLabel": "Site / location",
+      "coordinatorsLabel": "Coordinators",
+      "notesLabel": "Notes"
+    },
+    "detail": {
+      "loading": "Requirement",
+      "notFoundTitle": "Couldn't open this requirement",
+      "notFoundDescription": "It may have been deleted, or it isn't one of yours.",
+      "linkedClient": "Linked client",
+      "createdBy": "Added by",
+      "stage": "Stage",
+      "addUpdateHeading": "Add an update",
+      "updatePlaceholder": "What happened? e.g. Got 2 CVs from ABC Manpower, passports pending…",
+      "alsoMove": "Also move the card to",
+      "keepInStage": "Keep in {{stage}}",
+      "addUpdate": "Add update",
+      "timeline": "Timeline",
+      "createdIn": "Added in {{stage}}",
+      "movedTo": "Moved to {{stage}}",
+      "deleteConfirmTitle": "Delete requirement?",
+      "deleteConfirmMessage": "{{name}} will be permanently removed. Updates written on it stay in their authors' daily logs."
+    },
+    "stages": {
+      "title": "Board stages",
+      "addTitle": "Add stage",
+      "editTitle": "Edit stage",
+      "description": "The columns a requirement moves through, in order. Changes apply to everyone.",
+      "addStage": "Add stage",
+      "moveUp": "Move {{name}} earlier",
+      "moveDown": "Move {{name}} later",
+      "form": {
+        "name": "Stage name *",
+        "staleAfter": "Flag as stale after (days)",
+        "staleAfterPlaceholder": "Never",
+        "staleAfterHint": "A card sitting in this stage this long turns red. Leave empty to never flag it.",
+        "isTerminal": "Closed stage",
+        "isTerminalHint": "Work is finished here (e.g. Mobilised, Lost). Never flagged stale, and its cards leave the board a month after arriving.",
+        "notifyOnEnter": "Notify the team when a card arrives",
+        "notifyOnEnterHint": "Everyone with team access to Requirements is told — e.g. for \"Ready to mobilise\"."
+      },
+      "toasts": {
+        "added": "Stage added.",
+        "updated": "Stage updated.",
+        "deleted": "Stage deleted.",
+        "suggestedAdded": "Suggested stages added."
+      },
+      "deleteConfirmTitle": "Delete stage?",
+      "deleteConfirmMessage": "\"{{name}}\" will be removed. Only an empty stage can be deleted."
     }
   },
   "staffExpenses": {
