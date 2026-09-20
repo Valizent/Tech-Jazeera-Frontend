@@ -131,6 +131,7 @@ export const NAV_GROUPS = [
       // its own access, same reasoning as router.jsx leaving these unwrapped.
       { to: '/mobilisations', label: 'Mobilisations', icon: ICON.team, description: 'Worker placements with client billing terms.', labelKey: 'staffNav.sales.mobilisations.label', descriptionKey: 'staffNav.sales.mobilisations.description' },
       { to: '/subcontractors', label: 'Subcontractors', icon: ICON.building, sectionKey: 'subcontractorsManage', description: 'Companies a mobilisation is sometimes routed through.', labelKey: 'staffNav.sales.subcontractors.label', descriptionKey: 'staffNav.sales.subcontractors.description' },
+      { to: '/daily-updates', label: 'Daily Updates', icon: ICON.list, sectionKey: ['dailyUpdatesOwn', 'dailyUpdatesTeam'], description: "Coordinators' day-to-day tasks and work log.", labelKey: 'staffNav.sales.dailyUpdates.label', descriptionKey: 'staffNav.sales.dailyUpdates.description' },
     ],
   },
   {

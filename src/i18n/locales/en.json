@@ -440,7 +440,8 @@
       "deployments": { "label": "Deployments", "description": "Which worker is placed where." },
       "quotations": { "label": "Quotations", "description": "Pricing sent to clients, pre-invoice." },
       "mobilisations": { "label": "Mobilisations", "description": "Worker placements with client billing terms." },
-      "subcontractors": { "label": "Subcontractors", "description": "Companies a mobilisation is sometimes routed through." }
+      "subcontractors": { "label": "Subcontractors", "description": "Companies a mobilisation is sometimes routed through." },
+      "dailyUpdates": { "label": "Daily Updates", "description": "Coordinators' day-to-day tasks and work log." }
     },
     "financial": {
       "label": "Financial",
@@ -2014,6 +2015,72 @@
       "deleteConfirmTitle": "Delete this payroll run?",
       "deleteConfirmMessage": "This draft and all its computed lines will be permanently removed.",
       "payslipFailedToast": "Could not generate the payslip."
+    }
+  },
+  "staffDailyUpdates": {
+    "pageTitle": "Daily Updates",
+    "pageDescription": "A coordinator's day-to-day work: tasks to do, and a log of what got done.",
+    "tabs": { "tasks": "Tasks", "log": "Daily log" },
+    "coordinatorFilterAll": "All coordinators",
+    "coordinatorFilterAria": "Filter by coordinator",
+    "couldNotLoad": "Could not load this list",
+    "couldNotLoadDescription": "Please try again.",
+    "formInvalid": "Please check the form and try again.",
+    "tasks": {
+      "addTask": "Add task",
+      "assignTask": "Add / assign task",
+      "statusFilterAria": "Filter by status",
+      "statusAll": "All tasks",
+      "status": { "Open": "Open", "Done": "Done" },
+      "columns": { "task": "Task", "assignedTo": "Coordinator", "due": "Due", "status": "Status" },
+      "overdue": "Overdue",
+      "assignedBy": "Assigned by {{name}}",
+      "markDone": "Mark done",
+      "reopen": "Reopen",
+      "emptyOpenTitle": "Nothing left to do",
+      "emptyTitle": "No tasks yet",
+      "emptyDescriptionOwn": "Add a to-do for yourself — anything a manager assigns you will show up here too.",
+      "emptyDescriptionTeam": "Add a task for a coordinator, or wait for coordinators to add their own.",
+      "toasts": {
+        "added": "Task added.",
+        "updated": "Task updated.",
+        "done": "Task marked done.",
+        "reopened": "Task reopened.",
+        "deleted": "Task deleted."
+      },
+      "modalAddTitle": "Add task",
+      "modalAssignTitle": "Add or assign a task",
+      "modalEditTitle": "Edit task",
+      "form": {
+        "assignTo": "Assign to *",
+        "assignPlaceholder": "Select a coordinator",
+        "text": "Task *",
+        "textPlaceholder": "What needs to be done?",
+        "dueDate": "Due date"
+      },
+      "deleteConfirmTitle": "Delete task?",
+      "deleteConfirmMessage": "\"{{text}}\" will be permanently removed."
+    },
+    "log": {
+      "addHeading": "What did you work on?",
+      "addEntry": "Add entry",
+      "form": {
+        "text": "Log entry *",
+        "textPlaceholder": "e.g. Visited the client site, collected passport copies for two workers…",
+        "date": "Day"
+      },
+      "filterFrom": "From",
+      "filterTo": "To",
+      "clearDates": "Clear dates",
+      "backdatedNote": "Back-dated — added {{when}}",
+      "emptyTitle": "No log entries yet",
+      "emptyFilteredTitle": "No log entries match",
+      "emptyDescriptionOwn": "Write down what you worked on today — your manager can read it here.",
+      "emptyDescriptionTeam": "Coordinators haven't logged anything yet.",
+      "toasts": { "added": "Log entry added.", "updated": "Log entry updated.", "deleted": "Log entry deleted." },
+      "modalEditTitle": "Edit log entry",
+      "deleteConfirmTitle": "Delete log entry?",
+      "deleteConfirmMessage": "This entry will be permanently removed."
     }
   },
   "staffExpenses": {

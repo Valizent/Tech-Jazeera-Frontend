@@ -440,7 +440,8 @@
       "deployments": { "label": "التنسيبات", "description": "أين يعمل كل موظف حاليًا." },
       "quotations": { "label": "عروض الأسعار", "description": "الأسعار المرسلة للعملاء، قبل الفوترة." },
       "mobilisations": { "label": "التعبئة والتنسيب", "description": "تنسيب العمالة مع شروط الفوترة للعميل." },
-      "subcontractors": { "label": "الباطن", "description": "الشركات التي يُوجَّه إليها التنسيب أحيانًا عبر مقاول باطن." }
+      "subcontractors": { "label": "الباطن", "description": "الشركات التي يُوجَّه إليها التنسيب أحيانًا عبر مقاول باطن." },
+      "dailyUpdates": { "label": "التحديثات اليومية", "description": "مهام المنسقين اليومية وسجل عملهم." }
     },
     "financial": {
       "label": "الشؤون المالية",
@@ -2014,6 +2015,72 @@
       "deleteConfirmTitle": "حذف دورة الرواتب هذه؟",
       "deleteConfirmMessage": "سيتم حذف هذه المسودة وجميع سطورها المحسوبة نهائيًا.",
       "payslipFailedToast": "تعذر إنشاء قسيمة الراتب."
+    }
+  },
+  "staffDailyUpdates": {
+    "pageTitle": "التحديثات اليومية",
+    "pageDescription": "عمل المنسق اليومي: المهام المطلوبة وسجل ما تم إنجازه.",
+    "tabs": { "tasks": "المهام", "log": "السجل اليومي" },
+    "coordinatorFilterAll": "جميع المنسقين",
+    "coordinatorFilterAria": "تصفية حسب المنسق",
+    "couldNotLoad": "تعذّر تحميل هذه القائمة",
+    "couldNotLoadDescription": "يرجى المحاولة مرة أخرى.",
+    "formInvalid": "يرجى مراجعة النموذج والمحاولة مرة أخرى.",
+    "tasks": {
+      "addTask": "إضافة مهمة",
+      "assignTask": "إضافة / إسناد مهمة",
+      "statusFilterAria": "تصفية حسب الحالة",
+      "statusAll": "جميع المهام",
+      "status": { "Open": "مفتوحة", "Done": "منجزة" },
+      "columns": { "task": "المهمة", "assignedTo": "المنسق", "due": "الاستحقاق", "status": "الحالة" },
+      "overdue": "متأخرة",
+      "assignedBy": "أسندها {{name}}",
+      "markDone": "تحديد كمنجزة",
+      "reopen": "إعادة فتح",
+      "emptyOpenTitle": "لا يوجد ما يجب إنجازه",
+      "emptyTitle": "لا توجد مهام بعد",
+      "emptyDescriptionOwn": "أضف مهمة لنفسك — وأي مهمة يُسندها إليك مدير ستظهر هنا أيضًا.",
+      "emptyDescriptionTeam": "أضف مهمة لأحد المنسقين، أو انتظر حتى يضيف المنسقون مهامهم بأنفسهم.",
+      "toasts": {
+        "added": "تمت إضافة المهمة.",
+        "updated": "تم تحديث المهمة.",
+        "done": "تم تحديد المهمة كمنجزة.",
+        "reopened": "تمت إعادة فتح المهمة.",
+        "deleted": "تم حذف المهمة."
+      },
+      "modalAddTitle": "إضافة مهمة",
+      "modalAssignTitle": "إضافة أو إسناد مهمة",
+      "modalEditTitle": "تعديل المهمة",
+      "form": {
+        "assignTo": "إسناد إلى *",
+        "assignPlaceholder": "اختر منسقًا",
+        "text": "المهمة *",
+        "textPlaceholder": "ما الذي يجب إنجازه؟",
+        "dueDate": "تاريخ الاستحقاق"
+      },
+      "deleteConfirmTitle": "حذف المهمة؟",
+      "deleteConfirmMessage": "سيتم حذف \"{{text}}\" نهائيًا."
+    },
+    "log": {
+      "addHeading": "على ماذا عملت؟",
+      "addEntry": "إضافة إدخال",
+      "form": {
+        "text": "إدخال السجل *",
+        "textPlaceholder": "مثال: زرت موقع العميل، واستلمت نسخ جوازات سفر لعاملين…",
+        "date": "اليوم"
+      },
+      "filterFrom": "من",
+      "filterTo": "إلى",
+      "clearDates": "مسح التواريخ",
+      "backdatedNote": "بتاريخ سابق — أُضيف في {{when}}",
+      "emptyTitle": "لا توجد إدخالات في السجل بعد",
+      "emptyFilteredTitle": "لا توجد إدخالات مطابقة",
+      "emptyDescriptionOwn": "دوّن ما عملت عليه اليوم — يمكن لمديرك قراءته هنا.",
+      "emptyDescriptionTeam": "لم يسجّل المنسقون أي شيء بعد.",
+      "toasts": { "added": "تمت إضافة إدخال السجل.", "updated": "تم تحديث إدخال السجل.", "deleted": "تم حذف إدخال السجل." },
+      "modalEditTitle": "تعديل إدخال السجل",
+      "deleteConfirmTitle": "حذف إدخال السجل؟",
+      "deleteConfirmMessage": "سيتم حذف هذا الإدخال نهائيًا."
     }
   },
   "staffExpenses": {

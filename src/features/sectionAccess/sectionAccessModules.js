@@ -61,6 +61,7 @@ export const MODULE_GROUPS = [
       { ...navItem('sales', '/quotations'), sectionKeys: ['quotationsManage'] },
       { ...navItem('sales', '/mobilisations'), sectionKeys: ['mobilisationsViewer', 'mobilisationsSelfMobilise'] },
       { ...navItem('sales', '/subcontractors'), sectionKeys: ['subcontractorsManage'] },
+      { ...navItem('sales', '/daily-updates'), sectionKeys: ['dailyUpdatesOwn', 'dailyUpdatesTeam'] },
     ],
   },
   {

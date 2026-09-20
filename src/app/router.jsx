@@ -85,6 +85,7 @@ const InvoiceViewPage = lazy(() => import('../features/invoices/pages/InvoiceVie
 const ExpenseListPage = lazy(() => import('../features/expenses/pages/ExpenseListPage.jsx'));
 const AuditLogPage = lazy(() => import('../features/audit/pages/AuditLogPage.jsx'));
 const ReconciliationPage = lazy(() => import('../features/reconciliation/pages/ReconciliationPage.jsx'));
+const DailyUpdatesPage = lazy(() => import('../features/dailyUpdates/pages/DailyUpdatesPage.jsx'));
 const ApprovalsPage = lazy(() => import('../features/approvals/pages/ApprovalsPage.jsx'));
 const ApprovalLogPage = lazy(() => import('../features/approvals/pages/ApprovalLogPage.jsx'));
 const MyProfilePage = lazy(() => import('../features/ess/pages/MyProfilePage.jsx'));
@@ -270,6 +271,9 @@ export const router = createBrowserRouter([
               { path: '/expenses', element: guarded('expenses', <ExpenseListPage />) },
               { path: '/security-log', element: guarded('auditLog', <AuditLogPage />) },
               { path: '/reconciliation', element: guarded('reconciliation', <ReconciliationPage />) },
+              // Two independently-granted keys (own workspace / every coordinator) —
+              // the route opens for either; the page and the server sort out which.
+              { path: '/daily-updates', element: guarded(['dailyUpdatesOwn', 'dailyUpdatesTeam'], <DailyUpdatesPage />) },
               { path: '/approvals', element: guarded('approvalHierarchy', <ApprovalsPage />) },
               { path: '/approvals/log', element: <ApprovalLogPage /> },
               { path: '/nfc', element: guarded('nfc', <NfcCompanyListPage />) },

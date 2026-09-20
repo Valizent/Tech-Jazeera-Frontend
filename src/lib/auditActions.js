@@ -84,6 +84,14 @@ export const ACTION_LABELS = {
 
   'timesheet.export': 'exported a timesheet',
 
+  'dailyUpdate.log.create': 'added a daily log entry',
+  'dailyUpdate.log.update': 'edited a daily log entry',
+  'dailyUpdate.log.delete': 'deleted a daily log entry',
+  'dailyUpdate.task.create': 'added a daily task',
+  'dailyUpdate.task.update': 'edited a daily task',
+  'dailyUpdate.task.status': 'changed a daily task status',
+  'dailyUpdate.task.delete': 'deleted a daily task',
+
   'admin.fresh_start_cleanup': 'ran a bulk data cleanup',
 };
 
