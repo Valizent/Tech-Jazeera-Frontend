@@ -1735,7 +1735,13 @@
       "pageTitle": "تعبئة جديدة",
       "pageDescription": "عيّن عاملًا لدى عميل وسجّل شروط الفوترة الخاصة به.",
       "submitLabel": "حفظ كمسودة",
-      "createdToast": "تم إنشاء التعبئة."
+      "createdToast": "تم إنشاء التعبئة.",
+      "fromRequirement": "بدءًا من {{serial}} · {{client}} — للعامل {{name}}. راجع التفاصيل أدناه؛ سيربط الحفظ هذه التعبئة بذلك الطلب.",
+      "linkUnavailable": "تعذّر فتح الطلب الذي بدأت منه هذه التعبئة، لذلك لن يتم ربطها به. يمكنك متابعة تعبئتها كالمعتاد.",
+      "alreadyStartedTitle": "{{name}} لديه تعبئة بالفعل",
+      "alreadyStartedDescription": "تم بدء {{serial}} لهذا المرشح مسبقًا — يمكن أن يكون للمرشح تعبئة واحدة فقط.",
+      "openMobilisation": "فتح التعبئة",
+      "backToRequirement": "العودة إلى الطلب"
     },
     "edit": {
       "pageTitle": "تعديل التعبئة",
@@ -1758,6 +1764,7 @@
       "sectionWorkerPlacement": "العامل والتعيين",
       "sectionRatesFinancials": "المعدلات والبيانات المالية",
       "fields": {
+        "fromRequirement": "من الطلب",
         "workerName": "اسم العامل",
         "workerType": "نوع العامل",
         "iqamaNumber": "رقم الإقامة",
@@ -2112,7 +2119,8 @@
     "stage": {
       "flagAfter": "تنبيه بعد {{count}} يوم",
       "notifies": "يُخطر الفريق",
-      "closed": "مغلقة"
+      "closed": "مغلقة",
+      "mobilisedDestination": "عند تنسيب الجميع"
     },
     "card": {
       "stale": "متأخر",
@@ -2122,7 +2130,9 @@
       "updatedDaysAgo": "آخر تحديث قبل {{count}} يوم",
       "noUpdates": "لا توجد تحديثات بعد",
       "moveTo": "نقل إلى {{name}}",
-      "moveToAria": "نقل {{name}} إلى مرحلة أخرى"
+      "moveToAria": "نقل {{name}} إلى مرحلة أخرى",
+      "candidates": "المرشحون: {{count}}",
+      "mobilisedProgress": "تم تنسيب {{mobilised}}/{{headcount}}"
     },
     "toasts": {
       "added": "تمت إضافة الطلب.",
@@ -2168,6 +2178,42 @@
       "deleteConfirmTitle": "حذف الطلب؟",
       "deleteConfirmMessage": "سيتم حذف {{name}} نهائيًا. وتبقى التحديثات المكتوبة عليه في السجلات اليومية لكاتبيها."
     },
+    "candidates": {
+      "heading": "المرشحون",
+      "progress": "تم تنسيب {{mobilised}} من {{headcount}}",
+      "add": "إضافة مرشح",
+      "addTitle": "إضافة مرشح",
+      "editTitle": "تعديل المرشح",
+      "emptyEditable": "لا يوجد مرشحون بعد. أضف كل عامل تجهّزه — من أين جاء وأين وصلت أوراقه.",
+      "emptyReadOnly": "لم تتم إضافة أي مرشح بعد.",
+      "startMobilisation": "بدء التعبئة",
+      "iqamaShort": "الإقامة",
+      "noIdentity": "لا توجد إقامة أو جنسية أو هاتف بعد",
+      "statusAria": "حالة {{name}}",
+      "removeConfirmTitle": "إزالة المرشح؟",
+      "removeConfirmMessage": "ستتم إزالة {{name}} من هذا الطلب.",
+      "toasts": { "added": "تمت إضافة المرشح.", "updated": "تم تحديث المرشح.", "removed": "تمت إزالة المرشح." },
+      "workerType": { "SupplierEmployee": "عامل مقاول باطن", "Freelancer": "عامل مستقل" },
+      "status": {
+        "Identified": "تم تحديده",
+        "DocsInProgress": "الأوراق قيد الإعداد",
+        "DocsReady": "الأوراق جاهزة",
+        "Mobilised": "تم تنسيبه",
+        "Dropped": "مُستبعد"
+      },
+      "form": {
+        "workerType": "نوع العامل",
+        "subcontractor": "مقاول الباطن *",
+        "selectSubcontractor": "اختر مقاول باطن",
+        "workerName": "اسم العامل *",
+        "iqama": "رقم الإقامة",
+        "nationality": "الجنسية",
+        "phone": "الهاتف",
+        "status": "الحالة",
+        "docsNote": "ملاحظة الأوراق",
+        "docsNotePlaceholder": "مثال: استُلم الجواز، والفحص الطبي معلّق"
+      }
+    },
     "stages": {
       "title": "مراحل اللوحة",
       "addTitle": "إضافة مرحلة",
@@ -2184,7 +2230,9 @@
         "isTerminal": "مرحلة مغلقة",
         "isTerminalHint": "انتهى العمل هنا (مثل: تم التنسيب، مفقود). لا يُنبَّه بتأخرها، وتغادر بطاقاتها اللوحة بعد شهر من وصولها.",
         "notifyOnEnter": "إخطار الفريق عند وصول بطاقة",
-        "notifyOnEnterHint": "يُخطَر كل من لديه صلاحية الفريق للطلبات — مثلًا عند \"جاهز للتنسيب\"."
+        "notifyOnEnterHint": "يُخطَر كل من لديه صلاحية الفريق للطلبات — مثلًا عند \"جاهز للتنسيب\".",
+        "isMobilisedStage": "وجهة الطلب بعد تنسيب الجميع",
+        "isMobilisedStageHint": "عندما تتم الموافقة على تنسيب كل العمال الذين طلبهم الطلب، تنتقل بطاقته إلى هنا تلقائيًا. يمكن أن تكون هذه مرحلة واحدة فقط — واختيارها ينقل الإعداد من المرحلة السابقة."
       },
       "toasts": {
         "added": "تمت إضافة المرحلة.",

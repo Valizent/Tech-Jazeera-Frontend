@@ -594,6 +594,21 @@ export default function MobilisationDetailPage() {
             },
             { label: t('staffMobilisations.detail.fields.jobTitle'), value: m.jobTitle },
             { label: t('staffMobilisations.detail.fields.client'), value: m.clientName },
+            {
+              // The Requirements card this was started from, if any. A link only for
+              // someone who can open the board at all — otherwise plain text, never a
+              // dead-end "no access" page.
+              label: t('staffMobilisations.detail.fields.fromRequirement'),
+              value: m.requirement ? (
+                user.sectionAccess?.some((key) => key === 'requirementsOwn' || key === 'requirementsTeam') ? (
+                  <Link to={`/requirements?open=${m.requirement._id}`} className="text-primary hover:underline">
+                    {m.requirement.serialNumber} · {m.requirement.clientName}
+                  </Link>
+                ) : (
+                  `${m.requirement.serialNumber} · ${m.requirement.clientName}`
+                )
+              ) : null,
+            },
             { label: t('staffMobilisations.detail.fields.site'), value: m.site },
             ...(m.hasSubcontractor
               ? [{ label: t('staffMobilisations.detail.fields.subcontractor'), value: m.subcontractorName }]

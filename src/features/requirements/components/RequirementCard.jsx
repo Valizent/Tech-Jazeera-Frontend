@@ -68,6 +68,15 @@ export default function RequirementCard({ requirement, stages, showCoordinators,
       {requirement.neededBy && (
         <p className="mt-1 text-xs text-muted">{t('staffRequirements.card.neededBy', { date: formatDate(requirement.neededBy) })}</p>
       )}
+      {requirement.candidateCount > 0 && (
+        <p className="mt-1 text-xs text-muted">
+          {t('staffRequirements.card.candidates', { count: requirement.candidateCount })}
+          {' · '}
+          <span className={cn(requirement.mobilisedCount > 0 && 'font-medium text-success')}>
+            {t('staffRequirements.card.mobilisedProgress', { mobilised: requirement.mobilisedCount, headcount: requirement.headcount })}
+          </span>
+        </p>
+      )}
       {showCoordinators && (
         <p className="mt-1 truncate text-xs font-medium text-primary">{requirement.coordinators.map((c) => c.name).join(', ')}</p>
       )}

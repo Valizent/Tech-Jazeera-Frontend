@@ -68,3 +68,20 @@ export async function createSuggestedStages() {
   const { data } = await api.post('/requirements/stages/defaults');
   return data.data;
 }
+
+// ---- candidates -----------------------------------------------------------------------
+
+export async function addCandidate(requirementId, payload) {
+  const { data } = await api.post(`/requirements/${requirementId}/candidates`, payload);
+  return data.data;
+}
+
+export async function updateCandidate(requirementId, candidateId, payload) {
+  const { data } = await api.patch(`/requirements/${requirementId}/candidates/${candidateId}`, payload);
+  return data.data;
+}
+
+export async function removeCandidate(requirementId, candidateId) {
+  const { data } = await api.delete(`/requirements/${requirementId}/candidates/${candidateId}`);
+  return data.data;
+}

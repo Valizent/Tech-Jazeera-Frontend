@@ -1735,7 +1735,13 @@
       "pageTitle": "New mobilisation",
       "pageDescription": "Place a worker with a client and record its billing terms.",
       "submitLabel": "Save draft",
-      "createdToast": "Mobilisation created."
+      "createdToast": "Mobilisation created.",
+      "fromRequirement": "Starting from {{serial}} · {{client}} — for {{name}}. Check the details below; saving links this mobilisation to that requirement.",
+      "linkUnavailable": "The requirement this was started from couldn't be opened, so this mobilisation won't be linked to it. You can still fill it in as usual.",
+      "alreadyStartedTitle": "{{name}} already has a mobilisation",
+      "alreadyStartedDescription": "{{serial}} was already started for this candidate — a candidate can have only one.",
+      "openMobilisation": "Open the mobilisation",
+      "backToRequirement": "Back to the requirement"
     },
     "edit": {
       "pageTitle": "Edit mobilisation",
@@ -1758,6 +1764,7 @@
       "sectionWorkerPlacement": "Worker & placement",
       "sectionRatesFinancials": "Rates & financials",
       "fields": {
+        "fromRequirement": "From requirement",
         "workerName": "Worker name",
         "workerType": "Worker type",
         "iqamaNumber": "Iqama number",
@@ -2112,7 +2119,8 @@
     "stage": {
       "flagAfter": "Flag after {{count}}d",
       "notifies": "Notifies team",
-      "closed": "Closed"
+      "closed": "Closed",
+      "mobilisedDestination": "When all mobilised"
     },
     "card": {
       "stale": "Stale",
@@ -2122,7 +2130,9 @@
       "updatedDaysAgo": "Updated {{count}}d ago",
       "noUpdates": "No updates yet",
       "moveTo": "Move to {{name}}",
-      "moveToAria": "Move {{name}} to another stage"
+      "moveToAria": "Move {{name}} to another stage",
+      "candidates": "Candidates: {{count}}",
+      "mobilisedProgress": "Mobilised {{mobilised}}/{{headcount}}"
     },
     "toasts": {
       "added": "Requirement added.",
@@ -2168,6 +2178,42 @@
       "deleteConfirmTitle": "Delete requirement?",
       "deleteConfirmMessage": "{{name}} will be permanently removed. Updates written on it stay in their authors' daily logs."
     },
+    "candidates": {
+      "heading": "Candidates",
+      "progress": "{{mobilised}} of {{headcount}} mobilised",
+      "add": "Add candidate",
+      "addTitle": "Add candidate",
+      "editTitle": "Edit candidate",
+      "emptyEditable": "No candidates yet. Add each worker you line up — where they come from and how far their paperwork is.",
+      "emptyReadOnly": "No candidates have been added yet.",
+      "startMobilisation": "Start mobilisation",
+      "iqamaShort": "Iqama",
+      "noIdentity": "No Iqama, nationality or phone yet",
+      "statusAria": "Status of {{name}}",
+      "removeConfirmTitle": "Remove candidate?",
+      "removeConfirmMessage": "{{name}} will be removed from this requirement.",
+      "toasts": { "added": "Candidate added.", "updated": "Candidate updated.", "removed": "Candidate removed." },
+      "workerType": { "SupplierEmployee": "Subcontractor's worker", "Freelancer": "Freelancer" },
+      "status": {
+        "Identified": "Identified",
+        "DocsInProgress": "Documents in progress",
+        "DocsReady": "Documents ready",
+        "Mobilised": "Mobilised",
+        "Dropped": "Dropped"
+      },
+      "form": {
+        "workerType": "Worker type",
+        "subcontractor": "Subcontractor *",
+        "selectSubcontractor": "Select a subcontractor",
+        "workerName": "Worker name *",
+        "iqama": "Iqama number",
+        "nationality": "Nationality",
+        "phone": "Phone",
+        "status": "Status",
+        "docsNote": "Documents note",
+        "docsNotePlaceholder": "e.g. Passport received, medical pending"
+      }
+    },
     "stages": {
       "title": "Board stages",
       "addTitle": "Add stage",
@@ -2184,7 +2230,9 @@
         "isTerminal": "Closed stage",
         "isTerminalHint": "Work is finished here (e.g. Mobilised, Lost). Never flagged stale, and its cards leave the board a month after arriving.",
         "notifyOnEnter": "Notify the team when a card arrives",
-        "notifyOnEnterHint": "Everyone with team access to Requirements is told — e.g. for \"Ready to mobilise\"."
+        "notifyOnEnterHint": "Everyone with team access to Requirements is told — e.g. for \"Ready to mobilise\".",
+        "isMobilisedStage": "Where a fully-mobilised requirement goes",
+        "isMobilisedStageHint": "When every worker a requirement asked for has been approved for mobilisation, its card moves here on its own. Only one stage can be this — choosing it moves the setting from the old one."
       },
       "toasts": {
         "added": "Stage added.",

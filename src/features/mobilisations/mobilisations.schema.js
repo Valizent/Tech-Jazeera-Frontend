@@ -108,6 +108,13 @@ const mobilisationFields = {
   // Office Secretary" gate) since this same schema is shared with every
   // other creator, for whom the field is simply never rendered.
   onBehalfOf: z.string().optional().or(z.literal('')),
+
+  // Create-only, like onBehalfOf: the Requirements card + candidate this
+  // mobilisation was started from ("Start mobilisation" on a candidate). Never
+  // shown or typed — MobilisationNewPage fills them in from the URL, and the
+  // server verifies them. Blank for every mobilisation that didn't start there.
+  requirement: z.string().optional().or(z.literal('')),
+  requirementCandidate: z.string().optional().or(z.literal('')),
 };
 
 export const mobilisationFormSchema = z.object(mobilisationFields).superRefine((data, ctx) => {
@@ -160,6 +167,8 @@ export const emptyMobilisationForm = {
   checkoutDate: '',
   remark: '',
   onBehalfOf: '',
+  requirement: '',
+  requirementCandidate: '',
 };
 
 // --- M3: current-step reviewer's Section 2 (Office Secretary, then

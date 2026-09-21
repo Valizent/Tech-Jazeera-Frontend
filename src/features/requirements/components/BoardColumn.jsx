@@ -14,6 +14,7 @@ export default function BoardColumn({ stage, count, staleCount, onDropCard, chil
   const rules = [
     stage.staleAfterDays && t('staffRequirements.stage.flagAfter', { count: stage.staleAfterDays }),
     stage.notifyOnEnter && t('staffRequirements.stage.notifies'),
+    stage.isMobilisedStage && t('staffRequirements.stage.mobilisedDestination'),
     stage.isTerminal && t('staffRequirements.stage.closed'),
   ].filter(Boolean);
 

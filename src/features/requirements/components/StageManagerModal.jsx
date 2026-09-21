@@ -41,6 +41,7 @@ function StageForm({ stage, onDone }) {
         staleAfterDays: values.isTerminal || values.staleAfterDays === '' ? null : Number(values.staleAfterDays),
         isTerminal: values.isTerminal,
         notifyOnEnter: values.notifyOnEnter,
+        isMobilisedStage: values.isMobilisedStage,
       };
       return stage ? updateStage(stage._id, payload) : createStage(payload);
     },
@@ -99,6 +100,13 @@ function StageForm({ stage, onDone }) {
         <span>
           <span className="font-medium">{t('staffRequirements.stages.form.notifyOnEnter')}</span>
           <span className="block text-xs text-muted">{t('staffRequirements.stages.form.notifyOnEnterHint')}</span>
+        </span>
+      </label>
+      <label className="flex items-start gap-2.5 text-sm">
+        <input type="checkbox" className="mt-0.5 h-4 w-4 rounded border-border" {...register('isMobilisedStage')} />
+        <span>
+          <span className="font-medium">{t('staffRequirements.stages.form.isMobilisedStage')}</span>
+          <span className="block text-xs text-muted">{t('staffRequirements.stages.form.isMobilisedStageHint')}</span>
         </span>
       </label>
       <div className="flex justify-end gap-2 pt-2">
@@ -179,6 +187,7 @@ export default function StageManagerModal({ open, stages, onClose }) {
                   <div className="mt-1 flex flex-wrap gap-1.5">
                     {stage.staleAfterDays && <Badge variant="warning">{t('staffRequirements.stage.flagAfter', { count: stage.staleAfterDays })}</Badge>}
                     {stage.notifyOnEnter && <Badge variant="primary">{t('staffRequirements.stage.notifies')}</Badge>}
+                    {stage.isMobilisedStage && <Badge variant="success">{t('staffRequirements.stage.mobilisedDestination')}</Badge>}
                     {stage.isTerminal && <Badge>{t('staffRequirements.stage.closed')}</Badge>}
                   </div>
                 </div>

@@ -22,8 +22,9 @@
  */
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { createMobilisation, listCoordinatorCandidates } from '../mobilisations.api.js';
+import { getRequirement } from '../../requirements/requirements.api.js';
 import { emptyMobilisationForm, WORKER_TYPES } from '../mobilisations.schema.js';
 import { listClients } from '../../clients/clients.api.js';
 import { listSubcontractors } from '../../subcontractors/subcontractors.api.js';
@@ -33,7 +34,9 @@ import { apiMessage } from '../../../lib/utils.js';
 import { useToast } from '../../../components/ui/Toast.jsx';
 import PageHeader from '../../../components/shared/PageHeader.jsx';
 import PickerLoadWarning from '../../../components/shared/PickerLoadWarning.jsx';
+import Button from '../../../components/ui/Button.jsx';
 import Card from '../../../components/ui/Card.jsx';
+import EmptyState from '../../../components/ui/EmptyState.jsx';
 import Skeleton from '../../../components/ui/Skeleton.jsx';
 import MobilisationForm from '../components/MobilisationForm.jsx';
 
@@ -59,6 +62,34 @@ function prefillFromSearchParams(searchParams) {
     if (subcontractor) prefill.subcontractor = subcontractor;
   }
   return prefill;
+}
+
+/**
+ * "Start mobilisation" on a Requirements card's candidate (milestone 3): pre-fill
+ * this form from the card and the candidate. Only the two ids arrive in the URL —
+ * the card is fetched here — so no worker details ever sit in the address bar, and
+ * what's filled in is always the current data. Each card field is used only when it
+ * matches a real option in the pickers this page loaded (a client the viewer can
+ * see, a job title on the list): an unlisted value would leave a <select> looking
+ * empty while secretly holding a string nobody chose. The two ids ride along in
+ * the form's create-only `requirement`/`requirementCandidate` fields, which the
+ * server verifies before creating anything.
+ */
+function prefillFromRequirement({ requirement, candidate, clients, subcontractors, jobTitles }) {
+  const jobTitle = jobTitles.find((j) => j.name.toLowerCase() === requirement.jobTitle.toLowerCase())?.name ?? '';
+  return {
+    requirement: requirement._id,
+    requirementCandidate: candidate._id,
+    workerType: candidate.workerType,
+    workerName: candidate.workerName,
+    iqamaNumber: candidate.iqamaNumber ?? '',
+    nationality: candidate.nationality ?? '',
+    ...(candidate.phone && { phone: candidate.phone }),
+    subcontractor: subcontractors.some((s) => s._id === candidate.subcontractor) ? candidate.subcontractor : '',
+    client: clients.some((c) => c._id === requirement.client) ? requirement.client : '',
+    jobTitle,
+    site: requirement.site ?? '',
+  };
 }
 
 export default function MobilisationNewPage() {
@@ -89,21 +120,36 @@ export default function MobilisationNewPage() {
     queryFn: () => listJobTitles({ activeOnly: 'true' }),
   });
 
+  // Arrived from a Requirements card's "Start mobilisation"?
+  const requirementId = searchParams.get('requirement');
+  const candidateId = searchParams.get('candidate');
+  const fromRequirement = Boolean(requirementId && candidateId);
+  const { data: requirement, isPending: requirementLoading } = useQuery({
+    queryKey: ['requirements', 'detail', requirementId],
+    queryFn: () => getRequirement(requirementId),
+    enabled: fromRequirement,
+  });
+
   const mutation = useMutation({
     mutationFn: createMobilisation,
     onSuccess: (mobilisation) => {
       toast.success(t('staffMobilisations.new.createdToast'));
       queryClient.invalidateQueries({ queryKey: ['mobilisations'] });
+      // The candidate now has a mobilisation — the card and board must show it.
+      if (fromRequirement) queryClient.invalidateQueries({ queryKey: ['requirements'] });
       navigate(`/mobilisations/${mobilisation._id}`);
     },
-    onError: (error) => toast.error(apiMessage(error)),
+    onError: (error) => {
+      console.error('[mobilisations] creating a mobilisation failed', error);
+      toast.error(apiMessage(error));
+    },
   });
 
   function handleSubmit(values) {
     mutation.mutate(values);
   }
 
-  if (clientsLoading || subcontractorsLoading || jobTitlesLoading || (isOfficeSecretary && coordinatorsLoading)) {
+  if (clientsLoading || subcontractorsLoading || jobTitlesLoading || (isOfficeSecretary && coordinatorsLoading) || (fromRequirement && requirementLoading)) {
     return (
       <div className="mx-auto max-w-3xl space-y-4">
         <Skeleton className="h-8 w-48" />
@@ -116,6 +162,40 @@ export default function MobilisationNewPage() {
   const subcontractors = subcontractorData?.items ?? [];
   const jobTitles = jobTitleData ?? [];
 
+  // The card + candidate this came from — only if both actually loaded. A card the
+  // viewer can't open (or that's gone) means the link is DROPPED, not half-applied:
+  // the form still works as an ordinary new mobilisation and says so.
+  const candidate = fromRequirement ? (requirement?.candidates?.find((c) => c._id === candidateId) ?? null) : null;
+  const linked = Boolean(requirement && candidate);
+
+  // A candidate can have only one mobilisation — send them to it instead of a form
+  // the server would refuse (409) on submit.
+  if (linked && candidate.mobilisation) {
+    return (
+      <div className="mx-auto max-w-lg py-12">
+        <EmptyState
+          title={t('staffMobilisations.new.alreadyStartedTitle', { name: candidate.workerName })}
+          description={t('staffMobilisations.new.alreadyStartedDescription', { serial: candidate.mobilisation.serialNumber })}
+          action={
+            <div className="flex flex-wrap justify-center gap-2">
+              <Link to={`/mobilisations/${candidate.mobilisation._id}`}>
+                <Button>{t('staffMobilisations.new.openMobilisation')}</Button>
+              </Link>
+              <Link to={`/requirements?open=${requirement._id}`}>
+                <Button variant="secondary">{t('staffMobilisations.new.backToRequirement')}</Button>
+              </Link>
+            </div>
+          }
+        />
+      </div>
+    );
+  }
+
+  const defaultValues = {
+    ...emptyMobilisationForm,
+    ...(linked ? prefillFromRequirement({ requirement, candidate, clients, subcontractors, jobTitles }) : prefillFromSearchParams(searchParams)),
+  };
+
   return (
     <div className="mx-auto max-w-3xl">
       <PageHeader
@@ -124,6 +204,20 @@ export default function MobilisationNewPage() {
         onBack={() => navigate(-1)}
       />
       <Card>
+        {linked && (
+          <p className="mb-4 rounded-lg bg-primary/10 p-3 text-sm text-primary">
+            {t('staffMobilisations.new.fromRequirement', {
+              serial: requirement.serialNumber,
+              client: requirement.clientName,
+              name: candidate.workerName,
+            })}
+          </p>
+        )}
+        {fromRequirement && !linked && (
+          <p role="alert" className="mb-4 rounded-lg bg-warning/10 p-3 text-sm text-warning">
+            {t('staffMobilisations.new.linkUnavailable')}
+          </p>
+        )}
         <PickerLoadWarning
           failed={[
             { label: 'clients', isError: clientsError },
@@ -137,7 +231,7 @@ export default function MobilisationNewPage() {
           subcontractors={subcontractors}
           jobTitles={jobTitles}
           coordinatorCandidates={isOfficeSecretary ? (coordinatorData ?? []) : undefined}
-          defaultValues={{ ...emptyMobilisationForm, ...prefillFromSearchParams(searchParams) }}
+          defaultValues={defaultValues}
           onSubmit={handleSubmit}
           onCancel={() => navigate('/mobilisations')}
           submitLabel={t('staffMobilisations.new.submitLabel')}

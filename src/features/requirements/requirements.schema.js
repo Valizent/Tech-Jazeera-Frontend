@@ -62,9 +62,10 @@ export const stageFormSchema = z.object({
     .refine((v) => v === '' || (/^\d+$/.test(v) && Number(v) >= 1 && Number(v) <= 365), 'Whole days, between 1 and 365 — or leave empty.'),
   isTerminal: z.boolean(),
   notifyOnEnter: z.boolean(),
+  isMobilisedStage: z.boolean(),
 });
 
-export const emptyStageForm = { name: '', staleAfterDays: '', isTerminal: false, notifyOnEnter: false };
+export const emptyStageForm = { name: '', staleAfterDays: '', isTerminal: false, notifyOnEnter: false, isMobilisedStage: false };
 
 export function stageToForm(stage) {
   return {
@@ -72,6 +73,7 @@ export function stageToForm(stage) {
     staleAfterDays: stage.staleAfterDays == null ? '' : String(stage.staleAfterDays),
     isTerminal: stage.isTerminal,
     notifyOnEnter: stage.notifyOnEnter,
+    isMobilisedStage: Boolean(stage.isMobilisedStage),
   };
 }
 
@@ -79,3 +81,51 @@ export const updateFormSchema = z.object({
   text: z.string().trim().min(1, 'Write the update first.').max(1000, 'Keep it under 1000 characters.'),
   stage: z.string(), // '' = leave the card where it is
 });
+
+// ---- candidates -----------------------------------------------------------------------
+
+/** What a person can pick by hand — 'Mobilised' is never among them: only an
+ *  approved mobilisation makes a candidate Mobilised. */
+export const CANDIDATE_MANUAL_STATUSES = ['Identified', 'DocsInProgress', 'DocsReady', 'Dropped'];
+export const CANDIDATE_WORKER_TYPES = ['SupplierEmployee', 'Freelancer'];
+
+export const candidateFormSchema = z
+  .object({
+    workerType: z.enum(CANDIDATE_WORKER_TYPES),
+    subcontractor: z.string(),
+    workerName: z.string().trim().min(2, 'Enter the worker name.').max(150),
+    iqamaNumber: z.string().trim().regex(/^(\d{10})?$/, 'An Iqama number is exactly 10 digits — or leave it empty.'),
+    nationality: z.string().trim().max(80),
+    phone: z.string().trim().regex(/^(\+?[0-9][0-9 -]{5,18})?$/, 'Enter a valid phone number — or leave it empty.'),
+    status: z.enum(CANDIDATE_MANUAL_STATUSES),
+    docsNote: z.string().trim().max(300, 'Keep the note under 300 characters.'),
+  })
+  .superRefine((v, ctx) => {
+    if (v.workerType === 'SupplierEmployee' && !v.subcontractor) {
+      ctx.addIssue({ code: 'custom', path: ['subcontractor'], message: 'Select the subcontractor this worker comes from.' });
+    }
+  });
+
+export const emptyCandidateForm = {
+  workerType: 'SupplierEmployee',
+  subcontractor: '',
+  workerName: '',
+  iqamaNumber: '',
+  nationality: '',
+  phone: '',
+  status: 'Identified',
+  docsNote: '',
+};
+
+export function candidateToForm(candidate) {
+  return {
+    workerType: candidate.workerType,
+    subcontractor: candidate.subcontractor ?? '',
+    workerName: candidate.workerName,
+    iqamaNumber: candidate.iqamaNumber ?? '',
+    nationality: candidate.nationality ?? '',
+    phone: candidate.phone ?? '',
+    status: candidate.status === 'Mobilised' ? 'DocsReady' : candidate.status,
+    docsNote: candidate.docsNote ?? '',
+  };
+}

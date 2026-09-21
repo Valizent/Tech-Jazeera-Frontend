@@ -23,12 +23,14 @@ import Select from '../../../components/ui/Select.jsx';
 import Skeleton from '../../../components/ui/Skeleton.jsx';
 import Textarea from '../../../components/ui/Textarea.jsx';
 import ProfileField from '../../../components/ui/ProfileField.jsx';
+import CandidatesSection from './CandidatesSection.jsx';
 
 export default function RequirementDetailModal({ id, stages, onClose, onEdit }) {
   const { t } = useTranslation();
   const toast = useToast();
   const queryClient = useQueryClient();
   const [confirmDelete, setConfirmDelete] = useState(false);
+  const [candidateDialogOpen, setCandidateDialogOpen] = useState(false); // a child dialog is up
 
   const { data: requirement, isPending, isError, refetch } = useQuery({
     queryKey: ['requirements', 'detail', id],
@@ -122,10 +124,11 @@ export default function RequirementDetailModal({ id, stages, onClose, onEdit }) 
   const p = requirement?.permissions;
 
   return (
-    // While the delete confirmation is up, Escape should dismiss only IT (both listen on window).
+    // While a dialog on top of this one is up (the delete confirmation, or a
+    // candidate's form/confirm), Escape should dismiss only IT (all listen on window).
     <Modal
       open
-      onClose={confirmDelete ? () => {} : onClose}
+      onClose={confirmDelete || candidateDialogOpen ? () => {} : onClose}
       title={requirement ? `${requirement.serialNumber} · ${requirement.clientName}` : t('staffRequirements.detail.loading')}
       size="lg"
     >
@@ -169,6 +172,8 @@ export default function RequirementDetailModal({ id, stages, onClose, onEdit }) 
               </div>
             )}
           </dl>
+
+          <CandidatesSection requirement={requirement} canEdit={p.edit} onBusyChange={setCandidateDialogOpen} />
 
           {p.move && (
             <Select
