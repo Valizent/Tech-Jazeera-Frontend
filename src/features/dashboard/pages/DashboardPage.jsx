@@ -31,7 +31,6 @@ import StatusBreakdown from '../components/StatusBreakdown.jsx';
 import ExpiringDocuments from '../components/ExpiringDocuments.jsx';
 import RecentActivity from '../components/RecentActivity.jsx';
 import QuickActions from '../components/QuickActions.jsx';
-import ProfitCard from '../components/ProfitCard.jsx';
 import MyPendingActions from '../components/MyPendingActions.jsx';
 import MobilisationTargetCard from '../components/MobilisationTargetCard.jsx';
 import ManageTargetsModal from '../components/ManageTargetsModal.jsx';
@@ -40,6 +39,7 @@ import DailyAttendanceSummary from '../components/DailyAttendanceSummary.jsx';
 import DirectoryStatsWidget from '../components/DirectoryStatsWidget.jsx';
 import HrComplianceWidget from '../components/HrComplianceWidget.jsx';
 import SystemLogsWidget from '../components/SystemLogsWidget.jsx';
+import ActiveRevenueWidget from '../components/ActiveRevenueWidget.jsx';
 
 /** A labelled money figure for the finance card. */
 function FinanceItem({ label, value, hint, accent }) {
@@ -198,33 +198,9 @@ export default function DashboardPage() {
         <MobilisationTargetCard target={myTarget} />
       )}
 
-      {/* Finance summary — each figure (and the whole Pipeline card, and
-          ProfitCard) only renders when the server actually sent it, driven
-          by real Section Access read grants, not a hardcoded role list —
-          see dashboard.service.js's own doc comment. */}
-      {(finance.approvedRevenue != null || finance.pendingRevenue != null || finance.monthlyPayroll != null) && (
-        <Card>
-          <h2 className="mb-4 text-sm font-semibold uppercase tracking-wide text-muted">{t('staffDashboard.pipeline.title')}</h2>
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-            {finance.approvedRevenue != null && (
-              <FinanceItem label={t('staffDashboard.pipeline.approvedRevenue')} value={finance.approvedRevenue} accent="text-success" hint={t('staffDashboard.pipeline.approvedQuotations')} />
-            )}
-            {finance.pendingRevenue != null && (
-              <FinanceItem label={t('staffDashboard.pipeline.pipeline')} value={finance.pendingRevenue} hint={t('staffDashboard.pipeline.draftQuotations')} />
-            )}
-            {finance.monthlyPayroll != null && (
-              <FinanceItem label={t('staffDashboard.pipeline.monthlyPayroll')} value={finance.monthlyPayroll} hint={t('staffDashboard.pipeline.workforceSalariesRunRate')} />
-            )}
-          </div>
-        </Card>
+      {finance.activeMobilisationRevenue != null && (
+        <ActiveRevenueWidget revenue={finance.activeMobilisationRevenue} />
       )}
-
-      {/* P2-M8: real profit for a selected month — Revenue − Payroll −
-          Expenses, from Invoices/finalized Payroll/Expenses. Requires read
-          on all three (see dashboard.service.js's canSeeProfit) — a partial
-          figure built from only some of its real inputs would be an actual
-          number that means something else entirely. */}
-      {finance.profit != null && <ProfitCard profit={finance.profit} month={month} onMonthChange={setMonth} />}
 
       {/* Breakdowns */}
       {(workforceByStatus != null || quotationsByStatus != null || (isCoordinator && mobilisationsByStatus != null)) && (
