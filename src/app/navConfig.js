@@ -125,6 +125,7 @@ export const NAV_GROUPS = [
     items: [
       { to: '/clients', label: 'Clients', icon: ICON.building, sectionKey: 'clientsManage', description: 'Companies your workers are placed with.', labelKey: 'staffNav.sales.clients.label', descriptionKey: 'staffNav.sales.clients.description' },
       { to: '/deployments', label: 'Deployments', icon: ICON.map, sectionKey: 'deploymentsRelease', description: 'Which worker is placed where.', labelKey: 'staffNav.sales.deployments.label', descriptionKey: 'staffNav.sales.deployments.description' },
+      { to: '/deployments/standby', label: 'Standby List', icon: ICON.users, sectionKey: 'deploymentsRelease', description: 'Workers waiting for an assignment.', labelKey: 'staffNav.sales.standby.label', descriptionKey: 'staffNav.sales.standby.description' },
       { to: '/quotations', label: 'Quotations', icon: ICON.quotation, sectionKey: 'quotationsManage', description: 'Pricing sent to clients, pre-invoice.', labelKey: 'staffNav.sales.quotations.label', descriptionKey: 'staffNav.sales.quotations.description' },
       // No sectionKey — visibility is per-record (coordinator, or the
       // mobilisationsViewer circle), not a blanket section; the page handles
