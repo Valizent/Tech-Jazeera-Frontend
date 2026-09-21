@@ -1,4 +1,5 @@
 import { useTranslation } from 'react-i18next';
+import { Link } from 'react-router-dom';
 import Card from '../../../components/ui/Card.jsx';
 import { cn } from '../../../lib/utils.js';
 
@@ -7,24 +8,17 @@ export default function DailyAttendanceSummary({ summary }) {
   
   if (!summary) return null;
 
-  const items = [
-    { label: 'Staff', count: summary.staff, color: 'text-primary' },
-    { label: 'BDMs', count: summary.bdm, color: 'text-success' },
-    { label: 'Coordinators', count: summary.coordinator, color: 'text-warning' },
-    { label: 'Standby Workers', count: summary.standby, color: 'text-danger' }
-  ];
-
   return (
-    <Card>
-      <h2 className="mb-4 text-sm font-semibold uppercase tracking-wide text-muted">Daily Attendance Summary</h2>
-      <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
-        {items.map((item) => (
-          <div key={item.label} className="flex flex-col items-center justify-center rounded-lg border border-border bg-bg/50 p-3">
-            <span className={cn('text-2xl font-bold', item.color)}>{item.count}</span>
-            <span className="mt-1 text-center text-xs font-medium text-muted">{item.label}</span>
-          </div>
-        ))}
-      </div>
+    <Card className="flex flex-col h-full justify-center text-center py-6">
+      <Link 
+        to="/attendance/summary" 
+        className="group block rounded-lg border border-border bg-bg/50 p-6 transition-colors hover:border-primary/50 hover:bg-primary/5"
+      >
+        <span className="block text-4xl font-bold text-primary group-hover:text-primary/90">{summary.total}</span>
+        <span className="mt-2 block text-xs font-semibold uppercase tracking-wide text-muted group-hover:text-primary/80">
+          Daily Attendance
+        </span>
+      </Link>
     </Card>
   );
 }

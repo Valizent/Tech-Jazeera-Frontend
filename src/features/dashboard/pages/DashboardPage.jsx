@@ -27,7 +27,6 @@ import Card from '../../../components/ui/Card.jsx';
 import Skeleton from '../../../components/ui/Skeleton.jsx';
 import EmptyState from '../../../components/ui/EmptyState.jsx';
 import Button from '../../../components/ui/Button.jsx';
-import StatCard from '../components/StatCard.jsx';
 import StatusBreakdown from '../components/StatusBreakdown.jsx';
 import ExpiringDocuments from '../components/ExpiringDocuments.jsx';
 import RecentActivity from '../components/RecentActivity.jsx';
@@ -162,46 +161,7 @@ export default function DashboardPage() {
         </Link>
       )}
 
-      {/* Headline stats — each StatCard only renders when the server actually
-          sent a value; see this file's own top doc comment. */}
-      <div className="grid grid-cols-2 gap-4 lg:grid-cols-5">
-        {stats.deployedActive != null && (
-          <StatCard label={t('staffDashboard.stats.deployedNow')} value={stats.deployedActive} accent="primary" hint={t('staffDashboard.stats.activePlacements')} to="/deployments" />
-        )}
-        {stats.activeWorkers != null && (
-          <StatCard
-            label={t('staffDashboard.stats.activeWorkers')}
-            value={stats.activeWorkers}
-            accent="success"
-            hint={t('staffDashboard.stats.workersHint', { total: stats.totalWorkers, onLeave: stats.onLeave })}
-            to="/employees"
-          />
-        )}
-        {stats.activeClients != null && (
-          <StatCard label={isCoordinator ? t('staffDashboard.stats.yourClients') : t('staffDashboard.stats.activeClients')} value={stats.activeClients} to="/clients" />
-        )}
-        {isCoordinator
-          ? stats.expiringSoon != null && (
-              <StatCard label={t('staffDashboard.stats.expiringSoon')} value={stats.expiringSoon} accent="warning" hint={t('staffDashboard.stats.documentsNeedingAttention')} />
-            )
-          : stats.pendingQuotations != null && (
-              <StatCard
-                label={t('staffDashboard.stats.pendingQuotations')}
-                value={stats.pendingQuotations}
-                accent="warning"
-                hint={isManager ? t('staffDashboard.stats.yourDraftsAwaiting') : t('staffDashboard.stats.draftAwaiting')}
-                to="/quotations"
-              />
-            )}
-        {stats.markedToday != null && (
-          <StatCard
-            label={t('staffDashboard.stats.markedToday')}
-            value={stats.markedToday}
-            hint={t('staffDashboard.stats.ofActiveWorkers', { count: stats.activeWorkers })}
-            to="/attendance/summary"
-          />
-        )}
-      </div>
+      {/* StatCards removed as requested */}
 
       <MyPendingActions items={myPendingActions} />
 
@@ -209,12 +169,15 @@ export default function DashboardPage() {
         <HrComplianceWidget pendingLeave={pendingLeave} pendingExit={pendingExit} />
       )}
 
-      {attendanceSummary != null && (
-        <DailyAttendanceSummary summary={attendanceSummary} />
-      )}
-
-      {activeSubcontractors != null && (
-        <DirectoryStatsWidget activeClients={stats.activeClients} activeSubcontractors={activeSubcontractors} />
+      {(attendanceSummary != null || activeSubcontractors != null) && (
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+          {attendanceSummary != null && (
+            <DailyAttendanceSummary summary={attendanceSummary} />
+          )}
+          {activeSubcontractors != null && (
+            <DirectoryStatsWidget activeClients={stats.activeClients} activeSubcontractors={activeSubcontractors} />
+          )}
+        </div>
       )}
 
       {user.role === 'Manager' || user.role === 'Admin' ? (
@@ -295,14 +258,10 @@ export default function DashboardPage() {
           than absent when neither is readable, and shows its own empty
           state); RecentActivity only when the server actually sent it.
           Side-by-side only when both show. */}
-      {recentActivity != null ? (
+      {recentActivity != null && user.role === 'Admin' ? (
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
           <ExpiringDocuments items={expiringDocuments} thresholdDays={thresholdDays} onThresholdChange={changeThreshold} scopedToTeam={isCoordinator} />
-          {user.role === 'Admin' ? (
-            <SystemLogsWidget recentActivity={recentActivity} />
-          ) : (
-            <RecentActivity items={recentActivity} />
-          )}
+          <SystemLogsWidget recentActivity={recentActivity} />
         </div>
       ) : (
         <ExpiringDocuments items={expiringDocuments} thresholdDays={thresholdDays} onThresholdChange={changeThreshold} scopedToTeam={isCoordinator} />
