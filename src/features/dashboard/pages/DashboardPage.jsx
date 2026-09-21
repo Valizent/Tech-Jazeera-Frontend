@@ -30,7 +30,6 @@ import Button from '../../../components/ui/Button.jsx';
 import StatusBreakdown from '../components/StatusBreakdown.jsx';
 import ExpiringDocuments from '../components/ExpiringDocuments.jsx';
 import RecentActivity from '../components/RecentActivity.jsx';
-import QuickActions from '../components/QuickActions.jsx';
 import MyPendingActions from '../components/MyPendingActions.jsx';
 import MobilisationTargetCard from '../components/MobilisationTargetCard.jsx';
 import ManageTargetsModal from '../components/ManageTargetsModal.jsx';
@@ -40,6 +39,7 @@ import DirectoryStatsWidget from '../components/DirectoryStatsWidget.jsx';
 import HrComplianceWidget from '../components/HrComplianceWidget.jsx';
 import SystemLogsWidget from '../components/SystemLogsWidget.jsx';
 import ActiveRevenueWidget from '../components/ActiveRevenueWidget.jsx';
+import { useCloseOnOutsideClick } from '../../../lib/useCloseOnOutsideClick.js';
 
 /** A labelled money figure for the finance card. */
 function FinanceItem({ label, value, hint, accent }) {
@@ -67,9 +67,18 @@ export default function DashboardPage() {
     localStorage.setItem(THRESHOLD_STORAGE_KEY, String(days));
   }
 
-  // P2-M8: which month the Profit section shows.
   const [month, setMonth] = useState(() => new Date().toISOString().slice(0, 7));
   const [targetsOpen, setTargetsOpen] = useState(false);
+  const [quickActionsOpen, setQuickActionsOpen] = useState(false);
+  const quickActionsRef = useCloseOnOutsideClick(quickActionsOpen, setQuickActionsOpen);
+
+  const QUICK_ACTIONS = [
+    { label: t('staffDashboard.quickActions.addClient', 'Add Client'), to: '/clients/new', sectionKey: 'clientsManage' },
+    { label: 'Add Supplier', to: '/subcontractors', sectionKey: 'subcontractorsManage' },
+    { label: t('staffDashboard.quickActions.newMobilisation', 'New Mobilisation'), to: '/mobilisations/new', sectionKey: 'mobilisationsSelfMobilise' },
+    { label: t('staffDashboard.quickActions.attendance', 'Attendance'), to: '/attendance', sectionKey: 'attendanceRecords' },
+  ];
+  const availableActions = QUICK_ACTIONS.filter((a) => user.sectionAccessWrite?.includes(a.sectionKey));
 
   const { data, isPending, isError, refetch } = useQuery({
     queryKey: ['dashboard', thresholdDays, month],
@@ -138,11 +147,36 @@ export default function DashboardPage() {
         title={t('staffDashboard.welcomeBack', { name: firstName })}
         description={isCoordinator ? t('staffDashboard.subtitleTeam') : t('staffDashboard.subtitleCompany')}
         actions={
-          canManageTargets ? (
-            <Button variant="secondary" onClick={() => setTargetsOpen(true)}>
-              Manage Targets
-            </Button>
-          ) : null
+          <div className="flex items-center gap-2">
+            {canManageTargets && (
+              <Button variant="secondary" onClick={() => setTargetsOpen(true)}>
+                Manage Targets
+              </Button>
+            )}
+            {availableActions.length > 0 && (
+              <div className="relative" ref={quickActionsRef}>
+                <Button onClick={() => setQuickActionsOpen(!quickActionsOpen)}>
+                  Quick Actions
+                  <svg className="ml-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+                  </svg>
+                </Button>
+                {quickActionsOpen && (
+                  <div className="absolute right-0 top-full z-50 mt-1 w-48 rounded-xl border border-border bg-surface py-1 shadow-lg animate-rise-in">
+                    {availableActions.map((a) => (
+                      <Link
+                        key={a.to}
+                        to={a.to}
+                        className="block w-full px-4 py-2 text-left text-sm text-text transition-colors hover:bg-border/40"
+                      >
+                        {a.label}
+                      </Link>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
         }
       />
 
@@ -242,8 +276,6 @@ export default function DashboardPage() {
       ) : (
         <ExpiringDocuments items={expiringDocuments} thresholdDays={thresholdDays} onThresholdChange={changeThreshold} scopedToTeam={isCoordinator} />
       )}
-
-      <QuickActions />
 
       {/* Manage Targets modal — management only */}
       <ManageTargetsModal
