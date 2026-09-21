@@ -36,6 +36,11 @@ import ProfitCard from '../components/ProfitCard.jsx';
 import MyPendingActions from '../components/MyPendingActions.jsx';
 import MobilisationTargetCard from '../components/MobilisationTargetCard.jsx';
 import ManageTargetsModal from '../components/ManageTargetsModal.jsx';
+import StandbyAnalysisWidget from '../components/StandbyAnalysisWidget.jsx';
+import DailyAttendanceSummary from '../components/DailyAttendanceSummary.jsx';
+import DirectoryStatsWidget from '../components/DirectoryStatsWidget.jsx';
+import HrComplianceWidget from '../components/HrComplianceWidget.jsx';
+import SystemLogsWidget from '../components/SystemLogsWidget.jsx';
 
 /** A labelled money figure for the finance card. */
 function FinanceItem({ label, value, hint, accent }) {
@@ -125,7 +130,7 @@ export default function DashboardPage() {
     );
   }
 
-  const { stats, finance, workforceByStatus, quotationsByStatus, expiringDocuments, recentActivity, myPendingActions } =
+  const { stats, finance, workforceByStatus, quotationsByStatus, expiringDocuments, recentActivity, myPendingActions, mobilisationsByStatus, activeSubcontractors, attendanceSummary, pendingLeave, pendingExit } =
     data;
 
   return (
@@ -136,7 +141,7 @@ export default function DashboardPage() {
         actions={
           canManageTargets ? (
             <Button variant="secondary" onClick={() => setTargetsOpen(true)}>
-              🎯 Manage Targets
+              Manage Targets
             </Button>
           ) : null
         }
@@ -200,6 +205,31 @@ export default function DashboardPage() {
 
       <MyPendingActions items={myPendingActions} />
 
+      {(pendingLeave != null || pendingExit != null) && (
+        <HrComplianceWidget pendingLeave={pendingLeave} pendingExit={pendingExit} />
+      )}
+
+      {attendanceSummary != null && (
+        <DailyAttendanceSummary summary={attendanceSummary} />
+      )}
+
+      {activeSubcontractors != null && (
+        <DirectoryStatsWidget activeClients={stats.activeClients} activeSubcontractors={activeSubcontractors} />
+      )}
+
+      {user.role === 'Manager' || user.role === 'Admin' ? (
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+          {attendanceSummary != null && <StandbyAnalysisWidget />}
+          {mobilisationsByStatus != null && (
+            <StatusBreakdown
+              title="Global Mobilisation Pipeline"
+              data={mobilisationsByStatus}
+              colors={{ Draft: 'default', Submitted: 'warning', Approved: 'primary', Deployed: 'success', Rejected: 'danger' }}
+            />
+          )}
+        </div>
+      ) : null}
+
       {/* Coordinator's own monthly target — hidden if no target set */}
       {isCoordinator && myTarget !== undefined && (
         <MobilisationTargetCard target={myTarget} />
@@ -234,7 +264,7 @@ export default function DashboardPage() {
       {finance.profit != null && <ProfitCard profit={finance.profit} month={month} onMonthChange={setMonth} />}
 
       {/* Breakdowns */}
-      {(workforceByStatus != null || quotationsByStatus != null) && (
+      {(workforceByStatus != null || quotationsByStatus != null || (isCoordinator && mobilisationsByStatus != null)) && (
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
           {workforceByStatus != null && (
             <StatusBreakdown
@@ -250,6 +280,13 @@ export default function DashboardPage() {
               colors={{ Draft: 'default', Approved: 'success', Rejected: 'danger' }}
             />
           )}
+          {isCoordinator && mobilisationsByStatus != null && (
+            <StatusBreakdown
+              title="My Mobilisation Pipeline"
+              data={mobilisationsByStatus}
+              colors={{ Draft: 'default', Submitted: 'warning', Approved: 'primary', Deployed: 'success', Rejected: 'danger' }}
+            />
+          )}
         </div>
       )}
 
@@ -261,7 +298,11 @@ export default function DashboardPage() {
       {recentActivity != null ? (
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
           <ExpiringDocuments items={expiringDocuments} thresholdDays={thresholdDays} onThresholdChange={changeThreshold} scopedToTeam={isCoordinator} />
-          <RecentActivity items={recentActivity} />
+          {user.role === 'Admin' ? (
+            <SystemLogsWidget recentActivity={recentActivity} />
+          ) : (
+            <RecentActivity items={recentActivity} />
+          )}
         </div>
       ) : (
         <ExpiringDocuments items={expiringDocuments} thresholdDays={thresholdDays} onThresholdChange={changeThreshold} scopedToTeam={isCoordinator} />

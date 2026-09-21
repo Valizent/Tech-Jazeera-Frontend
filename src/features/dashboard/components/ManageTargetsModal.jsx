@@ -17,6 +17,7 @@ import Modal from '../../../components/ui/Modal.jsx';
 import Button from '../../../components/ui/Button.jsx';
 import Input from '../../../components/ui/Input.jsx';
 import Select from '../../../components/ui/Select.jsx';
+import CoordinatorDrillDownModal from './CoordinatorDrillDownModal.jsx';
 
 const currentMonth = () => new Date().toISOString().slice(0, 7);
 
@@ -39,6 +40,7 @@ export default function ManageTargetsModal({ open, onClose, coordinators = [] })
   const queryClient = useQueryClient();
   const [tab, setTab] = useState('progress');
   const [month, setMonth] = useState(currentMonth);
+  const [drillDownCoordinator, setDrillDownCoordinator] = useState(null);
 
   // Form state for set-target tab
   const [form, setForm] = useState({ coordinatorId: '', month: currentMonth(), target: '', incentivePercent: '' });
@@ -158,12 +160,15 @@ export default function ManageTargetsModal({ open, onClose, coordinators = [] })
                 className="flex flex-col gap-2 rounded-xl border border-border bg-surface p-4 sm:flex-row sm:items-center sm:gap-4"
               >
                 {/* Avatar + name */}
-                <div className="flex min-w-0 flex-1 items-center gap-3">
-                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-primary/10 text-sm font-semibold text-primary">
+                <div 
+                  className="flex min-w-0 flex-1 items-center gap-3 cursor-pointer group"
+                  onClick={() => setDrillDownCoordinator({ _id: row.coordinator._id, name: row.coordinator.name })}
+                >
+                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-primary/10 text-sm font-semibold text-primary transition-colors group-hover:bg-primary/20">
                     {row.coordinator.name.charAt(0).toUpperCase()}
                   </div>
                   <div className="min-w-0">
-                    <p className="truncate font-medium text-text">{row.coordinator.name}</p>
+                    <p className="truncate font-medium text-text group-hover:text-primary transition-colors">{row.coordinator.name}</p>
                     <ProgressBar achieved={row.achieved} target={row.target} />
                     <p className="mt-0.5 text-xs text-muted">
                       {row.achieved} / {row.target} mobilisations
@@ -176,7 +181,7 @@ export default function ManageTargetsModal({ open, onClose, coordinators = [] })
                 <div className="flex shrink-0 items-center gap-2">
                   {row.hit ? (
                     <span className="rounded-full bg-amber-100 px-2.5 py-0.5 text-xs font-semibold text-amber-800 dark:bg-amber-900/40 dark:text-amber-300">
-                      🎉 Hit!
+                      Hit!
                     </span>
                   ) : (
                     <span className="rounded-full bg-bg px-2.5 py-0.5 text-xs font-medium text-muted">
@@ -306,6 +311,14 @@ export default function ManageTargetsModal({ open, onClose, coordinators = [] })
             </div>
           )}
         </div>
+      )}
+
+      {drillDownCoordinator && (
+        <CoordinatorDrillDownModal
+          isOpen={!!drillDownCoordinator}
+          onClose={() => setDrillDownCoordinator(null)}
+          coordinator={drillDownCoordinator}
+        />
       )}
     </Modal>
   );

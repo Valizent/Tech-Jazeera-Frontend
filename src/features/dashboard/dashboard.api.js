@@ -15,3 +15,13 @@ export async function getDashboard(thresholdDays, month) {
   const { data } = await api.get('/dashboard', { params: Object.keys(params).length ? params : undefined });
   return data.data;
 }
+
+export async function getStandbyAnalysis() {
+  const { data } = await api.get('/dashboard/standby-analysis');
+  return data.data;
+}
+
+export async function getCoordinatorDrillDown(id) {
+  const { data } = await api.get(`/dashboard/coordinator-drill-down/${id}`);
+  return data.data;
+}
