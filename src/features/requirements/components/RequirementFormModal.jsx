@@ -64,13 +64,6 @@ export default function RequirementFormModal({ open, requirement, canAssign, coo
     onError: (error) => toast.error(apiMessage(error)),
   });
 
-  useEffect(() => {
-    if (pendingJobTitle && jobTitles?.some((jt) => jt.name === pendingJobTitle)) {
-      setValue('jobTitle', pendingJobTitle, { shouldValidate: true, shouldDirty: true });
-      setPendingJobTitle(null);
-    }
-  }, [jobTitles, pendingJobTitle, setValue]);
-
   const {
     register,
     handleSubmit,
@@ -84,6 +77,17 @@ export default function RequirementFormModal({ open, requirement, canAssign, coo
     resolver: zodResolver(buildRequirementFormSchema(showCoordinators)),
     defaultValues: emptyRequirementForm,
   });
+
+  // Select a just-created job title only once the refetched list actually contains it (setValue
+  // before that would point the field at an option that isn't there yet — same fix as the
+  // Mobilisation form). Declared AFTER useForm: it reads `setValue`, so above it the whole
+  // component threw "Cannot access 'setValue' before initialization" and the board crashed.
+  useEffect(() => {
+    if (pendingJobTitle && jobTitles?.some((jt) => jt.name === pendingJobTitle)) {
+      setValue('jobTitle', pendingJobTitle, { shouldValidate: true, shouldDirty: true });
+      setPendingJobTitle(null);
+    }
+  }, [jobTitles, pendingJobTitle, setValue]);
 
   // Re-seed whenever the dialog opens (new vs. which card is being edited).
   useEffect(() => {

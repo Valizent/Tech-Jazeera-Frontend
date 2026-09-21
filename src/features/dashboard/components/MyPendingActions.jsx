@@ -4,8 +4,12 @@
  * Advance/Reimbursement/Mobilisation). Server-computed via the same
  * annotateCanDecide authorization check the review-queue pages use (see
  * dashboard.service.js's getMyPendingActions) — never a company-wide count,
- * always "yours to act on." Hidden entirely when empty, same pattern as the
- * other conditional dashboard widgets.
+ * always "yours to act on." Also carries two Coordinator Workflow rows —
+ * "Stale requirements" and "Open tasks" — each scoped by its own module to
+ * what this viewer can see (a coordinator's own; a manager with team access,
+ * everyone's), so a row's number always matches the page it links to.
+ * Hidden entirely when empty, same pattern as the other conditional
+ * dashboard widgets.
  */
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';

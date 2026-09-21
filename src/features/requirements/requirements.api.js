@@ -3,10 +3,30 @@
  */
 import { api } from '../../lib/axios.js';
 
-/** The whole board in one call: `{ stages, requirements, truncated }`. */
+/**
+ * The whole board in one call: `{ stages, requirements, truncated, filterOptions }`.
+ * params: coordinator, client (a company name), subcontractor (an id), closed.
+ * `filterOptions` = `{ clients: [name], subcontractors: [{ _id, name }] }` — what the
+ * client / subcontractor filters can offer, taken from the cards this user can see.
+ */
 export async function getBoard(params) {
   const { data } = await api.get('/requirements/board', { params });
   return data.data;
+}
+
+/** Download what the board shows for the same params as one .xlsx (a Requirements
+ *  sheet and a Candidates sheet). A plain <a> can't send the in-memory token, so
+ *  it's fetched as an authenticated Blob and saved from here. */
+export async function downloadRequirementsExport(params) {
+  const res = await api.get('/requirements/export', { params, responseType: 'blob' });
+  const url = URL.createObjectURL(res.data);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `requirements_${new Date().toISOString().slice(0, 10)}.xlsx`;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
 }
 
 /** One card with its stage history and every update written on it. */

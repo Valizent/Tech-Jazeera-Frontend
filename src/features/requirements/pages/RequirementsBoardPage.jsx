@@ -12,12 +12,17 @@
  *
  * The open card lives in the URL (`?open=<id>`) so a notification's deep link,
  * a refresh, and the browser's back button all land on the same card.
+ *
+ * Milestone 4: client and subcontractor filters (their choices come back with the
+ * board itself, built from the cards this user can see — a coordinator has no access
+ * to the Clients / Subcontractors lists, so they can't be fetched from there), and
+ * "Export to Excel" of whatever the current filters show.
  */
 import { useMemo, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { getBoard, listRequirementCoordinators, moveRequirement, createSuggestedStages } from '../requirements.api.js';
+import { getBoard, listRequirementCoordinators, moveRequirement, createSuggestedStages, downloadRequirementsExport } from '../requirements.api.js';
 import { useAuth } from '../../auth/AuthContext.jsx';
 import { apiMessage } from '../../../lib/utils.js';
 import { useToast } from '../../../components/ui/Toast.jsx';
@@ -26,6 +31,7 @@ import PickerLoadWarning from '../../../components/shared/PickerLoadWarning.jsx'
 import Button from '../../../components/ui/Button.jsx';
 import EmptyState from '../../../components/ui/EmptyState.jsx';
 import Select from '../../../components/ui/Select.jsx';
+import SearchableSelect from '../../../components/ui/SearchableSelect.jsx';
 import Skeleton from '../../../components/ui/Skeleton.jsx';
 import BoardColumn from '../components/BoardColumn.jsx';
 import RequirementCard from '../components/RequirementCard.jsx';
@@ -51,12 +57,25 @@ export default function RequirementsBoardPage() {
   const canManageStages = write.includes('requirementStages');
 
   const [coordinator, setCoordinator] = useState('');
+  const [client, setClient] = useState(''); // a company name — a requirement can come from a company that isn't a Client record
+  const [subcontractor, setSubcontractor] = useState(''); // a subcontractor id
   const [showOlderClosed, setShowOlderClosed] = useState(false);
   const [formState, setFormState] = useState(null); // null = closed, { requirement: null } = add, { requirement } = edit
   const [stagesOpen, setStagesOpen] = useState(false);
   const openId = searchParams.get('open');
 
-  const params = { ...(coordinator && { coordinator }), ...(showOlderClosed && { closed: 'all' }) };
+  const params = {
+    ...(coordinator && { coordinator }),
+    ...(client && { client }),
+    ...(subcontractor && { subcontractor }),
+    ...(showOlderClosed && { closed: 'all' }),
+  };
+  const hasFilters = Boolean(coordinator || client || subcontractor);
+  const clearFilters = () => {
+    setCoordinator('');
+    setClient('');
+    setSubcontractor('');
+  };
   const { data, isPending, isError, refetch } = useQuery({
     queryKey: [...BOARD_KEY, params],
     queryFn: () => getBoard(params),
@@ -80,6 +99,8 @@ export default function RequirementsBoardPage() {
   }, [stages, requirements]);
   const staleTotal = (requirements ?? []).filter((r) => r.stale).length;
   const hasClosedStage = stages.some((s) => s.isTerminal);
+  const clientChoices = data?.filterOptions?.clients ?? [];
+  const subcontractorChoices = data?.filterOptions?.subcontractors ?? [];
 
   const setOpenId = (id) =>
     setSearchParams(
@@ -118,6 +139,14 @@ export default function RequirementsBoardPage() {
     onSettled: () => queryClient.invalidateQueries({ queryKey: ['requirements'] }),
   });
 
+  const exportMutation = useMutation({
+    mutationFn: () => downloadRequirementsExport(params),
+    onError: (error) => {
+      console.error('[requirements] exporting the board failed', error);
+      toast.error(apiMessage(error));
+    },
+  });
+
   const suggestedMutation = useMutation({
     mutationFn: createSuggestedStages,
     onSuccess: () => {
@@ -150,6 +179,11 @@ export default function RequirementsBoardPage() {
         description={t('staffRequirements.pageDescription')}
         actions={
           <>
+            {stages.length > 0 && (
+              <Button size="sm" variant="secondary" isLoading={exportMutation.isPending} onClick={() => exportMutation.mutate()}>
+                {t('staffRequirements.exportExcel')}
+              </Button>
+            )}
             {canManageStages && stages.length > 0 && (
               <Button size="sm" variant="secondary" onClick={() => setStagesOpen(true)}>
                 {t('staffRequirements.manageStages')}
@@ -182,6 +216,34 @@ export default function RequirementsBoardPage() {
                 </option>
               ))}
             </Select>
+          )}
+          {clientChoices.length > 0 && (
+            <SearchableSelect
+              value={client}
+              onChange={setClient}
+              placeholder={t('staffRequirements.clientFilterPlaceholder')}
+              className="sm:min-w-[200px] sm:max-w-xs"
+              aria-label={t('staffRequirements.clientFilterAria')}
+              options={[{ value: '', label: t('staffRequirements.clientFilterAll') }, ...clientChoices.map((name) => ({ value: name, label: name }))]}
+            />
+          )}
+          {subcontractorChoices.length > 0 && (
+            <SearchableSelect
+              value={subcontractor}
+              onChange={setSubcontractor}
+              placeholder={t('staffRequirements.subcontractorFilterPlaceholder')}
+              className="sm:min-w-[200px] sm:max-w-xs"
+              aria-label={t('staffRequirements.subcontractorFilterAria')}
+              options={[
+                { value: '', label: t('staffRequirements.subcontractorFilterAll') },
+                ...subcontractorChoices.map((s) => ({ value: s._id, label: s.name })),
+              ]}
+            />
+          )}
+          {hasFilters && (
+            <Button size="sm" variant="ghost" onClick={clearFilters}>
+              {t('staffRequirements.clearFilters')}
+            </Button>
           )}
           {hasClosedStage && (
             <label className="flex items-center gap-2 text-sm text-muted">
