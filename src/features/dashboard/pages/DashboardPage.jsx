@@ -18,6 +18,7 @@ import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { getDashboard } from '../dashboard.api.js';
+import { getMyTarget } from '../../mobilisationTargets/mobilisationTargets.api.js';
 import { useAuth } from '../../auth/AuthContext.jsx';
 import { formatMoney } from '../../../lib/utils.js';
 import { EXPIRY_WARNING_DAYS } from '../../../lib/constants.js';
@@ -33,6 +34,8 @@ import RecentActivity from '../components/RecentActivity.jsx';
 import QuickActions from '../components/QuickActions.jsx';
 import ProfitCard from '../components/ProfitCard.jsx';
 import MyPendingActions from '../components/MyPendingActions.jsx';
+import MobilisationTargetCard from '../components/MobilisationTargetCard.jsx';
+import ManageTargetsModal from '../components/ManageTargetsModal.jsx';
 
 /** A labelled money figure for the finance card. */
 function FinanceItem({ label, value, hint, accent }) {
@@ -60,10 +63,9 @@ export default function DashboardPage() {
     localStorage.setItem(THRESHOLD_STORAGE_KEY, String(days));
   }
 
-  // P2-M8: which month the Profit section shows. Not persisted like the
-  // threshold above — always opens on the current month, so nobody mistakes
-  // an old month's figures for today's by forgetting they changed it last visit.
+  // P2-M8: which month the Profit section shows.
   const [month, setMonth] = useState(() => new Date().toISOString().slice(0, 7));
+  const [targetsOpen, setTargetsOpen] = useState(false);
 
   const { data, isPending, isError, refetch } = useQuery({
     queryKey: ['dashboard', thresholdDays, month],
@@ -72,9 +74,26 @@ export default function DashboardPage() {
 
   const firstName = user.name.split(' ')[0];
   const isCoordinator = user.role === 'Coordinator';
-  // Labeling/scoping only ("your drafts" vs. the company-wide count) — not
-  // an access gate. See this file's own top doc comment.
   const isManager = user.role === 'Manager';
+  const canManageTargets = user.role === 'Admin' || user.role === 'Manager';
+
+  // Coordinator's own monthly target — always fetched for coordinator logins,
+  // never for others (null guard in MobilisationTargetCard hides the widget).
+  const currentMonth = new Date().toISOString().slice(0, 7);
+  const { data: myTarget } = useQuery({
+    queryKey: ['mob-target-my', currentMonth],
+    queryFn: () => getMyTarget(currentMonth),
+    enabled: isCoordinator,
+  });
+
+  // Management: coordinator list for the ManageTargetsModal selector.
+  // Reuse the mobilisations coordinator endpoint (same list, no extra cost).
+  const { data: coordinatorList = [] } = useQuery({
+    queryKey: ['coordinator-candidates'],
+    queryFn: () => import('../../mobilisations/mobilisations.api.js').then((m) => m.listCoordinatorCandidates()),
+    enabled: targetsOpen,
+    staleTime: 60_000,
+  });
 
   if (isPending) {
     return (
@@ -111,6 +130,13 @@ export default function DashboardPage() {
       <PageHeader
         title={t('staffDashboard.welcomeBack', { name: firstName })}
         description={isCoordinator ? t('staffDashboard.subtitleTeam') : t('staffDashboard.subtitleCompany')}
+        actions={
+          canManageTargets ? (
+            <Button variant="secondary" onClick={() => setTargetsOpen(true)}>
+              🎯 Manage Targets
+            </Button>
+          ) : null
+        }
       />
 
       {/* Only ever non-zero for Admin/Manager/HR — a Coordinator's own
@@ -170,6 +196,11 @@ export default function DashboardPage() {
       </div>
 
       <MyPendingActions items={myPendingActions} />
+
+      {/* Coordinator's own monthly target — hidden if no target set */}
+      {isCoordinator && myTarget !== undefined && (
+        <MobilisationTargetCard target={myTarget} />
+      )}
 
       {/* Finance summary — each figure (and the whole Pipeline card, and
           ProfitCard) only renders when the server actually sent it, driven
@@ -234,6 +265,13 @@ export default function DashboardPage() {
       )}
 
       <QuickActions />
+
+      {/* Manage Targets modal — management only */}
+      <ManageTargetsModal
+        open={targetsOpen}
+        onClose={() => setTargetsOpen(false)}
+        coordinators={coordinatorList}
+      />
     </div>
   );
 }
