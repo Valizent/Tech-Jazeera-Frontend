@@ -80,6 +80,39 @@ export default function NfcCompanyProfilePage() {
     onError: (error) => toast.error(apiMessage(error)),
   });
 
+  const handleExport = () => {
+    const withCards = company.employees.filter((p) => p.card);
+    if (withCards.length === 0) {
+      toast.error('No employees have cards assigned.');
+      return;
+    }
+
+    const headers = ['Name', 'Job Title', 'Card Token', 'Card URL', 'Taps (30D)'];
+    const csvRows = [headers.join(',')];
+
+    withCards.forEach((p) => {
+      const t = tapsByPerson.get(p._id);
+      const taps = t ? t.views : 0;
+      const row = [
+        `"${(p.name || '').replace(/"/g, '""')}"`,
+        `"${(p.jobTitle || '').replace(/"/g, '""')}"`,
+        `"${(p.card.token || '').replace(/"/g, '""')}"`,
+        `"${(p.card.url || '').replace(/"/g, '""')}"`,
+        taps
+      ];
+      csvRows.push(row.join(','));
+    });
+
+    const csvData = csvRows.join('\n');
+    const blob = new Blob([csvData], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${company.companyName.replace(/[^a-z0-9]/gi, '_').toLowerCase()}_cards.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
   if (!canRead) return <Navigate to="/" replace />;
 
   if (isPending) {
@@ -141,7 +174,7 @@ export default function NfcCompanyProfilePage() {
       header: '',
       render: (p) =>
         canWrite ? (
-          <div className="flex justify-end gap-2">
+          <div className="flex justify-end gap-2 whitespace-nowrap">
             <Button size="sm" variant="secondary" onClick={() => setAssigningTo(p)}>
               {p.card ? 'Change card' : 'Assign card'}
             </Button>
@@ -234,11 +267,16 @@ export default function NfcCompanyProfilePage() {
             <h2 className="text-sm font-semibold uppercase tracking-wide text-muted">
               People ({company.employees.length})
             </h2>
-            {canWrite && (
-              <Button size="sm" onClick={() => setAddingPerson(true)}>
-                Add person
+            <div className="flex items-center gap-2">
+              <Button size="sm" variant="secondary" onClick={handleExport}>
+                Export Excel
               </Button>
-            )}
+              {canWrite && (
+                <Button size="sm" onClick={() => setAddingPerson(true)}>
+                  Add person
+                </Button>
+              )}
+            </div>
           </div>
           <Table
             columns={columns}
