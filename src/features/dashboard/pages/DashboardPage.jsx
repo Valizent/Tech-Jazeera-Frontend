@@ -165,7 +165,7 @@ export default function DashboardPage() {
                   </svg>
                 </Button>
                 {quickActionsOpen && (
-                  <div className="absolute right-0 top-full z-50 mt-1 w-48 rounded-xl border border-border bg-surface py-1 shadow-lg animate-rise-in">
+                  <div className="absolute left-0 sm:left-auto sm:right-0 top-full z-50 mt-1 w-48 rounded-xl border border-border bg-surface py-1 shadow-lg animate-rise-in">
                     {availableActions.map((a) => (
                       <Link
                         key={a.to}
