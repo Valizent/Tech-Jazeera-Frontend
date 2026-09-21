@@ -123,14 +123,14 @@ export const NAV_GROUPS = [
     description: 'Client relationships, worker placements and quotations.',
     descriptionKey: 'staffNav.sales.description',
     items: [
-      { to: '/clients', label: 'Clients', icon: ICON.building, sectionKey: 'clientsManage', description: 'Companies your workers are placed with.', labelKey: 'staffNav.sales.clients.label', descriptionKey: 'staffNav.sales.clients.description' },
-      { to: '/deployments', label: 'Deployments', icon: ICON.map, sectionKey: 'deploymentsRelease', description: 'Which worker is placed where.', labelKey: 'staffNav.sales.deployments.label', descriptionKey: 'staffNav.sales.deployments.description' },
-      { to: '/deployments/standby', label: 'Standby List', icon: ICON.users, sectionKey: 'deploymentsRelease', description: 'Workers waiting for an assignment.', labelKey: 'staffNav.sales.standby.label', descriptionKey: 'staffNav.sales.standby.description' },
-      { to: '/quotations', label: 'Quotations', icon: ICON.quotation, sectionKey: 'quotationsManage', description: 'Pricing sent to clients, pre-invoice.', labelKey: 'staffNav.sales.quotations.label', descriptionKey: 'staffNav.sales.quotations.description' },
       // No sectionKey — visibility is per-record (coordinator, or the
       // mobilisationsViewer circle), not a blanket section; the page handles
       // its own access, same reasoning as router.jsx leaving these unwrapped.
       { to: '/mobilisations', label: 'Mobilisations', icon: ICON.team, description: 'Worker placements with client billing terms.', labelKey: 'staffNav.sales.mobilisations.label', descriptionKey: 'staffNav.sales.mobilisations.description' },
+      { to: '/deployments', label: 'Deployments', icon: ICON.map, sectionKey: 'deploymentsRelease', description: 'Which worker is placed where.', labelKey: 'staffNav.sales.deployments.label', descriptionKey: 'staffNav.sales.deployments.description' },
+      { to: '/deployments/standby', label: 'Standby List', icon: ICON.users, sectionKey: 'deploymentsRelease', description: 'Workers waiting for an assignment.', labelKey: 'staffNav.sales.standby.label', descriptionKey: 'staffNav.sales.standby.description' },
+      { to: '/quotations', label: 'Quotations', icon: ICON.quotation, sectionKey: 'quotationsManage', description: 'Pricing sent to clients, pre-invoice.', labelKey: 'staffNav.sales.quotations.label', descriptionKey: 'staffNav.sales.quotations.description' },
+      { to: '/clients', label: 'Clients', icon: ICON.building, sectionKey: 'clientsManage', description: 'Companies your workers are placed with.', labelKey: 'staffNav.sales.clients.label', descriptionKey: 'staffNav.sales.clients.description' },
       { to: '/subcontractors', label: 'Subcontractors', icon: ICON.building, sectionKey: 'subcontractorsManage', description: 'Companies a mobilisation is sometimes routed through.', labelKey: 'staffNav.sales.subcontractors.label', descriptionKey: 'staffNav.sales.subcontractors.description' },
       { to: '/daily-updates', label: 'Daily Updates', icon: ICON.list, sectionKey: ['dailyUpdatesOwn', 'dailyUpdatesTeam'], description: "Coordinators' day-to-day tasks and work log.", labelKey: 'staffNav.sales.dailyUpdates.label', descriptionKey: 'staffNav.sales.dailyUpdates.description' },
       { to: '/requirements', label: 'Requirements', icon: ICON.hierarchy, sectionKey: ['requirementsOwn', 'requirementsTeam'], description: 'Client requirements moving from first request to mobilised.', labelKey: 'staffNav.sales.requirements.label', descriptionKey: 'staffNav.sales.requirements.description' },
