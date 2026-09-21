@@ -3,7 +3,7 @@ import Card from '../../../components/ui/Card.jsx';
 import EmptyState from '../../../components/ui/EmptyState.jsx';
 import { useQuery } from '@tanstack/react-query';
 import { getStandbyAnalysis } from '../dashboard.api.js';
-import { formatCurrency } from '../../../lib/formatters.js';
+import { formatMoney } from '../../../lib/utils.js';
 import PickerLoadWarning from '../../../components/shared/PickerLoadWarning.jsx';
 
 export default function StandbyAnalysisWidget() {
@@ -63,7 +63,7 @@ export default function StandbyAnalysisWidget() {
                     </span>
                   </td>
                   <td className="px-4 py-3 text-right font-medium text-muted">
-                    {formatCurrency(w.moneyLost)}
+                    {formatMoney(w.moneyLost)}
                   </td>
                 </tr>
               ))}

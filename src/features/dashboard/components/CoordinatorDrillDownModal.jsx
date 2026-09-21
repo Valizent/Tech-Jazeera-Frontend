@@ -4,7 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 import Modal from '../../../components/ui/Modal.jsx';
 import Button from '../../../components/ui/Button.jsx';
 import { getCoordinatorDrillDown } from '../dashboard.api.js';
-import { formatCurrency, formatDate } from '../../../lib/formatters.js';
+import { formatMoney, formatDate } from '../../../lib/utils.js';
 
 export default function CoordinatorDrillDownModal({ isOpen, onClose, coordinator }) {
   const { t } = useTranslation();
@@ -26,7 +26,7 @@ export default function CoordinatorDrillDownModal({ isOpen, onClose, coordinator
           <div className="grid grid-cols-2 gap-4">
             <div className="rounded-lg border border-border bg-bg/50 p-4 text-center">
               <div className="text-sm font-medium text-muted mb-1">Generated Profit</div>
-              <div className="text-2xl font-bold text-success">{formatCurrency(data.totalMonthlyProfit)}</div>
+              <div className="text-2xl font-bold text-success">{formatMoney(data.totalMonthlyProfit)}</div>
             </div>
             <div className="rounded-lg border border-border bg-bg/50 p-4 text-center">
               <div className="text-sm font-medium text-muted mb-1">Assigned Tasks</div>
