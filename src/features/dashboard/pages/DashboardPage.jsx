@@ -75,7 +75,10 @@ export default function DashboardPage() {
   const firstName = user.name.split(' ')[0];
   const isCoordinator = user.role === 'Coordinator';
   const isManager = user.role === 'Manager';
-  const canManageTargets = user.role === 'Admin' || user.role === 'Manager';
+  const canManageTargets = 
+    user.role === 'Admin' || 
+    user.role === 'Manager' || 
+    (user.sectionAccessWrite || []).includes('mobilisationTargets');
 
   // Coordinator's own monthly target — always fetched for coordinator logins,
   // never for others (null guard in MobilisationTargetCard hides the widget).
