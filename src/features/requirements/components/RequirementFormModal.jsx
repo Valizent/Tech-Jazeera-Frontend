@@ -10,7 +10,7 @@
  * The coordinators picker shows only to someone who may assign them (team-write);
  * a coordinator adding their own requirement never sees it — it's theirs.
  */
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -18,7 +18,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { createRequirement, updateRequirement } from '../requirements.api.js';
 import { buildRequirementFormSchema, emptyRequirementForm, requirementToForm } from '../requirements.schema.js';
 import { listClients } from '../../clients/clients.api.js';
-import { listJobTitles } from '../../jobTitles/jobTitles.api.js';
+import { listJobTitles, createJobTitle } from '../../jobTitles/jobTitles.api.js';
 import { apiMessage } from '../../../lib/utils.js';
 import { useToast } from '../../../components/ui/Toast.jsx';
 import Modal from '../../../components/ui/Modal.jsx';
@@ -47,6 +47,29 @@ export default function RequirementFormModal({ open, requirement, canAssign, coo
     queryFn: () => listJobTitles({ activeOnly: 'true' }),
     enabled: open,
   });
+
+  const [addingJobTitle, setAddingJobTitle] = useState(false);
+  const [newJobTitle, setNewJobTitle] = useState('');
+  const [pendingJobTitle, setPendingJobTitle] = useState(null);
+
+  const addJobTitleMutation = useMutation({
+    mutationFn: () => createJobTitle(newJobTitle.trim()),
+    onSuccess: (created) => {
+      toast.success(t('staffMobilisations.form.jobTitleAddedToast', { name: created.name }));
+      queryClient.invalidateQueries({ queryKey: ['job-titles'] });
+      setPendingJobTitle(created.name);
+      setAddingJobTitle(false);
+      setNewJobTitle('');
+    },
+    onError: (error) => toast.error(apiMessage(error)),
+  });
+
+  useEffect(() => {
+    if (pendingJobTitle && jobTitles?.some((jt) => jt.name === pendingJobTitle)) {
+      setValue('jobTitle', pendingJobTitle, { shouldValidate: true, shouldDirty: true });
+      setPendingJobTitle(null);
+    }
+  }, [jobTitles, pendingJobTitle, setValue]);
 
   const {
     register,
@@ -112,6 +135,7 @@ export default function RequirementFormModal({ open, requirement, canAssign, coo
   };
 
   return (
+    <>
     <Modal open={open} onClose={onClose} title={t(isEdit ? 'staffRequirements.form.editTitle' : 'staffRequirements.form.addTitle')} size="lg">
       <form onSubmit={handleSubmit((values) => saveMutation.mutate(values), onInvalid)} noValidate className="space-y-4">
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
@@ -134,20 +158,31 @@ export default function RequirementFormModal({ open, requirement, canAssign, coo
                 the field still works as plain text either way. */}
             <p className="mt-1 text-xs text-muted">{t(clientsError ? 'staffRequirements.form.clientHintNoSuggestions' : 'staffRequirements.form.clientHint')}</p>
           </div>
-          <Controller
-            name="jobTitle"
-            control={control}
-            render={({ field }) => (
-              <SuggestInput
-                label={t('staffRequirements.form.jobTitle')}
-                value={field.value}
-                onChange={field.onChange}
-                onBlur={field.onBlur}
-                options={(jobTitles ?? []).map((j) => j.name)}
-                error={errors.jobTitle?.message}
-              />
-            )}
-          />
+          <div>
+            <div className="mb-1.5 flex items-center justify-between">
+              <label className="text-sm font-medium text-text">{t('staffRequirements.form.jobTitle')}</label>
+              <button
+                type="button"
+                className="text-xs font-medium text-primary hover:underline"
+                onClick={() => setAddingJobTitle(true)}
+              >
+                {t('staffMobilisations.form.addNew')}
+              </button>
+            </div>
+            <Controller
+              name="jobTitle"
+              control={control}
+              render={({ field }) => (
+                <SuggestInput
+                  value={field.value}
+                  onChange={field.onChange}
+                  onBlur={field.onBlur}
+                  options={(jobTitles ?? []).map((j) => j.name)}
+                  error={errors.jobTitle?.message}
+                />
+              )}
+            />
+          </div>
           <Input label={t('staffRequirements.form.headcount')} type="number" min="1" max="500" error={errors.headcount?.message} {...register('headcount')} />
           <Input label={t('staffRequirements.form.neededBy')} type="date" error={errors.neededBy?.message} {...register('neededBy')} />
           <Input label={t('staffRequirements.form.site')} className="sm:col-span-2" error={errors.site?.message} {...register('site')} />
@@ -177,5 +212,31 @@ export default function RequirementFormModal({ open, requirement, canAssign, coo
         </div>
       </form>
     </Modal>
+
+    <Modal open={addingJobTitle} onClose={() => setAddingJobTitle(false)} title={t('staffMobilisations.form.addJobTitleModalTitle')}>
+      <div className="flex flex-col gap-4">
+        <Input
+          label={t('staffMobilisations.form.jobTitleFieldLabel')}
+          placeholder={t('staffMobilisations.form.jobTitlePlaceholder')}
+          value={newJobTitle}
+          onChange={(e) => setNewJobTitle(e.target.value)}
+          autoFocus
+        />
+        <div className="flex justify-end gap-2">
+          <Button type="button" variant="secondary" onClick={() => setAddingJobTitle(false)}>
+            {t('common.cancel')}
+          </Button>
+          <Button
+            type="button"
+            onClick={() => addJobTitleMutation.mutate()}
+            isLoading={addJobTitleMutation.isPending}
+            disabled={!newJobTitle.trim()}
+          >
+            {t('common.add')}
+          </Button>
+        </div>
+      </div>
+    </Modal>
+    </>
   );
 }
