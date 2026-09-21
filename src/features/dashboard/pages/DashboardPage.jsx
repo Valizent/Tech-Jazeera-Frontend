@@ -76,9 +76,12 @@ export default function DashboardPage() {
     { label: t('staffDashboard.quickActions.addClient', 'Add Client'), to: '/clients/new', sectionKey: 'clientsManage' },
     { label: 'Add Supplier', to: '/subcontractors', sectionKey: 'subcontractorsManage' },
     { label: t('staffDashboard.quickActions.newMobilisation', 'New Mobilisation'), to: '/mobilisations/new', sectionKey: 'mobilisationsSelfMobilise' },
-    { label: t('staffDashboard.quickActions.attendance', 'Attendance'), to: '/attendance', sectionKey: 'attendanceRecords' },
+    { label: t('staffDashboard.quickActions.attendance', 'Attendance'), to: '/attendance', sectionKey: ['attendanceRecords', 'attendanceSignInOut'] },
   ];
-  const availableActions = QUICK_ACTIONS.filter((a) => user.sectionAccessWrite?.includes(a.sectionKey));
+  const availableActions = QUICK_ACTIONS.filter((a) => {
+    const keys = Array.isArray(a.sectionKey) ? a.sectionKey : [a.sectionKey];
+    return keys.some((key) => user.sectionAccessWrite?.includes(key));
+  });
 
   const { data, isPending, isError, refetch } = useQuery({
     queryKey: ['dashboard', thresholdDays, month],
