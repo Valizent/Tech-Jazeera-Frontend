@@ -104,7 +104,7 @@ function SectionCard({ section, local, dirty, onToggleRead, onToggleWrite, onSav
 
       <TierChecklist
         title="Read"
-        hint="Can view this section. Anyone granted Write below can already read too — no need to add them here as well."
+        hint="If granted, users in this role can view the data inside this module. If not granted, the module remains completely hidden and inaccessible to them. (Note: Anyone granted Write access below can automatically read too)."
         approvalRoleIds={local.readApprovalRoles}
         onToggleApprovalRole={onToggleRead}
         approvalRoles={approvalRoles}
@@ -113,7 +113,7 @@ function SectionCard({ section, local, dirty, onToggleRead, onToggleWrite, onSav
       />
       <TierChecklist
         title="Write"
-        hint="Can create/edit/decide/delete (whatever this section's write action is) — and view it too."
+        hint="If granted, users can actively make changes (like creating, editing, approving, or deleting records). If not granted, they cannot make any changes."
         approvalRoleIds={local.writeApprovalRoles}
         onToggleApprovalRole={onToggleWrite}
         approvalRoles={approvalRoles}
@@ -274,8 +274,8 @@ export default function SectionAccessPage() {
   const headerDescription = activeModule
     ? activeModule.description
     : activeGroup
-      ? 'Choose a module below to control who can read or write it — click one to see its Read/Write editor.'
-      : "Admin always has full access everywhere. Pick a category, then a module, to control who else gets in — each has two independent tiers, Read (can view) and Write (can create/edit/decide/delete, and always includes Read) — granted by an approval role you've named (e.g. Financial Manager, COO).";
+      ? 'Choose a module below to control who can read or write its data — click one to see its Read/Write editor.'
+      : "Section Access is your security control center. It lets you strictly govern who can see or change sensitive data across the system. It exists to ensure privacy and prevent unauthorized edits. Admins always have full access. Pick a category below, then choose a module to grant Read or Write permissions to your custom Approval Roles.";
   const handleBack = activeModule ? closeModule : activeGroup ? closeGroup : () => navigate(-1);
 
   return (
