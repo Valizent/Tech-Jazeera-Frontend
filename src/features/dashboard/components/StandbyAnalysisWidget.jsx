@@ -24,7 +24,7 @@ export default function StandbyAnalysisWidget() {
   if (isError) {
     return (
       <Card>
-        <PickerLoadWarning failed={[{ label: 'standby analysis', isError: true }]} />
+        <PickerLoadWarning failed={[{ label: t('staffDashboard.widgets.standby.loadFailed'), isError: true }]} />
       </Card>
     );
   }
@@ -34,20 +34,23 @@ export default function StandbyAnalysisWidget() {
   return (
     <Card className="flex flex-col h-full">
       <div className="mb-4">
-        <h2 className="text-sm font-semibold uppercase tracking-wide text-muted">Standby Workforce Analysis</h2>
-        <p className="text-xs text-muted-foreground mt-1">Own outsourced workers currently not deployed.</p>
+        <h2 className="text-sm font-semibold uppercase tracking-wide text-muted">{t('staffDashboard.widgets.standby.title')}</h2>
+        <p className="text-xs text-muted-foreground mt-1">{t('staffDashboard.widgets.standby.subtitle')}</p>
       </div>
 
       {workers.length === 0 ? (
-        <EmptyState title="No workers on standby" description="All available workforce is currently deployed." />
+        <EmptyState
+          title={t('staffDashboard.widgets.standby.emptyTitle')}
+          description={t('staffDashboard.widgets.standby.emptyDescription')}
+        />
       ) : (
         <div className="flex-1 overflow-auto max-h-96 -mx-4 sm:mx-0">
           <table className="min-w-full text-left text-sm">
             <thead className="sticky top-0 bg-bg text-muted z-10 text-xs uppercase tracking-wide">
               <tr>
-                <th className="px-4 py-3 font-semibold">Worker</th>
-                <th className="px-4 py-3 font-semibold text-center">Days</th>
-                <th className="px-4 py-3 font-semibold text-right">Est. Loss</th>
+                <th className="px-4 py-3 font-semibold">{t('staffDashboard.widgets.standby.worker')}</th>
+                <th className="px-4 py-3 font-semibold text-center">{t('staffDashboard.widgets.standby.days')}</th>
+                <th className="px-4 py-3 font-semibold text-right">{t('staffDashboard.widgets.standby.estLoss')}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-border">

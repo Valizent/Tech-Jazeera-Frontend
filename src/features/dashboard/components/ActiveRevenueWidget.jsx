@@ -15,11 +15,9 @@ export default function ActiveRevenueWidget({ revenue }) {
       <div className="rounded-lg border border-border bg-bg/50 p-6">
         <span className="block text-4xl font-bold text-success">{formatMoney(revenue)}</span>
         <span className="mt-2 block text-xs font-semibold uppercase tracking-wide text-muted">
-          {isCoordinator ? 'Your Active Mobilisation Revenue' : 'Company Active Mobilisation Revenue'}
+          {t(isCoordinator ? 'staffDashboard.widgets.activeRevenue.titleMine' : 'staffDashboard.widgets.activeRevenue.titleCompany')}
         </span>
-        <p className="mt-1 text-xs text-muted">
-          Based on mobilisations active at any point this month
-        </p>
+        <p className="mt-1 text-xs text-muted">{t('staffDashboard.widgets.activeRevenue.hint')}</p>
       </div>
     </Card>
   );

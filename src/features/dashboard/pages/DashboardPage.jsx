@@ -153,13 +153,13 @@ export default function DashboardPage() {
           <div className="flex items-center gap-2">
             {canManageTargets && (
               <Button variant="secondary" onClick={() => setTargetsOpen(true)}>
-                Manage Targets
+                {t('staffDashboard.targets.manageButton')}
               </Button>
             )}
             {availableActions.length > 0 && (
               <div className="relative" ref={quickActionsRef}>
                 <Button onClick={() => setQuickActionsOpen(!quickActionsOpen)}>
-                  Quick Actions
+                  {t('staffDashboard.quickActions.title')}
                   <svg className="ml-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
                   </svg>
@@ -222,7 +222,7 @@ export default function DashboardPage() {
           {attendanceSummary != null && <StandbyAnalysisWidget />}
           {mobilisationsByStatus != null && (
             <StatusBreakdown
-              title="Global Mobilisation Pipeline"
+              title={t('staffDashboard.globalPipelineTitle')}
               data={mobilisationsByStatus}
               colors={{ Draft: 'default', Submitted: 'warning', Approved: 'primary', Deployed: 'success', Rejected: 'danger' }}
             />
@@ -258,7 +258,7 @@ export default function DashboardPage() {
           )}
           {isCoordinator && mobilisationsByStatus != null && (
             <StatusBreakdown
-              title="My Mobilisation Pipeline"
+              title={t('staffDashboard.myPipelineTitle')}
               data={mobilisationsByStatus}
               colors={{ Draft: 'default', Submitted: 'warning', Approved: 'primary', Deployed: 'success', Rejected: 'danger' }}
             />
@@ -270,8 +270,13 @@ export default function DashboardPage() {
           built from independently-gated sources, naturally empty rather
           than absent when neither is readable, and shows its own empty
           state); RecentActivity only when the server actually sent it.
-          Side-by-side only when both show. */}
-      {recentActivity != null && user.role === 'Admin' ? (
+          Side-by-side only when both show. FIX (2026-09-22): this used to also
+          require `user.role === 'Admin'`, hardcoded on top of the server's own
+          `auditLog` Section Access grant — so granting auditLog read to anyone
+          else still never showed them this widget, contradicting this file's
+          own rule above it. `recentActivity != null` alone already reflects
+          the real grant; no separate role check belongs here. */}
+      {recentActivity != null ? (
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
           <ExpiringDocuments items={expiringDocuments} thresholdDays={thresholdDays} onThresholdChange={changeThreshold} scopedToTeam={isCoordinator} />
           <SystemLogsWidget recentActivity={recentActivity} />

@@ -12,6 +12,7 @@
  * Renders nothing when `target` is null (no target set for this month).
  */
 import { useEffect, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 const RING_R = 54;          // SVG circle radius
 const RING_CIRCUMFERENCE = 2 * Math.PI * RING_R;
@@ -57,6 +58,7 @@ function ConfettiBurst() {
 }
 
 export default function MobilisationTargetCard({ target }) {
+  const { t } = useTranslation();
   const celebratedRef = useRef(false);
   const [showConfetti, setShowConfetti] = useState(false);
 
@@ -77,7 +79,9 @@ export default function MobilisationTargetCard({ target }) {
   const progress = Math.min(achieved / targetCount, 1);
   const strokeDashoffset = RING_CIRCUMFERENCE * (1 - progress);
 
-  // Format month label e.g. "2026-09" → "September 2026"
+  // Format month label e.g. "2026-09" → "September 2026" — left in English deliberately,
+  // same documented scope boundary every other date/number format in this app already
+  // follows (server-generated text and date/number formatting stay English/unlocalized).
   const [y, m] = month.split('-').map(Number);
   const monthLabel = new Date(y, m - 1, 1).toLocaleString('en-US', { month: 'long', year: 'numeric' });
 
@@ -180,41 +184,27 @@ export default function MobilisationTargetCard({ target }) {
               <p className="text-xs font-semibold uppercase tracking-wide text-muted">{monthLabel}</p>
               {hit && (
                 <span className="inline-flex items-center gap-1 rounded-full bg-amber-100 px-2.5 py-0.5 text-xs font-semibold text-amber-800 dark:bg-amber-900/40 dark:text-amber-300">
-                  Target Achieved!
+                  {t('staffDashboard.targets.card.achievedBadge')}
                 </span>
               )}
             </div>
 
             <h2 className="mt-1 text-lg font-bold text-text">
-              {hit ? 'You hit your target!' : `${remaining} mobilisation${remaining !== 1 ? 's' : ''} to go`}
+              {hit ? t('staffDashboard.targets.card.titleHit') : t('staffDashboard.targets.card.titleRemaining', { count: remaining })}
             </h2>
 
             {hit ? (
               <p className="mt-1 text-sm text-muted">
-                Every extra mobilisation this month{' '}
-                {incentivePercent > 0 ? (
-                  <>
-                    earns you{' '}
-                    <span className="font-semibold text-amber-600 dark:text-amber-400">
-                      {incentivePercent}% of its profit
-                    </span>{' '}
-                    as an incentive.
-                  </>
-                ) : (
-                  'counts toward your streak.'
-                )}
+                {incentivePercent > 0
+                  ? t('staffDashboard.targets.card.hitWithIncentive', { percent: incentivePercent })
+                  : t('staffDashboard.targets.card.hitNoIncentive')}
               </p>
             ) : (
               <p className="mt-1 text-sm text-muted">
                 {achieved === 0
-                  ? `Hit ${targetCount} approved mobilisations to unlock your incentive.`
-                  : `${achieved} of ${targetCount} done — keep going!`}
-                {incentivePercent > 0 && (
-                  <> Once you do, you earn{' '}
-                    <span className="font-semibold text-primary">{incentivePercent}% of profit</span>{' '}
-                    per extra mobilisation.
-                  </>
-                )}
+                  ? t('staffDashboard.targets.card.notHitZero', { target: targetCount })
+                  : t('staffDashboard.targets.card.notHitSome', { achieved, target: targetCount })}
+                {incentivePercent > 0 && <> {t('staffDashboard.targets.card.notHitIncentiveSuffix', { percent: incentivePercent })}</>}
               </p>
             )}
 

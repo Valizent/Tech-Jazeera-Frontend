@@ -1,11 +1,13 @@
+import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import Card from '../../../components/ui/Card.jsx';
 import { cn } from '../../../lib/utils.js';
 
 export default function HrComplianceWidget({ pendingLeave, pendingExit }) {
+  const { t } = useTranslation();
   const items = [
-    { label: 'Pending Leave', count: pendingLeave ?? 0, link: '/leave' },
-    { label: 'Pending Exits', count: pendingExit ?? 0, link: '/exit-documents' }
+    { label: t('staffDashboard.widgets.hrCompliance.pendingLeave'), count: pendingLeave ?? 0, link: '/leave' },
+    { label: t('staffDashboard.widgets.hrCompliance.pendingExits'), count: pendingExit ?? 0, link: '/exit-documents' },
   ];
 
   if ((pendingLeave ?? 0) === 0 && (pendingExit ?? 0) === 0) {
@@ -14,7 +16,7 @@ export default function HrComplianceWidget({ pendingLeave, pendingExit }) {
 
   return (
     <Card>
-      <h2 className="mb-4 text-sm font-semibold uppercase tracking-wide text-muted">HR Compliance Actions</h2>
+      <h2 className="mb-4 text-sm font-semibold uppercase tracking-wide text-muted">{t('staffDashboard.widgets.hrCompliance.title')}</h2>
       <div className="space-y-3">
         {items.map((item) => (
           <Link

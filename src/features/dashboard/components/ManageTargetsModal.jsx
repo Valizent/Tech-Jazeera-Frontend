@@ -9,6 +9,7 @@
  *   "Set target" — form to upsert a target (coordinator + month + count + %).
  */
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { getAllProgress, listAllTargets, setTarget, deleteTarget } from '../../mobilisationTargets/mobilisationTargets.api.js';
 import { useToast } from '../../../components/ui/Toast.jsx';
@@ -36,6 +37,7 @@ function ProgressBar({ achieved, target }) {
 }
 
 export default function ManageTargetsModal({ open, onClose, coordinators = [] }) {
+  const { t } = useTranslation();
   const toast = useToast();
   const queryClient = useQueryClient();
   const [tab, setTab] = useState('progress');
@@ -60,24 +62,30 @@ export default function ManageTargetsModal({ open, onClose, coordinators = [] })
   const setMutation = useMutation({
     mutationFn: setTarget,
     onSuccess: () => {
-      toast.success('Target set.');
+      toast.success(t('staffDashboard.targets.targetSet'));
       queryClient.invalidateQueries({ queryKey: ['mob-targets-progress'] });
       queryClient.invalidateQueries({ queryKey: ['mob-targets-all'] });
       queryClient.invalidateQueries({ queryKey: ['mob-target-my'] });
       setForm({ coordinatorId: '', month: currentMonth(), target: '', incentivePercent: '' });
     },
-    onError: (e) => toast.error(apiMessage(e)),
+    onError: (e) => {
+      console.error('[dashboard] setting a mobilisation target failed', e);
+      toast.error(apiMessage(e));
+    },
   });
 
   const deleteMutation = useMutation({
     mutationFn: deleteTarget,
     onSuccess: () => {
-      toast.success('Target removed.');
+      toast.success(t('staffDashboard.targets.targetRemoved'));
       queryClient.invalidateQueries({ queryKey: ['mob-targets-progress'] });
       queryClient.invalidateQueries({ queryKey: ['mob-targets-all'] });
       queryClient.invalidateQueries({ queryKey: ['mob-target-my'] });
     },
-    onError: (e) => toast.error(apiMessage(e)),
+    onError: (e) => {
+      console.error('[dashboard] removing a mobilisation target failed', e);
+      toast.error(apiMessage(e));
+    },
   });
 
   function handleSetSubmit(e) {
@@ -103,23 +111,23 @@ export default function ManageTargetsModal({ open, onClose, coordinators = [] })
   }
 
   return (
-    <Modal open={open} onClose={onClose} title="Mobilisation Targets" size="lg">
+    <Modal open={open} onClose={onClose} title={t('staffDashboard.targets.modalTitle')} size="lg">
       {/* Tabs */}
       <div className="mb-5 flex gap-1 rounded-xl border border-border bg-bg p-1">
         {[
-          { key: 'progress', label: 'Monthly Progress' },
-          { key: 'set', label: 'Set / Edit Target' },
-        ].map((t) => (
+          { key: 'progress', label: t('staffDashboard.targets.tabProgress') },
+          { key: 'set', label: t('staffDashboard.targets.tabSet') },
+        ].map((tabDef) => (
           <button
-            key={t.key}
-            onClick={() => setTab(t.key)}
+            key={tabDef.key}
+            onClick={() => setTab(tabDef.key)}
             className={`flex-1 rounded-lg px-3 py-1.5 text-sm font-medium transition-colors ${
-              tab === t.key
+              tab === tabDef.key
                 ? 'bg-surface text-text shadow-xs'
                 : 'text-muted hover:text-text'
             }`}
           >
-            {t.label}
+            {tabDef.label}
           </button>
         ))}
       </div>
@@ -128,7 +136,7 @@ export default function ManageTargetsModal({ open, onClose, coordinators = [] })
       {tab === 'progress' && (
         <div className="space-y-4">
           <div className="flex items-center gap-3">
-            <label className="text-sm font-medium text-muted">Month</label>
+            <label className="text-sm font-medium text-muted">{t('staffDashboard.targets.monthLabel')}</label>
             <input
               type="month"
               value={month}
@@ -138,17 +146,17 @@ export default function ManageTargetsModal({ open, onClose, coordinators = [] })
           </div>
 
           {progressLoading && (
-            <p className="py-8 text-center text-sm text-muted">Loading…</p>
+            <p className="py-8 text-center text-sm text-muted">{t('staffDashboard.targets.loading')}</p>
           )}
 
           {!progressLoading && progress.length === 0 && (
             <div className="rounded-xl border border-dashed border-border py-10 text-center">
-              <p className="text-sm text-muted">No targets set for this month.</p>
+              <p className="text-sm text-muted">{t('staffDashboard.targets.noneForMonth')}</p>
               <button
                 onClick={() => setTab('set')}
                 className="mt-2 text-sm font-medium text-primary hover:underline"
               >
-                Set one now →
+                {t('staffDashboard.targets.setOneNow')}
               </button>
             </div>
           )}
@@ -160,7 +168,7 @@ export default function ManageTargetsModal({ open, onClose, coordinators = [] })
                 className="flex flex-col gap-2 rounded-xl border border-border bg-surface p-4 sm:flex-row sm:items-center sm:gap-4"
               >
                 {/* Avatar + name */}
-                <div 
+                <div
                   className="flex min-w-0 flex-1 items-center gap-3 cursor-pointer group"
                   onClick={() => setDrillDownCoordinator({ _id: row.coordinator._id, name: row.coordinator.name })}
                 >
@@ -171,8 +179,8 @@ export default function ManageTargetsModal({ open, onClose, coordinators = [] })
                     <p className="truncate font-medium text-text group-hover:text-primary transition-colors">{row.coordinator.name}</p>
                     <ProgressBar achieved={row.achieved} target={row.target} />
                     <p className="mt-0.5 text-xs text-muted">
-                      {row.achieved} / {row.target} mobilisations
-                      {row.incentivePercent > 0 && ` · ${row.incentivePercent}% incentive`}
+                      {t('staffDashboard.targets.progressCount', { achieved: row.achieved, target: row.target })}
+                      {row.incentivePercent > 0 && ` ${t('staffDashboard.targets.incentiveSuffix', { percent: row.incentivePercent })}`}
                     </p>
                   </div>
                 </div>
@@ -181,25 +189,25 @@ export default function ManageTargetsModal({ open, onClose, coordinators = [] })
                 <div className="flex shrink-0 items-center gap-2">
                   {row.hit ? (
                     <span className="rounded-full bg-amber-100 px-2.5 py-0.5 text-xs font-semibold text-amber-800 dark:bg-amber-900/40 dark:text-amber-300">
-                      Hit!
+                      {t('staffDashboard.targets.hitBadge')}
                     </span>
                   ) : (
                     <span className="rounded-full bg-bg px-2.5 py-0.5 text-xs font-medium text-muted">
-                      {row.remaining} left
+                      {t('staffDashboard.targets.remainingBadge', { count: row.remaining })}
                     </span>
                   )}
                   <button
                     onClick={() => prefillEdit({ ...row, month })}
                     className="text-xs font-medium text-primary hover:underline"
                   >
-                    Edit
+                    {t('common.edit')}
                   </button>
                   <button
                     onClick={() => deleteMutation.mutate(row._id)}
                     disabled={deleteMutation.isPending}
                     className="text-xs font-medium text-danger hover:underline disabled:opacity-50"
                   >
-                    Remove
+                    {t('common.remove')}
                   </button>
                 </div>
               </div>
@@ -213,11 +221,11 @@ export default function ManageTargetsModal({ open, onClose, coordinators = [] })
         <div className="space-y-5">
           <form onSubmit={handleSetSubmit} className="space-y-4">
             <Select
-              label="Coordinator *"
+              label={t('staffDashboard.targets.coordinatorLabel')}
               value={form.coordinatorId}
               onChange={(e) => setForm((f) => ({ ...f, coordinatorId: e.target.value }))}
             >
-              <option value="">Select a coordinator…</option>
+              <option value="">{t('staffDashboard.targets.coordinatorPlaceholder')}</option>
               {coordinators.map((c) => (
                 <option key={c._id} value={c._id}>
                   {c.name}
@@ -227,7 +235,7 @@ export default function ManageTargetsModal({ open, onClose, coordinators = [] })
 
             <div className="grid grid-cols-2 gap-4">
               <div className="flex flex-col gap-1.5">
-                <label className="text-sm font-medium text-text">Month *</label>
+                <label className="text-sm font-medium text-text">{t('staffDashboard.targets.monthFieldLabel')}</label>
                 <input
                   type="month"
                   value={form.month}
@@ -237,7 +245,7 @@ export default function ManageTargetsModal({ open, onClose, coordinators = [] })
                 />
               </div>
               <Input
-                label="Target (# of mobilisations) *"
+                label={t('staffDashboard.targets.targetFieldLabel')}
                 type="number"
                 min="1"
                 max="500"
@@ -247,32 +255,30 @@ export default function ManageTargetsModal({ open, onClose, coordinators = [] })
             </div>
 
             <Input
-              label="Incentive % (profit per extra mobilisation beyond target)"
+              label={t('staffDashboard.targets.incentiveFieldLabel')}
               type="number"
               min="0"
               max="100"
               step="0.1"
-              placeholder="e.g. 5"
+              placeholder={t('staffDashboard.targets.incentivePlaceholder')}
               value={form.incentivePercent}
               onChange={(e) => setForm((f) => ({ ...f, incentivePercent: e.target.value }))}
             />
 
             <div className="rounded-lg border border-border/50 bg-bg p-3 text-xs text-muted">
-              <strong className="text-text">How this works:</strong> once the coordinator reaches their target, every additional
-              Approved/Completed mobilisation in this month earns them the incentive percentage of that
-              mobilisation's estimated profit per month.
+              <strong className="text-text">{t('staffDashboard.targets.howItWorksTitle')}</strong> {t('staffDashboard.targets.howItWorksBody')}
             </div>
 
             <div className="flex justify-end gap-2">
               <Button type="button" variant="secondary" onClick={() => setForm({ coordinatorId: '', month: currentMonth(), target: '', incentivePercent: '' })}>
-                Clear
+                {t('staffDashboard.targets.clear')}
               </Button>
               <Button
                 type="submit"
                 isLoading={setMutation.isPending}
                 disabled={!form.coordinatorId || !form.month || !form.target}
               >
-                Save target
+                {t('staffDashboard.targets.saveTarget')}
               </Button>
             </div>
           </form>
@@ -280,30 +286,30 @@ export default function ManageTargetsModal({ open, onClose, coordinators = [] })
           {/* Existing targets list */}
           {!allLoading && allTargets.length > 0 && (
             <div className="space-y-2">
-              <p className="text-xs font-semibold uppercase tracking-wide text-muted">All existing targets</p>
-              {allTargets.map((t) => (
+              <p className="text-xs font-semibold uppercase tracking-wide text-muted">{t('staffDashboard.targets.allExistingTargets')}</p>
+              {allTargets.map((t2) => (
                 <div
-                  key={t._id}
+                  key={t2._id}
                   className="flex items-center justify-between gap-3 rounded-lg border border-border px-3 py-2"
                 >
                   <div className="text-sm">
-                    <span className="font-medium text-text">{t.coordinator.name}</span>
-                    <span className="ml-2 text-muted">{t.month}</span>
-                    <span className="ml-2 text-muted">→ {t.target} mobilisations</span>
-                    {t.incentivePercent > 0 && (
-                      <span className="ml-1 text-muted">· {t.incentivePercent}% incentive</span>
+                    <span className="font-medium text-text">{t2.coordinator.name}</span>
+                    <span className="ml-2 text-muted">{t2.month}</span>
+                    <span className="ml-2 text-muted">{t('staffDashboard.targets.monthTargetSuffix', { target: t2.target })}</span>
+                    {t2.incentivePercent > 0 && (
+                      <span className="ml-1 text-muted">{t('staffDashboard.targets.incentiveSuffix', { percent: t2.incentivePercent })}</span>
                     )}
                   </div>
                   <div className="flex shrink-0 gap-2">
-                    <button onClick={() => prefillEdit(t)} className="text-xs font-medium text-primary hover:underline">
-                      Edit
+                    <button onClick={() => prefillEdit(t2)} className="text-xs font-medium text-primary hover:underline">
+                      {t('common.edit')}
                     </button>
                     <button
-                      onClick={() => deleteMutation.mutate(t._id)}
+                      onClick={() => deleteMutation.mutate(t2._id)}
                       disabled={deleteMutation.isPending}
                       className="text-xs font-medium text-danger hover:underline disabled:opacity-50"
                     >
-                      Remove
+                      {t('common.remove')}
                     </button>
                   </div>
                 </div>
@@ -315,7 +321,7 @@ export default function ManageTargetsModal({ open, onClose, coordinators = [] })
 
       {drillDownCoordinator && (
         <CoordinatorDrillDownModal
-          isOpen={!!drillDownCoordinator}
+          open={Boolean(drillDownCoordinator)}
           onClose={() => setDrillDownCoordinator(null)}
           coordinator={drillDownCoordinator}
         />

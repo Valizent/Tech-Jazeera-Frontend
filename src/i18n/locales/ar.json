@@ -17,6 +17,7 @@
     "view": "عرض",
     "edit": "تعديل",
     "delete": "حذف",
+    "remove": "إزالة",
     "add": "إضافة",
     "back": "رجوع",
     "create": "إنشاء",
@@ -553,7 +554,87 @@
       "newQuotation": "عرض سعر جديد"
     },
     "couldNotLoad": "تعذر تحميل لوحة التحكم",
-    "checkConnectionRetry": "تحقق من اتصالك وحاول مرة أخرى."
+    "checkConnectionRetry": "تحقق من اتصالك وحاول مرة أخرى.",
+    "globalPipelineTitle": "خط التعبئة الشامل للشركة",
+    "myPipelineTitle": "خط التعبئة الخاص بي",
+    "widgets": {
+      "activeRevenue": {
+        "titleMine": "إيراد التعبئات النشطة الخاص بك",
+        "titleCompany": "إيراد التعبئات النشطة للشركة",
+        "hint": "بناءً على التعبئات النشطة في أي وقت خلال هذا الشهر"
+      },
+      "dailyAttendance": {
+        "title": "الحضور اليومي"
+      },
+      "activeSubcontractors": "المقاولون من الباطن النشطون",
+      "hrCompliance": {
+        "title": "إجراءات الامتثال في الموارد البشرية",
+        "pendingLeave": "إجازات قيد الانتظار",
+        "pendingExits": "طلبات خروج قيد الانتظار"
+      },
+      "standby": {
+        "title": "تحليل القوى العاملة الاحتياطية",
+        "subtitle": "العمال الخاصون بالشركة (من الباطن) غير المنتشرين حاليًا.",
+        "worker": "العامل",
+        "days": "الأيام",
+        "estLoss": "الخسارة التقديرية",
+        "loadFailed": "تحليل القوى العاملة الاحتياطية",
+        "emptyTitle": "لا يوجد عمال احتياطيون",
+        "emptyDescription": "جميع القوى العاملة المتاحة منتشرة حاليًا."
+      },
+      "systemLogs": {
+        "title": "سلامة النظام والبرمجيات",
+        "body": "جميع خدمات النظام الأساسية تعمل بشكل طبيعي. لا توجد تنبيهات برمجية نشطة.",
+        "viewLogs": "عرض سجلات الأخطاء (Sentry)"
+      }
+    },
+    "targets": {
+      "manageButton": "إدارة الأهداف",
+      "modalTitle": "أهداف التعبئة",
+      "tabProgress": "التقدّم الشهري",
+      "tabSet": "تحديد / تعديل الهدف",
+      "monthLabel": "الشهر",
+      "loading": "جارٍ التحميل…",
+      "noneForMonth": "لا توجد أهداف محددة لهذا الشهر.",
+      "setOneNow": "حدد هدفًا الآن ←",
+      "progressCount": "{{achieved}} / {{target}} تعبئة",
+      "incentiveSuffix": "· حافز {{percent}}%",
+      "hitBadge": "تم تحقيقه!",
+      "remainingBadge": "متبقٍ {{count}}",
+      "coordinatorLabel": "المنسق *",
+      "coordinatorPlaceholder": "اختر منسقًا…",
+      "monthFieldLabel": "الشهر *",
+      "targetFieldLabel": "الهدف (عدد التعبئات) *",
+      "incentiveFieldLabel": "نسبة الحافز% (من الربح لكل تعبئة إضافية بعد تحقيق الهدف)",
+      "incentivePlaceholder": "مثال: 5",
+      "howItWorksTitle": "كيف يعمل هذا:",
+      "howItWorksBody": "بمجرد أن يصل المنسق إلى هدفه، تمنحه كل تعبئة إضافية معتمَدة/مكتملة خلال هذا الشهر نسبة الحافز من الربح الشهري التقديري لتلك التعبئة.",
+      "clear": "مسح",
+      "saveTarget": "حفظ الهدف",
+      "allExistingTargets": "جميع الأهداف الحالية",
+      "targetSet": "تم تحديد الهدف.",
+      "targetRemoved": "تمت إزالة الهدف.",
+      "monthTargetSuffix": "← {{target}} تعبئة",
+      "card": {
+        "achievedBadge": "تم تحقيق الهدف!",
+        "titleHit": "لقد حققت هدفك!",
+        "titleRemaining": "بقيت تعبئة واحدة",
+        "titleRemaining_other": "بقيت {{count}} تعبئات",
+        "hitWithIncentive": "كل تعبئة إضافية هذا الشهر تمنحك {{percent}}% من ربحها كحافز.",
+        "hitNoIncentive": "كل تعبئة إضافية هذا الشهر تُحتسب ضمن سلسلة إنجازاتك.",
+        "notHitZero": "حقق {{target}} تعبئة معتمَدة لفتح حافزك.",
+        "notHitSome": "تم إنجاز {{achieved}} من {{target}} — واصل التقدم!",
+        "notHitIncentiveSuffix": "عند تحقيق ذلك، تكسب {{percent}}% من الربح لكل تعبئة إضافية."
+      }
+    },
+    "drillDown": {
+      "title": "الأداء: {{name}}",
+      "loadFailed": "تعذر تحميل بيانات المنسق.",
+      "generatedProfit": "الربح المحقق",
+      "assignedTasks": "المهام المسندة",
+      "recentLogEntries": "أحدث إدخالات السجل",
+      "noRecentLogs": "لا توجد إدخالات سجل خلال آخر 30 يومًا."
+    }
   },
   "staffEmployees": {
     "list": {

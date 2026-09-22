@@ -17,6 +17,7 @@
     "view": "View",
     "edit": "Edit",
     "delete": "Delete",
+    "remove": "Remove",
     "add": "Add",
     "back": "Back",
     "create": "Create",
@@ -553,7 +554,87 @@
       "newQuotation": "New quotation"
     },
     "couldNotLoad": "Could not load the dashboard",
-    "checkConnectionRetry": "Check your connection and try again."
+    "checkConnectionRetry": "Check your connection and try again.",
+    "globalPipelineTitle": "Global mobilisation pipeline",
+    "myPipelineTitle": "My mobilisation pipeline",
+    "widgets": {
+      "activeRevenue": {
+        "titleMine": "Your active mobilisation revenue",
+        "titleCompany": "Company active mobilisation revenue",
+        "hint": "Based on mobilisations active at any point this month"
+      },
+      "dailyAttendance": {
+        "title": "Daily attendance"
+      },
+      "activeSubcontractors": "Active subcontractors",
+      "hrCompliance": {
+        "title": "HR compliance actions",
+        "pendingLeave": "Pending leave",
+        "pendingExits": "Pending exits"
+      },
+      "standby": {
+        "title": "Standby workforce analysis",
+        "subtitle": "Own outsourced workers currently not deployed.",
+        "worker": "Worker",
+        "days": "Days",
+        "estLoss": "Est. loss",
+        "loadFailed": "the standby analysis",
+        "emptyTitle": "No workers on standby",
+        "emptyDescription": "All available workforce is currently deployed."
+      },
+      "systemLogs": {
+        "title": "System & software health",
+        "body": "All critical system services are running normally. No active software alerts detected.",
+        "viewLogs": "View error logs (Sentry)"
+      }
+    },
+    "targets": {
+      "manageButton": "Manage targets",
+      "modalTitle": "Mobilisation targets",
+      "tabProgress": "Monthly progress",
+      "tabSet": "Set / edit target",
+      "monthLabel": "Month",
+      "loading": "Loading…",
+      "noneForMonth": "No targets set for this month.",
+      "setOneNow": "Set one now →",
+      "progressCount": "{{achieved}} / {{target}} mobilisations",
+      "incentiveSuffix": "· {{percent}}% incentive",
+      "hitBadge": "Hit!",
+      "remainingBadge": "{{count}} left",
+      "coordinatorLabel": "Coordinator *",
+      "coordinatorPlaceholder": "Select a coordinator…",
+      "monthFieldLabel": "Month *",
+      "targetFieldLabel": "Target (# of mobilisations) *",
+      "incentiveFieldLabel": "Incentive % (profit per extra mobilisation beyond target)",
+      "incentivePlaceholder": "e.g. 5",
+      "howItWorksTitle": "How this works:",
+      "howItWorksBody": "Once the coordinator reaches their target, every additional Approved/Completed mobilisation in this month earns them the incentive percentage of that mobilisation's estimated profit per month.",
+      "clear": "Clear",
+      "saveTarget": "Save target",
+      "allExistingTargets": "All existing targets",
+      "targetSet": "Target set.",
+      "targetRemoved": "Target removed.",
+      "monthTargetSuffix": "→ {{target}} mobilisations",
+      "card": {
+        "achievedBadge": "Target achieved!",
+        "titleHit": "You hit your target!",
+        "titleRemaining": "{{count}} mobilisation to go",
+        "titleRemaining_other": "{{count}} mobilisations to go",
+        "hitWithIncentive": "Every extra mobilisation this month earns you {{percent}}% of its profit as an incentive.",
+        "hitNoIncentive": "Every extra mobilisation this month counts toward your streak.",
+        "notHitZero": "Hit {{target}} approved mobilisations to unlock your incentive.",
+        "notHitSome": "{{achieved}} of {{target}} done — keep going!",
+        "notHitIncentiveSuffix": "Once you do, you earn {{percent}}% of profit per extra mobilisation."
+      }
+    },
+    "drillDown": {
+      "title": "Performance: {{name}}",
+      "loadFailed": "Failed to load coordinator data.",
+      "generatedProfit": "Generated profit",
+      "assignedTasks": "Assigned tasks",
+      "recentLogEntries": "Recent log entries",
+      "noRecentLogs": "No logs submitted in the last 30 days."
+    }
   },
   "staffEmployees": {
     "list": {
