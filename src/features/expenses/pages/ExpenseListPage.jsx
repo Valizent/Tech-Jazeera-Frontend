@@ -20,7 +20,7 @@ import {
   downloadExpenseReceipt,
 } from '../expenses.api.js';
 import { expenseFormSchema, emptyExpenseForm, expenseToForm } from '../expenses.schema.js';
-import { listClients } from '../../clients/clients.api.js';
+import { useClientPicker } from '../../../lib/useClientPicker.js';
 import { listDeployments } from '../../deployments/deployments.api.js';
 import { apiMessage, formatDate, formatMoney } from '../../../lib/utils.js';
 import { EXPENSE_CATEGORIES } from '../../../lib/constants.js';
@@ -110,11 +110,10 @@ export default function ExpenseListPage() {
     placeholderData: keepPreviousData,
   });
 
-  const { data: clientData, isError: clientsError } = useQuery({
-    queryKey: ['clients', 'all-for-expense'],
-    queryFn: () => listClients({ limit: 100, sortBy: 'companyName', sortOrder: 'asc' }),
-    enabled: Boolean(editing),
-  });
+  // Shared with DocumentUploadModal's own client picker (2026-09-22, a real
+  // QA-audit finding — P9: identical endpoint/params previously fetched
+  // under two separate cache keys).
+  const { data: clientData, isError: clientsError } = useClientPicker({ enabled: Boolean(editing) });
   const clients = clientData?.items ?? [];
 
   const {

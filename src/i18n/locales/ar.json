@@ -549,6 +549,7 @@
       "title": "إجراءات سريعة",
       "addEmployee": "إضافة موظف",
       "addClient": "إضافة عميل",
+      "addSupplier": "إضافة مقاول باطن",
       "newMobilisation": "تعبئة جديدة",
       "attendance": "الحضور",
       "newQuotation": "عرض سعر جديد"
@@ -614,6 +615,8 @@
       "allExistingTargets": "جميع الأهداف الحالية",
       "targetSet": "تم تحديد الهدف.",
       "targetRemoved": "تمت إزالة الهدف.",
+      "removeConfirmTitle": "إزالة هذا الهدف؟",
+      "removeConfirmMessage": "ستتم إزالة هدف {{month}} الخاص بـ {{name}} نهائيًا.",
       "monthTargetSuffix": "← {{target}} تعبئة",
       "card": {
         "achievedBadge": "تم تحقيق الهدف!",

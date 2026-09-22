@@ -23,7 +23,13 @@ export default function RecentActivity({ items }) {
     <Card>
       <div className="mb-4 flex items-center justify-between gap-3">
         <h2 className="text-sm font-semibold uppercase tracking-wide text-muted">{t('staffDashboard.recentActivity.title')}</h2>
-        {user.role === 'Admin' && (
+        {/* FIX (2026-09-22): this used to be `user.role === 'Admin'` — the widget's own
+            doc comment above already promises real `auditLog` Section Access, not a
+            hardcoded role list, but this one link inside it never followed that: an
+            Admin could grant auditLog read to anyone (the /security-log route already
+            enforces exactly that grant, correctly) and this link would still never
+            appear for them, even though the page itself was one click away by URL. */}
+        {user.sectionAccess?.includes('auditLog') && (
           <Link to="/security-log" className="text-xs font-medium text-primary hover:underline">
             {t('staffDashboard.recentActivity.viewFullLog')}
           </Link>

@@ -48,8 +48,10 @@ export default function MobilisationListPage() {
     placeholderData: keepPreviousData,
     // Same reasoning as the Leave review queue: a coordinator submitting or
     // a Marketing Manager deciding a mobilisation from another session has
-    // no way to reach this already-open list otherwise.
-    refetchInterval: 10_000,
+    // no way to reach this already-open list otherwise. 20s, not 10s
+    // (2026-09-22, a real QA-audit finding — P1) — see LeavePage.jsx's own
+    // comment on this exact change.
+    refetchInterval: 20_000,
     refetchOnWindowFocus: true,
   });
 

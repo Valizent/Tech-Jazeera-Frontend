@@ -549,6 +549,7 @@
       "title": "Quick actions",
       "addEmployee": "Add employee",
       "addClient": "Add client",
+      "addSupplier": "Add supplier",
       "newMobilisation": "New mobilisation",
       "attendance": "Attendance",
       "newQuotation": "New quotation"
@@ -614,6 +615,8 @@
       "allExistingTargets": "All existing targets",
       "targetSet": "Target set.",
       "targetRemoved": "Target removed.",
+      "removeConfirmTitle": "Remove this target?",
+      "removeConfirmMessage": "The {{month}} target for {{name}} will be permanently removed.",
       "monthTargetSuffix": "→ {{target}} mobilisations",
       "card": {
         "achievedBadge": "Target achieved!",

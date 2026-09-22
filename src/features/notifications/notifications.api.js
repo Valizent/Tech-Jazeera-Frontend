@@ -10,6 +10,12 @@ export async function listNotifications(params) {
   return data.data; // { items, total, page, pages, unreadCount }
 }
 
+/** The bell badge's own lightweight poll — one number, not the full list. */
+export async function getUnreadCount() {
+  const { data } = await api.get('/notifications/unread-count');
+  return data.data.unreadCount;
+}
+
 export async function markNotificationRead(id) {
   const { data } = await api.patch(`/notifications/${id}/read`);
   return data.data;

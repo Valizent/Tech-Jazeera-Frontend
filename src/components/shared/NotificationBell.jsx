@@ -5,15 +5,22 @@
  * submitted (leave, timesheets, financial requests, exit documents) or, for
  * a Coordinator, a client they submitted for approval.
  *
- * Polls every 30s for the unread count — simple and sufficient for a
- * handful of users; a websocket/SSE channel would be over-engineering this
- * for the traffic this app actually sees.
+ * Polls the lightweight unread-COUNT every 10s for the badge — one query,
+ * not the full list. The full 10 notifications are only fetched once the
+ * panel is actually opened. FIX (2026-09-22, a real QA-audit finding — P1):
+ * this used to poll the FULL list (3 server queries) every 10s from every
+ * open tab just to read the badge number off it — a bell-shaped 90
+ * requests/15min/tab on top of the double-authentication bug (see P2's own
+ * fix), enough on its own to threaten the shared-office-IP rate limit with
+ * a handful of active staff. A websocket/SSE channel would be
+ * over-engineering this for the traffic this app actually sees; a lighter
+ * poll is enough.
  */
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { listNotifications, markNotificationRead, markAllNotificationsRead } from '../../features/notifications/notifications.api.js';
+import { listNotifications, getUnreadCount, markNotificationRead, markAllNotificationsRead } from '../../features/notifications/notifications.api.js';
 import { pushSupported, getExistingPushSubscription, enablePushNotifications, disablePushNotifications } from '../../features/notifications/push.js';
 import { timeAgo, cn } from '../../lib/utils.js';
 import { useToast } from '../ui/Toast.jsx';
@@ -29,18 +36,27 @@ export default function NotificationBell() {
   const [pushBusy, setPushBusy] = useState(false);
   const panelRef = useRef(null);
 
+  // Always polling, even with the panel closed — this is the cheap one query
+  // that drives the badge. 30s made a fresh approval-needed notification feel
+  // like it never arrived without a manual refresh; 10s is still fine to poll
+  // frequently now that it's a single countDocuments, not the full list.
+  // Overriding refetchOnWindowFocus here (the app-wide default is off,
+  // deliberately, for every other query) means switching back to this tab
+  // also checks immediately instead of waiting for the next tick.
+  const { data: unreadCount = 0 } = useQuery({
+    queryKey: ['notifications', 'unread-count'],
+    queryFn: getUnreadCount,
+    refetchInterval: 10_000,
+    refetchOnWindowFocus: true,
+  });
+
+  // The actual 10 notifications — only fetched once the panel is opened, and
+  // left alone (no interval poll) while it's showing; the count query above
+  // already carries the "something new arrived" signal.
   const { data } = useQuery({
     queryKey: ['notifications', 'bell'],
     queryFn: () => listNotifications({ limit: 10 }),
-    // 30s made a fresh approval-needed notification feel like it never
-    // arrived without a manual refresh. 10s is still a handful of requests
-    // an hour even with the whole staff logged in — cheap insurance for
-    // something people expect to feel near-instant. Overriding
-    // refetchOnWindowFocus here (the app-wide default is off, deliberately,
-    // for every other query) means switching back to this tab also checks
-    // immediately instead of waiting for the next tick.
-    refetchInterval: 10_000,
-    refetchOnWindowFocus: true,
+    enabled: open,
   });
 
   useEffect(() => {
@@ -97,7 +113,6 @@ export default function NotificationBell() {
   }
 
   const items = data?.items ?? [];
-  const unreadCount = data?.unreadCount ?? 0;
 
   return (
     <div className="relative" ref={panelRef}>

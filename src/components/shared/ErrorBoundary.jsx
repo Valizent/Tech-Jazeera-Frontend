@@ -13,7 +13,6 @@
  */
 import { Component } from 'react';
 import Button from '../ui/Button.jsx';
-import { captureError } from '../../lib/sentry.js';
 
 export default class ErrorBoundary extends Component {
   state = { hasError: false };
@@ -28,7 +27,18 @@ export default class ErrorBoundary extends Component {
     // this is the one place that catches what would otherwise be a silent
     // blank screen for the user.
     console.error('Caught by ErrorBoundary:', error, info.componentStack);
-    captureError(error, { componentStack: info.componentStack });
+    // Dynamic import, not a static one (2026-09-22, a real QA-audit finding
+    // — P6): this was the ONLY call site of lib/sentry.js's captureError
+    // anywhere in the app, yet the SDK (~130KB) was statically imported
+    // here — and this component is mounted by EVERY layout including the
+    // eager AuthLayout, so it shipped in an early/shared chunk on every
+    // single page load, error or not. Loading it only once an error has
+    // actually happened is a strict improvement, not a coverage loss:
+    // Sentry.init() (lib/sentry.js's own top-level call) still runs before
+    // captureError fires below, so even this FIRST error is still reported.
+    import('../../lib/sentry.js').then(({ captureError }) => {
+      captureError(error, { componentStack: info.componentStack });
+    });
   }
 
   render() {

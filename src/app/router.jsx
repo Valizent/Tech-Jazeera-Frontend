@@ -1,7 +1,8 @@
 /**
- * Route table + auth guard. Two worlds:
+ * Route table + auth guard. Three worlds:
  *   - AuthLayout wraps guest screens (/login)
- *   - RequireAuth → DashboardLayout wraps everything signed-in
+ *   - RequireAuth → RoleRouter → DashboardLayout wraps staff
+ *   - RequireAuth → WorkerRouter → EssLayout wraps Worker/Staff logins
  *
  * RequireAuth is the guard: while the silent session-restore runs it shows a
  * full-screen spinner (NOT a redirect — bouncing a logged-in user to /login
@@ -14,12 +15,25 @@
  * you get today). Placed on each branch rather than one outer route so a
  * crash inside the signed-in shell doesn't strand a guest, and vice versa.
  */
-import { lazy } from 'react';
+import { lazy, Suspense } from 'react';
 import { createBrowserRouter, Navigate, Outlet } from 'react-router-dom';
 import { useAuth } from '../features/auth/AuthContext.jsx';
+// AuthLayout stays eager — it's small (41 lines) and every guest needs it
+// immediately, before any auth state is even known. DashboardLayout/
+// EssLayout are lazy (2026-09-22, a real QA-audit finding — P6): the two
+// are mutually exclusive per session (a login is either staff or Worker/
+// Staff-ESS, never both), each pulls in its own real, disjoint set of
+// feature imports (nav config, modals, etc.), yet both used to ship in the
+// SAME entry chunk for every login regardless of role — and both loaded
+// before the user even authenticated, since router.jsx itself is imported
+// from main.jsx synchronously. See the <FullScreenFallback /> usage below
+// for why each needs its OWN Suspense boundary (a lazy component needs an
+// ANCESTOR Suspense to catch its own chunk load — the boundary each layout
+// already provides around its own <Outlet> only covers its CHILDREN, not
+// itself).
 import AuthLayout from './layouts/AuthLayout.jsx';
-import DashboardLayout from './layouts/DashboardLayout.jsx';
-import EssLayout from './layouts/EssLayout.jsx';
+const DashboardLayout = lazy(() => import('./layouts/DashboardLayout.jsx'));
+const EssLayout = lazy(() => import('./layouts/EssLayout.jsx'));
 // Every page below is lazy-loaded (Vite/Rollup splits each `import()` into
 // its own chunk, fetched only when its route is actually visited) — this
 // file used to eagerly import all 66 of them, producing one 1.27MB bundle
@@ -106,6 +120,18 @@ const SalesHubPage = lazy(() => import('./pages/SalesHubPage.jsx'));
 const FinancialHubPage = lazy(() => import('./pages/FinancialHubPage.jsx'));
 const AdminToolsHubPage = lazy(() => import('./pages/AdminToolsHubPage.jsx'));
 import Spinner from '../components/ui/Spinner.jsx';
+
+/** Full-screen (not content-area-scoped like RouteFallback — there's no
+ *  sidebar/header on screen yet, since the LAYOUT itself is what's
+ *  loading) fallback for DashboardLayout/EssLayout's own lazy chunk load.
+ *  Same spinner RequireAuth's own loading state above already uses. */
+function FullScreenFallback() {
+  return (
+    <div className="grid min-h-screen place-items-center bg-bg">
+      <Spinner className="h-8 w-8 text-primary" />
+    </div>
+  );
+}
 
 function RequireAuth() {
   const { status } = useAuth();
@@ -204,7 +230,11 @@ export const router = createBrowserRouter([
         element: <RoleRouter />,
         children: [
           {
-            element: <DashboardLayout />,
+            element: (
+              <Suspense fallback={<FullScreenFallback />}>
+                <DashboardLayout />
+              </Suspense>
+            ),
             children: [
               { path: '/', element: <DashboardPage /> },
               { path: '/workforce', element: <WorkforceHubPage /> },
@@ -294,7 +324,11 @@ export const router = createBrowserRouter([
         element: <WorkerRouter />,
         children: [
           {
-            element: <EssLayout />,
+            element: (
+              <Suspense fallback={<FullScreenFallback />}>
+                <EssLayout />
+              </Suspense>
+            ),
             children: [
               { path: '/me', element: <MyProfilePage /> },
               { path: '/me/documents', element: <MyDocumentsPage /> },

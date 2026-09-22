@@ -100,8 +100,10 @@ export default function AdvanceReviewPanel() {
     queryKey: ['financial-requests', 'advances', { status }],
     queryFn: () => listAdvances({ limit: 50, ...(status && { status }) }),
     // Same reasoning as the Leave review queue: a submission from another
-    // session has no way to reach this already-open queue otherwise.
-    refetchInterval: 10_000,
+    // session has no way to reach this already-open queue otherwise. 20s,
+    // not 10s (2026-09-22, a real QA-audit finding — P1) — see
+    // LeavePage.jsx's own comment on this exact change.
+    refetchInterval: 20_000,
     refetchOnWindowFocus: true,
   });
 

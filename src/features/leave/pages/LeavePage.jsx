@@ -386,9 +386,16 @@ function ReviewQueue() {
     // A new submission from another session (or another approver deciding a
     // step) has no way to reach this already-open queue otherwise — the
     // app-wide default is a 30s staleTime with no polling and no
-    // refetch-on-focus. Same cadence as NotificationBell's own poll, so a
-    // request appearing here and its notification arriving feel like one event.
-    refetchInterval: 10_000,
+    // refetch-on-focus. FIX (2026-09-22, a real QA-audit finding — P1): this
+    // used to be 10s, "same cadence as NotificationBell's own poll" — but
+    // this is a real paginated query against the model, not the bell's own
+    // now much cheaper single count. 20s roughly halves this page's
+    // contribution to request volume (the same change applied to every
+    // sibling review queue — see the other refetchInterval sites this
+    // comment is referenced from) while staying close enough to the bell's
+    // own signal that a request still feels like it "arrived" within
+    // moments, not stale.
+    refetchInterval: 20_000,
     refetchOnWindowFocus: true,
   });
 

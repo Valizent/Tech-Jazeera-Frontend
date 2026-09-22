@@ -18,6 +18,7 @@ import Modal from '../../../components/ui/Modal.jsx';
 import Button from '../../../components/ui/Button.jsx';
 import Input from '../../../components/ui/Input.jsx';
 import Select from '../../../components/ui/Select.jsx';
+import ConfirmDialog from '../../../components/shared/ConfirmDialog.jsx';
 import CoordinatorDrillDownModal from './CoordinatorDrillDownModal.jsx';
 
 const currentMonth = () => new Date().toISOString().slice(0, 7);
@@ -43,6 +44,10 @@ export default function ManageTargetsModal({ open, onClose, coordinators = [] })
   const [tab, setTab] = useState('progress');
   const [month, setMonth] = useState(currentMonth);
   const [drillDownCoordinator, setDrillDownCoordinator] = useState(null);
+  // The target queued for removal — a real confirm gate in front of a destructive
+  // delete, same standing rule every other delete in this app follows (this one
+  // fired straight off the button click, the fix added 2026-09-22).
+  const [toRemove, setToRemove] = useState(null);
 
   // Form state for set-target tab
   const [form, setForm] = useState({ coordinatorId: '', month: currentMonth(), target: '', incentivePercent: '' });
@@ -81,6 +86,7 @@ export default function ManageTargetsModal({ open, onClose, coordinators = [] })
       queryClient.invalidateQueries({ queryKey: ['mob-targets-progress'] });
       queryClient.invalidateQueries({ queryKey: ['mob-targets-all'] });
       queryClient.invalidateQueries({ queryKey: ['mob-target-my'] });
+      setToRemove(null);
     },
     onError: (e) => {
       console.error('[dashboard] removing a mobilisation target failed', e);
@@ -110,8 +116,13 @@ export default function ManageTargetsModal({ open, onClose, coordinators = [] })
     setTab('set');
   }
 
+  // A child dialog (the confirm gate or the drill-down) is up — Escape should dismiss
+  // only IT, not this modal too (both listen on window; same fix RequirementDetailModal
+  // already applies for its own nested candidate form/confirm dialogs).
+  const childDialogOpen = Boolean(toRemove) || Boolean(drillDownCoordinator);
+
   return (
-    <Modal open={open} onClose={onClose} title={t('staffDashboard.targets.modalTitle')} size="lg">
+    <Modal open={open} onClose={childDialogOpen ? () => {} : onClose} title={t('staffDashboard.targets.modalTitle')} size="lg">
       {/* Tabs */}
       <div className="mb-5 flex gap-1 rounded-xl border border-border bg-bg p-1">
         {[
@@ -203,8 +214,7 @@ export default function ManageTargetsModal({ open, onClose, coordinators = [] })
                     {t('common.edit')}
                   </button>
                   <button
-                    onClick={() => deleteMutation.mutate(row._id)}
-                    disabled={deleteMutation.isPending}
+                    onClick={() => setToRemove({ _id: row._id, coordinatorName: row.coordinator.name, month })}
                     className="text-xs font-medium text-danger hover:underline disabled:opacity-50"
                   >
                     {t('common.remove')}
@@ -305,8 +315,7 @@ export default function ManageTargetsModal({ open, onClose, coordinators = [] })
                       {t('common.edit')}
                     </button>
                     <button
-                      onClick={() => deleteMutation.mutate(t2._id)}
-                      disabled={deleteMutation.isPending}
+                      onClick={() => setToRemove({ _id: t2._id, coordinatorName: t2.coordinator.name, month: t2.month })}
                       className="text-xs font-medium text-danger hover:underline disabled:opacity-50"
                     >
                       {t('common.remove')}
@@ -326,6 +335,16 @@ export default function ManageTargetsModal({ open, onClose, coordinators = [] })
           coordinator={drillDownCoordinator}
         />
       )}
+
+      <ConfirmDialog
+        open={Boolean(toRemove)}
+        title={t('staffDashboard.targets.removeConfirmTitle')}
+        message={t('staffDashboard.targets.removeConfirmMessage', { name: toRemove?.coordinatorName, month: toRemove?.month })}
+        confirmLabel={t('common.remove')}
+        loading={deleteMutation.isPending}
+        onConfirm={() => deleteMutation.mutate(toRemove._id)}
+        onCancel={() => setToRemove(null)}
+      />
     </Modal>
   );
 }

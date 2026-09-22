@@ -20,16 +20,13 @@ import { useQuery } from '@tanstack/react-query';
 import { getDashboard } from '../dashboard.api.js';
 import { getMyTarget } from '../../mobilisationTargets/mobilisationTargets.api.js';
 import { useAuth } from '../../auth/AuthContext.jsx';
-import { formatMoney } from '../../../lib/utils.js';
 import { EXPIRY_WARNING_DAYS } from '../../../lib/constants.js';
 import PageHeader from '../../../components/shared/PageHeader.jsx';
-import Card from '../../../components/ui/Card.jsx';
 import Skeleton from '../../../components/ui/Skeleton.jsx';
 import EmptyState from '../../../components/ui/EmptyState.jsx';
 import Button from '../../../components/ui/Button.jsx';
 import StatusBreakdown from '../components/StatusBreakdown.jsx';
 import ExpiringDocuments from '../components/ExpiringDocuments.jsx';
-import RecentActivity from '../components/RecentActivity.jsx';
 import MyPendingActions from '../components/MyPendingActions.jsx';
 import MobilisationTargetCard from '../components/MobilisationTargetCard.jsx';
 import ManageTargetsModal from '../components/ManageTargetsModal.jsx';
@@ -40,17 +37,6 @@ import HrComplianceWidget from '../components/HrComplianceWidget.jsx';
 import SystemLogsWidget from '../components/SystemLogsWidget.jsx';
 import ActiveRevenueWidget from '../components/ActiveRevenueWidget.jsx';
 import { useCloseOnOutsideClick } from '../../../lib/useCloseOnOutsideClick.js';
-
-/** A labelled money figure for the finance card. */
-function FinanceItem({ label, value, hint, accent }) {
-  return (
-    <div>
-      <p className="text-xs font-medium uppercase tracking-wide text-muted">{label}</p>
-      <p className={`mt-1 text-2xl font-semibold tabular-nums ${accent ?? 'text-text'}`}>{formatMoney(value)}</p>
-      {hint && <p className="mt-0.5 text-xs text-muted">{hint}</p>}
-    </div>
-  );
-}
 
 const THRESHOLD_STORAGE_KEY = 'aj-erp:dashboard-alert-threshold';
 
@@ -67,14 +53,18 @@ export default function DashboardPage() {
     localStorage.setItem(THRESHOLD_STORAGE_KEY, String(days));
   }
 
-  const [month, setMonth] = useState(() => new Date().toISOString().slice(0, 7));
+  // No UI picks a different month on this page (the old profit-trend month selector
+  // was removed in the dashboard restructuring) — a plain constant, not state, so
+  // there's no orphaned setter. getDashboard still takes it (the current month is a
+  // real, meaningful default for anything month-scoped it returns).
+  const month = new Date().toISOString().slice(0, 7);
   const [targetsOpen, setTargetsOpen] = useState(false);
   const [quickActionsOpen, setQuickActionsOpen] = useState(false);
   const quickActionsRef = useCloseOnOutsideClick(quickActionsOpen, setQuickActionsOpen);
 
   const QUICK_ACTIONS = [
     { label: t('staffDashboard.quickActions.addClient', 'Add Client'), to: '/clients/new', sectionKey: 'clientsManage' },
-    { label: 'Add Supplier', to: '/subcontractors', sectionKey: 'subcontractorsManage' },
+    { label: t('staffDashboard.quickActions.addSupplier'), to: '/subcontractors', sectionKey: 'subcontractorsManage' },
     { label: t('staffDashboard.quickActions.newMobilisation', 'New Mobilisation'), to: '/mobilisations/new', sectionKey: 'mobilisationsSelfMobilise' },
     { label: t('staffDashboard.quickActions.attendance', 'Attendance'), to: '/attendance', sectionKey: ['attendanceRecords', 'attendanceSignInOut'] },
   ];
@@ -90,11 +80,16 @@ export default function DashboardPage() {
 
   const firstName = user.name.split(' ')[0];
   const isCoordinator = user.role === 'Coordinator';
-  const isManager = user.role === 'Manager';
-  const canManageTargets = 
-    user.role === 'Admin' || 
-    user.role === 'Manager' || 
+  const canManageTargets =
+    user.role === 'Admin' ||
+    user.role === 'Manager' ||
     (user.sectionAccessWrite || []).includes('mobilisationTargets');
+  // StandbyAnalysisWidget is its own separately-fetched endpoint, not part of the main
+  // /dashboard payload, so it needs its own visibility signal here — reusing the same
+  // `payroll` read grant the server now gates it on (2026-09-22 fix; this used to be a
+  // hardcoded Manager/Admin check, and — separately — was wired to `attendanceSummary`'s
+  // own null-check as an unrelated proxy gate that happened to produce a similar result).
+  const canSeeStandbyAnalysis = Boolean(user.sectionAccess?.includes('payroll'));
 
   // Coordinator's own monthly target — always fetched for coordinator logins,
   // never for others (null guard in MobilisationTargetCard hides the widget).
@@ -217,10 +212,17 @@ export default function DashboardPage() {
         </div>
       )}
 
-      {user.role === 'Manager' || user.role === 'Admin' ? (
+      {/* FIX (2026-09-22): this block used to be wrapped in a hardcoded
+          `user.role === 'Manager' || 'Admin'` check — StandbyAnalysisWidget was ALSO
+          (coincidentally) keyed off `attendanceSummary`'s own null-check, an unrelated
+          proxy gate. Each child now renders off its own real signal: canSeeStandbyAnalysis
+          (mirrors the server's own `payroll` gate) and `!isCoordinator && mobilisationsByStatus
+          != null` (server already nulls the company-wide breakdown without mobilisationsViewer
+          read; a Coordinator's own is the separate "My Mobilisation Pipeline" card below). */}
+      {(canSeeStandbyAnalysis || (!isCoordinator && mobilisationsByStatus != null)) && (
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-          {attendanceSummary != null && <StandbyAnalysisWidget />}
-          {mobilisationsByStatus != null && (
+          {canSeeStandbyAnalysis && <StandbyAnalysisWidget />}
+          {!isCoordinator && mobilisationsByStatus != null && (
             <StatusBreakdown
               title={t('staffDashboard.globalPipelineTitle')}
               data={mobilisationsByStatus}
@@ -228,7 +230,7 @@ export default function DashboardPage() {
             />
           )}
         </div>
-      ) : null}
+      )}
 
       {/* Coordinator's own monthly target — hidden if no target set */}
       {isCoordinator && myTarget !== undefined && (

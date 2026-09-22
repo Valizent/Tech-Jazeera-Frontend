@@ -11,11 +11,23 @@
  * beats guessing wrong for a first-generation-immigrant workforce whose
  * phone locale may not match the language they actually read). Persisted to
  * localStorage directly, same pattern as ThemeContext.
+ *
+ * Locale loading (2026-09-22, a real QA-audit finding — P6): `en.json` and
+ * `ar.json` together are ~243KB of raw JSON, and BOTH used to be imported
+ * eagerly and unconditionally here — every session downloaded both
+ * dictionaries regardless of which single language it actually used. Below,
+ * a small custom i18next backend (the officially-supported `type: 'backend'`
+ * plugin shape — no new dependency, i18next-http-backend et al. are for
+ * fetching over HTTP, not what's needed for a same-bundle dynamic import)
+ * loads a language's JSON via `import()` only when i18next actually asks
+ * for it: once for the current language at init, and again only if the
+ * user actually switches. `i18nReady` is exported so main.jsx can await the
+ * FIRST language's chunk before the initial render, so there's never a
+ * flash of untranslated keys — the same "resolve the real content before
+ * first paint" posture as index.html's own pre-paint theme/dir scripts.
  */
 import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
-import en from './locales/en.json';
-import ar from './locales/ar.json';
 
 export const SUPPORTED_LANGUAGES = [
   { code: 'en', label: 'English' },
@@ -24,6 +36,25 @@ export const SUPPORTED_LANGUAGES = [
 export const RTL_LANGUAGES = ['ar'];
 const STORAGE_KEY = 'language';
 const DEFAULT_LANGUAGE = 'en';
+
+const localeLoaders = {
+  en: () => import('./locales/en.json'),
+  ar: () => import('./locales/ar.json'),
+};
+
+/** Minimal i18next backend plugin: loads a language's dictionary via a real
+ *  code-split dynamic import instead of bundling every language upfront. */
+const dynamicImportBackend = {
+  type: 'backend',
+  init() {},
+  read(language, _namespace, callback) {
+    const loader = localeLoaders[language];
+    if (!loader) return callback(new Error(`Unsupported language: ${language}`), null);
+    loader()
+      .then((mod) => callback(null, mod.default))
+      .catch((err) => callback(err, null));
+  },
+};
 
 function getStoredLanguage() {
   try {
@@ -43,7 +74,7 @@ export function applyDocumentDirection(language) {
 }
 
 export function changeLanguage(language) {
-  i18n.changeLanguage(language);
+  i18n.changeLanguage(language); // triggers dynamicImportBackend.read for a not-yet-loaded language
   applyDocumentDirection(language);
   try {
     localStorage.setItem(STORAGE_KEY, language);
@@ -54,16 +85,17 @@ export function changeLanguage(language) {
 
 const initialLanguage = getStoredLanguage() ?? DEFAULT_LANGUAGE;
 
-i18n.use(initReactI18next).init({
-  resources: {
-    en: { translation: en },
-    ar: { translation: ar },
-  },
-  lng: initialLanguage,
-  fallbackLng: DEFAULT_LANGUAGE,
-  interpolation: { escapeValue: false }, // React already escapes — double-escaping would show literal "&amp;" etc.
-  returnEmptyString: false,
-});
+export const i18nReady = i18n
+  .use(dynamicImportBackend)
+  .use(initReactI18next)
+  .init({
+    lng: initialLanguage,
+    fallbackLng: DEFAULT_LANGUAGE,
+    ns: ['translation'],
+    defaultNS: 'translation',
+    interpolation: { escapeValue: false }, // React already escapes — double-escaping would show literal "&amp;" etc.
+    returnEmptyString: false,
+  });
 
 applyDocumentDirection(initialLanguage);
 

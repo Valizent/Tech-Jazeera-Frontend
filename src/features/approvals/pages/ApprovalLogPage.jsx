@@ -64,8 +64,10 @@ export default function ApprovalLogPage() {
     queryKey: ['approval-log', { type, status }],
     queryFn: () => listApprovalLog({ limit: 100, ...(type && { type }), ...(status && { status }) }),
     // Same reasoning as the Leave review queue: a decision made from another
-    // session has no way to reach this already-open log otherwise.
-    refetchInterval: 10_000,
+    // session has no way to reach this already-open log otherwise. 20s, not
+    // 10s (2026-09-22, a real QA-audit finding — P1) — see LeavePage.jsx's
+    // own comment on this exact change.
+    refetchInterval: 20_000,
     refetchOnWindowFocus: true,
   });
 
