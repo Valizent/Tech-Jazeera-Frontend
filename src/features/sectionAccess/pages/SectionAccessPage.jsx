@@ -52,6 +52,7 @@ import Skeleton from '../../../components/ui/Skeleton.jsx';
 import EmptyState from '../../../components/ui/EmptyState.jsx';
 import Badge from '../../../components/ui/Badge.jsx';
 import { PillChecklist } from '../../../components/ui/TogglePill.jsx';
+import Icon from '../../../components/ui/Icon.jsx';
 
 const idsFromServer = (section) => ({
   readApprovalRoles: (section.readApprovalRoles ?? []).map((r) => r._id),
@@ -130,14 +131,6 @@ function SectionCard({ section, local, dirty, onToggleRead, onToggleWrite, onSav
   );
 }
 
-function GridTileIcon({ d }) {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="h-6 w-6">
-      <path strokeLinecap="round" strokeLinejoin="round" d={d} />
-    </svg>
-  );
-}
-
 /** One clickable tile in the category/module grid (level 1 and 2) —
  *  deliberately not a <Card>: square-ish and icon-first so 3-4 fit per row,
  *  unlike the single-column Read/Write editor cards shown at level 3. A
@@ -153,7 +146,7 @@ function GridTile({ icon, label, hint, dirtyCount, onClick }) {
       className="group flex flex-col items-center gap-2 rounded-2xl border border-border bg-surface px-4 py-5 text-center shadow-sm transition-all duration-200 ease-out-expo hover:border-primary/40 hover:shadow-md"
     >
       <div className="relative grid h-12 w-12 shrink-0 place-items-center rounded-xl bg-primary/10 text-primary">
-        <GridTileIcon d={icon} />
+        <Icon d={icon} size="md" />
         {dirtyCount > 0 && (
           <span className="absolute -right-1.5 -top-1.5 grid h-5 min-w-5 place-items-center rounded-full bg-warning px-1 text-[10px] font-semibold text-white">
             {dirtyCount}

@@ -14,6 +14,7 @@ import { createEmployeeLogin, resetEmployeeLoginPassword, updateEmployeeLoginRol
 import { EMPLOYEE_LOGIN_ROLES } from '../../../lib/constants.js';
 import { apiMessage } from '../../../lib/utils.js';
 import { useToast } from '../../../components/ui/Toast.jsx';
+import { useCopyToClipboard } from '../../../lib/useCopyToClipboard.js';
 import Card from '../../../components/ui/Card.jsx';
 import Badge from '../../../components/ui/Badge.jsx';
 import Button from '../../../components/ui/Button.jsx';
@@ -23,6 +24,7 @@ import Modal from '../../../components/ui/Modal.jsx';
 
 export default function EmployeeLoginPanel({ employee }) {
   const toast = useToast();
+  const copyToClipboard = useCopyToClipboard();
   const queryClient = useQueryClient();
   // Holds the just-created credentials for the one-time reveal modal.
   const [created, setCreated] = useState(null);
@@ -62,14 +64,7 @@ export default function EmployeeLoginPanel({ employee }) {
     onError: (error) => toast.error(apiMessage(error)),
   });
 
-  async function copyPassword() {
-    try {
-      await navigator.clipboard.writeText(created.tempPassword);
-      toast.success('Temporary password copied.');
-    } catch {
-      toast.error('Could not copy — select and copy it manually.');
-    }
-  }
+  const copyPassword = () => copyToClipboard(created.tempPassword, { successMessage: 'Temporary password copied.' });
 
   const login = employee.login;
 

@@ -1431,6 +1431,7 @@
     "overview": {
       "modalTitle": "Deployments overview",
       "rowCount": "Showing {{shown}} of {{total}} deployments",
+      "truncated": "Only the first {{limit}} of {{total}} deployments are shown — narrow the view with the filters (Export to Excel shares the same {{limit}}-row limit).",
       "clearFilters": "Clear filters",
       "allValues": "All",
       "filterPlaceholder": "Filter…",

@@ -32,13 +32,13 @@
  * Employee-adjacent muscle memory). Freelancer gets the "adjacent idea": no
  * subcontractor to scope by, so its picker is just company-wide.
  */
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef } from 'react';
 import { useForm, useWatch, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useTranslation } from 'react-i18next';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import { mobilisationFormSchema, WORKER_TYPES, FTA_TYPES } from '../mobilisations.schema.js';
-import { createJobTitle } from '../../jobTitles/jobTitles.api.js';
+import { useJobTitleQuickCreate } from '../../jobTitles/useJobTitleQuickCreate.js';
 import {
   getMobilisationSuggestions,
   lookupMobilisationWorkerByIqama,
@@ -46,7 +46,7 @@ import {
 } from '../mobilisations.api.js';
 import { listEmployees } from '../../employees/employees.api.js';
 import { COUNTRIES } from '../../../lib/countries.js';
-import { apiMessage, formatMoney } from '../../../lib/utils.js';
+import { formatMoney } from '../../../lib/utils.js';
 import { useToast } from '../../../components/ui/Toast.jsx';
 import PickerLoadWarning from '../../../components/shared/PickerLoadWarning.jsx';
 import Input from '../../../components/ui/Input.jsx';
@@ -276,7 +276,6 @@ export default function MobilisationForm({
 }) {
   const { t } = useTranslation();
   const toast = useToast();
-  const queryClient = useQueryClient();
   const {
     register,
     control,
@@ -309,31 +308,11 @@ export default function MobilisationForm({
     toast.success(t('staffMobilisations.form.previousWorkerAppliedToast', { name: picked.workerName }));
   }
 
-  const [addingJobTitle, setAddingJobTitle] = useState(false);
-  const [newJobTitle, setNewJobTitle] = useState('');
-  // The list invalidation refetches asynchronously, so the new <option> isn't
-  // in the DOM yet at the moment createJobTitle resolves — selecting it here
-  // would silently no-op. Defer the actual selection until jobTitles (the
-  // prop, refreshed by the invalidated query) really contains it.
-  const [pendingJobTitle, setPendingJobTitle] = useState(null);
-  const addJobTitleMutation = useMutation({
-    mutationFn: () => createJobTitle(newJobTitle.trim()),
-    onSuccess: (created) => {
-      toast.success(t('staffMobilisations.form.jobTitleAddedToast', { name: created.name }));
-      queryClient.invalidateQueries({ queryKey: ['job-titles'] });
-      setPendingJobTitle(created.name);
-      setAddingJobTitle(false);
-      setNewJobTitle('');
-    },
-    onError: (error) => toast.error(apiMessage(error)),
-  });
-
-  useEffect(() => {
-    if (pendingJobTitle && jobTitles.some((jt) => jt.name === pendingJobTitle)) {
-      setValue('jobTitle', pendingJobTitle, { shouldValidate: true, shouldDirty: true });
-      setPendingJobTitle(null);
-    }
-  }, [jobTitles, pendingJobTitle, setValue]);
+  // Shared with RequirementFormModal's own identical quick-create (2026-09-22,
+  // a real QA-audit finding) — see the hook's own doc comment for the
+  // deferred-selection timing fix this also carries.
+  const { addingJobTitle, setAddingJobTitle, newJobTitle, setNewJobTitle, addJobTitleMutation } =
+    useJobTitleQuickCreate({ jobTitles, setValue });
 
   // Client-side (Zod) validation failures never reach onSubmit at all, so
   // the mutation's own onError toast above never fires for them — silently

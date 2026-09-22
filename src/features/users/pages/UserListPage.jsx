@@ -11,6 +11,7 @@ import { listStaffUsers, updateStaffUser, resetStaffPassword, deleteStaffUser } 
 import { useAuth } from '../../auth/AuthContext.jsx';
 import { apiMessage, formatDate } from '../../../lib/utils.js';
 import { useToast } from '../../../components/ui/Toast.jsx';
+import { useCopyToClipboard } from '../../../lib/useCopyToClipboard.js';
 import { STAFF_USER_MANAGE_ROLES } from '../../../lib/constants.js';
 import PageHeader from '../../../components/shared/PageHeader.jsx';
 import ConfirmDialog from '../../../components/shared/ConfirmDialog.jsx';
@@ -24,6 +25,7 @@ export default function UserListPage() {
   const navigate = useNavigate();
   const { user: viewer } = useAuth();
   const toast = useToast();
+  const copyToClipboard = useCopyToClipboard();
   const queryClient = useQueryClient();
   const canManage = STAFF_USER_MANAGE_ROLES.includes(viewer.role);
 
@@ -62,14 +64,7 @@ export default function UserListPage() {
     onError: (error) => toast.error(apiMessage(error)),
   });
 
-  async function copyPassword() {
-    try {
-      await navigator.clipboard.writeText(created.tempPassword);
-      toast.success('Temporary password copied.');
-    } catch {
-      toast.error('Could not copy — select and copy it manually.');
-    }
-  }
+  const copyPassword = () => copyToClipboard(created.tempPassword, { successMessage: 'Temporary password copied.' });
 
   const columns = [
     {

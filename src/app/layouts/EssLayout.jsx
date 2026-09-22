@@ -20,6 +20,7 @@ import ThemeToggle from '../../components/shared/ThemeToggle.jsx';
 import BrandLogo, { useBranding } from '../../components/shared/BrandLogo.jsx';
 import ErrorBoundary from '../../components/shared/ErrorBoundary.jsx';
 import RouteFallback from '../../components/shared/RouteFallback.jsx';
+import Icon from '../../components/ui/Icon.jsx';
 import { cn } from '../../lib/utils.js';
 import { useCloseOnOutsideClick } from '../../lib/useCloseOnOutsideClick.js';
 
@@ -61,14 +62,6 @@ const NAV_ITEMS = [
   },
 ];
 
-function NavIcon({ d }) {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="h-5 w-5">
-      <path strokeLinecap="round" strokeLinejoin="round" d={d} />
-    </svg>
-  );
-}
-
 function Sidebar({ onNavigate }) {
   const { t } = useTranslation();
   const { name: brandName } = useBranding();
@@ -94,7 +87,7 @@ function Sidebar({ onNavigate }) {
               )
             }
           >
-            <NavIcon d={item.icon} />
+            <Icon d={item.icon} />
             {t(item.labelKey)}
           </NavLink>
         ))}

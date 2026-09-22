@@ -28,14 +28,18 @@ export default class ErrorBoundary extends Component {
     // blank screen for the user.
     console.error('Caught by ErrorBoundary:', error, info.componentStack);
     // Dynamic import, not a static one (2026-09-22, a real QA-audit finding
-    // — P6): this was the ONLY call site of lib/sentry.js's captureError
-    // anywhere in the app, yet the SDK (~130KB) was statically imported
-    // here — and this component is mounted by EVERY layout including the
-    // eager AuthLayout, so it shipped in an early/shared chunk on every
-    // single page load, error or not. Loading it only once an error has
-    // actually happened is a strict improvement, not a coverage loss:
-    // Sentry.init() (lib/sentry.js's own top-level call) still runs before
-    // captureError fires below, so even this FIRST error is still reported.
+    // — P6): this used to be the ONLY call site of lib/sentry.js's
+    // captureError anywhere in the app, yet the SDK (~85KB) was statically
+    // imported right here — and this component is mounted by EVERY layout
+    // including the eager AuthLayout, so it shipped in an early/shared
+    // chunk on every single page load, error or not. main.jsx now ALSO
+    // kicks off this same import at app start (fire-and-forget, for real
+    // performance tracing — see its own comment), so in practice this
+    // almost always resolves instantly (ES modules cache by specifier, so
+    // this is a cheap re-import of an already-settled module) — this import
+    // stays as the fallback for an error thrown before that one settles,
+    // and Sentry.init() (lib/sentry.js's own top-level call) always runs
+    // before captureError fires below either way.
     import('../../lib/sentry.js').then(({ captureError }) => {
       captureError(error, { componentStack: info.componentStack });
     });

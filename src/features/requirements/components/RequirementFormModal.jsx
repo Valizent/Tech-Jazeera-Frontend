@@ -10,7 +10,7 @@
  * The coordinators picker shows only to someone who may assign them (team-write);
  * a coordinator adding their own requirement never sees it — it's theirs.
  */
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -18,7 +18,8 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { createRequirement, updateRequirement } from '../requirements.api.js';
 import { buildRequirementFormSchema, emptyRequirementForm, requirementToForm } from '../requirements.schema.js';
 import { listClients } from '../../clients/clients.api.js';
-import { listJobTitles, createJobTitle } from '../../jobTitles/jobTitles.api.js';
+import { listJobTitles } from '../../jobTitles/jobTitles.api.js';
+import { useJobTitleQuickCreate } from '../../jobTitles/useJobTitleQuickCreate.js';
 import { apiMessage } from '../../../lib/utils.js';
 import { useToast } from '../../../components/ui/Toast.jsx';
 import Modal from '../../../components/ui/Modal.jsx';
@@ -48,22 +49,6 @@ export default function RequirementFormModal({ open, requirement, canAssign, coo
     enabled: open,
   });
 
-  const [addingJobTitle, setAddingJobTitle] = useState(false);
-  const [newJobTitle, setNewJobTitle] = useState('');
-  const [pendingJobTitle, setPendingJobTitle] = useState(null);
-
-  const addJobTitleMutation = useMutation({
-    mutationFn: () => createJobTitle(newJobTitle.trim()),
-    onSuccess: (created) => {
-      toast.success(t('staffMobilisations.form.jobTitleAddedToast', { name: created.name }));
-      queryClient.invalidateQueries({ queryKey: ['job-titles'] });
-      setPendingJobTitle(created.name);
-      setAddingJobTitle(false);
-      setNewJobTitle('');
-    },
-    onError: (error) => toast.error(apiMessage(error)),
-  });
-
   const {
     register,
     handleSubmit,
@@ -78,16 +63,13 @@ export default function RequirementFormModal({ open, requirement, canAssign, coo
     defaultValues: emptyRequirementForm,
   });
 
-  // Select a just-created job title only once the refetched list actually contains it (setValue
-  // before that would point the field at an option that isn't there yet — same fix as the
-  // Mobilisation form). Declared AFTER useForm: it reads `setValue`, so above it the whole
-  // component threw "Cannot access 'setValue' before initialization" and the board crashed.
-  useEffect(() => {
-    if (pendingJobTitle && jobTitles?.some((jt) => jt.name === pendingJobTitle)) {
-      setValue('jobTitle', pendingJobTitle, { shouldValidate: true, shouldDirty: true });
-      setPendingJobTitle(null);
-    }
-  }, [jobTitles, pendingJobTitle, setValue]);
+  // Shared with MobilisationForm's own identical quick-create (2026-09-22, a
+  // real QA-audit finding) — see the hook's own doc comment for the
+  // deferred-selection timing fix this also carries. Called AFTER useForm:
+  // it needs `setValue`, so above it the whole component threw "Cannot
+  // access 'setValue' before initialization" and the board crashed.
+  const { addingJobTitle, setAddingJobTitle, newJobTitle, setNewJobTitle, addJobTitleMutation } =
+    useJobTitleQuickCreate({ jobTitles, setValue });
 
   // Re-seed whenever the dialog opens (new vs. which card is being edited).
   useEffect(() => {

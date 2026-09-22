@@ -1431,6 +1431,7 @@
     "overview": {
       "modalTitle": "نظرة عامة على عمليات النشر",
       "rowCount": "عرض {{shown}} من {{total}} عملية نشر",
+      "truncated": "يتم عرض أول {{limit}} من أصل {{total}} عملية نشر فقط — ضيّق النطاق باستخدام عوامل التصفية (التصدير إلى Excel يخضع لنفس حد {{limit}} صف).",
       "clearFilters": "مسح عوامل التصفية",
       "allValues": "الكل",
       "filterPlaceholder": "تصفية…",

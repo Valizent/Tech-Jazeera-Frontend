@@ -231,6 +231,19 @@ export default function DeploymentOverviewModal({ open, onClose }) {
   // render would otherwise recompute them needlessly on every keystroke
   // elsewhere on the page.
   const rows = useMemo(() => data?.items ?? [], [data]);
+  // 2026-09-22, a real QA-audit finding (P8) — real gap, not a hypothetical
+  // one: `listDeployments` already returns the real, unclipped `total`
+  // (Deployment.countDocuments against the same filter), but nothing here
+  // ever compared it against the OVERVIEW_ROW_LIMIT-capped `rows.length` —
+  // if a real result set ever exceeded the cap, this modal would silently
+  // show a PARTIAL register with no indication anything was cut off. The
+  // existing `rowCount` text above only ever compared against the already-
+  // capped `rows.length`, which can't detect this on its own. Deliberately
+  // NOT virtualization/pagination here: real current data is nowhere near
+  // this cap (confirmed against the dev database), so there's nothing to
+  // virtualize yet — this is the narrower, real fix: tell the viewer the
+  // truth about what they're looking at if the cap is ever actually hit.
+  const truncated = Boolean(data && data.total > rows.length);
 
   // Commercial Mobilisation fields (rates/commissions/profit) are stripped
   // server-side for anyone without 'deploymentsHoursDecide' read access —
@@ -591,6 +604,11 @@ export default function DeploymentOverviewModal({ open, onClose }) {
   return (
     <Modal open={open} onClose={onClose} title={t('staffDeployments.overview.modalTitle')} size="screen">
       <div className="flex h-full flex-col gap-3">
+        {truncated && (
+          <p className="rounded-lg bg-warning/10 p-3 text-sm text-warning">
+            {t('staffDeployments.overview.truncated', { limit: OVERVIEW_ROW_LIMIT, total: data.total })}
+          </p>
+        )}
         <div className="flex flex-wrap items-center justify-between gap-2">
           <p className="text-sm text-muted">
             {t('staffDeployments.overview.rowCount', { shown: filteredRows.length, total: rows.length })}
