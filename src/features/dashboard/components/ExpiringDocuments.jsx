@@ -26,7 +26,10 @@ function ExpiryTag({ daysLeft }) {
 export default function ExpiringDocuments({ items, thresholdDays, onThresholdChange, scopedToTeam }) {
   const { t } = useTranslation();
   return (
-    <Card>
+    // h-full (2026-09-24) — see StatusBreakdown's own doc comment: this widget
+    // pairs in a 2-col grid too (with SystemLogsWidget) and needs to match its
+    // row's full height.
+    <Card className="h-full">
       <div className="mb-4 flex items-center justify-between gap-3">
         <h2 className="text-sm font-semibold uppercase tracking-wide text-muted">
           {scopedToTeam ? t('staffDashboard.expiringDocuments.titleYourTeam') : t('staffDashboard.expiringDocuments.title')}

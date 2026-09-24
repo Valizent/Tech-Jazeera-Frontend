@@ -220,35 +220,38 @@ export default function DashboardPage() {
           `user.role === 'Manager' || 'Admin'` check — StandbyAnalysisWidget was ALSO
           (coincidentally) keyed off `attendanceSummary`'s own null-check, an unrelated
           proxy gate. Each child now renders off its own real signal: canSeeStandbyAnalysis
-          (mirrors the server's own `payroll` gate) and `!isCoordinator && mobilisationsByStatus
-          != null` (server already nulls the company-wide breakdown without mobilisationsViewer
-          read; a Coordinator's own is the separate "My Mobilisation Pipeline" card below). */}
-      {(canSeeStandbyAnalysis || (!isCoordinator && mobilisationsByStatus != null)) && (
+          (mirrors the server's own `payroll` gate). HrComplianceWidget pairs here as of
+          2026-09-24 (swapped with Global Mobilisation Pipeline below per the user's own
+          ask) — both are workforce/HR-flavoured, a more coherent pairing than before. */}
+      {(canSeeStandbyAnalysis || pendingLeave != null || pendingExit != null) && (
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
           {canSeeStandbyAnalysis && <StandbyAnalysisWidget />}
-          {!isCoordinator && mobilisationsByStatus != null && (
-            <StatusBreakdown
-              title={t('staffDashboard.globalPipelineTitle')}
-              data={mobilisationsByStatus}
-              colors={{ Draft: 'default', Submitted: 'warning', Approved: 'primary', Deployed: 'success', Rejected: 'danger' }}
-            />
+          {(pendingLeave != null || pendingExit != null) && (
+            <HrComplianceWidget pendingLeave={pendingLeave} pendingExit={pendingExit} />
           )}
         </div>
       )}
 
       {/* Coordinator's own target, or (everyone else) the Mobilisation Leaderboard —
-          mutually exclusive by role — paired with HR Compliance Actions in the same row
-          (2026-09-24, swapped with Active Mobilisation Revenue per the user's own ask):
+          mutually exclusive by role — paired with Global Mobilisation Pipeline in the
+          same row (2026-09-24, swapped with HR Compliance Actions per the user's own
+          ask): both mobilisation-flavoured, a more coherent pairing than before, and
           neither sits alone as a full-width block. Coordinator Mobilisation Leaderboard
-          (2026-09-22) is gated the same as the Global mobilisation pipeline widget
-          above it (mobilisationsViewer read) — MM/GM/FM/COO/Admin see every real
+          (2026-09-22) is gated the same as the Global mobilisation pipeline widget right
+          next to it (mobilisationsViewer read) — MM/GM/FM/COO/Admin see every real
           coordinator without needing target-management rights. */}
-      {((isCoordinator && myTarget) || (!isCoordinator && mobilisationsByStatus != null) || pendingLeave != null || pendingExit != null) && (
+      {((isCoordinator && myTarget) || (!isCoordinator && mobilisationsByStatus != null)) && (
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
           {isCoordinator && myTarget && <MobilisationTargetCard target={myTarget} />}
-          {!isCoordinator && mobilisationsByStatus != null && <CoordinatorLeaderboardWidget />}
-          {(pendingLeave != null || pendingExit != null) && (
-            <HrComplianceWidget pendingLeave={pendingLeave} pendingExit={pendingExit} />
+          {!isCoordinator && mobilisationsByStatus != null && (
+            <>
+              <CoordinatorLeaderboardWidget />
+              <StatusBreakdown
+                title={t('staffDashboard.globalPipelineTitle')}
+                data={mobilisationsByStatus}
+                colors={{ Draft: 'default', Submitted: 'warning', Approved: 'primary', Deployed: 'success', Rejected: 'danger' }}
+              />
+            </>
           )}
         </div>
       )}

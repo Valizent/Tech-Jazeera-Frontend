@@ -14,9 +14,16 @@ import { useTranslation } from 'react-i18next';
 import Card from '../../../components/ui/Card.jsx';
 
 function StatTile({ to, value, label }) {
+  // h-full at every level (2026-09-24, a real user-reported gap): the OUTER
+  // DashboardPage grid stretches this whole widget's root div to match its
+  // taller sibling's height, but a plain block child (the Link) doesn't
+  // inherit that height automatically — it sizes to its own content unless
+  // told to fill its parent, same for the Card inside the Link. Without
+  // `h-full` at each level, the stretch stops at the Link's own (invisible)
+  // box and the visible Card renders short, leaving a gap below it.
   const tile = (
     <Card
-      className={`group relative flex flex-col items-center justify-center py-6 transition-colors ${
+      className={`group relative flex h-full flex-col items-center justify-center py-6 transition-colors ${
         to ? 'cursor-pointer hover:border-primary/40 hover:bg-primary/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40' : ''
       }`}
     >
@@ -35,7 +42,7 @@ function StatTile({ to, value, label }) {
     </Card>
   );
   return to ? (
-    <Link to={to} className="block rounded-2xl">
+    <Link to={to} className="block h-full rounded-2xl">
       {tile}
     </Link>
   ) : (
@@ -46,7 +53,7 @@ function StatTile({ to, value, label }) {
 export default function DirectoryStatsWidget({ activeClients, activeSubcontractors }) {
   const { t } = useTranslation();
   return (
-    <div className="grid grid-cols-2 gap-4">
+    <div className="grid h-full grid-cols-2 gap-4">
       <StatTile to={activeClients != null ? '/clients' : null} value={activeClients} label={t('staffDashboard.stats.activeClients')} />
       <StatTile to="/subcontractors" value={activeSubcontractors} label={t('staffDashboard.widgets.activeSubcontractors')} />
     </div>

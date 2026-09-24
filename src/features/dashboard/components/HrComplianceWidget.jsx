@@ -15,7 +15,9 @@ export default function HrComplianceWidget({ pendingLeave, pendingExit }) {
   }
 
   return (
-    <Card>
+    // h-full (2026-09-24) — see StatusBreakdown's own doc comment: this widget
+    // pairs in a 2-col grid too and needs to match its row's full height.
+    <Card className="h-full">
       <h2 className="mb-4 text-sm font-semibold uppercase tracking-wide text-muted">{t('staffDashboard.widgets.hrCompliance.title')}</h2>
       <div className="space-y-3">
         {items.map((item) => (

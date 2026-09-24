@@ -5,7 +5,10 @@ import RecentActivity from './RecentActivity.jsx';
 export default function SystemLogsWidget({ recentActivity }) {
   const { t } = useTranslation();
   return (
-    <div className="space-y-4">
+    // h-full flex-col (2026-09-24) — see StatusBreakdown's own doc comment. The
+    // health card stays its own natural size; RecentActivity (flex-1) grows to
+    // absorb whatever's left so the pair still matches ExpiringDocuments' height.
+    <div className="flex h-full flex-col gap-4">
       <Card className="bg-danger/5 border-danger/20">
         <h2 className="mb-2 text-sm font-semibold uppercase tracking-wide text-danger flex items-center gap-2">
           <span>{t('staffDashboard.widgets.systemLogs.title')}</span>
@@ -17,7 +20,7 @@ export default function SystemLogsWidget({ recentActivity }) {
           </a>
         </div>
       </Card>
-      <RecentActivity items={recentActivity} />
+      <RecentActivity items={recentActivity} className="flex-1" />
     </div>
   );
 }

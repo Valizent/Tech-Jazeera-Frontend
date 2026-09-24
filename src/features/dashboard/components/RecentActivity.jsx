@@ -13,14 +13,18 @@ import { timeAgo } from '../../../lib/utils.js';
 import { describeAction } from '../../../lib/auditActions.js';
 import { useAuth } from '../../auth/AuthContext.jsx';
 
-export default function RecentActivity({ items }) {
+export default function RecentActivity({ items, className }) {
   const { user } = useAuth();
   const { t } = useTranslation();
   // Defensive: every current caller always passes an array, but this widget
   // shouldn't crash the page if a future caller ever passes null/undefined.
   const safeItems = items ?? [];
   return (
-    <Card>
+    // `className` (2026-09-24): SystemLogsWidget passes `flex-1` so this card grows
+    // to fill whatever height its own sibling (the health-status card above it)
+    // doesn't use — see SystemLogsWidget's own doc comment. Optional so this
+    // component's own default (no extra class) is unchanged for any other caller.
+    <Card className={className}>
       <div className="mb-4 flex items-center justify-between gap-3">
         <h2 className="text-sm font-semibold uppercase tracking-wide text-muted">{t('staffDashboard.recentActivity.title')}</h2>
         {/* FIX (2026-09-22): this used to be `user.role === 'Admin'` — the widget's own
