@@ -21,8 +21,11 @@ export async function getStandbyAnalysis() {
   return data.data;
 }
 
-export async function getCoordinatorDrillDown(id) {
-  const { data } = await api.get(`/dashboard/coordinator-drill-down/${id}`);
+/** month: "YYYY-MM", omit for the current calendar month — same shape as
+ *  getCoordinatorLeaderboard's own, so the two can be called with the exact
+ *  same value and never disagree on which month "this month's profit" means. */
+export async function getCoordinatorDrillDown(id, month) {
+  const { data } = await api.get(`/dashboard/coordinator-drill-down/${id}`, { params: month ? { month } : undefined });
   return data.data;
 }
 

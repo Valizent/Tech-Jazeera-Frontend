@@ -63,6 +63,19 @@ export default function CoordinatorLeaderboardWidget() {
 
   const rows = useMemo(() => {
     const list = data?.rows ?? [];
+    // `target` is nullable (not every coordinator has one set) — sorted
+    // separately so "no target" always sinks to the bottom regardless of
+    // direction, rather than behaving like 0 (which would rank a genuinely
+    // untargeted coordinator above one with a real, small target in
+    // ascending order — a misleading "worst performer" read).
+    if (sortBy === 'target') {
+      return [...list].sort((a, b) => {
+        if (a.target == null && b.target == null) return 0;
+        if (a.target == null) return 1;
+        if (b.target == null) return -1;
+        return sortOrder === 'asc' ? a.target - b.target : b.target - a.target;
+      });
+    }
     const sorted = [...list].sort((a, b) => {
       if (sortBy === 'name') return a.name.localeCompare(b.name);
       return a[sortBy] - b[sortBy];
@@ -131,6 +144,12 @@ export default function CoordinatorLeaderboardWidget() {
                     <SortIcon active={sortBy === 'profit'} direction={sortOrder} />
                   </button>
                 </th>
+                <th className="px-4 py-3 font-semibold text-right">
+                  <button type="button" className="flex items-center justify-end hover:text-text ml-auto" onClick={() => toggleSort('target')}>
+                    {t('staffDashboard.widgets.leaderboard.target')}
+                    <SortIcon active={sortBy === 'target'} direction={sortOrder} />
+                  </button>
+                </th>
               </tr>
             </thead>
             <tbody className="divide-y divide-border">
@@ -143,6 +162,7 @@ export default function CoordinatorLeaderboardWidget() {
                   <td className="px-4 py-3 font-medium text-text">{r.name}</td>
                   <td className="px-4 py-3 text-center text-muted">{r.count}</td>
                   <td className="px-4 py-3 text-right font-medium text-muted">{formatMoney(r.profit)}</td>
+                  <td className="px-4 py-3 text-right text-muted">{r.target != null ? formatMoney(r.target) : '—'}</td>
                 </tr>
               ))}
             </tbody>
@@ -155,6 +175,7 @@ export default function CoordinatorLeaderboardWidget() {
           open={Boolean(drillDownCoordinator)}
           onClose={() => setDrillDownCoordinator(null)}
           coordinator={drillDownCoordinator}
+          month={month}
         />
       )}
     </Card>

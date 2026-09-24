@@ -587,6 +587,7 @@
       "standby": {
         "title": "تحليل القوى العاملة الاحتياطية",
         "subtitle": "كل من هو متاح حاليًا للتعبئة، مع تقدير للتكلفة عندما تدفع الشركة راتبًا لذلك العامل.",
+        "viewAll": "عرض جميع الاحتياطي ←",
         "worker": "العامل",
         "days": "الأيام",
         "daysCount": "{{count}} يوم",
@@ -601,6 +602,7 @@
         "coordinator": "المنسق",
         "mobilisations": "التعبئات",
         "estProfit": "الربح التقديري",
+        "target": "الهدف",
         "loadFailed": "لوحة تصنيف المنسقين",
         "viewAll": "عرض التعبئات ←",
         "emptyTitle": "لا يوجد منسقون بعد",
@@ -655,7 +657,7 @@
     "drillDown": {
       "title": "الأداء: {{name}}",
       "loadFailed": "تعذر تحميل بيانات المنسق.",
-      "generatedProfit": "الربح المحقق",
+      "generatedProfit": "ربح هذا الشهر",
       "assignedTasks": "المهام المسندة",
       "recentLogEntries": "أحدث إدخالات السجل",
       "noRecentLogs": "لا توجد إدخالات سجل خلال آخر 30 يومًا."
@@ -1737,6 +1739,9 @@
       "searchPlaceholderWithSerial": "البحث بالرقم أو العامل أو العميل أو المسمى الوظيفي…",
       "searchAriaLabel": "البحث في التعبئات",
       "filterStatusAriaLabel": "تصفية حسب الحالة",
+      "filteredToCoordinator": "مُصفّى حسب: {{name}}",
+      "thisCoordinator": "هذا المنسق",
+      "clearCoordinatorFilterAriaLabel": "إزالة تصفية المنسق",
       "columns": {
         "serialNumber": "#",
         "worker": "العامل",

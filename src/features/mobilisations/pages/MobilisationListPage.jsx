@@ -6,7 +6,7 @@
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { keepPreviousData, useMutation, useQuery } from '@tanstack/react-query';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../../auth/AuthContext.jsx';
 import { listMobilisations, downloadMobilisationsExport } from '../mobilisations.api.js';
 import { apiMessage, formatDate } from '../../../lib/utils.js';
@@ -26,8 +26,17 @@ export default function MobilisationListPage() {
   const navigate = useNavigate();
   const toast = useToast();
 
+  // Arriving from the Coordinator Drill-Down modal's "Generated profit" tile
+  // (?coordinator=<id>&coordinatorName=<name>) — the name rides along in the
+  // URL so this page can show a real "Filtered to: X" chip without a second
+  // fetch just to resolve an id back to a name.
+  const [searchParams] = useSearchParams();
+  const initialCoordinator = searchParams.get('coordinator') ?? '';
+  const initialCoordinatorName = searchParams.get('coordinatorName') ?? '';
+
   const [search, setSearch] = useState('');
-  const [params, setParams] = useState({ page: 1, limit: 20, search: '', status: '' });
+  const [params, setParams] = useState({ page: 1, limit: 20, search: '', status: '', coordinator: initialCoordinator });
+  const [coordinatorName, setCoordinatorName] = useState(initialCoordinatorName);
 
   useEffect(() => {
     const t = setTimeout(() => {
@@ -44,6 +53,7 @@ export default function MobilisationListPage() {
         limit: params.limit,
         ...(params.search && { search: params.search }),
         ...(params.status && { status: params.status }),
+        ...(params.coordinator && { coordinator: params.coordinator }),
       }),
     placeholderData: keepPreviousData,
     // Same reasoning as the Leave review queue: a coordinator submitting or
@@ -60,6 +70,7 @@ export default function MobilisationListPage() {
       downloadMobilisationsExport({
         ...(params.search && { search: params.search }),
         ...(params.status && { status: params.status }),
+        ...(params.coordinator && { coordinator: params.coordinator }),
       }),
     onError: (error) => toast.error(apiMessage(error)),
   });
@@ -89,7 +100,12 @@ export default function MobilisationListPage() {
     },
   ];
 
-  const noFilters = !params.search && !params.status;
+  const noFilters = !params.search && !params.status && !params.coordinator;
+
+  function clearCoordinatorFilter() {
+    setParams((p) => ({ ...p, coordinator: '', page: 1 }));
+    setCoordinatorName('');
+  }
 
   return (
     <div className="mx-auto max-w-5xl">
@@ -118,6 +134,22 @@ export default function MobilisationListPage() {
           </div>
         }
       />
+
+      {params.coordinator && (
+        <div className="mb-3 flex items-center gap-2">
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-3 py-1 text-xs font-medium text-primary">
+            {t('staffMobilisations.list.filteredToCoordinator', { name: coordinatorName || t('staffMobilisations.list.thisCoordinator') })}
+            <button
+              type="button"
+              onClick={clearCoordinatorFilter}
+              className="hover:text-primary/70"
+              aria-label={t('staffMobilisations.list.clearCoordinatorFilterAriaLabel')}
+            >
+              ✕
+            </button>
+          </span>
+        </div>
+      )}
 
       <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-end">
         <Input

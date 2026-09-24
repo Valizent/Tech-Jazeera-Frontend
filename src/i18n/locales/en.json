@@ -587,6 +587,7 @@
       "standby": {
         "title": "Standby workforce analysis",
         "subtitle": "Everyone currently free to mobilise, with an idle-cost estimate where the company pays them a salary.",
+        "viewAll": "View all standby →",
         "worker": "Worker",
         "days": "Days",
         "daysCount": "{{count}}d",
@@ -606,6 +607,7 @@
         "coordinator": "Coordinator",
         "mobilisations": "Mobilisations",
         "estProfit": "Est. profit",
+        "target": "Target",
         "loadFailed": "the coordinator leaderboard",
         "viewAll": "View mobilisations →",
         "emptyTitle": "No coordinators yet",
@@ -655,7 +657,7 @@
     "drillDown": {
       "title": "Performance: {{name}}",
       "loadFailed": "Failed to load coordinator data.",
-      "generatedProfit": "Generated profit",
+      "generatedProfit": "This month's profit",
       "assignedTasks": "Assigned tasks",
       "recentLogEntries": "Recent log entries",
       "noRecentLogs": "No logs submitted in the last 30 days."
@@ -1737,6 +1739,9 @@
       "searchPlaceholderWithSerial": "Search #, worker, client, job title…",
       "searchAriaLabel": "Search mobilisations",
       "filterStatusAriaLabel": "Filter by status",
+      "filteredToCoordinator": "Filtered to: {{name}}",
+      "thisCoordinator": "this coordinator",
+      "clearCoordinatorFilterAriaLabel": "Clear coordinator filter",
       "columns": {
         "serialNumber": "#",
         "worker": "Worker",

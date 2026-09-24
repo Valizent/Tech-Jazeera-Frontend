@@ -5,6 +5,7 @@
  * server's per-row `permissions`, never re-derived here.
  */
 import { useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { listDailyUpdates, setTaskStatus, deleteDailyUpdate } from '../dailyUpdates.api.js';
@@ -27,7 +28,20 @@ export default function TasksPanel({ access, currentUserId, coordinators }) {
   const queryClient = useQueryClient();
   const { canSeeAll, canAssign, canAddTask } = access;
 
-  const [filters, setFilters] = useState({ coordinator: '', status: 'Open', page: 1 });
+  // Arriving from the Coordinator Drill-Down modal's "Assigned tasks" tile
+  // (?coordinator=<id>) — that link only ever renders for a viewer who
+  // already has dailyUpdatesTeam read (canSeeAll here), so this never
+  // silently sets a filter the viewer has no way to see the picker for.
+  // Status defaults to "" (every status) instead of the usual "Open" —
+  // the whole point of that tile is seeing completed AND pending AND
+  // overdue in one place, not just the open ones.
+  const [searchParams] = useSearchParams();
+  const initialCoordinator = searchParams.get('coordinator') ?? '';
+  const [filters, setFilters] = useState({
+    coordinator: initialCoordinator,
+    status: initialCoordinator ? '' : 'Open',
+    page: 1,
+  });
   const [modal, setModal] = useState({ open: false, task: null });
   const [toDelete, setToDelete] = useState(null);
 
