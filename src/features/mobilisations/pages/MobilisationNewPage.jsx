@@ -29,6 +29,7 @@ import { emptyMobilisationForm, WORKER_TYPES } from '../mobilisations.schema.js'
 import { listClients } from '../../clients/clients.api.js';
 import { listSubcontractors } from '../../subcontractors/subcontractors.api.js';
 import { listJobTitles } from '../../jobTitles/jobTitles.api.js';
+import { listLocations } from '../../locations/locations.api.js';
 import { useAuth } from '../../auth/AuthContext.jsx';
 import { apiMessage } from '../../../lib/utils.js';
 import { useToast } from '../../../components/ui/Toast.jsx';
@@ -119,6 +120,10 @@ export default function MobilisationNewPage() {
     queryKey: ['job-titles'],
     queryFn: () => listJobTitles({ activeOnly: 'true' }),
   });
+  const { data: locationData, isPending: locationsLoading, isError: locationsError } = useQuery({
+    queryKey: ['locations'],
+    queryFn: listLocations,
+  });
 
   // Arrived from a Requirements card's "Start mobilisation"?
   const requirementId = searchParams.get('requirement');
@@ -149,7 +154,7 @@ export default function MobilisationNewPage() {
     mutation.mutate(values);
   }
 
-  if (clientsLoading || subcontractorsLoading || jobTitlesLoading || (isOfficeSecretary && coordinatorsLoading) || (fromRequirement && requirementLoading)) {
+  if (clientsLoading || subcontractorsLoading || jobTitlesLoading || locationsLoading || (isOfficeSecretary && coordinatorsLoading) || (fromRequirement && requirementLoading)) {
     return (
       <div className="mx-auto max-w-3xl space-y-4">
         <Skeleton className="h-8 w-48" />
@@ -161,6 +166,7 @@ export default function MobilisationNewPage() {
   const clients = clientData?.items ?? [];
   const subcontractors = subcontractorData?.items ?? [];
   const jobTitles = jobTitleData ?? [];
+  const locations = locationData ?? [];
 
   // The card + candidate this came from — only if both actually loaded. A card the
   // viewer can't open (or that's gone) means the link is DROPPED, not half-applied:
@@ -223,6 +229,7 @@ export default function MobilisationNewPage() {
             { label: 'clients', isError: clientsError },
             { label: 'subcontractors', isError: subcontractorsError },
             { label: 'job titles', isError: jobTitlesError },
+            { label: 'locations', isError: locationsError },
             ...(isOfficeSecretary ? [{ label: 'coordinators', isError: coordinatorsError }] : []),
           ]}
         />
@@ -230,6 +237,7 @@ export default function MobilisationNewPage() {
           clients={clients}
           subcontractors={subcontractors}
           jobTitles={jobTitles}
+          locations={locations}
           coordinatorCandidates={isOfficeSecretary ? (coordinatorData ?? []) : undefined}
           defaultValues={defaultValues}
           onSubmit={handleSubmit}

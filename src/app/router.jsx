@@ -102,6 +102,7 @@ const AuditLogPage = lazy(() => import('../features/audit/pages/AuditLogPage.jsx
 const ReconciliationPage = lazy(() => import('../features/reconciliation/pages/ReconciliationPage.jsx'));
 const DailyUpdatesPage = lazy(() => import('../features/dailyUpdates/pages/DailyUpdatesPage.jsx'));
 const RequirementsBoardPage = lazy(() => import('../features/requirements/pages/RequirementsBoardPage.jsx'));
+const LocationsSettingsPage = lazy(() => import('../features/locations/pages/LocationsSettingsPage.jsx'));
 const ApprovalsPage = lazy(() => import('../features/approvals/pages/ApprovalsPage.jsx'));
 const ApprovalLogPage = lazy(() => import('../features/approvals/pages/ApprovalLogPage.jsx'));
 const MyProfilePage = lazy(() => import('../features/ess/pages/MyProfilePage.jsx'));
@@ -273,6 +274,7 @@ export const router = createBrowserRouter([
               { path: '/mobilisations/:id', element: <MobilisationDetailPage /> },
               { path: '/mobilisations/:id/edit', element: <MobilisationEditPage /> },
               { path: '/mobilisation-settings', element: <MobilisationSettingsPage /> },
+              { path: '/locations', element: <LocationsSettingsPage /> },
               { path: '/company-settings', element: <CompanySettingsPage /> },
               { path: '/section-access', element: <SectionAccessPage /> },
               { path: '/subcontractors', element: guarded('subcontractorsManage', <SubcontractorListPage />) },

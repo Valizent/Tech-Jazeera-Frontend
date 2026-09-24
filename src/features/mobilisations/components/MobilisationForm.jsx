@@ -18,9 +18,11 @@
  * mobilisation.service.js's lookupWorkerByIqama) and fills in name/
  * nationality/phone/subcontractor automatically, so a worker released back
  * to standby and mobilised again doesn't need re-typing from scratch. `site`
- * uses the same free-typed-with-suggestions pattern (SuggestInput, a themed
- * combobox — never the browser's own unstyled `<datalist>` popup, which
- * can't be styled at all) — unrelated to worker identity.
+ * is free-typed with suggestions (SuggestInput, a themed combobox — never
+ * the browser's own unstyled `<datalist>` popup, which can't be styled at
+ * all) drawn from the shared Location picklist (2026-09-24, the user's own
+ * ask — same one Requirement's own `site` field now uses, plus an inline
+ * "+ Add new", same pattern as Job title) — unrelated to worker identity.
  *
  * Layout order (2026-09-16, the user's own ask): worker type first, then —
  * for SupplierEmployee/Freelancer only — the subcontractor block (Supplier
@@ -39,8 +41,8 @@ import { useTranslation } from 'react-i18next';
 import { useQuery } from '@tanstack/react-query';
 import { mobilisationFormSchema, WORKER_TYPES, FTA_TYPES } from '../mobilisations.schema.js';
 import { useJobTitleQuickCreate } from '../../jobTitles/useJobTitleQuickCreate.js';
+import { useLocationQuickCreate } from '../../locations/useLocationQuickCreate.js';
 import {
-  getMobilisationSuggestions,
   lookupMobilisationWorkerByIqama,
   listPreviousMobilisedWorkers,
 } from '../mobilisations.api.js';
@@ -55,32 +57,6 @@ import SuggestInput from '../../../components/ui/SuggestInput.jsx';
 import Textarea from '../../../components/ui/Textarea.jsx';
 import Button from '../../../components/ui/Button.jsx';
 import Modal from '../../../components/ui/Modal.jsx';
-
-/** Free-typed field + a themed dropdown of previously-entered values, via
- *  SuggestInput — never a native `<datalist>` (unstyled, can't be themed). */
-function SuggestedInput({ field, label, error, control, placeholder }) {
-  const { data: suggestions = [] } = useQuery({
-    queryKey: ['mobilisation-suggestions', field],
-    queryFn: () => getMobilisationSuggestions(field),
-  });
-  return (
-    <Controller
-      name={field}
-      control={control}
-      render={({ field: { value, onChange, onBlur } }) => (
-        <SuggestInput
-          label={label}
-          error={error}
-          value={value}
-          onChange={onChange}
-          onBlur={onBlur}
-          placeholder={placeholder}
-          options={suggestions}
-        />
-      )}
-    />
-  );
-}
 
 /** Once `iqamaNumber` reaches a full 10 digits, looks up whether this worker
  *  has been mobilised before and — if so — fills in name/nationality/phone/
@@ -266,6 +242,7 @@ export default function MobilisationForm({
   clients,
   subcontractors,
   jobTitles,
+  locations,
   coordinatorCandidates,
   existingWorkerId,
   defaultValues,
@@ -313,6 +290,8 @@ export default function MobilisationForm({
   // deferred-selection timing fix this also carries.
   const { addingJobTitle, setAddingJobTitle, newJobTitle, setNewJobTitle, addJobTitleMutation } =
     useJobTitleQuickCreate({ jobTitles, setValue });
+  const { addingLocation, setAddingLocation, newLocation, setNewLocation, addLocationMutation } =
+    useLocationQuickCreate({ locations, setValue });
 
   // Client-side (Zod) validation failures never reach onSubmit at all, so
   // the mutation's own onError toast above never fires for them — silently
@@ -517,13 +496,32 @@ export default function MobilisationForm({
               </option>
             ))}
           </Select>
-          <SuggestedInput
-            field="site"
-            label={t('staffMobilisations.form.siteLabel')}
-            placeholder={t('common.optional')}
-            error={errors.site?.message}
-            control={control}
-          />
+          <div>
+            <div className="mb-1.5 flex items-center justify-between">
+              <label className="text-sm font-medium text-text">{t('staffMobilisations.form.siteLabel')}</label>
+              <button
+                type="button"
+                className="text-xs font-medium text-primary hover:underline"
+                onClick={() => setAddingLocation(true)}
+              >
+                {t('staffMobilisations.form.addNew')}
+              </button>
+            </div>
+            <Controller
+              name="site"
+              control={control}
+              render={({ field }) => (
+                <SuggestInput
+                  value={field.value}
+                  onChange={field.onChange}
+                  onBlur={field.onBlur}
+                  placeholder={t('common.optional')}
+                  options={(locations ?? []).map((l) => l.name)}
+                  error={errors.site?.message}
+                />
+              )}
+            />
+          </div>
           <div>
             <Input label={t('staffMobilisations.form.clientRate')} type="number" step="0.01" min="0" error={errors.clientRate?.message} {...register('clientRate')} />
             {previousWorker?.clientRate != null && (
@@ -646,6 +644,31 @@ export default function MobilisationForm({
             onClick={() => addJobTitleMutation.mutate()}
             isLoading={addJobTitleMutation.isPending}
             disabled={!newJobTitle.trim()}
+          >
+            {t('common.add')}
+          </Button>
+        </div>
+      </div>
+    </Modal>
+
+    <Modal open={addingLocation} onClose={() => setAddingLocation(false)} title={t('staffMobilisations.form.addLocationModalTitle')}>
+      <div className="flex flex-col gap-4">
+        <Input
+          label={t('staffMobilisations.form.locationFieldLabel')}
+          placeholder={t('staffMobilisations.form.locationPlaceholder')}
+          value={newLocation}
+          onChange={(e) => setNewLocation(e.target.value)}
+          autoFocus
+        />
+        <div className="flex justify-end gap-2">
+          <Button type="button" variant="secondary" onClick={() => setAddingLocation(false)}>
+            {t('common.cancel')}
+          </Button>
+          <Button
+            type="button"
+            onClick={() => addLocationMutation.mutate()}
+            isLoading={addLocationMutation.isPending}
+            disabled={!newLocation.trim()}
           >
             {t('common.add')}
           </Button>

@@ -20,6 +20,7 @@ import { mobilisationToForm } from '../mobilisations.schema.js';
 import { listClients } from '../../clients/clients.api.js';
 import { listSubcontractors } from '../../subcontractors/subcontractors.api.js';
 import { listJobTitles } from '../../jobTitles/jobTitles.api.js';
+import { listLocations } from '../../locations/locations.api.js';
 import { apiMessage } from '../../../lib/utils.js';
 import { useToast } from '../../../components/ui/Toast.jsx';
 import PageHeader from '../../../components/shared/PageHeader.jsx';
@@ -54,6 +55,10 @@ export default function MobilisationEditPage() {
     queryKey: ['job-titles'],
     queryFn: () => listJobTitles({ activeOnly: 'true' }),
   });
+  const { data: locationData, isPending: locationsLoading, isError: locationsError } = useQuery({
+    queryKey: ['locations'],
+    queryFn: listLocations,
+  });
 
   const mutation = useMutation({
     mutationFn: (values) => updateMobilisation(id, values),
@@ -66,7 +71,7 @@ export default function MobilisationEditPage() {
     onError: (error) => toast.error(apiMessage(error)),
   });
 
-  const loading = isPending || clientsLoading || subcontractorsLoading || jobTitlesLoading;
+  const loading = isPending || clientsLoading || subcontractorsLoading || jobTitlesLoading || locationsLoading;
 
   if (loading) {
     return (
@@ -115,6 +120,7 @@ export default function MobilisationEditPage() {
   const clients = clientData?.items ?? [];
   const subcontractors = subcontractorData?.items ?? [];
   const jobTitles = jobTitleData ?? [];
+  const locations = locationData ?? [];
 
   return (
     <div className="mx-auto max-w-3xl">
@@ -129,12 +135,14 @@ export default function MobilisationEditPage() {
             { label: 'clients', isError: clientsError },
             { label: 'subcontractors', isError: subcontractorsError },
             { label: 'job titles', isError: jobTitlesError },
+            { label: 'locations', isError: locationsError },
           ]}
         />
         <MobilisationForm
           clients={clients}
           subcontractors={subcontractors}
           jobTitles={jobTitles}
+          locations={locations}
           existingWorkerId={mobilisation.worker}
           defaultValues={mobilisationToForm(mobilisation)}
           onSubmit={(values) => mutation.mutate(values)}

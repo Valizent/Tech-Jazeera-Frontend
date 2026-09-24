@@ -16,13 +16,6 @@ export async function listCoordinatorCandidates() {
   return data.data;
 }
 
-/** Live autocomplete for a free-typed worker-identity field (SupplierEmployee/
- *  Freelancer only — see MobilisationForm) — string[] of past values. */
-export async function getMobilisationSuggestions(field) {
-  const { data } = await api.get('/mobilisations/suggestions', { params: { field } });
-  return data.data;
-}
-
 /** "Is this worker already known?" — a SupplierEmployee/Freelancer's most
  *  recent mobilisation snapshot, by their exact 10-digit Iqama, or null.
  *  See MobilisationForm's auto-fill-on-Iqama-match behavior. */

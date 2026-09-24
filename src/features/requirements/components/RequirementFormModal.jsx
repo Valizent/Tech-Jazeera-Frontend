@@ -20,6 +20,8 @@ import { buildRequirementFormSchema, emptyRequirementForm, requirementToForm } f
 import { listClients } from '../../clients/clients.api.js';
 import { listJobTitles } from '../../jobTitles/jobTitles.api.js';
 import { useJobTitleQuickCreate } from '../../jobTitles/useJobTitleQuickCreate.js';
+import { listLocations } from '../../locations/locations.api.js';
+import { useLocationQuickCreate } from '../../locations/useLocationQuickCreate.js';
 import { apiMessage } from '../../../lib/utils.js';
 import { useToast } from '../../../components/ui/Toast.jsx';
 import Modal from '../../../components/ui/Modal.jsx';
@@ -48,6 +50,11 @@ export default function RequirementFormModal({ open, requirement, canAssign, coo
     queryFn: () => listJobTitles({ activeOnly: 'true' }),
     enabled: open,
   });
+  const { data: locations } = useQuery({
+    queryKey: ['locations'],
+    queryFn: listLocations,
+    enabled: open,
+  });
 
   const {
     register,
@@ -59,7 +66,9 @@ export default function RequirementFormModal({ open, requirement, canAssign, coo
     formState: { errors },
   } = useForm({
     // The picker, whenever it's shown, must end up with at least one coordinator.
-    resolver: zodResolver(buildRequirementFormSchema(showCoordinators)),
+    // originalNeededBy lets the schema allow resaving an untouched, since-elapsed
+    // date (see buildRequirementFormSchema's own doc comment).
+    resolver: zodResolver(buildRequirementFormSchema(showCoordinators, requirement?.neededBy?.slice(0, 10) ?? '')),
     defaultValues: emptyRequirementForm,
   });
 
@@ -70,6 +79,8 @@ export default function RequirementFormModal({ open, requirement, canAssign, coo
   // access 'setValue' before initialization" and the board crashed.
   const { addingJobTitle, setAddingJobTitle, newJobTitle, setNewJobTitle, addJobTitleMutation } =
     useJobTitleQuickCreate({ jobTitles, setValue });
+  const { addingLocation, setAddingLocation, newLocation, setNewLocation, addLocationMutation } =
+    useLocationQuickCreate({ locations, setValue });
 
   // Re-seed whenever the dialog opens (new vs. which card is being edited).
   useEffect(() => {
@@ -170,8 +181,38 @@ export default function RequirementFormModal({ open, requirement, canAssign, coo
             />
           </div>
           <Input label={t('staffRequirements.form.headcount')} type="number" min="1" max="500" error={errors.headcount?.message} {...register('headcount')} />
-          <Input label={t('staffRequirements.form.neededBy')} type="date" error={errors.neededBy?.message} {...register('neededBy')} />
-          <Input label={t('staffRequirements.form.site')} className="sm:col-span-2" error={errors.site?.message} {...register('site')} />
+          <Input
+            label={t('staffRequirements.form.neededBy')}
+            type="date"
+            min={new Date().toISOString().slice(0, 10)}
+            error={errors.neededBy?.message}
+            {...register('neededBy')}
+          />
+          <div className="sm:col-span-2">
+            <div className="mb-1.5 flex items-center justify-between">
+              <label className="text-sm font-medium text-text">{t('staffRequirements.form.site')}</label>
+              <button
+                type="button"
+                className="text-xs font-medium text-primary hover:underline"
+                onClick={() => setAddingLocation(true)}
+              >
+                {t('staffMobilisations.form.addNew')}
+              </button>
+            </div>
+            <Controller
+              name="site"
+              control={control}
+              render={({ field }) => (
+                <SuggestInput
+                  value={field.value}
+                  onChange={field.onChange}
+                  onBlur={field.onBlur}
+                  options={(locations ?? []).map((l) => l.name)}
+                  error={errors.site?.message}
+                />
+              )}
+            />
+          </div>
         </div>
         <Textarea label={t('staffRequirements.form.notes')} rows={3} placeholder={t('common.optional')} error={errors.notes?.message} {...register('notes')} />
 
@@ -217,6 +258,31 @@ export default function RequirementFormModal({ open, requirement, canAssign, coo
             onClick={() => addJobTitleMutation.mutate()}
             isLoading={addJobTitleMutation.isPending}
             disabled={!newJobTitle.trim()}
+          >
+            {t('common.add')}
+          </Button>
+        </div>
+      </div>
+    </Modal>
+
+    <Modal open={addingLocation} onClose={() => setAddingLocation(false)} title={t('staffMobilisations.form.addLocationModalTitle')}>
+      <div className="flex flex-col gap-4">
+        <Input
+          label={t('staffMobilisations.form.locationFieldLabel')}
+          placeholder={t('staffMobilisations.form.locationPlaceholder')}
+          value={newLocation}
+          onChange={(e) => setNewLocation(e.target.value)}
+          autoFocus
+        />
+        <div className="flex justify-end gap-2">
+          <Button type="button" variant="secondary" onClick={() => setAddingLocation(false)}>
+            {t('common.cancel')}
+          </Button>
+          <Button
+            type="button"
+            onClick={() => addLocationMutation.mutate()}
+            isLoading={addLocationMutation.isPending}
+            disabled={!newLocation.trim()}
           >
             {t('common.add')}
           </Button>

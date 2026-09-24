@@ -464,6 +464,7 @@
       "team": { "label": "الفريق", "description": "حسابات دخول الموظفين وأدوارهم." },
       "approvals": { "label": "التسلسل الاعتماد", "description": "أدوار الاعتماد وسلاسل مسارات الموافقة متعددة الخطوات." },
       "mobilisationSettings": { "label": "إعدادات التعبئة والتنسيب", "description": "الحد الزمني للتنبيه عند تأخر عملية التنسيب — أما صلاحية العرض أو التنسيب الذاتي فتُدار الآن من صفحة صلاحيات الأقسام." },
+      "locations": { "label": "المواقع", "description": "إزالة موقع من القائمة المشتركة المستخدمة في نموذجي التعبئة والمتطلبات. تتم إضافة موقع جديد مباشرة من أي من النموذجين." },
       "approvalsLog": { "label": "سجل الموافقات", "description": "كل طلب تم البت فيه عبر مسار اعتماد، بالترتيب. يظهر لمن هو ضمن التسلسل." },
       "timesheetProcessor": { "label": "معالج سجلات الدوام", "description": "استيراد جماعي لملفات الحضور من الأجهزة." },
       "nfc": { "label": "عملاء NFC", "description": "برنامج بطاقات الأعمال بتقنية NFC." },
@@ -1858,7 +1859,11 @@
       "addJobTitleModalTitle": "إضافة مسمى وظيفي",
       "jobTitleFieldLabel": "المسمى الوظيفي",
       "jobTitlePlaceholder": "مثال: سائق موقع",
-      "jobTitleAddedToast": "تمت إضافة \"{{name}}\"."
+      "jobTitleAddedToast": "تمت إضافة \"{{name}}\".",
+      "addLocationModalTitle": "إضافة موقع",
+      "locationFieldLabel": "الموقع",
+      "locationPlaceholder": "مثال: مدينة الجبيل الصناعية",
+      "locationAddedToast": "تمت إضافة \"{{name}}\"."
     },
     "new": {
       "pageTitle": "تعبئة جديدة",
@@ -2426,6 +2431,19 @@
       },
       "deleteConfirmTitle": "حذف المرحلة؟",
       "deleteConfirmMessage": "سيتم حذف \"{{name}}\". يمكن حذف المرحلة الفارغة فقط."
+    }
+  },
+  "staffLocations": {
+    "pageTitle": "المواقع",
+    "pageDescription": "قائمة المواقع المشتركة المستخدمة في نموذجي التعبئة والمتطلبات. يمكن لأي شخص إضافة موقع جديد مباشرة، لكن الحذف من هنا متاح للمشرف فقط.",
+    "couldNotLoad": "تعذّر تحميل المواقع",
+    "couldNotLoadDescription": "تحقق من اتصالك وحاول مرة أخرى.",
+    "emptyTitle": "لا توجد مواقع بعد",
+    "emptyDescription": "ستظهر هنا المواقع المضافة من نموذج التعبئة أو المتطلبات.",
+    "deleteConfirmTitle": "حذف هذا الموقع؟",
+    "deleteConfirmMessage": "لن يظهر \"{{name}}\" بعد الآن كاقتراح. هذا لا يغيّر أي تعبئة أو متطلب سابق استخدمه بالفعل.",
+    "toasts": {
+      "deleted": "تم حذف الموقع."
     }
   },
   "staffExpenses": {

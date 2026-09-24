@@ -464,6 +464,7 @@
       "team": { "label": "Team", "description": "Staff logins and roles." },
       "approvals": { "label": "Approval Hierarchy", "description": "Approval roles and multi-step workflow chains." },
       "mobilisationSettings": { "label": "Mobilisation Settings", "description": "The stale mobilisation warning threshold — viewer/self-mobilise access is on Section Access now." },
+      "locations": { "label": "Locations", "description": "Remove a site/location from the shared Mobilisation & Requirement picklist. Adding a new one is done inline from either form." },
       "approvalsLog": { "label": "Approval Log", "description": "Every request decided through a workflow, in order. Visible if you sit in the hierarchy." },
       "timesheetProcessor": { "label": "Timesheet Processor", "description": "Bulk-import device attendance exports." },
       "nfc": { "label": "NFC Customers", "description": "NFC business-card program." },
@@ -1858,7 +1859,11 @@
       "addJobTitleModalTitle": "Add job title",
       "jobTitleFieldLabel": "Job title",
       "jobTitlePlaceholder": "e.g. Site Driver",
-      "jobTitleAddedToast": "\"{{name}}\" added."
+      "jobTitleAddedToast": "\"{{name}}\" added.",
+      "addLocationModalTitle": "Add location",
+      "locationFieldLabel": "Site / location",
+      "locationPlaceholder": "e.g. Jubail Industrial City",
+      "locationAddedToast": "\"{{name}}\" added."
     },
     "new": {
       "pageTitle": "New mobilisation",
@@ -2426,6 +2431,19 @@
       },
       "deleteConfirmTitle": "Delete stage?",
       "deleteConfirmMessage": "\"{{name}}\" will be removed. Only an empty stage can be deleted."
+    }
+  },
+  "staffLocations": {
+    "pageTitle": "Locations",
+    "pageDescription": "The shared site/location list used by Mobilisation and Requirement forms. Anyone can add a new one inline; only an Admin can remove one here.",
+    "couldNotLoad": "Couldn't load locations",
+    "couldNotLoadDescription": "Check your connection and try again.",
+    "emptyTitle": "No locations yet",
+    "emptyDescription": "Locations added from the Mobilisation or Requirement form will show up here.",
+    "deleteConfirmTitle": "Delete this location?",
+    "deleteConfirmMessage": "\"{{name}}\" will no longer appear as a suggestion. This doesn't change any existing mobilisation or requirement that already used it.",
+    "toasts": {
+      "deleted": "Location deleted."
     }
   },
   "staffExpenses": {

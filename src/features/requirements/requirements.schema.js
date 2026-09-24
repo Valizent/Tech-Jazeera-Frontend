@@ -8,9 +8,20 @@ import { z } from 'zod';
 
 const dateOrEmpty = z.string().regex(/^(\d{4}-\d{2}-\d{2})?$/, 'Enter a valid date.');
 
-/** `requireCoordinators`: true only while creating as someone who can assign to
- *  others (team-write) — at least one coordinator is then a mandatory pick. */
-export function buildRequirementFormSchema(requireCoordinators) {
+/**
+ * `requireCoordinators`: true only while creating as someone who can assign to
+ * others (team-write) — at least one coordinator is then a mandatory pick.
+ *
+ * `originalNeededBy`: the requirement's own `neededBy` as it stood when the
+ * form opened (undefined/'' when adding new). Real bug fix (2026-09-24, a
+ * real user report): a requirement's edit form always resends its current
+ * `neededBy` even when only an unrelated field was touched, so this can't
+ * simply reject any past date — an untouched, since-elapsed date must still
+ * save (same split the server's own check makes — see requirement.service.js's
+ * updateRequirement). Only a genuine CHANGE to a new past date is rejected;
+ * on create there is no "unchanged" case, so any past date is rejected.
+ */
+export function buildRequirementFormSchema(requireCoordinators, originalNeededBy = '') {
   return z
     .object({
       clientName: z.string().trim().min(2, 'Enter the client company name.').max(150),
@@ -28,6 +39,10 @@ export function buildRequirementFormSchema(requireCoordinators) {
     .superRefine((v, ctx) => {
       if (requireCoordinators && v.coordinators.length === 0) {
         ctx.addIssue({ code: 'custom', path: ['coordinators'], message: 'Pick at least one coordinator.' });
+      }
+      const today = new Date().toISOString().slice(0, 10);
+      if (v.neededBy && v.neededBy !== originalNeededBy && v.neededBy < today) {
+        ctx.addIssue({ code: 'custom', path: ['neededBy'], message: "Needed-by date can't be in the past." });
       }
     });
 }
