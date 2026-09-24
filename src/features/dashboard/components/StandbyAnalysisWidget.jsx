@@ -58,7 +58,13 @@ export default function StandbyAnalysisWidget() {
                 <tr key={w._id} className="hover:bg-muted/5">
                   <td className="px-4 py-3">
                     <div className="font-medium text-text">{w.fullName}</div>
-                    <div className="text-xs text-muted">{w.employeeId} • {w.designation}</div>
+                    <div className="text-xs text-muted">
+                      {w.designation
+                        ? `${w.employeeId} • ${w.designation}`
+                        : w.subcontractorName
+                          ? `${t(`staffMobilisations.form.workerType.${w.workerType}`, w.workerType)} • ${w.subcontractorName}`
+                          : t(`staffMobilisations.form.workerType.${w.workerType}`, w.workerType)}
+                    </div>
                   </td>
                   <td className="px-4 py-3 text-center">
                     <span className="inline-flex items-center justify-center rounded-full bg-danger/10 px-2.5 py-0.5 text-xs font-semibold text-danger">
@@ -66,7 +72,10 @@ export default function StandbyAnalysisWidget() {
                     </span>
                   </td>
                   <td className="px-4 py-3 text-right font-medium text-muted">
-                    {formatMoney(w.moneyLost)}
+                    {/* null for a Supplier/Freelancer worker — this company owes them
+                        nothing while unplaced, so there's no honest cost to show (see
+                        dashboard.service.js's own getStandbyAnalysis doc comment). */}
+                    {w.moneyLost == null ? <span className="text-muted/50">—</span> : formatMoney(w.moneyLost)}
                   </td>
                 </tr>
               ))}

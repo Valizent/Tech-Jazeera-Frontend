@@ -16,7 +16,7 @@ import {
   EMPLOYEE_DELETE_ROLES,
   ACCOUNT_PROVISION_ROLES,
 } from '../../../lib/constants.js';
-import { apiMessage, formatDate } from '../../../lib/utils.js';
+import { apiMessage, formatDate, formatMoney } from '../../../lib/utils.js';
 import PageHeader from '../../../components/shared/PageHeader.jsx';
 import BackButton from '../../../components/shared/BackButton.jsx';
 import ConfirmDialog from '../../../components/shared/ConfirmDialog.jsx';
@@ -168,7 +168,7 @@ export default function EmployeeProfilePage() {
             <ProfileField label={t('staffEmployees.profile.fields.email')}>{employee.email}</ProfileField>
             <ProfileField label={t('staffEmployees.profile.fields.joiningDate')}>{formatDate(employee.joiningDate)}</ProfileField>
             <ProfileField label={t('staffEmployees.profile.fields.department')}>{employee.department}</ProfileField>
-            <ProfileField label={t('staffEmployees.profile.fields.salary')}>{employee.salary != null ? `SAR ${employee.salary.toLocaleString()}` : null}</ProfileField>
+            <ProfileField label={t('staffEmployees.profile.fields.salary')}>{employee.salary != null ? formatMoney(employee.salary) : null}</ProfileField>
             <ProfileField label={t('staffEmployees.profile.fields.accommodation')}>{employee.accommodation}</ProfileField>
             <ProfileField label={t('staffEmployees.profile.fields.coordinator')}>{employee.coordinator?.name}</ProfileField>
             <ProfileField label={t('staffEmployees.profile.fields.manager')}>{employee.manager?.name}</ProfileField>

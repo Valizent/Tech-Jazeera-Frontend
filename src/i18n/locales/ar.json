@@ -575,13 +575,23 @@
       },
       "standby": {
         "title": "تحليل القوى العاملة الاحتياطية",
-        "subtitle": "العمال الخاصون بالشركة (من الباطن) غير المنتشرين حاليًا.",
+        "subtitle": "كل من هو متاح حاليًا للتعبئة، مع تقدير للتكلفة عندما تدفع الشركة راتبًا لذلك العامل.",
         "worker": "العامل",
         "days": "الأيام",
         "estLoss": "الخسارة التقديرية",
         "loadFailed": "تحليل القوى العاملة الاحتياطية",
         "emptyTitle": "لا يوجد عمال احتياطيون",
-        "emptyDescription": "جميع القوى العاملة المتاحة منتشرة حاليًا."
+        "emptyDescription": "جميع العمال معيّنون لدى عميل حاليًا."
+      },
+      "leaderboard": {
+        "title": "لوحة تصنيف تعبئة المنسقين",
+        "subtitle": "جميع المنسقين، مرتبون حسب عدد التعبئات والربح التقديري لهذا الشهر.",
+        "coordinator": "المنسق",
+        "mobilisations": "التعبئات",
+        "estProfit": "الربح التقديري",
+        "loadFailed": "لوحة تصنيف المنسقين",
+        "emptyTitle": "لا يوجد منسقون بعد",
+        "emptyDescription": "ستظهر حسابات المنسقين هنا بمجرد إنشائها."
       },
       "systemLogs": {
         "title": "سلامة النظام والبرمجيات",
@@ -598,18 +608,18 @@
       "loading": "جارٍ التحميل…",
       "noneForMonth": "لا توجد أهداف محددة لهذا الشهر.",
       "setOneNow": "حدد هدفًا الآن ←",
-      "progressCount": "{{achieved}} / {{target}} تعبئة",
+      "progressCount": "{{achieved}} / {{target}}",
       "incentiveSuffix": "· حافز {{percent}}%",
       "hitBadge": "تم تحقيقه!",
-      "remainingBadge": "متبقٍ {{count}}",
+      "remainingBadge": "متبقٍ {{amount}}",
       "coordinatorLabel": "المنسق *",
       "coordinatorPlaceholder": "اختر منسقًا…",
       "monthFieldLabel": "الشهر *",
-      "targetFieldLabel": "الهدف (عدد التعبئات) *",
+      "targetFieldLabel": "الهدف (⃁ الربح التقديري شهريًا) *",
       "incentiveFieldLabel": "نسبة الحافز% (من الربح لكل تعبئة إضافية بعد تحقيق الهدف)",
       "incentivePlaceholder": "مثال: 5",
       "howItWorksTitle": "كيف يعمل هذا:",
-      "howItWorksBody": "بمجرد أن يصل المنسق إلى هدفه، تمنحه كل تعبئة إضافية معتمَدة/مكتملة خلال هذا الشهر نسبة الحافز من الربح الشهري التقديري لتلك التعبئة.",
+      "howItWorksBody": "بمجرد أن يصل الربح الشهري التقديري للمنسق إلى هدفه بالريال، تمنحه كل تعبئة إضافية معتمَدة/مكتملة تُحتسب بعد ذلك نسبة الحافز من ربحها الشهري التقديري الخاص بها.",
       "clear": "مسح",
       "saveTarget": "حفظ الهدف",
       "allExistingTargets": "جميع الأهداف الحالية",
@@ -617,17 +627,16 @@
       "targetRemoved": "تمت إزالة الهدف.",
       "removeConfirmTitle": "إزالة هذا الهدف؟",
       "removeConfirmMessage": "ستتم إزالة هدف {{month}} الخاص بـ {{name}} نهائيًا.",
-      "monthTargetSuffix": "← {{target}} تعبئة",
+      "monthTargetSuffix": "← {{target}}",
       "card": {
         "achievedBadge": "تم تحقيق الهدف!",
         "titleHit": "لقد حققت هدفك!",
-        "titleRemaining": "بقيت تعبئة واحدة",
-        "titleRemaining_other": "بقيت {{count}} تعبئات",
-        "hitWithIncentive": "كل تعبئة إضافية هذا الشهر تمنحك {{percent}}% من ربحها كحافز.",
+        "titleRemaining": "متبقٍ {{amount}}",
+        "hitWithIncentive": "كل تعبئة تتجاوز هدفك هذا الشهر تمنحك {{percent}}% من ربحها كحافز.",
         "hitNoIncentive": "كل تعبئة إضافية هذا الشهر تُحتسب ضمن سلسلة إنجازاتك.",
-        "notHitZero": "حقق {{target}} تعبئة معتمَدة لفتح حافزك.",
+        "notHitZero": "حقق ربحًا معتمَدًا قدره {{target}} لفتح حافزك.",
         "notHitSome": "تم إنجاز {{achieved}} من {{target}} — واصل التقدم!",
-        "notHitIncentiveSuffix": "عند تحقيق ذلك، تكسب {{percent}}% من الربح لكل تعبئة إضافية."
+        "notHitIncentiveSuffix": "عند تحقيق ذلك، تكسب {{percent}}% من الربح لكل تعبئة تتجاوزه."
       }
     },
     "drillDown": {

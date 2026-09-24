@@ -6,14 +6,19 @@
  * Tabs:
  *   "Progress"  — all coordinators with a target for the selected month,
  *                 showing their live achieved / target / % and a hit badge.
- *   "Set target" — form to upsert a target (coordinator + month + count + %).
+ *   "Set target" — form to upsert a target (coordinator + month + Riyal
+ *                  amount + %). The target is a Riyal amount of estimated
+ *                  monthly profit (2026-09-22, real user correction — was a
+ *                  plain mobilisation count), so `achieved`/`remaining`/
+ *                  `target` throughout this file are money values — always
+ *                  run through formatMoney(), never shown as bare numbers.
  */
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { getAllProgress, listAllTargets, setTarget, deleteTarget } from '../../mobilisationTargets/mobilisationTargets.api.js';
 import { useToast } from '../../../components/ui/Toast.jsx';
-import { apiMessage } from '../../../lib/utils.js';
+import { apiMessage, formatMoney } from '../../../lib/utils.js';
 import Modal from '../../../components/ui/Modal.jsx';
 import Button from '../../../components/ui/Button.jsx';
 import Input from '../../../components/ui/Input.jsx';
@@ -190,7 +195,7 @@ export default function ManageTargetsModal({ open, onClose, coordinators = [] })
                     <p className="truncate font-medium text-text group-hover:text-primary transition-colors">{row.coordinator.name}</p>
                     <ProgressBar achieved={row.achieved} target={row.target} />
                     <p className="mt-0.5 text-xs text-muted">
-                      {t('staffDashboard.targets.progressCount', { achieved: row.achieved, target: row.target })}
+                      {t('staffDashboard.targets.progressCount', { achieved: formatMoney(row.achieved), target: formatMoney(row.target) })}
                       {row.incentivePercent > 0 && ` ${t('staffDashboard.targets.incentiveSuffix', { percent: row.incentivePercent })}`}
                     </p>
                   </div>
@@ -204,7 +209,7 @@ export default function ManageTargetsModal({ open, onClose, coordinators = [] })
                     </span>
                   ) : (
                     <span className="rounded-full bg-bg px-2.5 py-0.5 text-xs font-medium text-muted">
-                      {t('staffDashboard.targets.remainingBadge', { count: row.remaining })}
+                      {t('staffDashboard.targets.remainingBadge', { amount: formatMoney(row.remaining) })}
                     </span>
                   )}
                   <button
@@ -258,7 +263,8 @@ export default function ManageTargetsModal({ open, onClose, coordinators = [] })
                 label={t('staffDashboard.targets.targetFieldLabel')}
                 type="number"
                 min="1"
-                max="500"
+                max="10000000"
+                step="0.01"
                 value={form.target}
                 onChange={(e) => setForm((f) => ({ ...f, target: e.target.value }))}
               />
@@ -305,7 +311,7 @@ export default function ManageTargetsModal({ open, onClose, coordinators = [] })
                   <div className="text-sm">
                     <span className="font-medium text-text">{t2.coordinator.name}</span>
                     <span className="ml-2 text-muted">{t2.month}</span>
-                    <span className="ml-2 text-muted">{t('staffDashboard.targets.monthTargetSuffix', { target: t2.target })}</span>
+                    <span className="ml-2 text-muted">{t('staffDashboard.targets.monthTargetSuffix', { target: formatMoney(t2.target) })}</span>
                     {t2.incentivePercent > 0 && (
                       <span className="ml-1 text-muted">{t('staffDashboard.targets.incentiveSuffix', { percent: t2.incentivePercent })}</span>
                     )}

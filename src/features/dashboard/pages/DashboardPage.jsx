@@ -36,6 +36,7 @@ import DirectoryStatsWidget from '../components/DirectoryStatsWidget.jsx';
 import HrComplianceWidget from '../components/HrComplianceWidget.jsx';
 import SystemLogsWidget from '../components/SystemLogsWidget.jsx';
 import ActiveRevenueWidget from '../components/ActiveRevenueWidget.jsx';
+import CoordinatorLeaderboardWidget from '../components/CoordinatorLeaderboardWidget.jsx';
 import { useCloseOnOutsideClick } from '../../../lib/useCloseOnOutsideClick.js';
 
 const THRESHOLD_STORAGE_KEY = 'aj-erp:dashboard-alert-threshold';
@@ -231,6 +232,12 @@ export default function DashboardPage() {
           )}
         </div>
       )}
+
+      {/* Coordinator Mobilisation Leaderboard (2026-09-22) — same gate as the Global
+          mobilisation pipeline widget right above it (mobilisationsViewer read), not
+          isolated inside Manage Targets, so MM/GM/FM/COO/Admin see every real
+          coordinator here without needing target-management rights. */}
+      {!isCoordinator && mobilisationsByStatus != null && <CoordinatorLeaderboardWidget />}
 
       {/* Coordinator's own monthly target — hidden if no target set */}
       {isCoordinator && myTarget !== undefined && (

@@ -1,8 +1,11 @@
 /**
  * MobilisationTargetCard — the coordinator's own monthly target tracker.
  *
- * Shows an animated SVG progress ring, the count achieved vs. target, and
- * how many remain. When the coordinator hits or exceeds their target:
+ * Shows an animated SVG progress ring, the estimated profit achieved vs.
+ * target (Riyal amounts — 2026-09-22, real user correction: this used to
+ * track a plain mobilisation COUNT; a coordinator's real value to the
+ * company is the profit their placements bring in), and how much remains.
+ * When the coordinator hits or exceeds their target:
  *   - The ring fills gold and pulses.
  *   - A confetti burst fires (CSS-only, ~30 coloured particles, once per
  *     page session).
@@ -13,6 +16,12 @@
  */
 import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { formatMoney } from '../../../lib/utils.js';
+
+// A full "⃁ 45,231.50" doesn't fit legibly inside the 120px ring, so the
+// ring itself shows a compact form ("⃁45K") — the full formatMoney()
+// amount is what the text beside/below the ring always shows.
+const compactMoney = (n) => `⃁${new Intl.NumberFormat('en-US', { notation: 'compact', maximumFractionDigits: 1 }).format(n)}`;
 
 const RING_R = 54;          // SVG circle radius
 const RING_CIRCUMFERENCE = 2 * Math.PI * RING_R;
@@ -154,17 +163,18 @@ export default function MobilisationTargetCard({ target }) {
                 transform="rotate(-90 60 60)"
                 style={{ transition: 'stroke-dashoffset 0.8s cubic-bezier(0.34,1.56,0.64,1), stroke 0.4s' }}
               />
-              {/* Centre text */}
+              {/* Centre text — compact form (see compactMoney's own doc
+                  comment above); the full amounts are in the text below. */}
               <text
                 x="60"
                 y="55"
                 textAnchor="middle"
                 dominantBaseline="middle"
-                fontSize="22"
+                fontSize="18"
                 fontWeight="700"
                 fill={hit ? '#f59e0b' : 'var(--color-text)'}
               >
-                {achieved}
+                {compactMoney(achieved)}
               </text>
               <text
                 x="60"
@@ -173,7 +183,7 @@ export default function MobilisationTargetCard({ target }) {
                 fontSize="11"
                 fill="var(--color-muted)"
               >
-                / {targetCount}
+                / {compactMoney(targetCount)}
               </text>
             </svg>
           </div>
@@ -190,7 +200,7 @@ export default function MobilisationTargetCard({ target }) {
             </div>
 
             <h2 className="mt-1 text-lg font-bold text-text">
-              {hit ? t('staffDashboard.targets.card.titleHit') : t('staffDashboard.targets.card.titleRemaining', { count: remaining })}
+              {hit ? t('staffDashboard.targets.card.titleHit') : t('staffDashboard.targets.card.titleRemaining', { amount: formatMoney(remaining) })}
             </h2>
 
             {hit ? (
@@ -202,8 +212,8 @@ export default function MobilisationTargetCard({ target }) {
             ) : (
               <p className="mt-1 text-sm text-muted">
                 {achieved === 0
-                  ? t('staffDashboard.targets.card.notHitZero', { target: targetCount })
-                  : t('staffDashboard.targets.card.notHitSome', { achieved, target: targetCount })}
+                  ? t('staffDashboard.targets.card.notHitZero', { target: formatMoney(targetCount) })
+                  : t('staffDashboard.targets.card.notHitSome', { achieved: formatMoney(achieved), target: formatMoney(targetCount) })}
                 {incentivePercent > 0 && <> {t('staffDashboard.targets.card.notHitIncentiveSuffix', { percent: incentivePercent })}</>}
               </p>
             )}

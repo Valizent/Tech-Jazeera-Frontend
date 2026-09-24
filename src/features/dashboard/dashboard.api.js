@@ -25,3 +25,9 @@ export async function getCoordinatorDrillDown(id) {
   const { data } = await api.get(`/dashboard/coordinator-drill-down/${id}`);
   return data.data;
 }
+
+/** month: "YYYY-MM", omit for the current calendar month. */
+export async function getCoordinatorLeaderboard(month) {
+  const { data } = await api.get('/dashboard/coordinator-leaderboard', { params: month ? { month } : undefined });
+  return data.data;
+}
