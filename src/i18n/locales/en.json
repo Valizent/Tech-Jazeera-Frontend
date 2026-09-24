@@ -588,6 +588,7 @@
         "subtitle": "Everyone currently free to mobilise, with an idle-cost estimate where the company pays them a salary.",
         "worker": "Worker",
         "days": "Days",
+        "daysCount": "{{count}}d",
         "estLoss": "Est. loss",
         "loadFailed": "the standby analysis",
         "emptyTitle": "No workers on standby",

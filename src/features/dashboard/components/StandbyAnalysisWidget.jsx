@@ -68,7 +68,7 @@ export default function StandbyAnalysisWidget() {
                   </td>
                   <td className="px-4 py-3 text-center">
                     <span className="inline-flex items-center justify-center rounded-full bg-danger/10 px-2.5 py-0.5 text-xs font-semibold text-danger">
-                      {w.daysOnStandby}d
+                      {t('staffDashboard.widgets.standby.daysCount', { count: w.daysOnStandby })}
                     </span>
                   </td>
                   <td className="px-4 py-3 text-right font-medium text-muted">
