@@ -449,6 +449,7 @@
       "label": "Financial",
       "description": "Money in, money out, and payroll.",
       "invoices": { "label": "Invoices", "description": "Billed to clients, payments tracked." },
+      "creditNotes": { "label": "Credit Notes", "description": "Corrections issued against billed invoices." },
       "payroll": { "label": "Payroll", "description": "Monthly runs and payslips." },
       "expenses": { "label": "Expenses", "description": "Company spending, internal only." },
       "financialRequests": { "label": "Financial Requests", "description": "Salary advances and reimbursements." }
@@ -2034,7 +2035,8 @@
       "date": "Date",
       "due": "Due",
       "status": "Status",
-      "balanceDue": "Balance due"
+      "balanceDue": "Balance due",
+      "overdue": "Overdue"
     },
     "panel": {
       "title": "Invoices",
@@ -2058,7 +2060,9 @@
         "tax": "Tax%",
         "amount": "Amount"
       },
+      "clientVat": "VAT {{number}}",
       "paid": "Paid",
+      "creditedLabel": "Credited",
       "balanceDueLabel": "Balance due",
       "notes": "Notes",
       "paymentsTitle": "Payments",
@@ -2076,6 +2080,47 @@
       "deletedToast": "{{number}} deleted.",
       "deleteConfirmTitle": "Delete invoice?",
       "deleteConfirmMessage": "{{number}} will be permanently removed."
+    },
+    "creditNotes": {
+      "list": {
+        "pageTitle": "Credit notes",
+        "pageDescription": "Every correction issued against a billed invoice, company-wide.",
+        "searchPlaceholder": "Search by number, invoice, or client…",
+        "searchAriaLabel": "Search credit notes",
+        "couldNotLoad": "Could not load credit notes",
+        "couldNotLoadDescription": "Check your connection and try again.",
+        "emptyTitle": "No credit notes yet",
+        "emptyDescription": "A credit note is issued from an invoice's own page when it needs correcting.",
+        "columns": {
+          "number": "Number",
+          "invoice": "Invoice",
+          "client": "Client",
+          "date": "Date",
+          "reason": "Reason",
+          "amount": "Amount"
+        }
+      },
+      "title": "Credit notes",
+      "issueButton": "Issue credit note",
+      "emptyTitle": "No credit notes",
+      "emptyDescription": "This invoice hasn't been corrected.",
+      "remainingLine": "Left to credit on this invoice: {{remaining}} of {{total}}.",
+      "modalTitle": "Issue credit note — {{number}}",
+      "reasonLabel": "Reason *",
+      "reasonPlaceholder": "Why this invoice is being corrected — e.g. wrong quantity billed, agreed price adjustment…",
+      "lineItemsLabel": "Line items",
+      "copyFromInvoice": "Copy from invoice",
+      "addLine": "Add line",
+      "removeLine": "Remove line",
+      "previewLabel": "Credit total (preview):",
+      "saveButton": "Issue credit note",
+      "issuedToast": "Credit note issued.",
+      "typeAriaLabel": "Type",
+      "descriptionAriaLabel": "Description",
+      "quantityAriaLabel": "Quantity",
+      "unitPriceAriaLabel": "Unit price",
+      "discountAriaLabel": "Discount %",
+      "fixHighlighted": "Check the highlighted fields."
     },
     "pdfButton": {
       "label": "PDF",
@@ -2121,11 +2166,14 @@
       "otSuffix": "+{{amount}} OT",
       "otHoursSuffix": "{{hours}}h OT",
       "sickSuffix": "-{{amount}} sick",
+      "advanceSuffix": "-{{amount}} advance",
       "pdfButton": "PDF",
       "editModalTitle": "Edit — {{name}}",
       "otherAllowances": "Other allowances",
       "gosiDeduction": "GOSI deduction",
       "gosiHint": "GOSI is not calculated automatically — rates vary by nationality/coverage. Enter the correct figure per your current rates.",
+      "advanceRepayment": "Salary advance repayment",
+      "advanceRepaymentHint": "Suggested from the employee's approved, outstanding advance (amount ÷ repayment months). You can lower it or set it to 0 to skip this month — it can't be raised above the suggested amount here. Recorded against the advance automatically once this run is finalized.",
       "otherDeductions": "Other deductions",
       "deductionLabelPlaceholder": "Label (e.g. Advance repayment)",
       "deductionLabelAriaLabel": "Deduction label",

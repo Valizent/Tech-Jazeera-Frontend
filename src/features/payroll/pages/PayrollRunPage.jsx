@@ -190,6 +190,11 @@ export default function PayrollRunPage() {
                       {t('staffPayroll.run.sickSuffix', { amount: formatMoney(line.sickLeaveDeduction) })}
                     </span>
                   )}
+                  {line.advanceRepayment?.advance && line.advanceRepayment.amount > 0 && (
+                    <span className="block text-xs font-normal text-warning">
+                      {t('staffPayroll.run.advanceSuffix', { amount: formatMoney(line.advanceRepayment.amount) })}
+                    </span>
+                  )}
                 </td>
                 <td className="px-4 py-3 text-right font-semibold tabular-nums">{formatMoney(line.netPay)}</td>
                 <td className="px-4 py-3 text-right">
@@ -226,6 +231,21 @@ export default function PayrollRunPage() {
           <p className="text-xs text-muted">
             {t('staffPayroll.run.gosiHint')}
           </p>
+
+          {editingLine?.advanceRepayment?.advance && (
+            <div>
+              <Input
+                label={t('staffPayroll.run.advanceRepayment')}
+                type="number"
+                min="0"
+                max={editingLine.advanceRepayment.suggestedAmount}
+                step="10"
+                error={errors.advanceRepaymentAmount?.message}
+                {...register('advanceRepaymentAmount')}
+              />
+              <p className="mt-1 text-xs text-muted">{t('staffPayroll.run.advanceRepaymentHint')}</p>
+            </div>
+          )}
 
           <div>
             <div className="mb-2 flex items-center justify-between">

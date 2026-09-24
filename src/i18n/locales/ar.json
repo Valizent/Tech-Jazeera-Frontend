@@ -449,6 +449,7 @@
       "label": "الشؤون المالية",
       "description": "الإيرادات والمصروفات والرواتب.",
       "invoices": { "label": "الفواتير", "description": "الفواتير المرسلة للعملاء، مع تتبع الدفعات." },
+      "creditNotes": { "label": "الإشعارات الدائنة", "description": "تصحيحات صادرة لفواتير مُصدرة." },
       "payroll": { "label": "الرواتب", "description": "دورات الرواتب الشهرية وقسائمها." },
       "expenses": { "label": "المصروفات", "description": "مصروفات الشركة، للاستخدام الداخلي فقط." },
       "financialRequests": { "label": "الطلبات المالية", "description": "السلف والمصاريف المستردة." }
@@ -2034,7 +2035,8 @@
       "date": "التاريخ",
       "due": "الاستحقاق",
       "status": "الحالة",
-      "balanceDue": "الرصيد المستحق"
+      "balanceDue": "الرصيد المستحق",
+      "overdue": "متأخر"
     },
     "panel": {
       "title": "الفواتير",
@@ -2058,7 +2060,9 @@
         "tax": "الضريبة%",
         "amount": "المبلغ"
       },
+      "clientVat": "الرقم الضريبي {{number}}",
       "paid": "المدفوع",
+      "creditedLabel": "مخصوم بإشعار دائن",
       "balanceDueLabel": "الرصيد المستحق",
       "notes": "ملاحظات",
       "paymentsTitle": "المدفوعات",
@@ -2076,6 +2080,47 @@
       "deletedToast": "تم حذف {{number}}.",
       "deleteConfirmTitle": "حذف الفاتورة؟",
       "deleteConfirmMessage": "سيتم حذف {{number}} نهائيًا."
+    },
+    "creditNotes": {
+      "list": {
+        "pageTitle": "الإشعارات الدائنة",
+        "pageDescription": "كل تصحيح صدر لفاتورة مُصدرة، على مستوى الشركة بالكامل.",
+        "searchPlaceholder": "ابحث بالرقم أو الفاتورة أو العميل…",
+        "searchAriaLabel": "بحث في الإشعارات الدائنة",
+        "couldNotLoad": "تعذر تحميل الإشعارات الدائنة",
+        "couldNotLoadDescription": "تحقق من الاتصال وحاول مرة أخرى.",
+        "emptyTitle": "لا توجد إشعارات دائنة بعد",
+        "emptyDescription": "يُصدر الإشعار الدائن من صفحة الفاتورة نفسها عند الحاجة لتصحيحها.",
+        "columns": {
+          "number": "الرقم",
+          "invoice": "الفاتورة",
+          "client": "العميل",
+          "date": "التاريخ",
+          "reason": "السبب",
+          "amount": "المبلغ"
+        }
+      },
+      "title": "إشعارات الخصم الدائنة",
+      "issueButton": "إصدار إشعار دائن",
+      "emptyTitle": "لا توجد إشعارات دائنة",
+      "emptyDescription": "لم يتم تصحيح هذه الفاتورة.",
+      "remainingLine": "المتبقي للخصم من هذه الفاتورة: {{remaining}} من أصل {{total}}.",
+      "modalTitle": "إصدار إشعار دائن — {{number}}",
+      "reasonLabel": "السبب *",
+      "reasonPlaceholder": "سبب تصحيح هذه الفاتورة — مثال: كمية خاطئة، تعديل سعر متفق عليه…",
+      "lineItemsLabel": "بنود الفاتورة",
+      "copyFromInvoice": "نسخ من الفاتورة",
+      "addLine": "إضافة بند",
+      "removeLine": "إزالة البند",
+      "previewLabel": "إجمالي الإشعار الدائن (معاينة):",
+      "saveButton": "إصدار إشعار دائن",
+      "issuedToast": "تم إصدار الإشعار الدائن.",
+      "typeAriaLabel": "النوع",
+      "descriptionAriaLabel": "الوصف",
+      "quantityAriaLabel": "الكمية",
+      "unitPriceAriaLabel": "سعر الوحدة",
+      "discountAriaLabel": "نسبة الخصم",
+      "fixHighlighted": "يرجى مراجعة الحقول المظللة."
     },
     "pdfButton": {
       "label": "PDF",
@@ -2121,11 +2166,14 @@
       "otSuffix": "+{{amount}} إضافي",
       "otHoursSuffix": "{{hours}} س إضافي",
       "sickSuffix": "-{{amount}} مرضي",
+      "advanceSuffix": "-{{amount}} سلفة",
       "pdfButton": "PDF",
       "editModalTitle": "تعديل — {{name}}",
       "otherAllowances": "بدلات أخرى",
       "gosiDeduction": "خصم التأمينات الاجتماعية",
       "gosiHint": "لا يُحسب خصم التأمينات الاجتماعية تلقائيًا — تختلف النسب حسب الجنسية/التغطية. أدخل الرقم الصحيح وفق معدلاتك الحالية.",
+      "advanceRepayment": "سداد سلفة الراتب",
+      "advanceRepaymentHint": "مقترح من سلفة الموظف المعتمدة وغير المسددة بالكامل (المبلغ ÷ عدد أشهر السداد). يمكنك تخفيضه أو جعله 0 لتخطي هذا الشهر — لا يمكن رفعه فوق المبلغ المقترح هنا. يُسجَّل تلقائيًا في سجل السلفة بمجرد اعتماد هذا الراتب.",
       "otherDeductions": "خصومات أخرى",
       "deductionLabelPlaceholder": "التسمية (مثال: سداد سلفة)",
       "deductionLabelAriaLabel": "تسمية الخصم",

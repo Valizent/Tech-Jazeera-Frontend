@@ -6,7 +6,7 @@
  * payments/PDF), just records.
  */
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '../../auth/AuthContext.jsx';
 import { listExpenses, getExpenseSummary, deleteExpense, downloadExpenseReceipt } from '../expenses.api.js';
@@ -101,14 +101,28 @@ export default function ExpenseListPage() {
     onError: (error) => toast.error(apiMessage(error)),
   });
 
+  // Recurring expenses (rent, subscriptions, ...) get re-typed every month —
+  // deliberately kept a one-click, human-confirmed prefill rather than a
+  // real recurrence scheduler: nothing about money should be created
+  // unattended (same posture as every other financial mutation in this
+  // app). No schema change needed — it's just the same form, pre-filled.
+  const [duplicateFrom, setDuplicateFrom] = useState(null);
+
   function openNew() {
+    setDuplicateFrom(null);
     setEditing({});
   }
   function openEdit(expense) {
+    setDuplicateFrom(null);
     setEditing(expense);
+  }
+  function openDuplicate(expense) {
+    setDuplicateFrom(expense);
+    setEditing({});
   }
   function closeModal() {
     setEditing(null);
+    setDuplicateFrom(null);
   }
 
   async function handleDownload(expense) {
@@ -121,7 +135,24 @@ export default function ExpenseListPage() {
 
   const columns = [
     { key: 'date', header: 'Date', render: (e) => formatDate(e.date) },
-    { key: 'category', header: 'Category', render: (e) => e.category },
+    {
+      key: 'category',
+      header: 'Category',
+      render: (e) => (
+        <span className="flex items-center gap-1.5">
+          {e.category}
+          {e.sourceReimbursement && (
+            <Link
+              to={`/financial-requests?tab=reimbursements&claim=${e.sourceReimbursement}`}
+              className="rounded-full bg-primary/10 px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-wide text-primary hover:bg-primary/20"
+              title="View the original reimbursement claim"
+            >
+              Claim
+            </Link>
+          )}
+        </span>
+      ),
+    },
     { key: 'vendor', header: 'Vendor', render: (e) => e.vendor },
     { key: 'client', header: 'Client', hideOnMobile: true, render: (e) => e.clientName ?? '—' },
     { key: 'amount', header: 'Amount', className: 'text-right', render: (e) => <span className="tabular-nums">{formatMoney(e.amount)}</span> },
@@ -148,9 +179,14 @@ export default function ExpenseListPage() {
             <Button size="sm" variant="ghost" onClick={() => openEdit(e)}>
               Edit
             </Button>
-            <Button size="sm" variant="danger-ghost" onClick={() => setToDelete(e)}>
-              Delete
+            <Button size="sm" variant="ghost" onClick={() => openDuplicate(e)}>
+              Duplicate
             </Button>
+            {!e.sourceReimbursement && (
+              <Button size="sm" variant="danger-ghost" onClick={() => setToDelete(e)}>
+                Delete
+              </Button>
+            )}
           </span>
         ) : null,
     },
@@ -256,7 +292,7 @@ export default function ExpenseListPage() {
         </>
       )}
 
-      <ExpenseFormModal open={!!editing} editing={editing} onClose={closeModal} />
+      <ExpenseFormModal open={!!editing} editing={editing} duplicateFrom={duplicateFrom} onClose={closeModal} />
 
       <ConfirmDialog
         open={Boolean(toDelete)}

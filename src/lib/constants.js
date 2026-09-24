@@ -183,7 +183,7 @@ export const INVOICE_DELETE_ROLES = ['Admin', 'Manager'];
 
 /** Mirrors expense.model.js. Internal cost data — access is the same
  *  SectionAccess ('expenses') mechanism as Payroll, not a static role list. */
-export const EXPENSE_CATEGORIES = ['Rent', 'Fuel', 'Salaries-external', 'Purchases', 'Utilities', 'Other'];
+export const EXPENSE_CATEGORIES = ['Rent', 'Fuel', 'Salaries-external', 'Purchases', 'Utilities', 'Staff Reimbursement', 'Other'];
 
 /** Mirrors subcontractor.model.js's status enum. Create/edit/delete (one
  *  circle) is the admin-configurable SectionAccess ('subcontractorsManage')

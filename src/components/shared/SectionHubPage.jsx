@@ -44,8 +44,15 @@ export default function SectionHubPage({ title, titleKey, description, descripti
               <Icon d={item.icon} size="md" />
             </div>
             <div>
-              <p className="font-semibold text-text group-hover:text-primary">
+              <p className="flex items-center gap-2 font-semibold text-text group-hover:text-primary">
                 {item.labelKey ? t(item.labelKey, item.label) : item.label}
+                {/* Optional, filled in by the calling hub page (e.g.
+                    FinancialHubPage's overdue-invoice count) — this
+                    component stays generic and knows nothing about what a
+                    badge count actually means for any given item. */}
+                {item.badgeCount > 0 && (
+                  <span className="rounded-full bg-danger/10 px-2 py-0.5 text-xs font-semibold text-danger">{item.badgeCount}</span>
+                )}
               </p>
               {item.description && (
                 <p className="mt-1 text-sm text-muted">

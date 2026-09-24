@@ -96,6 +96,7 @@ const PayrollListPage = lazy(() => import('../features/payroll/pages/PayrollList
 const PayrollRunPage = lazy(() => import('../features/payroll/pages/PayrollRunPage.jsx'));
 const InvoiceListPage = lazy(() => import('../features/invoices/pages/InvoiceListPage.jsx'));
 const InvoiceViewPage = lazy(() => import('../features/invoices/pages/InvoiceViewPage.jsx'));
+const CreditNoteListPage = lazy(() => import('../features/invoices/pages/CreditNoteListPage.jsx'));
 const ExpenseListPage = lazy(() => import('../features/expenses/pages/ExpenseListPage.jsx'));
 const AuditLogPage = lazy(() => import('../features/audit/pages/AuditLogPage.jsx'));
 const ReconciliationPage = lazy(() => import('../features/reconciliation/pages/ReconciliationPage.jsx'));
@@ -299,6 +300,7 @@ export const router = createBrowserRouter([
               { path: '/payroll/:id', element: guarded('payroll', <PayrollRunPage />) },
               { path: '/invoices', element: guarded('invoices', <InvoiceListPage />) },
               { path: '/invoices/:id', element: guarded('invoices', <InvoiceViewPage />) },
+              { path: '/credit-notes', element: guarded('invoices', <CreditNoteListPage />) },
               { path: '/expenses', element: guarded('expenses', <ExpenseListPage />) },
               { path: '/security-log', element: guarded('auditLog', <AuditLogPage />) },
               { path: '/reconciliation', element: guarded('reconciliation', <ReconciliationPage />) },

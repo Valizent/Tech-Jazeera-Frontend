@@ -12,6 +12,13 @@
  * by a fixed, read-only line instead of asking the user to pick them again.
  * Omit it (the normal ExpenseListPage flow) for the original picker-driven
  * behavior, unchanged.
+ *
+ * `duplicateFrom` (optional): a "recurring expense" convenience (rent,
+ * subscriptions, ...) — pre-fills every field from a past expense (except
+ * the date, reset to today) while `editing` stays `{}`, so saving creates a
+ * genuinely NEW record, never touching the original. Deliberately a manual,
+ * one-click prefill rather than a real recurrence scheduler — nothing about
+ * money should be created unattended.
  */
 import { useEffect, useRef, useState } from 'react';
 import { useForm, useWatch } from 'react-hook-form';
@@ -34,7 +41,7 @@ import PickerLoadWarning from '../../../components/shared/PickerLoadWarning.jsx'
 const RECEIPT_ACCEPT = '.pdf,.jpg,.jpeg,.png,.webp';
 const RECEIPT_MAX_MB = 10;
 
-export default function ExpenseFormModal({ open, editing, onClose, onSaved, lockedDeployment }) {
+export default function ExpenseFormModal({ open, editing, onClose, onSaved, lockedDeployment, duplicateFrom }) {
   const toast = useToast();
   const queryClient = useQueryClient();
   const fileInputRef = useRef(null);
@@ -53,13 +60,15 @@ export default function ExpenseFormModal({ open, editing, onClose, onSaved, lock
     resetFile();
     if (editing?._id) {
       reset(expenseToForm(editing));
+    } else if (duplicateFrom) {
+      reset({ ...expenseToForm(duplicateFrom), date: emptyExpenseForm.date });
     } else if (lockedDeployment) {
       reset({ ...emptyExpenseForm, client: lockedDeployment.client, deployment: lockedDeployment._id });
     } else {
       reset(emptyExpenseForm);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [open, editing, lockedDeployment]);
+  }, [open, editing, lockedDeployment, duplicateFrom]);
 
   const selectedClient = useWatch({ control, name: 'client' });
 

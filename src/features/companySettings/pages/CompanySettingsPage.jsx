@@ -115,6 +115,20 @@ export default function CompanySettingsPage() {
               <Field name="crNumber" label="CR number" register={register} errors={errors} />
               <Field name="vatNumber" label="VAT registration number" register={register} errors={errors} />
             </div>
+            {/* ZATCA e-invoicing Phase 1 needs a QR code on every invoice PDF,
+                which needs this VAT number — see invoice.pdf.js/zatcaQr.js.
+                Reflects the currently SAVED value, not an unsaved edit —
+                this describes what today's invoices actually do right now. */}
+            {settings.vatNumber ? (
+              <p className="mt-3 flex items-center gap-1.5 text-xs text-success">
+                <span aria-hidden="true">✓</span> ZATCA QR code is active on your invoice PDFs.
+              </p>
+            ) : (
+              <p className="mt-3 flex items-center gap-1.5 text-xs text-warning">
+                <span aria-hidden="true">⚠</span> No VAT registration number on file — invoices are being issued without the required ZATCA QR
+                code. Add it above to enable it.
+              </p>
+            )}
           </Card>
 
           <Card>

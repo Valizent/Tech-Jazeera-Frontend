@@ -3,7 +3,8 @@
  * reimbursement claims: approve/reject, download the receipt, then mark
  * paid once Accounts has actually reimbursed it.
  */
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
@@ -139,9 +140,17 @@ export default function ReimbursementReviewPanel() {
   const toast = useToast();
   const queryClient = useQueryClient();
   const canPay = FINANCIAL_REQUEST_MONEY_ROLES.includes(user.role);
-  const [status, setStatus] = useState('');
+  // Arriving from an Expense row's "Claim" tag (?claim=<id>) — that link
+  // only ever exists on an auto-created Expense, which only ever happens
+  // once the claim is Paid (see reimbursement.service.js's
+  // markReimbursementPaid), so defaulting the filter to Paid is always the
+  // right starting point, not a guess.
+  const [searchParams] = useSearchParams();
+  const highlightId = searchParams.get('claim');
+  const [status, setStatus] = useState(highlightId ? 'Paid' : '');
   const [downloadingId, setDownloadingId] = useState(null);
   const [confirming, setConfirming] = useState(null); // { claim, decision } or null
+  const highlightRef = useRef(null);
 
   const { data, isPending, isError, refetch } = useQuery({
     queryKey: ['financial-requests', 'reimbursements', { status }],
@@ -186,6 +195,14 @@ export default function ReimbursementReviewPanel() {
     }
   }
 
+  // Scrolls the deep-linked claim into view once it's actually in the
+  // loaded page — a no-op (and harmless) if it isn't on this page/filter.
+  useEffect(() => {
+    if (highlightId && highlightRef.current) {
+      highlightRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+  }, [highlightId, data]);
+
   return (
       <Card>
       <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
@@ -213,7 +230,13 @@ export default function ReimbursementReviewPanel() {
       ) : (
         <div className="divide-y divide-border">
           {data.items.map((c) => (
-            <div key={c._id} className="flex flex-wrap items-start justify-between gap-3 py-3 text-sm">
+            <div
+              key={c._id}
+              ref={c._id === highlightId ? highlightRef : null}
+              className={`flex flex-wrap items-start justify-between gap-3 rounded-lg py-3 text-sm ${
+                c._id === highlightId ? 'ring-2 ring-primary/50 bg-primary/5 px-2' : ''
+              }`}
+            >
               <div className="min-w-0">
                 <p className="font-medium">
                   {c.employee?.fullName} <span className="font-normal text-muted">({c.employee?.employeeId})</span>

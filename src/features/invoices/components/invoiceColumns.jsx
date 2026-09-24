@@ -10,6 +10,14 @@ import Badge from '../../../components/ui/Badge.jsx';
 import Button from '../../../components/ui/Button.jsx';
 import InvoicePdfButton from './InvoicePdfButton.jsx';
 
+/** Derived purely from data the list already has (dueDate + status) — no
+ *  backend flag needed just to color a badge. The real, once-per-invoice
+ *  "you're now overdue" notification is a separate concern, handled by
+ *  overdueInvoice.job.js server-side. */
+function isOverdue(inv) {
+  return inv.status !== 'Paid' && inv.dueDate && new Date(inv.dueDate) < new Date();
+}
+
 export function buildInvoiceColumns({ showClient = false, t } = {}) {
   return [
     {
@@ -23,7 +31,17 @@ export function buildInvoiceColumns({ showClient = false, t } = {}) {
     },
     ...(showClient ? [{ key: 'clientName', header: t('staffInvoices.columns.client'), render: (inv) => inv.clientName }] : []),
     { key: 'date', header: t('staffInvoices.columns.date'), hideOnMobile: true, render: (inv) => formatDate(inv.date) },
-    { key: 'dueDate', header: t('staffInvoices.columns.due'), hideOnMobile: true, render: (inv) => formatDate(inv.dueDate) },
+    {
+      key: 'dueDate',
+      header: t('staffInvoices.columns.due'),
+      hideOnMobile: true,
+      render: (inv) => (
+        <span className="flex items-center gap-1.5">
+          {formatDate(inv.dueDate)}
+          {isOverdue(inv) && <Badge variant="danger">{t('staffInvoices.columns.overdue')}</Badge>}
+        </span>
+      ),
+    },
     {
       key: 'status',
       header: t('staffInvoices.columns.status'),

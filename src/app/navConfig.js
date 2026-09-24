@@ -46,6 +46,7 @@ const ICON = {
     'M21 12a2.25 2.25 0 00-2.25-2.25H15a3 3 0 11-6 0H5.25A2.25 2.25 0 003 12m18 0v6a2.25 2.25 0 01-2.25 2.25H5.25A2.25 2.25 0 013 18v-6m18 0V9M3 12V9m18 0a2.25 2.25 0 00-2.25-2.25H5.25A2.25 2.25 0 003 9m18 0V6.75A2.25 2.25 0 0018.75 4.5H5.25A2.25 2.25 0 003 6.75V9',
   financialRequest:
     'M12 7.5h1.5m-1.5 3h1.5m-7.5 3h7.5m-7.5 3h7.5m3-9h3.375c.621 0 1.125.504 1.125 1.125V18a2.25 2.25 0 01-2.25 2.25M16.5 7.5V18a2.25 2.25 0 002.25 2.25M16.5 7.5V4.875c0-.621-.504-1.125-1.125-1.125H4.125C3.504 3.75 3 4.254 3 4.875V18a2.25 2.25 0 002.25 2.25h13.5M6 7.5h3v3H6v-3z',
+  creditNote: 'M9 15L3 9m0 0l6-6M3 9h12a6 6 0 010 12h-3',
   document:
     'M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z',
   asset:
@@ -146,6 +147,7 @@ export const NAV_GROUPS = [
     descriptionKey: 'staffNav.financial.description',
     items: [
       { to: '/invoices', label: 'Invoices', icon: ICON.invoice, sectionKey: 'invoices', description: 'Billed to clients, payments tracked.', labelKey: 'staffNav.financial.invoices.label', descriptionKey: 'staffNav.financial.invoices.description' },
+      { to: '/credit-notes', label: 'Credit Notes', icon: ICON.creditNote, sectionKey: 'invoices', description: 'Corrections issued against billed invoices.', labelKey: 'staffNav.financial.creditNotes.label', descriptionKey: 'staffNav.financial.creditNotes.description' },
       // No static roles gate — access is the admin-configurable Section
       // Access mechanism (see docs/SECTION-ACCESS-notes.md); visible to
       // every staff role that reaches this hub, page 403s if not granted —

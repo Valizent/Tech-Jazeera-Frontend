@@ -13,6 +13,7 @@ export const payrollLineFormSchema = z.object({
   otherAllowances: z.string().optional().or(z.literal('')),
   gosiDeduction: z.string().optional().or(z.literal('')),
   otherDeductions: z.array(deductionLineSchema),
+  advanceRepaymentAmount: z.string().optional().or(z.literal('')),
 });
 
 export function lineToForm(line) {
@@ -20,6 +21,7 @@ export function lineToForm(line) {
     otherAllowances: line.otherAllowances ? String(line.otherAllowances) : '',
     gosiDeduction: line.gosiDeduction ? String(line.gosiDeduction) : '',
     otherDeductions: (line.otherDeductions ?? []).map((d) => ({ label: d.label, amount: String(d.amount) })),
+    advanceRepaymentAmount: line.advanceRepayment?.advance ? String(line.advanceRepayment.amount) : '',
   };
 }
 
@@ -28,5 +30,6 @@ export function formToLinePayload(values) {
     otherAllowances: values.otherAllowances || 0,
     gosiDeduction: values.gosiDeduction || 0,
     otherDeductions: values.otherDeductions.map((d) => ({ label: d.label, amount: Number(d.amount) })),
+    advanceRepaymentAmount: values.advanceRepaymentAmount === '' ? undefined : Number(values.advanceRepaymentAmount),
   };
 }

@@ -10,7 +10,9 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { getInvoice, recordPayment, deleteInvoice } from '../invoices.api.js';
+import { listCreditNotes, downloadCreditNotePdf } from '../creditNotes.api.js';
 import InvoicePdfButton from '../components/InvoicePdfButton.jsx';
+import CreditNoteFormModal from '../components/CreditNoteFormModal.jsx';
 import { paymentFormSchema, emptyPaymentForm } from '../invoices.schema.js';
 import { useAuth } from '../../auth/AuthContext.jsx';
 import { apiMessage, formatDate, formatMoney, lineAmount } from '../../../lib/utils.js';
@@ -44,11 +46,31 @@ export default function InvoiceViewPage() {
 
   const [recordingPayment, setRecordingPayment] = useState(false);
   const [confirmingDelete, setConfirmingDelete] = useState(false);
+  const [issuingCreditNote, setIssuingCreditNote] = useState(false);
+  const [downloadingCreditNoteId, setDownloadingCreditNoteId] = useState(null);
 
   const { data: inv, isPending, isError } = useQuery({
     queryKey: ['invoice', id],
     queryFn: () => getInvoice(id),
   });
+
+  const { data: creditNotesData } = useQuery({
+    queryKey: ['credit-notes', id],
+    queryFn: () => listCreditNotes(id),
+    enabled: Boolean(inv),
+  });
+  const creditNotes = creditNotesData?.items ?? [];
+
+  async function handleDownloadCreditNote(cn) {
+    setDownloadingCreditNoteId(cn._id);
+    try {
+      await downloadCreditNotePdf(cn._id, cn.creditNoteNumber);
+    } catch (error) {
+      toast.error(apiMessage(error, t('staffInvoices.pdfButton.failedToast')));
+    } finally {
+      setDownloadingCreditNoteId(null);
+    }
+  }
 
   const {
     register,
@@ -117,6 +139,11 @@ export default function InvoiceViewPage() {
               {t(`common.status.${inv.status}`, inv.status)}
             </Badge>
             <InvoicePdfButton id={inv._id} number={inv.invoiceNumber} />
+            {canWrite && inv.creditedTotal < inv.grandTotal && (
+              <Button variant="secondary" onClick={() => setIssuingCreditNote(true)}>
+                {t('staffInvoices.creditNotes.issueButton')}
+              </Button>
+            )}
             {inv.status !== 'Paid' && canWrite && <Button onClick={openRecordPayment}>{t('staffInvoices.view.recordPayment')}</Button>}
             {canDelete && inv.payments.length === 0 && (
               <Button variant="danger" onClick={() => setConfirmingDelete(true)}>
@@ -128,6 +155,7 @@ export default function InvoiceViewPage() {
       />
 
       <Card className="space-y-5">
+        {inv.clientVatNumber && <p className="text-xs text-muted">{t('staffInvoices.view.clientVat', { number: inv.clientVatNumber })}</p>}
         <div className="flex flex-wrap gap-x-8 gap-y-2 text-sm">
           <div>
             <span className="block text-xs uppercase tracking-wide text-muted">{t('staffInvoices.view.date')}</span>
@@ -191,6 +219,12 @@ export default function InvoiceViewPage() {
             <span>{t('staffQuotations.totals.grandTotal')}</span>
             <span className="tabular-nums">{formatMoney(inv.grandTotal)}</span>
           </div>
+          {inv.creditedTotal > 0 && (
+            <div className="flex justify-between text-muted">
+              <span>{t('staffInvoices.view.creditedLabel')}</span>
+              <span className="tabular-nums">−{formatMoney(inv.creditedTotal)}</span>
+            </div>
+          )}
           <div className="flex justify-between text-muted">
             <span>{t('staffInvoices.view.paid')}</span>
             <span className="tabular-nums">{formatMoney(inv.amountPaid)}</span>
@@ -208,6 +242,31 @@ export default function InvoiceViewPage() {
           </div>
         )}
       </Card>
+
+      <div className="mt-6">
+        <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-muted">{t('staffInvoices.creditNotes.title')}</h2>
+        {creditNotes.length === 0 ? (
+          <EmptyState title={t('staffInvoices.creditNotes.emptyTitle')} description={t('staffInvoices.creditNotes.emptyDescription')} />
+        ) : (
+          <Card className="divide-y divide-border">
+            {creditNotes.map((cn) => (
+              <div key={cn._id} className="flex items-center justify-between gap-3 py-2.5 text-sm">
+                <div>
+                  <p className="font-medium">
+                    {cn.creditNoteNumber} — {formatMoney(cn.grandTotal)}
+                  </p>
+                  <p className="text-xs text-muted">
+                    {formatDate(cn.date)} · {cn.reason}
+                  </p>
+                </div>
+                <Button size="sm" variant="ghost" isLoading={downloadingCreditNoteId === cn._id} onClick={() => handleDownloadCreditNote(cn)}>
+                  {t('staffInvoices.pdfButton.label')}
+                </Button>
+              </div>
+            ))}
+          </Card>
+        )}
+      </div>
 
       <div className="mt-6">
         <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-muted">{t('staffInvoices.view.paymentsTitle')}</h2>
@@ -259,6 +318,8 @@ export default function InvoiceViewPage() {
         onConfirm={() => deleteMutation.mutate()}
         onCancel={() => setConfirmingDelete(false)}
       />
+
+      <CreditNoteFormModal open={issuingCreditNote} invoice={inv} onClose={() => setIssuingCreditNote(false)} />
     </div>
   );
 }
