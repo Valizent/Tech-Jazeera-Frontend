@@ -34,6 +34,7 @@ import StandbyAnalysisWidget from '../components/StandbyAnalysisWidget.jsx';
 import DailyAttendanceSummary from '../components/DailyAttendanceSummary.jsx';
 import DirectoryStatsWidget from '../components/DirectoryStatsWidget.jsx';
 import HrComplianceWidget from '../components/HrComplianceWidget.jsx';
+import MyRequirementsWidget from '../components/MyRequirementsWidget.jsx';
 import SystemLogsWidget from '../components/SystemLogsWidget.jsx';
 import ActiveRevenueWidget from '../components/ActiveRevenueWidget.jsx';
 import ActualPerformanceWidget from '../components/ActualPerformanceWidget.jsx';
@@ -138,7 +139,7 @@ export default function DashboardPage() {
     );
   }
 
-  const { stats, finance, quotationsByStatus, expiringDocuments, recentActivity, myPendingActions, mobilisationsByStatus, activeSubcontractors, attendanceSummary, pendingLeave, pendingExit } =
+  const { stats, finance, quotationsByStatus, expiringDocuments, recentActivity, myPendingActions, mobilisationsByStatus, activeSubcontractors, attendanceSummary, pendingLeave, pendingExit, myRequirementsSummary } =
     data;
 
   return (
@@ -210,55 +211,71 @@ export default function DashboardPage() {
           ask) — see ActualPerformanceWidget's own doc comment. */}
       {finance.actualPerformance != null && <ActualPerformanceWidget performance={finance.actualPerformance} />}
 
-      {(attendanceSummary != null || activeSubcontractors != null) && (
-        <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-          {attendanceSummary != null && (
-            <DailyAttendanceSummary summary={attendanceSummary} />
+      {/* Row pairing is role-aware (2026-09-24, a real user report): every row below used
+          to pair one Coordinator-visible widget with one Admin/Manager-only widget
+          (DailyAttendanceSummary needs attendanceRecords, StandbyAnalysisWidget needs
+          payroll, the Leaderboard/Global Pipeline need mobilisationsViewer — a Coordinator
+          has none of these by default), so for every Coordinator login the "other half" of
+          nearly every row was silently empty — not a CSS bug, a content-pairing one. A
+          Coordinator now gets rows built entirely from widgets that are actually theirs;
+          everyone else keeps the original pairing untouched. Any of these grants CAN be
+          extended to a Coordinator via Section Access, so the plain fallbacks below still
+          render full-width in that case instead of dropping the data. */}
+      {isCoordinator ? (
+        <>
+          {(activeSubcontractors != null || myTarget) && (
+            <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+              {activeSubcontractors != null && (
+                <DirectoryStatsWidget activeClients={stats.activeClients} activeSubcontractors={activeSubcontractors} />
+              )}
+              {myTarget && <MobilisationTargetCard target={myTarget} />}
+            </div>
           )}
-          {activeSubcontractors != null && (
-            <DirectoryStatsWidget activeClients={stats.activeClients} activeSubcontractors={activeSubcontractors} />
+          {(pendingLeave != null || pendingExit != null || myRequirementsSummary != null) && (
+            <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+              {(pendingLeave != null || pendingExit != null) && (
+                <HrComplianceWidget pendingLeave={pendingLeave} pendingExit={pendingExit} />
+              )}
+              {myRequirementsSummary != null && <MyRequirementsWidget summary={myRequirementsSummary} />}
+            </div>
           )}
-        </div>
-      )}
-
-      {/* FIX (2026-09-22): this block used to be wrapped in a hardcoded
-          `user.role === 'Manager' || 'Admin'` check — StandbyAnalysisWidget was ALSO
-          (coincidentally) keyed off `attendanceSummary`'s own null-check, an unrelated
-          proxy gate. Each child now renders off its own real signal: canSeeStandbyAnalysis
-          (mirrors the server's own `payroll` gate). HrComplianceWidget pairs here as of
-          2026-09-24 (swapped with Global Mobilisation Pipeline below per the user's own
-          ask) — both are workforce/HR-flavoured, a more coherent pairing than before. */}
-      {(canSeeStandbyAnalysis || pendingLeave != null || pendingExit != null) && (
-        <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+          {attendanceSummary != null && <DailyAttendanceSummary summary={attendanceSummary} />}
           {canSeeStandbyAnalysis && <StandbyAnalysisWidget />}
-          {(pendingLeave != null || pendingExit != null) && (
-            <HrComplianceWidget pendingLeave={pendingLeave} pendingExit={pendingExit} />
+        </>
+      ) : (
+        <>
+          {(attendanceSummary != null || activeSubcontractors != null) && (
+            <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+              {attendanceSummary != null && (
+                <DailyAttendanceSummary summary={attendanceSummary} />
+              )}
+              {activeSubcontractors != null && (
+                <DirectoryStatsWidget activeClients={stats.activeClients} activeSubcontractors={activeSubcontractors} />
+              )}
+            </div>
           )}
-        </div>
-      )}
-
-      {/* Coordinator's own target, or (everyone else) the Mobilisation Leaderboard —
-          mutually exclusive by role — paired with Global Mobilisation Pipeline in the
-          same row (2026-09-24, swapped with HR Compliance Actions per the user's own
-          ask): both mobilisation-flavoured, a more coherent pairing than before, and
-          neither sits alone as a full-width block. Coordinator Mobilisation Leaderboard
-          (2026-09-22) is gated the same as the Global mobilisation pipeline widget right
-          next to it (mobilisationsViewer read) — MM/GM/FM/COO/Admin see every real
-          coordinator without needing target-management rights. */}
-      {((isCoordinator && myTarget) || (!isCoordinator && mobilisationsByStatus != null)) && (
-        <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-          {isCoordinator && myTarget && <MobilisationTargetCard target={myTarget} />}
-          {!isCoordinator && mobilisationsByStatus != null && (
-            <>
+          {(canSeeStandbyAnalysis || pendingLeave != null || pendingExit != null) && (
+            <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+              {canSeeStandbyAnalysis && <StandbyAnalysisWidget />}
+              {(pendingLeave != null || pendingExit != null) && (
+                <HrComplianceWidget pendingLeave={pendingLeave} pendingExit={pendingExit} />
+              )}
+            </div>
+          )}
+          {/* Mobilisation Leaderboard + Global Pipeline — mobilisationsViewer-gated,
+              never rendered for a Coordinator (their own pipeline is the
+              isCoordinator-only StatusBreakdown further down). */}
+          {mobilisationsByStatus != null && (
+            <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
               <CoordinatorLeaderboardWidget />
               <StatusBreakdown
                 title={t('staffDashboard.globalPipelineTitle')}
                 data={mobilisationsByStatus}
                 colors={{ Draft: 'default', Submitted: 'warning', Approved: 'primary', Deployed: 'success', Rejected: 'danger' }}
               />
-            </>
+            </div>
           )}
-        </div>
+        </>
       )}
 
       {/* Breakdowns — these two are mutually exclusive by role (quotationsByStatus is

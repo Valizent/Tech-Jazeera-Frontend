@@ -26,6 +26,14 @@ const compactMoney = (n) => `⃁${new Intl.NumberFormat('en-US', { notation: 'co
 const RING_R = 54;          // SVG circle radius
 const RING_CIRCUMFERENCE = 2 * Math.PI * RING_R;
 
+// Continuous red → orange → yellow → green as progress goes 0 → 1 (hue 0 → 120
+// on the color wheel) — 2026-09-24, a real user report: at low progress the
+// ring/bar used the same neutral primary color regardless of how far behind
+// the coordinator was, so a genuinely bad 5% looked no different from 50%.
+// `hit` (>=100%) keeps its own existing gold celebration treatment below,
+// which this scale leads into rather than replaces.
+const progressColor = (progress) => `hsl(${Math.round(progress * 120)}, 85%, 45%)`;
+
 const CONFETTI_COLORS = [
   '#f59e0b', '#10b981', '#6366f1', '#ec4899',
   '#f97316', '#06b6d4', '#84cc16', '#a855f7',
@@ -87,6 +95,7 @@ export default function MobilisationTargetCard({ target }) {
   const { achieved, remaining, target: targetCount, incentivePercent, month } = target;
   const progress = Math.min(achieved / targetCount, 1);
   const strokeDashoffset = RING_CIRCUMFERENCE * (1 - progress);
+  const color = hit ? '#f59e0b' : progressColor(progress);
 
   // Format month label e.g. "2026-09" → "September 2026" — left in English deliberately,
   // same documented scope boundary every other date/number format in this app already
@@ -155,7 +164,7 @@ export default function MobilisationTargetCard({ target }) {
                 cy="60"
                 r={RING_R}
                 fill="none"
-                stroke={hit ? '#f59e0b' : 'var(--color-primary)'}
+                stroke={color}
                 strokeWidth="10"
                 strokeLinecap="round"
                 strokeDasharray={RING_CIRCUMFERENCE}
@@ -224,11 +233,11 @@ export default function MobilisationTargetCard({ target }) {
                 className="h-full rounded-full transition-all duration-700"
                 style={{
                   width: `${progress * 100}%`,
-                  backgroundColor: hit ? '#f59e0b' : 'var(--color-primary)',
+                  backgroundColor: color,
                 }}
               />
             </div>
-            <p className="mt-1 text-right text-xs tabular-nums text-muted">
+            <p className="mt-1 text-right text-xs font-semibold tabular-nums transition-colors duration-700" style={{ color }}>
               {Math.round(progress * 100)}%
             </p>
           </div>

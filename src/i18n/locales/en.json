@@ -584,6 +584,12 @@
         "pendingLeave": "Pending leave",
         "pendingExits": "Pending exits"
       },
+      "myRequirements": {
+        "title": "My requirements",
+        "viewBoard": "View board →",
+        "openCards": "Open cards",
+        "emptyDescription": "No open requirement cards right now."
+      },
       "standby": {
         "title": "Standby workforce analysis",
         "subtitle": "Everyone currently free to mobilise, with an idle-cost estimate where the company pays them a salary.",
