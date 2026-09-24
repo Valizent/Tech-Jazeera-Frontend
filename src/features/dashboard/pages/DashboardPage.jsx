@@ -198,8 +198,11 @@ export default function DashboardPage() {
 
       <MyPendingActions items={myPendingActions} />
 
-      {(pendingLeave != null || pendingExit != null) && (
-        <HrComplianceWidget pendingLeave={pendingLeave} pendingExit={pendingExit} />
+      {/* Full-width, swapped with HrComplianceWidget 2026-09-24 (the user's own ask) —
+          Active Mobilisation Revenue now leads the page instead of sitting in a half-width
+          slot near the bottom; HrComplianceWidget took its old paired-grid spot below. */}
+      {finance.activeMobilisationRevenue != null && (
+        <ActiveRevenueWidget revenue={finance.activeMobilisationRevenue} trend={finance.activeMobilisationRevenueTrend} />
       )}
 
       {(attendanceSummary != null || activeSubcontractors != null) && (
@@ -234,18 +237,19 @@ export default function DashboardPage() {
       )}
 
       {/* Coordinator's own target, or (everyone else) the Mobilisation Leaderboard —
-          mutually exclusive by role — paired with Active Mobilisation Revenue in the
-          same row (2026-09-24, a real user ask): neither sits alone as a full-width
-          block, and Revenue moved up from the very bottom of the page to right here,
-          next to the figure it's a companion to. Coordinator Mobilisation Leaderboard
+          mutually exclusive by role — paired with HR Compliance Actions in the same row
+          (2026-09-24, swapped with Active Mobilisation Revenue per the user's own ask):
+          neither sits alone as a full-width block. Coordinator Mobilisation Leaderboard
           (2026-09-22) is gated the same as the Global mobilisation pipeline widget
           above it (mobilisationsViewer read) — MM/GM/FM/COO/Admin see every real
           coordinator without needing target-management rights. */}
-      {((isCoordinator && myTarget) || (!isCoordinator && mobilisationsByStatus != null) || finance.activeMobilisationRevenue != null) && (
+      {((isCoordinator && myTarget) || (!isCoordinator && mobilisationsByStatus != null) || pendingLeave != null || pendingExit != null) && (
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
           {isCoordinator && myTarget && <MobilisationTargetCard target={myTarget} />}
           {!isCoordinator && mobilisationsByStatus != null && <CoordinatorLeaderboardWidget />}
-          {finance.activeMobilisationRevenue != null && <ActiveRevenueWidget revenue={finance.activeMobilisationRevenue} />}
+          {(pendingLeave != null || pendingExit != null) && (
+            <HrComplianceWidget pendingLeave={pendingLeave} pendingExit={pendingExit} />
+          )}
         </div>
       )}
 
