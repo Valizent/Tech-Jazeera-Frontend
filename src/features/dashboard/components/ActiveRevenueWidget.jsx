@@ -71,7 +71,7 @@ function Sparkline({ trend }) {
       <svg
         ref={svgRef}
         viewBox={`0 0 ${SPARK_WIDTH} ${SPARK_HEIGHT}`}
-        className="h-16 w-full max-w-xs cursor-crosshair"
+        className="h-16 w-full max-w-xs cursor-pointer"
         preserveAspectRatio="none"
         role="img"
         aria-label={trend.map((t) => `${t.month}: ${t.revenue}`).join(', ')}
