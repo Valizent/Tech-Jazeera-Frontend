@@ -1564,6 +1564,15 @@
         "status": "الحالة"
       },
       "totalProfit": "إجمالي الربح",
+      "sectionExpenses": "المصاريف",
+      "expensesHint": "التكاليف التشغيلية الفعلية لهذه التعبئة — الوقود والسكن وما شابه — بالإضافة إلى الإيراد والمصاريف وصافي الربح الفعلي (من جداول الدوام المعتمدة) أدناه.",
+      "addExpense": "إضافة مصروف",
+      "expensesLoadFailed": "تعذر تحميل مصاريف هذه التعبئة.",
+      "approvedRevenue": "الإيراد المعتمد",
+      "expensesTotal": "المصاريف",
+      "netProfitApproved": "صافي الربح",
+      "noExpensesYet": "لا توجد مصاريف مسجلة بعد",
+      "noExpensesYetDescription": "سجّل تكلفة حقيقية لهذه التعبئة — وقود، سكن، وما شابه.",
       "hoursStatus": {
         "Pending": "قيد الانتظار",
         "Approved": "تمت الموافقة",

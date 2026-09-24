@@ -38,6 +38,7 @@ import Textarea from '../../../components/ui/Textarea.jsx';
 import Modal from '../../../components/ui/Modal.jsx';
 import Skeleton from '../../../components/ui/Skeleton.jsx';
 import EmptyState from '../../../components/ui/EmptyState.jsx';
+import DeploymentExpensesSection from '../components/DeploymentExpensesSection.jsx';
 
 function monthStrOf(date) {
   const d = new Date(date);
@@ -725,6 +726,8 @@ export default function DeploymentDetailPage() {
           <p className="text-sm text-muted">{t('staffDeployments.detail.noEligibleMonth')}</p>
         )}
       </Card>
+
+      <DeploymentExpensesSection deployment={deployment} />
 
       <Modal
         open={Boolean(editingEntry)}

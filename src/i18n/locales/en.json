@@ -1564,6 +1564,15 @@
         "status": "Status"
       },
       "totalProfit": "Total profit",
+      "sectionExpenses": "Expenses",
+      "expensesHint": "Real operational costs against this deployment — fuel, accommodation, and the like — plus its own Approved-timesheet Revenue/Expenses/Net Profit below.",
+      "addExpense": "Add expense",
+      "expensesLoadFailed": "Could not load this deployment's expenses.",
+      "approvedRevenue": "Approved revenue",
+      "expensesTotal": "Expenses",
+      "netProfitApproved": "Net profit",
+      "noExpensesYet": "No expenses recorded yet",
+      "noExpensesYetDescription": "Log a real cost against this deployment — fuel, accommodation, and the like.",
       "hoursStatus": {
         "Pending": "Pending",
         "Approved": "Approved",
