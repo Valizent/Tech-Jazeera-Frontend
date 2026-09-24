@@ -17,11 +17,17 @@
  * (4) "Overview" — a full-width modal showing EVERY deployment (not just
  * this page's filtered/paginated slice) in one spreadsheet-style table,
  * every column the Excel export itself has, each with its own Excel-style
- * column filter — see DeploymentOverviewModal.jsx.
+ * column filter — see DeploymentOverviewModal.jsx. Deep-linkable via
+ * `?overview=1` (2026-09-24, the user's own ask — a dashboard card should
+ * land straight in the spreadsheet view, not just the plain register) —
+ * same "sync open-state with a URL param" precedent TABS-notes.md's own
+ * `useTabParam` already established for this app; the param is stripped
+ * (via `replace`) the moment the modal opens so it doesn't linger and
+ * force itself back open on a later back-navigation.
  */
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { keepPreviousData, useMutation, useQuery } from '@tanstack/react-query';
 import { listDeployments, downloadDeploymentsExport } from '../deployments.api.js';
 import { listClients } from '../../clients/clients.api.js';
@@ -45,6 +51,19 @@ export default function DeploymentListPage() {
   const navigate = useNavigate();
   const toast = useToast();
   const [overviewOpen, setOverviewOpen] = useState(false);
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  // Deep-link support — see this file's own header comment.
+  useEffect(() => {
+    if (searchParams.get('overview') === '1') {
+      setOverviewOpen(true);
+      setSearchParams((prev) => {
+        prev.delete('overview');
+        return prev;
+      }, { replace: true });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const [params, setParams] = useState({
     page: 1,

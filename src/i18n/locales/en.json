@@ -561,7 +561,8 @@
         "titleMine": "Your active mobilisation revenue",
         "titleCompany": "Company active mobilisation revenue",
         "hint": "Based on mobilisations active at any point this month",
-        "vsLastMonth": "vs. last month"
+        "vsLastMonth": "vs. last month",
+        "viewDeployments": "View deployments overview"
       },
       "dailyAttendance": {
         "title": "Daily attendance"

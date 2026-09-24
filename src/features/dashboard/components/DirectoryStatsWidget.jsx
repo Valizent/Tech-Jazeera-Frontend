@@ -28,8 +28,12 @@ function StatTile({ to, value, label }) {
       }`}
     >
       {to && (
+        // `end-4`, not `right-4` (2026-09-24, the same real RTL gap found and
+        // fixed on ActiveRevenueWidget — see its own doc comment for why a
+        // physical offset doesn't follow `dir` the way this app's normal
+        // flex/text-flow content does).
         <svg
-          className="absolute right-4 top-4 h-3.5 w-3.5 text-muted opacity-0 transition-opacity group-hover:opacity-100"
+          className="absolute end-4 top-4 h-3.5 w-3.5 text-muted opacity-0 transition-opacity group-hover:opacity-100"
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24"
