@@ -137,7 +137,7 @@ export default function DashboardPage() {
     );
   }
 
-  const { stats, finance, workforceByStatus, quotationsByStatus, expiringDocuments, recentActivity, myPendingActions, mobilisationsByStatus, activeSubcontractors, attendanceSummary, pendingLeave, pendingExit } =
+  const { stats, finance, quotationsByStatus, expiringDocuments, recentActivity, myPendingActions, mobilisationsByStatus, activeSubcontractors, attendanceSummary, pendingLeave, pendingExit } =
     data;
 
   return (
@@ -233,46 +233,40 @@ export default function DashboardPage() {
         </div>
       )}
 
-      {/* Coordinator Mobilisation Leaderboard (2026-09-22) — same gate as the Global
-          mobilisation pipeline widget right above it (mobilisationsViewer read), not
-          isolated inside Manage Targets, so MM/GM/FM/COO/Admin see every real
-          coordinator here without needing target-management rights. */}
-      {!isCoordinator && mobilisationsByStatus != null && <CoordinatorLeaderboardWidget />}
-
-      {/* Coordinator's own monthly target — hidden if no target set */}
-      {isCoordinator && myTarget !== undefined && (
-        <MobilisationTargetCard target={myTarget} />
-      )}
-
-      {finance.activeMobilisationRevenue != null && (
-        <ActiveRevenueWidget revenue={finance.activeMobilisationRevenue} />
-      )}
-
-      {/* Breakdowns */}
-      {(workforceByStatus != null || quotationsByStatus != null || (isCoordinator && mobilisationsByStatus != null)) && (
+      {/* Coordinator's own target, or (everyone else) the Mobilisation Leaderboard —
+          mutually exclusive by role — paired with Active Mobilisation Revenue in the
+          same row (2026-09-24, a real user ask): neither sits alone as a full-width
+          block, and Revenue moved up from the very bottom of the page to right here,
+          next to the figure it's a companion to. Coordinator Mobilisation Leaderboard
+          (2026-09-22) is gated the same as the Global mobilisation pipeline widget
+          above it (mobilisationsViewer read) — MM/GM/FM/COO/Admin see every real
+          coordinator without needing target-management rights. */}
+      {((isCoordinator && myTarget) || (!isCoordinator && mobilisationsByStatus != null) || finance.activeMobilisationRevenue != null) && (
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-          {workforceByStatus != null && (
-            <StatusBreakdown
-              title={isCoordinator ? t('staffDashboard.yourTeamByStatus') : t('staffDashboard.workforceByStatus')}
-              data={workforceByStatus}
-              colors={{ Active: 'success', 'On Leave': 'warning', Exited: 'default' }}
-            />
-          )}
-          {quotationsByStatus != null && (
-            <StatusBreakdown
-              title={t('staffDashboard.quotationsByStatus')}
-              data={quotationsByStatus}
-              colors={{ Draft: 'default', Approved: 'success', Rejected: 'danger' }}
-            />
-          )}
-          {isCoordinator && mobilisationsByStatus != null && (
-            <StatusBreakdown
-              title={t('staffDashboard.myPipelineTitle')}
-              data={mobilisationsByStatus}
-              colors={{ Draft: 'default', Submitted: 'warning', Approved: 'primary', Deployed: 'success', Rejected: 'danger' }}
-            />
-          )}
+          {isCoordinator && myTarget && <MobilisationTargetCard target={myTarget} />}
+          {!isCoordinator && mobilisationsByStatus != null && <CoordinatorLeaderboardWidget />}
+          {finance.activeMobilisationRevenue != null && <ActiveRevenueWidget revenue={finance.activeMobilisationRevenue} />}
         </div>
+      )}
+
+      {/* Breakdowns — these two are mutually exclusive by role (quotationsByStatus is
+          always null for a Coordinator server-side; the coordinator pipeline only ever
+          renders for one), so there's never a real second card to pair either with —
+          full width each, no 2-col grid (removed 2026-09-24 alongside Workforce by
+          status, below, which used to be the thing on the other side of this grid). */}
+      {quotationsByStatus != null && (
+        <StatusBreakdown
+          title={t('staffDashboard.quotationsByStatus')}
+          data={quotationsByStatus}
+          colors={{ Draft: 'default', Approved: 'success', Rejected: 'danger' }}
+        />
+      )}
+      {isCoordinator && mobilisationsByStatus != null && (
+        <StatusBreakdown
+          title={t('staffDashboard.myPipelineTitle')}
+          data={mobilisationsByStatus}
+          colors={{ Draft: 'default', Submitted: 'warning', Approved: 'primary', Deployed: 'success', Rejected: 'danger' }}
+        />
       )}
 
       {/* Alerts + activity — ExpiringDocuments always renders (it's a list

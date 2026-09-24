@@ -524,8 +524,6 @@
       "revenueMinusPayrollMinusExpenses": "الإيرادات − الرواتب − المصروفات",
       "last6Months": "آخر 6 أشهر"
     },
-    "workforceByStatus": "القوى العاملة حسب الحالة",
-    "yourTeamByStatus": "فريقك حسب الحالة",
     "quotationsByStatus": "عروض الأسعار حسب الحالة",
     "noDataYet": "لا توجد بيانات بعد.",
     "expiringDocuments": {
@@ -590,6 +588,7 @@
         "mobilisations": "التعبئات",
         "estProfit": "الربح التقديري",
         "loadFailed": "لوحة تصنيف المنسقين",
+        "viewAll": "عرض التعبئات ←",
         "emptyTitle": "لا يوجد منسقون بعد",
         "emptyDescription": "ستظهر حسابات المنسقين هنا بمجرد إنشائها."
       },

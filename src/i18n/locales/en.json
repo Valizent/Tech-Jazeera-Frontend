@@ -524,8 +524,6 @@
       "revenueMinusPayrollMinusExpenses": "Revenue − payroll − expenses",
       "last6Months": "Last 6 months"
     },
-    "workforceByStatus": "Workforce by status",
-    "yourTeamByStatus": "Your team by status",
     "quotationsByStatus": "Quotations by status",
     "noDataYet": "No data yet.",
     "expiringDocuments": {
@@ -595,6 +593,7 @@
         "mobilisations": "Mobilisations",
         "estProfit": "Est. profit",
         "loadFailed": "the coordinator leaderboard",
+        "viewAll": "View mobilisations →",
         "emptyTitle": "No coordinators yet",
         "emptyDescription": "Coordinator logins will appear here once created."
       }

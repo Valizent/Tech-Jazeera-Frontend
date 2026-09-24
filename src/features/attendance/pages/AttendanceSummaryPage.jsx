@@ -19,8 +19,14 @@ export default function AttendanceSummaryPage() {
         // Fixed destination, not browser history — this page is only ever
         // reached from the Dashboard's "Marked today" stat (see the file
         // comment), so "back" here means the related Attendance page, not
-        // wherever the visitor actually came from.
-        onBack={() => navigate('/attendance')}
+        // wherever the visitor actually came from. `replace: true` (fixed
+        // 2026-09-24, a real user-reported loop): AttendancePage's own back
+        // button uses plain history (`navigate(-1)`) — a normal (pushing)
+        // navigate() here left BOTH pages on the stack, so its "back" landed
+        // right back on this page. Replacing this entry means there's only
+        // ever one /attendance in the stack, so its own back correctly goes
+        // past it to wherever this page's own visitor really came from.
+        onBack={() => navigate('/attendance', { replace: true })}
       />
       <SummaryTab />
     </div>

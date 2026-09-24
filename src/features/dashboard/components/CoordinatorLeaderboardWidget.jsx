@@ -17,6 +17,7 @@
  * a second drill-down.
  */
 import { useMemo, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useQuery } from '@tanstack/react-query';
 import Card from '../../../components/ui/Card.jsx';
@@ -89,9 +90,17 @@ export default function CoordinatorLeaderboardWidget() {
 
   return (
     <Card className="flex flex-col h-full">
-      <div className="mb-4">
-        <h2 className="text-sm font-semibold uppercase tracking-wide text-muted">{t('staffDashboard.widgets.leaderboard.title')}</h2>
-        <p className="text-xs text-muted-foreground mt-1">{t('staffDashboard.widgets.leaderboard.subtitle')}</p>
+      <div className="mb-4 flex items-start justify-between gap-3">
+        <div>
+          <h2 className="text-sm font-semibold uppercase tracking-wide text-muted">{t('staffDashboard.widgets.leaderboard.title')}</h2>
+          <p className="text-xs text-muted-foreground mt-1">{t('staffDashboard.widgets.leaderboard.subtitle')}</p>
+        </div>
+        {/* Same header-link convention as RecentActivity's "View full log" — a plain
+            list-to-detail affordance, not a redesign, and it doesn't collide with a
+            row's own click (which opens the drill-down modal, not this page). */}
+        <Link to="/mobilisations" className="shrink-0 text-xs font-medium text-primary hover:underline">
+          {t('staffDashboard.widgets.leaderboard.viewAll')}
+        </Link>
       </div>
 
       {rows.length === 0 ? (
