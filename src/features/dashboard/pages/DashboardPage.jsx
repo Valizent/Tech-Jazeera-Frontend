@@ -36,6 +36,7 @@ import DirectoryStatsWidget from '../components/DirectoryStatsWidget.jsx';
 import HrComplianceWidget from '../components/HrComplianceWidget.jsx';
 import SystemLogsWidget from '../components/SystemLogsWidget.jsx';
 import ActiveRevenueWidget from '../components/ActiveRevenueWidget.jsx';
+import ActualPerformanceWidget from '../components/ActualPerformanceWidget.jsx';
 import CoordinatorLeaderboardWidget from '../components/CoordinatorLeaderboardWidget.jsx';
 import { useCloseOnOutsideClick } from '../../../lib/useCloseOnOutsideClick.js';
 
@@ -204,6 +205,10 @@ export default function DashboardPage() {
       {finance.activeMobilisationRevenue != null && (
         <ActiveRevenueWidget revenue={finance.activeMobilisationRevenue} trend={finance.activeMobilisationRevenueTrend} />
       )}
+
+      {/* Real, closed-book companion to the estimate above (2026-09-24, a real user
+          ask) — see ActualPerformanceWidget's own doc comment. */}
+      {finance.actualPerformance != null && <ActualPerformanceWidget performance={finance.actualPerformance} />}
 
       {(attendanceSummary != null || activeSubcontractors != null) && (
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
