@@ -568,9 +568,10 @@
       },
       "actualPerformance": {
         "title": "Actual performance",
-        "hint": "Real revenue, expenses and profit from Approved monthly timesheets only — not an estimate.",
-        "revenue": "Revenue",
+        "hint": "Real, verified figures only — amount received and net profit are based on client payments actually verified by Accounts, not an estimate.",
         "expenses": "Expenses",
+        "profitPerHour": "Profit per hour",
+        "amountReceived": "Amount received",
         "netProfit": "Net profit",
         "yearToDate": "{{year}} so far",
         "vsMonthBefore": "vs. the month before",
