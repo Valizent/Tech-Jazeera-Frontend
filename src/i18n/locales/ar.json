@@ -439,6 +439,7 @@
       "description": "علاقات العملاء وتنسيب العمالة وعروض الأسعار.",
       "clients": { "label": "العملاء", "description": "الشركات التي يعمل لديها موظفوك." },
       "deployments": { "label": "التنسيبات", "description": "أين يعمل كل موظف حاليًا." },
+      "paymentsDue": { "label": "المدفوعات المستحقة", "description": "مدفوعات العملاء المفوترة بانتظار التحصيل." },
       "quotations": { "label": "عروض الأسعار", "description": "الأسعار المرسلة للعملاء، قبل الفوترة." },
       "mobilisations": { "label": "التعبئة والتنسيب", "description": "تنسيب العمالة مع شروط الفوترة للعميل." },
       "subcontractors": { "label": "الباطن", "description": "الشركات التي يُوجَّه إليها التنسيب أحيانًا عبر مقاول باطن." },
@@ -503,7 +504,8 @@
       "Reimbursements": "المصاريف المستردة",
       "Mobilisations": "التعبئة والتنسيب",
       "Stale requirements": "طلبات متأخرة",
-      "Open tasks": "مهام مفتوحة"
+      "Open tasks": "مهام مفتوحة",
+      "Payments due soon": "مدفوعات مستحقة قريبًا"
     },
     "pipeline": {
       "title": "خط الأعمال",
@@ -562,7 +564,7 @@
       "activeRevenue": {
         "titleMine": "ربح التعبئات النشطة الخاص بك لكل ساعة",
         "titleCompany": "ربح التعبئات النشطة للشركة لكل ساعة",
-        "hint": "الربح المجمّع لكل ساعة من التعبئات النشطة في أي وقت خلال هذا الشهر",
+        "hint": "الربح المجمّع لكل ساعة من التعبئات النشطة في أي وقت خلال هذا الشهر — تقدير مبني على أسعار العقد، وليس دفعة مالية حقيقية مستلمة (انظر «الأداء الفعلي» أدناه لذلك).",
         "vsLastMonth": "مقارنة بالشهر الماضي",
         "viewDeployments": "عرض التعبئات"
       },
@@ -1536,6 +1538,26 @@
       "subcontractedEmptyTitle": "لا يوجد أحد متاح",
       "subcontractedEmptyDescription": "لا يوجد عامل مقاول من الباطن أو مستقل انتهى تعيينه دون تعيين أحدث منذ ذلك."
     },
+    "paymentsDue": {
+      "pageTitle": "المدفوعات المستحقة",
+      "pageDescription": "كل دفعة عميل تمت فوترتها ولم تُعتمد بالكامل بعد، الأقرب استحقاقًا أولًا.",
+      "columns": {
+        "worker": "العامل / العميل",
+        "month": "الشهر",
+        "invoice": "الفاتورة",
+        "amount": "المبلغ المستلم",
+        "status": "الحالة",
+        "due": "الاستحقاق"
+      },
+      "statusPending": "بانتظار الاعتماد",
+      "statusRejected": "مرفوض",
+      "statusAwaiting": "بانتظار الدفع",
+      "overdueBy": "متأخر {{days}} يومًا",
+      "dueInDays": "يستحق خلال {{days}} يومًا",
+      "couldNotLoad": "تعذر تحميل المدفوعات المستحقة",
+      "emptyTitle": "لا شيء مستحق",
+      "emptyDescription": "لا توجد دفعة مفوترة معلقة حاليًا."
+    },
     "detail": {
       "notFoundTitle": "عملية النشر غير موجودة",
       "notFoundDescription": "ربما تمت إزالتها.",
@@ -1964,11 +1986,11 @@
         "subcontractor": "المقاول من الباطن",
         "subcontractorRate": "معدل المقاول من الباطن",
         "subcontractorCommission": "عمولة المقاول من الباطن",
-        "profitPerHour": "الربح لكل ساعة",
+        "profitPerHour": "الربح لكل ساعة (تقديري)",
         "profitPerMonth": "الربح الشهري (تقديري)",
         "otClientRate": "معدل العميل للوقت الإضافي",
         "otEmployeeRate": "معدل الموظف للوقت الإضافي",
-        "otProfitPerHour": "ربح الوقت الإضافي لكل ساعة"
+        "otProfitPerHour": "ربح الوقت الإضافي لكل ساعة (تقديري)"
       },
       "remark": "ملاحظة",
       "coordinatorsTitle": "المنسقون",

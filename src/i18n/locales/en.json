@@ -439,6 +439,7 @@
       "description": "Client relationships, worker placements and quotations.",
       "clients": { "label": "Clients", "description": "Companies your workers are placed with." },
       "deployments": { "label": "Deployments", "description": "Which worker is placed where." },
+      "paymentsDue": { "label": "Payments Due", "description": "Invoiced client payments awaiting collection." },
       "quotations": { "label": "Quotations", "description": "Pricing sent to clients, pre-invoice." },
       "mobilisations": { "label": "Mobilisations", "description": "Worker placements with client billing terms." },
       "subcontractors": { "label": "Subcontractors", "description": "Companies a mobilisation is sometimes routed through." },
@@ -503,7 +504,8 @@
       "Reimbursements": "Reimbursements",
       "Mobilisations": "Mobilisations",
       "Stale requirements": "Stale requirements",
-      "Open tasks": "Open tasks"
+      "Open tasks": "Open tasks",
+      "Payments due soon": "Payments due soon"
     },
     "pipeline": {
       "title": "Pipeline",
@@ -562,7 +564,7 @@
       "activeRevenue": {
         "titleMine": "Your active mobilisation profit per hour",
         "titleCompany": "Company active mobilisation profit per hour",
-        "hint": "Combined profit per hour from mobilisations active at any point this month",
+        "hint": "Combined profit per hour from mobilisations active at any point this month — a rate-card estimate, not a real received payment (see Actual Performance below for that).",
         "vsLastMonth": "vs. last month",
         "viewDeployments": "View deployments overview"
       },
@@ -1536,6 +1538,26 @@
       "subcontractedEmptyTitle": "No one available",
       "subcontractedEmptyDescription": "No subcontractor or freelancer worker has an ended placement with nothing newer since."
     },
+    "paymentsDue": {
+      "pageTitle": "Payments due",
+      "pageDescription": "Every invoiced client payment not yet fully approved, soonest-due first.",
+      "columns": {
+        "worker": "Worker / client",
+        "month": "Month",
+        "invoice": "Invoice",
+        "amount": "Amount received",
+        "status": "Status",
+        "due": "Due"
+      },
+      "statusPending": "Awaiting approval",
+      "statusRejected": "Rejected",
+      "statusAwaiting": "Awaiting payment",
+      "overdueBy": "{{days}} days overdue",
+      "dueInDays": "Due in {{days}} days",
+      "couldNotLoad": "Could not load payments due",
+      "emptyTitle": "Nothing due",
+      "emptyDescription": "No invoiced payment is currently outstanding."
+    },
     "detail": {
       "notFoundTitle": "Deployment not found",
       "notFoundDescription": "It may have been removed.",
@@ -1964,11 +1986,11 @@
         "subcontractor": "Subcontractor",
         "subcontractorRate": "Subcontractor rate",
         "subcontractorCommission": "Subcontractor commission",
-        "profitPerHour": "Profit per hour",
+        "profitPerHour": "Profit per hour (estimate)",
         "profitPerMonth": "Profit per month (estimate)",
         "otClientRate": "OT client rate",
         "otEmployeeRate": "OT employee rate",
-        "otProfitPerHour": "OT profit per hour"
+        "otProfitPerHour": "OT profit per hour (estimate)"
       },
       "remark": "Remark",
       "coordinatorsTitle": "Coordinators",
