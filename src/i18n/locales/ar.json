@@ -625,7 +625,11 @@
       "manageButton": "إدارة الأهداف",
       "modalTitle": "أهداف التعبئة",
       "tabProgress": "التقدّم الشهري",
+      "tabSemiAnnual": "نصف سنوي",
       "tabSet": "تحديد / تعديل الهدف",
+      "semiAnnualWindowEndLabel": "6 أشهر تنتهي في",
+      "semiAnnualIncentiveFieldLabel": "نسبة الحافز نصف السنوي% (من صافي الربح على الفائض عن هدف الأشهر الستة)",
+      "semiAnnualIncentiveAmount": "حافز مكتسب: {{amount}}",
       "monthLabel": "الشهر",
       "loading": "جارٍ التحميل…",
       "noneForMonth": "لا توجد أهداف محددة لهذا الشهر.",
@@ -672,6 +676,11 @@
       "assignedTasks": "المهام المسندة",
       "recentLogEntries": "أحدث إدخالات السجل",
       "noRecentLogs": "لا توجد إدخالات سجل خلال آخر 30 يومًا."
+    },
+    "semiAnnual": {
+      "title": "إيراد 6 أشهر ({{start}} – {{end}})",
+      "hitBadge": "تم تحقيق الهدف",
+      "incentiveEarned": "حافز مكتسب: {{amount}} ({{percent}}% من صافي الربح على الفائض)"
     }
   },
   "staffEmployees": {
@@ -1576,8 +1585,28 @@
         "otAmount": "مبلغ الإضافي",
         "deduction": "الخصم",
         "profit": "الربح",
-        "status": "الحالة"
+        "status": "الحالة",
+        "billing": "الفوترة"
       },
+      "billing": {
+        "notInvoiced": "لم تُفوتر بعد",
+        "invoicedDue": "تمت الفوترة — الاستحقاق {{date}}",
+        "paymentPending": "{{amount}} بانتظار الموافقة",
+        "paymentApproved": "تم استلام {{amount}}",
+        "paymentRejected": "تم رفض الدفعة"
+      },
+      "sendInvoiceButton": "إرسال الفاتورة",
+      "invoiceSentToast": "تم وضع علامة على الفاتورة كمُرسَلة.",
+      "recordPaymentButton": "تسجيل الدفعة",
+      "recordPaymentModalTitle": "تسجيل دفعة — {{month}}",
+      "recordPaymentModalMessage": "أدخل المبلغ الإجمالي الذي دفعه العميل فعليًا لهذا الشهر. سيحتاج هذا إلى موافقة المدير المالي قبل احتسابه ضمن هدف المنسق.",
+      "amountReceivedLabel": "المبلغ المستلم *",
+      "paymentRecordedToast": "تم تسجيل الدفعة — بانتظار الموافقة.",
+      "approvePaymentModalTitle": "الموافقة على الدفعة — {{month}}؟",
+      "rejectPaymentModalTitle": "رفض الدفعة — {{month}}؟",
+      "decidePaymentModalMessage": "تم تسجيل {{amount}} كمستلم لـ {{worker}} — الموافقة تحتسبه ضمن هدف الإيراد الفعلي للمنسق.",
+      "paymentApprovedToast": "تمت الموافقة على الدفعة.",
+      "paymentRejectedToast": "تم رفض الدفعة.",
       "totalProfit": "إجمالي الربح",
       "sectionExpenses": "المصاريف",
       "expensesHint": "التكاليف التشغيلية الفعلية لهذه التعبئة — الوقود والسكن وما شابه — بالإضافة إلى الإيراد والمصاريف وصافي الربح الفعلي (من جداول الدوام المعتمدة) أدناه.",
@@ -1987,6 +2016,12 @@
       "invitedToast": "تمت دعوة المنسق.",
       "removedToast": "تمت إزالة المنسق.",
       "confirmedToast": "تم التأكيد.",
+      "sharePercent": "حصة {{percent}}%",
+      "editSharesTitle": "حصة الإيراد (كيفية توزيع الإيراد الفعلي بين المنسقين)",
+      "saveSharesButton": "حفظ الحصص",
+      "resetSharesButton": "إعادة التعيين إلى توزيع متساوٍ",
+      "sharesSavedToast": "تم حفظ حصص المنسقين.",
+      "sharesResetToast": "تمت إعادة تعيين حصص المنسقين إلى توزيع متساوٍ.",
       "submittedToast": "تم تقديم التعبئة للمراجعة.",
       "commercialSavedToast": "تم حفظ التفاصيل التجارية.",
       "documentUploadedToast": "تم رفع المستند(ات).",

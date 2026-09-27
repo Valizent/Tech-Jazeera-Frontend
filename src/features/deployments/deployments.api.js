@@ -67,6 +67,21 @@ export async function decideMonthlyHours(id, entryId, payload) {
   return data.data;
 }
 
+export async function sendInvoice(id, entryId) {
+  const { data } = await api.post(`/deployments/${id}/monthly-hours/${entryId}/send-invoice`);
+  return data.data;
+}
+
+export async function recordPayment(id, entryId, payload) {
+  const { data } = await api.patch(`/deployments/${id}/monthly-hours/${entryId}/payment`, payload);
+  return data.data;
+}
+
+export async function decidePayment(id, entryId, payload) {
+  const { data } = await api.patch(`/deployments/${id}/monthly-hours/${entryId}/payment/decide`, payload);
+  return data.data;
+}
+
 /** Demobilise — ends this deployment. `payload.reason` decides whether the
  *  worker goes back to standby or exits the company (see deployments.schema.js). */
 export async function demobiliseDeployment(id, payload) {

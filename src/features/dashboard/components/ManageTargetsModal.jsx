@@ -16,7 +16,7 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { getAllProgress, listAllTargets, setTarget, deleteTarget } from '../../mobilisationTargets/mobilisationTargets.api.js';
+import { getAllProgress, getAllSemiAnnual, listAllTargets, setTarget, deleteTarget } from '../../mobilisationTargets/mobilisationTargets.api.js';
 import { useToast } from '../../../components/ui/Toast.jsx';
 import { apiMessage, formatMoney } from '../../../lib/utils.js';
 import Modal from '../../../components/ui/Modal.jsx';
@@ -55,12 +55,24 @@ export default function ManageTargetsModal({ open, onClose, coordinators = [] })
   const [toRemove, setToRemove] = useState(null);
 
   // Form state for set-target tab
-  const [form, setForm] = useState({ coordinatorId: '', month: currentMonth(), target: '', incentivePercent: '' });
+  const [form, setForm] = useState({
+    coordinatorId: '',
+    month: currentMonth(),
+    target: '',
+    incentivePercent: '',
+    semiAnnualIncentivePercent: '',
+  });
 
   const { data: progress = [], isLoading: progressLoading } = useQuery({
     queryKey: ['mob-targets-progress', month],
     queryFn: () => getAllProgress(month),
     enabled: open && tab === 'progress',
+  });
+
+  const { data: semiAnnual, isLoading: semiAnnualLoading } = useQuery({
+    queryKey: ['mob-targets-semi-annual', month],
+    queryFn: () => getAllSemiAnnual(month),
+    enabled: open && tab === 'semiAnnual',
   });
 
   const { data: allTargets = [], isLoading: allLoading } = useQuery({
@@ -107,6 +119,7 @@ export default function ManageTargetsModal({ open, onClose, coordinators = [] })
       month: form.month,
       target: Number(form.target),
       incentivePercent: form.incentivePercent ? Number(form.incentivePercent) : 0,
+      semiAnnualIncentivePercent: form.semiAnnualIncentivePercent ? Number(form.semiAnnualIncentivePercent) : 0,
     });
   }
 
@@ -117,6 +130,7 @@ export default function ManageTargetsModal({ open, onClose, coordinators = [] })
       month: t.month,
       target: String(t.target),
       incentivePercent: String(t.incentivePercent),
+      semiAnnualIncentivePercent: String(t.semiAnnualIncentivePercent ?? 0),
     });
     setTab('set');
   }
@@ -132,6 +146,7 @@ export default function ManageTargetsModal({ open, onClose, coordinators = [] })
       <div className="mb-5 flex gap-1 rounded-xl border border-border bg-bg p-1">
         {[
           { key: 'progress', label: t('staffDashboard.targets.tabProgress') },
+          { key: 'semiAnnual', label: t('staffDashboard.targets.tabSemiAnnual') },
           { key: 'set', label: t('staffDashboard.targets.tabSet') },
         ].map((tabDef) => (
           <button
@@ -236,6 +251,60 @@ export default function ManageTargetsModal({ open, onClose, coordinators = [] })
         </div>
       )}
 
+      {/* ── Semi-Annual Tab (2026-09-27) ── */}
+      {tab === 'semiAnnual' && (
+        <div className="space-y-4">
+          <div className="flex items-center gap-3">
+            <label className="text-sm font-medium text-muted">{t('staffDashboard.targets.semiAnnualWindowEndLabel')}</label>
+            <input
+              type="month"
+              value={month}
+              onChange={(e) => setMonth(e.target.value)}
+              className="h-9 rounded-lg border border-border bg-surface px-3 text-sm text-text outline-none focus:border-primary"
+            />
+          </div>
+
+          {semiAnnualLoading && <p className="py-8 text-center text-sm text-muted">{t('staffDashboard.targets.loading')}</p>}
+
+          {!semiAnnualLoading && (semiAnnual?.rows?.length ?? 0) === 0 && (
+            <p className="py-8 text-center text-sm text-muted">{t('staffDashboard.targets.noneForMonth')}</p>
+          )}
+
+          <div className="space-y-3">
+            {semiAnnual?.rows?.map((row) => (
+              <div
+                key={row.coordinator._id}
+                className="flex flex-col gap-2 rounded-xl border border-border bg-surface p-4 sm:flex-row sm:items-center sm:justify-between sm:gap-4"
+              >
+                <div>
+                  <p className="font-medium text-text">{row.coordinator.name}</p>
+                  <ProgressBar achieved={row.achieved} target={row.semiAnnualTarget || 1} />
+                  <p className="mt-0.5 text-xs text-muted">
+                    {t('staffDashboard.targets.progressCount', { achieved: formatMoney(row.achieved), target: formatMoney(row.semiAnnualTarget) })}
+                  </p>
+                </div>
+                <div className="text-right">
+                  {row.hit ? (
+                    <span className="rounded-full bg-amber-100 px-2.5 py-0.5 text-xs font-semibold text-amber-800 dark:bg-amber-900/40 dark:text-amber-300">
+                      {t('staffDashboard.targets.hitBadge')}
+                    </span>
+                  ) : (
+                    <span className="rounded-full bg-bg px-2.5 py-0.5 text-xs font-medium text-muted">
+                      {t('staffDashboard.targets.remainingBadge', { amount: formatMoney(Math.max(0, row.semiAnnualTarget - row.achieved)) })}
+                    </span>
+                  )}
+                  {row.excess > 0 && row.incentivePercent > 0 && (
+                    <p className="mt-1 text-xs font-medium text-success">
+                      {t('staffDashboard.targets.semiAnnualIncentiveAmount', { amount: formatMoney(row.incentiveAmount) })}
+                    </p>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* ── Set / Edit Tab ── */}
       {tab === 'set' && (
         <div className="space-y-5">
@@ -286,12 +355,29 @@ export default function ManageTargetsModal({ open, onClose, coordinators = [] })
               onChange={(e) => setForm((f) => ({ ...f, incentivePercent: e.target.value }))}
             />
 
+            <Input
+              label={t('staffDashboard.targets.semiAnnualIncentiveFieldLabel')}
+              type="number"
+              min="0"
+              max="100"
+              step="0.1"
+              placeholder={t('staffDashboard.targets.incentivePlaceholder')}
+              value={form.semiAnnualIncentivePercent}
+              onChange={(e) => setForm((f) => ({ ...f, semiAnnualIncentivePercent: e.target.value }))}
+            />
+
             <div className="rounded-lg border border-border/50 bg-bg p-3 text-xs text-muted">
               <strong className="text-text">{t('staffDashboard.targets.howItWorksTitle')}</strong> {t('staffDashboard.targets.howItWorksBody')}
             </div>
 
             <div className="flex justify-end gap-2">
-              <Button type="button" variant="secondary" onClick={() => setForm({ coordinatorId: '', month: currentMonth(), target: '', incentivePercent: '' })}>
+              <Button
+                type="button"
+                variant="secondary"
+                onClick={() =>
+                  setForm({ coordinatorId: '', month: currentMonth(), target: '', incentivePercent: '', semiAnnualIncentivePercent: '' })
+                }
+              >
                 {t('staffDashboard.targets.clear')}
               </Button>
               <Button

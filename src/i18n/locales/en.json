@@ -625,7 +625,11 @@
       "manageButton": "Manage targets",
       "modalTitle": "Mobilisation targets",
       "tabProgress": "Monthly progress",
+      "tabSemiAnnual": "Semi-annual",
       "tabSet": "Set / edit target",
+      "semiAnnualWindowEndLabel": "6 months ending",
+      "semiAnnualIncentiveFieldLabel": "Semi-annual incentive % (of net profit on the excess over the 6-month target)",
+      "semiAnnualIncentiveAmount": "{{amount}} incentive earned",
       "monthLabel": "Month",
       "loading": "Loading…",
       "noneForMonth": "No targets set for this month.",
@@ -672,6 +676,11 @@
       "assignedTasks": "Assigned tasks",
       "recentLogEntries": "Recent log entries",
       "noRecentLogs": "No logs submitted in the last 30 days."
+    },
+    "semiAnnual": {
+      "title": "6-month revenue ({{start}} – {{end}})",
+      "hitBadge": "Target hit",
+      "incentiveEarned": "{{amount}} incentive earned ({{percent}}% of net profit on the excess)"
     }
   },
   "staffEmployees": {
@@ -1576,8 +1585,28 @@
         "otAmount": "OT amount",
         "deduction": "Deduction",
         "profit": "Profit",
-        "status": "Status"
+        "status": "Status",
+        "billing": "Billing"
       },
+      "billing": {
+        "notInvoiced": "Not invoiced yet",
+        "invoicedDue": "Invoiced — due {{date}}",
+        "paymentPending": "{{amount}} pending approval",
+        "paymentApproved": "{{amount}} received",
+        "paymentRejected": "Payment rejected"
+      },
+      "sendInvoiceButton": "Send invoice",
+      "invoiceSentToast": "Invoice marked as sent.",
+      "recordPaymentButton": "Record payment",
+      "recordPaymentModalTitle": "Record payment — {{month}}",
+      "recordPaymentModalMessage": "Enter the total amount the client has actually paid for this month. This will need Financial Manager approval before it counts toward the coordinator's target.",
+      "amountReceivedLabel": "Amount received *",
+      "paymentRecordedToast": "Payment recorded — awaiting approval.",
+      "approvePaymentModalTitle": "Approve payment — {{month}}?",
+      "rejectPaymentModalTitle": "Reject payment — {{month}}?",
+      "decidePaymentModalMessage": "{{amount}} recorded as received for {{worker}} — approving credits it toward the coordinator's real-revenue target.",
+      "paymentApprovedToast": "Payment approved.",
+      "paymentRejectedToast": "Payment rejected.",
       "totalProfit": "Total profit",
       "sectionExpenses": "Expenses",
       "expensesHint": "Real operational costs against this deployment — fuel, accommodation, and the like — plus its own Approved-timesheet Revenue/Expenses/Net Profit below.",
@@ -1987,6 +2016,12 @@
       "invitedToast": "Coordinator invited.",
       "removedToast": "Coordinator removed.",
       "confirmedToast": "Confirmed.",
+      "sharePercent": "{{percent}}% share",
+      "editSharesTitle": "Revenue share (how real revenue splits between coordinators)",
+      "saveSharesButton": "Save shares",
+      "resetSharesButton": "Reset to even split",
+      "sharesSavedToast": "Coordinator shares saved.",
+      "sharesResetToast": "Coordinator shares reset to an even split.",
       "submittedToast": "Mobilisation submitted for review.",
       "commercialSavedToast": "Commercial details saved.",
       "documentUploadedToast": "Document(s) uploaded.",

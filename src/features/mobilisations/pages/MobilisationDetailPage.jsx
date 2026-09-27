@@ -19,6 +19,8 @@ import {
   addCoordinator,
   removeCoordinator,
   confirmCoordinator,
+  setCoordinatorShares,
+  clearCoordinatorShares,
   submitMobilisation,
   saveCommercialDetails,
   decideMobilisation,
@@ -284,6 +286,7 @@ export default function MobilisationDetailPage() {
   const queryClient = useQueryClient();
   const [inviteId, setInviteId] = useState('');
   const [toRemove, setToRemove] = useState(null);
+  const [shareEdits, setShareEdits] = useState({});
   const [decideNote, setDecideNote] = useState('');
   const [rejectionTarget, setRejectionTarget] = useState('');
   const [pendingDecision, setPendingDecision] = useState(null); // 'Approved' | 'Rejected' | null
@@ -360,6 +363,24 @@ export default function MobilisationDetailPage() {
     mutationFn: () => confirmCoordinator(id, user.id),
     onSuccess: () => {
       toast.success(t('staffMobilisations.detail.confirmedToast'));
+      invalidate();
+    },
+    onError: (error) => toast.error(apiMessage(error)),
+  });
+  const sharesMutation = useMutation({
+    mutationFn: (shares) => setCoordinatorShares(id, shares),
+    onSuccess: () => {
+      toast.success(t('staffMobilisations.detail.sharesSavedToast'));
+      setShareEdits({});
+      invalidate();
+    },
+    onError: (error) => toast.error(apiMessage(error)),
+  });
+  const clearSharesMutation = useMutation({
+    mutationFn: () => clearCoordinatorShares(id),
+    onSuccess: () => {
+      toast.success(t('staffMobilisations.detail.sharesResetToast'));
+      setShareEdits({});
       invalidate();
     },
     onError: (error) => toast.error(apiMessage(error)),
@@ -683,22 +704,72 @@ export default function MobilisationDetailPage() {
       <Card>
         <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-muted">{t('staffMobilisations.detail.coordinatorsTitle')}</h2>
         <ul className="space-y-2">
-          {m.coordinators.map((c) => (
-            <li key={userId(c)} className="flex items-center justify-between gap-3 text-sm">
-              <span>
-                {c.user.name ?? userId(c)} {c.isPrimary && <span className="text-xs text-muted">{t('staffMobilisations.detail.primary')}</span>}
-              </span>
-              <span className="flex items-center gap-2">
-                <Badge variant={c.confirmed ? 'success' : 'warning'}>{c.confirmed ? t('staffMobilisations.detail.confirmed') : t('staffMobilisations.detail.pending')}</Badge>
-                {canManage && !c.isPrimary && !c.confirmed && (
-                  <Button size="sm" variant="danger-ghost" onClick={() => setToRemove(c)}>
-                    {t('staffMobilisations.detail.remove')}
-                  </Button>
-                )}
-              </span>
-            </li>
-          ))}
+          {m.coordinators.map((c) => {
+            const effectiveShare = c.sharePercent ?? 100 / m.coordinators.length;
+            return (
+              <li key={userId(c)} className="flex items-center justify-between gap-3 text-sm">
+                <span>
+                  {c.user.name ?? userId(c)} {c.isPrimary && <span className="text-xs text-muted">{t('staffMobilisations.detail.primary')}</span>}
+                </span>
+                <span className="flex items-center gap-2">
+                  {m.coordinators.length > 1 && (
+                    <span className="text-xs text-muted">{t('staffMobilisations.detail.sharePercent', { percent: effectiveShare.toFixed(1) })}</span>
+                  )}
+                  <Badge variant={c.confirmed ? 'success' : 'warning'}>{c.confirmed ? t('staffMobilisations.detail.confirmed') : t('staffMobilisations.detail.pending')}</Badge>
+                  {canManage && !c.isPrimary && !c.confirmed && (
+                    <Button size="sm" variant="danger-ghost" onClick={() => setToRemove(c)}>
+                      {t('staffMobilisations.detail.remove')}
+                    </Button>
+                  )}
+                </span>
+              </li>
+            );
+          })}
         </ul>
+
+        {canManage && m.coordinators.length > 1 && (
+          <div className="mt-4 space-y-2 rounded-lg border border-border/50 bg-bg p-3">
+            <p className="text-xs font-semibold uppercase tracking-wide text-muted">{t('staffMobilisations.detail.editSharesTitle')}</p>
+            <div className="flex flex-wrap items-end gap-3">
+              {m.coordinators.map((c) => {
+                const uid = userId(c);
+                const fallback = c.sharePercent ?? 100 / m.coordinators.length;
+                return (
+                  <Input
+                    key={uid}
+                    label={c.user.name ?? uid}
+                    type="number"
+                    min="0"
+                    max="100"
+                    step="0.1"
+                    className="w-28"
+                    value={shareEdits[uid] ?? String(Math.round(fallback * 10) / 10)}
+                    onChange={(e) => setShareEdits((prev) => ({ ...prev, [uid]: e.target.value }))}
+                  />
+                );
+              })}
+              <Button
+                size="sm"
+                isLoading={sharesMutation.isPending}
+                onClick={() =>
+                  sharesMutation.mutate(
+                    m.coordinators.map((c) => {
+                      const uid = userId(c);
+                      const fallback = c.sharePercent ?? 100 / m.coordinators.length;
+                      const raw = shareEdits[uid] ?? String(Math.round(fallback * 10) / 10);
+                      return { userId: uid, sharePercent: Number(raw) };
+                    })
+                  )
+                }
+              >
+                {t('staffMobilisations.detail.saveSharesButton')}
+              </Button>
+              <Button size="sm" variant="secondary" isLoading={clearSharesMutation.isPending} onClick={() => clearSharesMutation.mutate()}>
+                {t('staffMobilisations.detail.resetSharesButton')}
+              </Button>
+            </div>
+          </div>
+        )}
 
         {needsMyConfirmation && (
           <div className="mt-4 rounded-lg bg-warning/10 p-3 text-sm">

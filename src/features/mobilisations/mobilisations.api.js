@@ -112,6 +112,16 @@ export async function confirmCoordinator(id, userId) {
   return data.data;
 }
 
+export async function setCoordinatorShares(id, shares) {
+  const { data } = await api.put(`/mobilisations/${id}/coordinator-shares`, { shares });
+  return data.data;
+}
+
+export async function clearCoordinatorShares(id) {
+  const { data } = await api.delete(`/mobilisations/${id}/coordinator-shares`);
+  return data.data;
+}
+
 export async function submitMobilisation(id) {
   const { data } = await api.post(`/mobilisations/${id}/submit`);
   return data.data;

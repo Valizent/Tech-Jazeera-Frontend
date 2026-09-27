@@ -18,7 +18,7 @@ import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { getDashboard } from '../dashboard.api.js';
-import { getMyTarget } from '../../mobilisationTargets/mobilisationTargets.api.js';
+import { getMyTarget, getMySemiAnnual } from '../../mobilisationTargets/mobilisationTargets.api.js';
 import { useAuth } from '../../auth/AuthContext.jsx';
 import { EXPIRY_WARNING_DAYS } from '../../../lib/constants.js';
 import PageHeader from '../../../components/shared/PageHeader.jsx';
@@ -29,6 +29,7 @@ import StatusBreakdown from '../components/StatusBreakdown.jsx';
 import ExpiringDocuments from '../components/ExpiringDocuments.jsx';
 import MyPendingActions from '../components/MyPendingActions.jsx';
 import MobilisationTargetCard from '../components/MobilisationTargetCard.jsx';
+import SemiAnnualTargetCard from '../components/SemiAnnualTargetCard.jsx';
 import ManageTargetsModal from '../components/ManageTargetsModal.jsx';
 import StandbyAnalysisWidget from '../components/StandbyAnalysisWidget.jsx';
 import DailyAttendanceSummary from '../components/DailyAttendanceSummary.jsx';
@@ -100,6 +101,11 @@ export default function DashboardPage() {
   const { data: myTarget } = useQuery({
     queryKey: ['mob-target-my', currentMonth],
     queryFn: () => getMyTarget(currentMonth),
+    enabled: isCoordinator,
+  });
+  const { data: mySemiAnnual } = useQuery({
+    queryKey: ['mob-target-semi-annual-my', currentMonth],
+    queryFn: () => getMySemiAnnual(currentMonth),
     enabled: isCoordinator,
   });
 
@@ -229,6 +235,11 @@ export default function DashboardPage() {
                 <DirectoryStatsWidget activeClients={stats.activeClients} activeSubcontractors={activeSubcontractors} />
               )}
               {myTarget && <MobilisationTargetCard target={myTarget} />}
+            </div>
+          )}
+          {mySemiAnnual && (
+            <div className="mt-6">
+              <SemiAnnualTargetCard data={mySemiAnnual} />
             </div>
           )}
           {(pendingLeave != null || pendingExit != null || myRequirementsSummary != null) && (

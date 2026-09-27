@@ -57,7 +57,17 @@ export const MODULE_GROUPS = [
     icon: navGroup('sales').icon,
     modules: [
       { ...navItem('sales', '/mobilisations'), sectionKeys: ['mobilisationsViewer', 'mobilisationsSelfMobilise', 'mobilisationTargets'] },
-      { ...navItem('sales', '/deployments'), sectionKeys: ['deploymentsRelease', 'deploymentsHours', 'deploymentsHoursDecide', 'deploymentsEdit'] },
+      {
+        ...navItem('sales', '/deployments'),
+        sectionKeys: [
+          'deploymentsRelease',
+          'deploymentsHours',
+          'deploymentsHoursDecide',
+          'deploymentsInvoicing',
+          'deploymentsPaymentDecide',
+          'deploymentsEdit',
+        ],
+      },
       { ...navItem('sales', '/quotations'), sectionKeys: ['quotationsManage'] },
       { ...navItem('sales', '/clients'), sectionKeys: ['clientsManage'] },
       { ...navItem('sales', '/subcontractors'), sectionKeys: ['subcontractorsManage'] },

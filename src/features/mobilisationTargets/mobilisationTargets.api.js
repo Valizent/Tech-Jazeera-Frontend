@@ -15,6 +15,18 @@ export async function getAllProgress(month) {
   return data.data; // [{ coordinator, target, achieved, remaining, hit, incentivePercent }]
 }
 
+/** Coordinator's own rolling 6-month progress, window ending at endMonth (YYYY-MM). */
+export async function getMySemiAnnual(endMonth) {
+  const { data } = await api.get('/mobilisation-targets/semi-annual/my', { params: { endMonth } });
+  return data.data; // null, or { windowMonths, semiAnnualTarget, achieved, netProfit, excess, excessNetProfit, incentivePercent, incentiveAmount, hit }
+}
+
+/** Management: every coordinator's rolling 6-month progress. */
+export async function getAllSemiAnnual(endMonth) {
+  const { data } = await api.get('/mobilisation-targets/semi-annual', { params: { endMonth } });
+  return data.data; // { windowMonths, rows: [{ coordinator, ...same shape as above }] }
+}
+
 /** Management: all targets across all months. */
 export async function listAllTargets() {
   const { data } = await api.get('/mobilisation-targets');
