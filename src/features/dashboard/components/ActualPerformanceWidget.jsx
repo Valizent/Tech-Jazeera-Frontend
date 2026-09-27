@@ -9,15 +9,23 @@
  * Redesigned 2026-09-27 (the user's own ask, from a screenshot of the old
  * Revenue/Expenses/Net-Profit-per-period layout): Expenses stands alone as
  * its own real-cost figure (unchanged basis — every Approved hours entry,
- * regardless of client payment status); Profit per hour is net profit ÷
- * hours actually worked; and Amount received + Net profit are now based on
- * money the client has ACTUALLY PAID and a Financial Manager/Accounts has
- * VERIFIED (`paymentDecisionStatus === 'Approved'` — see deployment.
- * service.js's decidePayment), not a computed revenue estimate. Net profit
- * = amountReceived − expenses. Six tiles (Expenses/Profit-per-hour/Amount-
- * received-&-Net-profit × last month/this year), each with a real delta
+ * regardless of client payment status); Amount received + Net profit are
+ * now based on money the client has ACTUALLY PAID and a Financial Manager/
+ * Accounts has VERIFIED (`paymentDecisionStatus === 'Approved'` — see
+ * deployment.service.js's decidePayment), not a computed revenue estimate.
+ * Net profit = amountReceived − expenses. Three tiles per period (Expenses/
+ * Amount-received/Net-profit × last month/this year), each with a real delta
  * against a real prior period — hidden entirely when there's no prior data
  * to compare against, never a fabricated 0%.
+ *
+ * A "Profit per hour" tile (net profit ÷ actualHours) lived here too until
+ * the same day (the user's own follow-up ask) — removed, not hidden: it
+ * divided a real, payment-timing-dependent net profit by real worked hours,
+ * which swings from a large negative to a large positive purely based on
+ * WHEN a payment happens to get verified, not on whether the placement is
+ * actually profitable — a genuinely confusing number, unlike Mobilisation's
+ * own stable rate-card `profitPerHour`. See deployment.service.js's
+ * getActualPerformanceSummary for the matching server-side removal.
  *
  * The whole card is one Link to the Deployments register's Overview modal
  * (same `?overview=1` deep link ActiveRevenueWidget already established) —
@@ -79,19 +87,12 @@ export default function ActualPerformanceWidget({ performance }) {
 
       <div>
         <p className="mb-2 text-xs font-semibold text-text">{monthLabel(lastMonth.month)}</p>
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
           <Tile
             label={t('staffDashboard.widgets.actualPerformance.expenses')}
             value={lastMonth.expenses}
             deltaPct={lastMonth.expensesDeltaPct}
             deltaLabel={t('staffDashboard.widgets.actualPerformance.vsMonthBefore')}
-          />
-          <Tile
-            label={t('staffDashboard.widgets.actualPerformance.profitPerHour')}
-            value={lastMonth.profitPerHour}
-            deltaPct={lastMonth.profitPerHourDeltaPct}
-            deltaLabel={t('staffDashboard.widgets.actualPerformance.vsMonthBefore')}
-            colored
           />
           <Tile
             label={t('staffDashboard.widgets.actualPerformance.amountReceived')}
@@ -111,19 +112,12 @@ export default function ActualPerformanceWidget({ performance }) {
 
       <div>
         <p className="mb-2 text-xs font-semibold text-text">{t('staffDashboard.widgets.actualPerformance.yearToDate', { year: thisYear.year })}</p>
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
           <Tile
             label={t('staffDashboard.widgets.actualPerformance.expenses')}
             value={thisYear.expenses}
             deltaPct={thisYear.expensesDeltaPct}
             deltaLabel={t('staffDashboard.widgets.actualPerformance.vsLastYear')}
-          />
-          <Tile
-            label={t('staffDashboard.widgets.actualPerformance.profitPerHour')}
-            value={thisYear.profitPerHour}
-            deltaPct={thisYear.profitPerHourDeltaPct}
-            deltaLabel={t('staffDashboard.widgets.actualPerformance.vsLastYear')}
-            colored
           />
           <Tile
             label={t('staffDashboard.widgets.actualPerformance.amountReceived')}
