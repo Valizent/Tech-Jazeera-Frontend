@@ -560,9 +560,9 @@
     "myPipelineTitle": "خط التعبئة الخاص بي",
     "widgets": {
       "activeRevenue": {
-        "titleMine": "إيراد التعبئات النشطة الخاص بك",
-        "titleCompany": "إيراد التعبئات النشطة للشركة",
-        "hint": "بناءً على التعبئات النشطة في أي وقت خلال هذا الشهر",
+        "titleMine": "ربح التعبئات النشطة الخاص بك لكل ساعة",
+        "titleCompany": "ربح التعبئات النشطة للشركة لكل ساعة",
+        "hint": "الربح المجمّع لكل ساعة من التعبئات النشطة في أي وقت خلال هذا الشهر",
         "vsLastMonth": "مقارنة بالشهر الماضي",
         "viewDeployments": "عرض التعبئات"
       },
@@ -634,6 +634,8 @@
       "incentiveSuffix": "· حافز {{percent}}%",
       "hitBadge": "تم تحقيقه!",
       "remainingBadge": "متبقٍ {{amount}}",
+      "ownEmployeeCount_one": "{{count}} تعبئة لموظف داخلي (غير محتسبة)",
+      "ownEmployeeCount_other": "{{count}} تعبئات لموظفين داخليين (غير محتسبة)",
       "coordinatorLabel": "المنسق *",
       "coordinatorPlaceholder": "اختر منسقًا…",
       "monthFieldLabel": "الشهر *",
@@ -658,7 +660,9 @@
         "hitNoIncentive": "كل تعبئة إضافية هذا الشهر تُحتسب ضمن سلسلة إنجازاتك.",
         "notHitZero": "حقق ربحًا معتمَدًا قدره {{target}} لفتح حافزك.",
         "notHitSome": "تم إنجاز {{achieved}} من {{target}} — واصل التقدم!",
-        "notHitIncentiveSuffix": "عند تحقيق ذلك، تكسب {{percent}}% من الربح لكل تعبئة تتجاوزه."
+        "notHitIncentiveSuffix": "عند تحقيق ذلك، تكسب {{percent}}% من الربح لكل تعبئة تتجاوزه.",
+        "ownEmployeeCount_one": "بالإضافة إلى {{count}} تعبئة لموظف داخلي هذا الشهر (غير محتسبة ضمن هدفك)",
+        "ownEmployeeCount_other": "بالإضافة إلى {{count}} تعبئات لموظفين داخليين هذا الشهر (غير محتسبة ضمن هدفك)"
       }
     },
     "drillDown": {

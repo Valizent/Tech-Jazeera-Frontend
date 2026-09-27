@@ -560,9 +560,9 @@
     "myPipelineTitle": "My mobilisation pipeline",
     "widgets": {
       "activeRevenue": {
-        "titleMine": "Your active mobilisation revenue",
-        "titleCompany": "Company active mobilisation revenue",
-        "hint": "Based on mobilisations active at any point this month",
+        "titleMine": "Your active mobilisation profit per hour",
+        "titleCompany": "Company active mobilisation profit per hour",
+        "hint": "Combined profit per hour from mobilisations active at any point this month",
         "vsLastMonth": "vs. last month",
         "viewDeployments": "View deployments overview"
       },
@@ -634,6 +634,8 @@
       "incentiveSuffix": "· {{percent}}% incentive",
       "hitBadge": "Hit!",
       "remainingBadge": "{{amount}} left",
+      "ownEmployeeCount_one": "{{count}} own-employee mobilisation (not counted)",
+      "ownEmployeeCount_other": "{{count}} own-employee mobilisations (not counted)",
       "coordinatorLabel": "Coordinator *",
       "coordinatorPlaceholder": "Select a coordinator…",
       "monthFieldLabel": "Month *",
@@ -658,7 +660,9 @@
         "hitNoIncentive": "Every extra mobilisation this month counts toward your streak.",
         "notHitZero": "Reach {{target}} in approved profit to unlock your incentive.",
         "notHitSome": "{{achieved}} of {{target}} — keep going!",
-        "notHitIncentiveSuffix": "Once you do, you earn {{percent}}% of profit per mobilisation beyond it."
+        "notHitIncentiveSuffix": "Once you do, you earn {{percent}}% of profit per mobilisation beyond it.",
+        "ownEmployeeCount_one": "Plus {{count}} own-employee mobilisation this month (not counted toward your target)",
+        "ownEmployeeCount_other": "Plus {{count}} own-employee mobilisations this month (not counted toward your target)"
       }
     },
     "drillDown": {

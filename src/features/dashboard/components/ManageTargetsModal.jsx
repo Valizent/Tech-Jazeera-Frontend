@@ -198,6 +198,11 @@ export default function ManageTargetsModal({ open, onClose, coordinators = [] })
                       {t('staffDashboard.targets.progressCount', { achieved: formatMoney(row.achieved), target: formatMoney(row.target) })}
                       {row.incentivePercent > 0 && ` ${t('staffDashboard.targets.incentiveSuffix', { percent: row.incentivePercent })}`}
                     </p>
+                    {row.ownEmployeeCount > 0 && (
+                      <p className="mt-0.5 text-xs text-muted">
+                        {t('staffDashboard.targets.ownEmployeeCount', { count: row.ownEmployeeCount })}
+                      </p>
+                    )}
                   </div>
                 </div>
 

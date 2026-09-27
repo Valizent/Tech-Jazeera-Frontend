@@ -98,7 +98,7 @@ export default function MobilisationTargetCard({ target }) {
 
   if (!target) return null;
 
-  const { achieved, remaining, target: targetCount, incentivePercent, month } = target;
+  const { achieved, remaining, target: targetCount, incentivePercent, month, ownEmployeeCount } = target;
   const progress = Math.min(achieved / targetCount, 1);
   const strokeDashoffset = RING_CIRCUMFERENCE * (1 - progress);
   const color = hit ? HIT_COLOR : progressColor(progress);
@@ -246,6 +246,12 @@ export default function MobilisationTargetCard({ target }) {
             <p className="mt-1 text-right text-xs font-semibold tabular-nums transition-colors duration-700" style={{ color }}>
               {Math.round(progress * 100)}%
             </p>
+
+            {ownEmployeeCount > 0 && (
+              <p className="mt-2 text-xs text-muted">
+                {t('staffDashboard.targets.card.ownEmployeeCount', { count: ownEmployeeCount })}
+              </p>
+            )}
           </div>
         </div>
       </div>
