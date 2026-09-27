@@ -130,6 +130,10 @@ export const NAV_GROUPS = [
       { to: '/mobilisations', label: 'Mobilisations', icon: ICON.team, description: 'Worker placements with client billing terms.', labelKey: 'staffNav.sales.mobilisations.label', descriptionKey: 'staffNav.sales.mobilisations.description' },
       { to: '/deployments', label: 'Deployments', icon: ICON.map, sectionKey: 'deploymentsRelease', description: 'Which worker is placed where.', labelKey: 'staffNav.sales.deployments.label', descriptionKey: 'staffNav.sales.deployments.description' },
       { to: '/deployments/standby', label: 'Standby List', icon: ICON.users, sectionKey: 'deploymentsRelease', description: 'Workers waiting for an assignment.', labelKey: 'staffNav.sales.standby.label', descriptionKey: 'staffNav.sales.standby.description' },
+      // No sectionKey — visibility is its own rule (own mobilisations for a
+      // Coordinator, mobilisationsViewer for MM/Admin), same as Mobilisations
+      // itself above; always shown, content is what's naturally scoped.
+      { to: '/deployments/payments-due', label: 'Payments Due', icon: ICON.list, description: 'Invoiced client payments awaiting collection.', labelKey: 'staffNav.sales.paymentsDue.label', descriptionKey: 'staffNav.sales.paymentsDue.description' },
       { to: '/quotations', label: 'Quotations', icon: ICON.quotation, sectionKey: 'quotationsManage', description: 'Pricing sent to clients, pre-invoice.', labelKey: 'staffNav.sales.quotations.label', descriptionKey: 'staffNav.sales.quotations.description' },
       { to: '/clients', label: 'Clients', icon: ICON.building, sectionKey: 'clientsManage', description: 'Companies your workers are placed with.', labelKey: 'staffNav.sales.clients.label', descriptionKey: 'staffNav.sales.clients.description' },
       { to: '/subcontractors', label: 'Subcontractors', icon: ICON.building, sectionKey: 'subcontractorsManage', description: 'Companies a mobilisation is sometimes routed through.', labelKey: 'staffNav.sales.subcontractors.label', descriptionKey: 'staffNav.sales.subcontractors.description' },

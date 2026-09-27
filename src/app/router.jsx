@@ -59,6 +59,7 @@ const ClientEditPage = lazy(() => import('../features/clients/pages/ClientEditPa
 const DeploymentListPage = lazy(() => import('../features/deployments/pages/DeploymentListPage.jsx'));
 const DeploymentDetailPage = lazy(() => import('../features/deployments/pages/DeploymentDetailPage.jsx'));
 const StandbyListPage = lazy(() => import('../features/deployments/pages/StandbyListPage.jsx'));
+const PaymentsDuePage = lazy(() => import('../features/deployments/pages/PaymentsDuePage.jsx'));
 const MobilisationListPage = lazy(() => import('../features/mobilisations/pages/MobilisationListPage.jsx'));
 const MobilisationNewPage = lazy(() => import('../features/mobilisations/pages/MobilisationNewPage.jsx'));
 const MobilisationDetailPage = lazy(() => import('../features/mobilisations/pages/MobilisationDetailPage.jsx'));
@@ -260,8 +261,13 @@ export const router = createBrowserRouter([
               // own hardcoded canReadDeployments exception (she needs to
               // find the deployment she's about to enter hours against).
               { path: '/deployments', element: guarded('deploymentsRelease', <DeploymentListPage />, true) },
-              // Before the /deployments/:id catch-all, or "standby" is read as a deployment id.
+              // Before the /deployments/:id catch-all, or "standby"/"payments-due" is read as a deployment id.
               { path: '/deployments/standby', element: guarded('deploymentsRelease', <StandbyListPage />, true) },
+              // No guarded() wrapper — visibility is its own rule (own
+              // mobilisations for a Coordinator, or 'mobilisationsViewer' for
+              // MM/Admin), enforced server-side; an ungranted viewer just
+              // sees an empty list, same posture as /mobilisations/worker-history.
+              { path: '/deployments/payments-due', element: <PaymentsDuePage /> },
               { path: '/deployments/:id', element: guarded('deploymentsRelease', <DeploymentDetailPage />, true) },
               { path: '/mobilisations', element: <MobilisationListPage /> },
               { path: '/mobilisations/new', element: guardedWrite('mobilisationsSelfMobilise', <MobilisationNewPage />, true) },

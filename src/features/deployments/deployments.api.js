@@ -67,9 +67,27 @@ export async function decideMonthlyHours(id, entryId, payload) {
   return data.data;
 }
 
-export async function sendInvoice(id, entryId) {
-  const { data } = await api.post(`/deployments/${id}/monthly-hours/${entryId}/send-invoice`);
+/** `formData` must include invoiceNumber, invoiceDate, and a `file` (the
+ *  invoice PDF copy) — see DeploymentDetailPage.jsx's FormData-building
+ *  pattern (mirrors MyRequestsPage.jsx's reimbursement submit). */
+export async function sendInvoice(id, entryId, formData) {
+  const { data } = await api.post(`/deployments/${id}/monthly-hours/${entryId}/send-invoice`, formData);
   return data.data;
+}
+
+/** Download a month's uploaded invoice copy as an authenticated Blob, named
+ *  by its original filename — same pattern as reimbursements.api.js's
+ *  downloadReceipt. */
+export async function downloadInvoiceFile(id, entryId, filename) {
+  const res = await api.get(`/deployments/${id}/monthly-hours/${entryId}/invoice-file`, { responseType: 'blob' });
+  const url = URL.createObjectURL(res.data);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
 }
 
 export async function recordPayment(id, entryId, payload) {
@@ -79,6 +97,13 @@ export async function recordPayment(id, entryId, payload) {
 
 export async function decidePayment(id, entryId, payload) {
   const { data } = await api.patch(`/deployments/${id}/monthly-hours/${entryId}/payment/decide`, payload);
+  return data.data;
+}
+
+/** Every invoiced-but-not-yet-fully-paid month, own or company-wide
+ *  depending on the viewer (see deployment.service.js's getPaymentsDue). */
+export async function getPaymentsDue() {
+  const { data } = await api.get('/deployments/payments-due');
   return data.data;
 }
 

@@ -5,7 +5,7 @@
  * a Deployment is born automatically once its source Mobilisation is
  * Approved (see the Mobilisations module).
  */
-import { useMemo, useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useTranslation } from 'react-i18next';
@@ -17,6 +17,7 @@ import {
   updateMonthlyHours,
   decideMonthlyHours,
   sendInvoice,
+  downloadInvoiceFile,
   recordPayment,
   decidePayment,
   demobiliseDeployment,
@@ -33,7 +34,7 @@ import {
   editDeploymentFormSchema,
   deploymentToEditForm,
 } from '../deployments.schema.js';
-import { DEMOBILISATION_REASONS, EMPLOYEE_ONLY_DEMOBILISATION_REASONS } from '../../../lib/constants.js';
+import { DEMOBILISATION_REASONS, EMPLOYEE_ONLY_DEMOBILISATION_REASONS, RECEIPT_ACCEPT, RECEIPT_MAX_MB } from '../../../lib/constants.js';
 import { useAuth } from '../../auth/AuthContext.jsx';
 import { apiMessage, formatDate, formatMoney, cn } from '../../../lib/utils.js';
 import { useToast } from '../../../components/ui/Toast.jsx';
@@ -341,28 +342,41 @@ function BillingStatus({ entry, t, formatDate, formatMoney }) {
   if (!entry.invoiceSentAt) {
     return <Badge variant="default">{t('staffDeployments.detail.billing.notInvoiced')}</Badge>;
   }
+  const invoiceRef = entry.invoiceNumber && (
+    <p className="mt-1 text-xs text-muted">{t('staffDeployments.detail.billing.invoiceRef', { number: entry.invoiceNumber, date: entry.invoiceDate ? formatDate(entry.invoiceDate) : '—' })}</p>
+  );
   if (entry.paymentDecisionStatus === 'Approved') {
     return (
       <div>
         <Badge variant="success">{t('staffDeployments.detail.billing.paymentApproved', { amount: formatMoney(entry.amountReceived) })}</Badge>
+        {invoiceRef}
       </div>
     );
   }
   if (entry.paymentDecisionStatus === 'Pending') {
-    return <Badge variant="warning">{t('staffDeployments.detail.billing.paymentPending', { amount: formatMoney(entry.amountReceived) })}</Badge>;
+    return (
+      <div>
+        <Badge variant="warning">{t('staffDeployments.detail.billing.paymentPending', { amount: formatMoney(entry.amountReceived) })}</Badge>
+        {invoiceRef}
+      </div>
+    );
   }
   if (entry.paymentDecisionStatus === 'Rejected') {
     return (
       <div>
         <Badge variant="danger">{t('staffDeployments.detail.billing.paymentRejected')}</Badge>
         {entry.paymentDecisionNote && <p className="mt-1 max-w-[14rem] text-xs text-muted">{entry.paymentDecisionNote}</p>}
+        {invoiceRef}
       </div>
     );
   }
   return (
-    <Badge variant="default">
-      {t('staffDeployments.detail.billing.invoicedDue', { date: entry.invoiceDueAt ? formatDate(entry.invoiceDueAt) : '—' })}
-    </Badge>
+    <div>
+      <Badge variant="default">
+        {t('staffDeployments.detail.billing.invoicedDue', { date: entry.invoiceDueAt ? formatDate(entry.invoiceDueAt) : '—' })}
+      </Badge>
+      {invoiceRef}
+    </div>
   );
 }
 
@@ -403,6 +417,11 @@ export default function DeploymentDetailPage() {
   const [decidingEntry, setDecidingEntry] = useState(null);
   const [decision, setDecision] = useState(null); // 'Approved' | 'Rejected'
   const [decisionNote, setDecisionNote] = useState('');
+  const [invoicingEntry, setInvoicingEntry] = useState(null);
+  const [invoiceNumberInput, setInvoiceNumberInput] = useState('');
+  const [invoiceDateInput, setInvoiceDateInput] = useState('');
+  const [invoiceFile, setInvoiceFile] = useState(null);
+  const invoiceFileInputRef = useRef(null);
   const [payingEntry, setPayingEntry] = useState(null);
   const [paymentAmount, setPaymentAmount] = useState('');
   const [payDecidingEntry, setPayDecidingEntry] = useState(null);
@@ -452,10 +471,30 @@ export default function DeploymentDetailPage() {
     onError: (error) => toast.error(apiMessage(error)),
   });
 
+  function resetInvoiceForm() {
+    setInvoiceNumberInput('');
+    setInvoiceDateInput('');
+    setInvoiceFile(null);
+    if (invoiceFileInputRef.current) invoiceFileInputRef.current.value = '';
+  }
+
+  function handleInvoiceFileChange(e) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (file.size > RECEIPT_MAX_MB * 1024 * 1024) {
+      toast.error(t('staffDeployments.detail.invoiceFileTooLarge', { maxMb: RECEIPT_MAX_MB }));
+      e.target.value = '';
+      return;
+    }
+    setInvoiceFile(file);
+  }
+
   const sendInvoiceMutation = useMutation({
-    mutationFn: (entryId) => sendInvoice(id, entryId),
+    mutationFn: ({ entryId, formData }) => sendInvoice(id, entryId, formData),
     onSuccess: () => {
       toast.success(t('staffDeployments.detail.invoiceSentToast'));
+      setInvoicingEntry(null);
+      resetInvoiceForm();
       invalidate();
     },
     onError: (error) => toast.error(apiMessage(error)),
@@ -785,13 +824,17 @@ export default function DeploymentDetailPage() {
                               </>
                             )}
                             {canInvoice && entry.status === 'Approved' && !entry.invoiceSentAt && (
+                              <Button size="sm" variant="ghost" onClick={() => setInvoicingEntry(entry)}>
+                                {t('staffDeployments.detail.sendInvoiceButton')}
+                              </Button>
+                            )}
+                            {entry.invoiceFile && (
                               <Button
                                 size="sm"
                                 variant="ghost"
-                                isLoading={sendInvoiceMutation.isPending}
-                                onClick={() => sendInvoiceMutation.mutate(entry._id)}
+                                onClick={() => downloadInvoiceFile(id, entry._id, entry.invoiceFile.originalName)}
                               >
-                                {t('staffDeployments.detail.sendInvoiceButton')}
+                                {t('staffDeployments.detail.downloadInvoiceButton')}
                               </Button>
                             )}
                             {canEnterHours && entry.invoiceSentAt && entry.paymentDecisionStatus !== 'Approved' && (
@@ -998,6 +1041,76 @@ export default function DeploymentDetailPage() {
                 }
               >
                 {decision === 'Approved' ? t('common.approve') : t('common.reject')}
+              </Button>
+            </div>
+          </div>
+        )}
+      </Modal>
+
+      <Modal
+        open={Boolean(invoicingEntry)}
+        onClose={() => {
+          if (sendInvoiceMutation.isPending) return;
+          setInvoicingEntry(null);
+          resetInvoiceForm();
+        }}
+        title={invoicingEntry ? t('staffDeployments.detail.sendInvoiceModalTitle', { month: invoicingEntry.month }) : ''}
+      >
+        {invoicingEntry && (
+          <div className="space-y-4">
+            <p className="text-sm text-muted">{t('staffDeployments.detail.sendInvoiceModalMessage')}</p>
+            <Input
+              label={t('staffDeployments.detail.invoiceNumberLabel')}
+              value={invoiceNumberInput}
+              onChange={(e) => setInvoiceNumberInput(e.target.value)}
+            />
+            <Input
+              label={t('staffDeployments.detail.invoiceDateLabel')}
+              type="date"
+              value={invoiceDateInput}
+              onChange={(e) => setInvoiceDateInput(e.target.value)}
+            />
+            <div>
+              <label className="mb-1.5 block text-sm font-medium">{t('staffDeployments.detail.invoiceFileLabel')}</label>
+              <input
+                ref={invoiceFileInputRef}
+                type="file"
+                accept={RECEIPT_ACCEPT}
+                className="hidden"
+                onChange={handleInvoiceFileChange}
+              />
+              <div className="flex items-center gap-3">
+                <Button type="button" variant="secondary" onClick={() => invoiceFileInputRef.current?.click()}>
+                  {invoiceFile ? t('staffDeployments.detail.changeFile') : t('staffDeployments.detail.chooseFile')}
+                </Button>
+                {invoiceFile && <span className="truncate text-sm text-muted">{invoiceFile.name}</span>}
+              </div>
+            </div>
+            <div className="flex justify-end gap-2 pt-2">
+              <Button
+                type="button"
+                variant="secondary"
+                onClick={() => {
+                  setInvoicingEntry(null);
+                  resetInvoiceForm();
+                }}
+                disabled={sendInvoiceMutation.isPending}
+              >
+                {t('common.cancel')}
+              </Button>
+              <Button
+                type="button"
+                isLoading={sendInvoiceMutation.isPending}
+                disabled={!invoiceNumberInput.trim() || !invoiceDateInput || !invoiceFile}
+                onClick={() => {
+                  const fd = new FormData();
+                  fd.append('invoiceNumber', invoiceNumberInput.trim());
+                  fd.append('invoiceDate', invoiceDateInput);
+                  fd.append('file', invoiceFile);
+                  sendInvoiceMutation.mutate({ entryId: invoicingEntry._id, formData: fd });
+                }}
+              >
+                {t('staffDeployments.detail.sendInvoiceButton')}
               </Button>
             </div>
           </div>
