@@ -38,15 +38,12 @@ const ICON = {
   eosb: 'M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15M12 9l-3 3m0 0l3 3m-3-3h12.75',
   exit: 'M15 9h3.75M15 12h3.75M15 15h3.75M4.5 19.5h15a2.25 2.25 0 002.25-2.25V6.75A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25v10.5A2.25 2.25 0 004.5 19.5zm6-10.125a1.875 1.875 0 11-3.75 0 1.875 1.875 0 013.75 0zm1.294 6.336a6.721 6.721 0 01-3.17.789 6.721 6.721 0 01-3.168-.789 3.376 3.376 0 016.338 0z',
   map: 'M9 6.75V15m6-6v8.25m.503 3.498l4.875-2.437c.381-.19.622-.58.622-1.006V4.82c0-.836-.88-1.38-1.628-1.006l-3.869 1.934c-.317.159-.69.159-1.006 0L9.503 3.252a1.125 1.125 0 00-1.006 0L3.622 5.689C3.24 5.88 3 6.27 3 6.695V19.18c0 .836.88 1.38 1.628 1.006l3.869-1.934c.317-.159.69-.159 1.006 0l4.994 2.497c.317.158.69.158 1.006 0z',
-  quotation:
-    'M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 002.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 00-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 00.75-.75 2.25 2.25 0 00-.1-.664m-5.8 0A2.251 2.251 0 0113.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m0 0H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V9.375c0-.621-.504-1.125-1.125-1.125H8.25z',
   invoice:
     'M9 14.25l6-6m4.5-3.493V21.75l-3.75-1.5-3.75 1.5-3.75-1.5-3.75 1.5V4.757c0-1.108.806-2.057 1.907-2.185a48.507 48.507 0 0111.186 0c1.1.128 1.907 1.077 1.907 2.185zM9.75 9h.008v.008H9.75V9zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm4.125 0h.008v.008h-.008V9zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z',
   expense:
     'M21 12a2.25 2.25 0 00-2.25-2.25H15a3 3 0 11-6 0H5.25A2.25 2.25 0 003 12m18 0v6a2.25 2.25 0 01-2.25 2.25H5.25A2.25 2.25 0 013 18v-6m18 0V9M3 12V9m18 0a2.25 2.25 0 00-2.25-2.25H5.25A2.25 2.25 0 003 9m18 0V6.75A2.25 2.25 0 0018.75 4.5H5.25A2.25 2.25 0 003 6.75V9',
   financialRequest:
     'M12 7.5h1.5m-1.5 3h1.5m-7.5 3h7.5m-7.5 3h7.5m3-9h3.375c.621 0 1.125.504 1.125 1.125V18a2.25 2.25 0 01-2.25 2.25M16.5 7.5V18a2.25 2.25 0 002.25 2.25M16.5 7.5V4.875c0-.621-.504-1.125-1.125-1.125H4.125C3.504 3.75 3 4.254 3 4.875V18a2.25 2.25 0 002.25 2.25h13.5M6 7.5h3v3H6v-3z',
-  creditNote: 'M9 15L3 9m0 0l6-6M3 9h12a6 6 0 010 12h-3',
   document:
     'M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z',
   asset:
@@ -121,7 +118,7 @@ export const NAV_GROUPS = [
     label: 'Sales & Clients',
     labelKey: 'staffNav.sales.label',
     icon: ICON.building,
-    description: 'Client relationships, worker placements and quotations.',
+    description: 'Client relationships and worker placements.',
     descriptionKey: 'staffNav.sales.description',
     items: [
       // No sectionKey — visibility is per-record (coordinator, or the
@@ -130,11 +127,6 @@ export const NAV_GROUPS = [
       { to: '/mobilisations', label: 'Mobilisations', icon: ICON.team, description: 'Worker placements with client billing terms.', labelKey: 'staffNav.sales.mobilisations.label', descriptionKey: 'staffNav.sales.mobilisations.description' },
       { to: '/deployments', label: 'Deployments', icon: ICON.map, sectionKey: 'deploymentsRelease', description: 'Which worker is placed where.', labelKey: 'staffNav.sales.deployments.label', descriptionKey: 'staffNav.sales.deployments.description' },
       { to: '/deployments/standby', label: 'Standby List', icon: ICON.users, sectionKey: 'deploymentsRelease', description: 'Workers waiting for an assignment.', labelKey: 'staffNav.sales.standby.label', descriptionKey: 'staffNav.sales.standby.description' },
-      // No sectionKey — visibility is its own rule (own mobilisations for a
-      // Coordinator, mobilisationsViewer for MM/Admin), same as Mobilisations
-      // itself above; always shown, content is what's naturally scoped.
-      { to: '/deployments/payments-due', label: 'Payments Due', icon: ICON.list, description: 'Invoiced client payments awaiting collection.', labelKey: 'staffNav.sales.paymentsDue.label', descriptionKey: 'staffNav.sales.paymentsDue.description' },
-      { to: '/quotations', label: 'Quotations', icon: ICON.quotation, sectionKey: 'quotationsManage', description: 'Pricing sent to clients, pre-invoice.', labelKey: 'staffNav.sales.quotations.label', descriptionKey: 'staffNav.sales.quotations.description' },
       { to: '/clients', label: 'Clients', icon: ICON.building, sectionKey: 'clientsManage', description: 'Companies your workers are placed with.', labelKey: 'staffNav.sales.clients.label', descriptionKey: 'staffNav.sales.clients.description' },
       { to: '/subcontractors', label: 'Subcontractors', icon: ICON.building, sectionKey: 'subcontractorsManage', description: 'Companies a mobilisation is sometimes routed through.', labelKey: 'staffNav.sales.subcontractors.label', descriptionKey: 'staffNav.sales.subcontractors.description' },
       { to: '/daily-updates', label: 'Daily Updates', icon: ICON.list, sectionKey: ['dailyUpdatesOwn', 'dailyUpdatesTeam'], description: "Coordinators' day-to-day tasks and work log.", labelKey: 'staffNav.sales.dailyUpdates.label', descriptionKey: 'staffNav.sales.dailyUpdates.description' },
@@ -147,11 +139,20 @@ export const NAV_GROUPS = [
     label: 'Financial',
     labelKey: 'staffNav.financial.label',
     icon: ICON.banknotes,
-    description: 'Money in, money out, and payroll.',
+    description: 'Payroll, expenses, and internal financial requests.',
     descriptionKey: 'staffNav.financial.description',
     items: [
-      { to: '/invoices', label: 'Invoices', icon: ICON.invoice, sectionKey: 'invoices', description: 'Billed to clients, payments tracked.', labelKey: 'staffNav.financial.invoices.label', descriptionKey: 'staffNav.financial.invoices.description' },
-      { to: '/credit-notes', label: 'Credit Notes', icon: ICON.creditNote, sectionKey: 'invoices', description: 'Corrections issued against billed invoices.', labelKey: 'staffNav.financial.creditNotes.label', descriptionKey: 'staffNav.financial.creditNotes.description' },
+      // The internal client-billing tracking layer on top of
+      // Deployment.monthlyHours (2026-09-27, moved here from Sales &
+      // Clients — the user's own ask: real accounting/invoicing is
+      // ERPNext's job, this app only tracks whether a client has paid, for
+      // Accounts/FM to act on and to credit a coordinator's target). No
+      // sectionKey on either — visibility is each page's own rule (the
+      // Clerk/MM circle for Ready to Invoice; coordinator-own/
+      // mobilisationsViewer for Payments Due), same reasoning Mobilisations
+      // above already uses.
+      { to: '/financial/ready-to-invoice', label: 'Ready to Invoice', icon: ICON.invoice, description: 'Approved months waiting on a client invoice.', labelKey: 'staffNav.financial.readyToInvoice.label', descriptionKey: 'staffNav.financial.readyToInvoice.description' },
+      { to: '/financial/payments-due', label: 'Payments Due', icon: ICON.list, description: 'Invoiced client payments awaiting collection.', labelKey: 'staffNav.financial.paymentsDue.label', descriptionKey: 'staffNav.financial.paymentsDue.description' },
       // No static roles gate — access is the admin-configurable Section
       // Access mechanism (see docs/SECTION-ACCESS-notes.md); visible to
       // every staff role that reaches this hub, page 403s if not granted —

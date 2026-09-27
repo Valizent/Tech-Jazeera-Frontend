@@ -1,6 +1,6 @@
 /**
  * Dashboard — the management overview. One query to /dashboard feeds headline
- * stats, a finance summary, workforce/quotation breakdowns, expiring-document
+ * stats, a finance summary, a workforce breakdown, expiring-document
  * alerts, recent activity, and role-aware quick actions. Replaces the M3
  * placeholder.
  *
@@ -57,11 +57,6 @@ export default function DashboardPage() {
     localStorage.setItem(THRESHOLD_STORAGE_KEY, String(days));
   }
 
-  // No UI picks a different month on this page (the old profit-trend month selector
-  // was removed in the dashboard restructuring) — a plain constant, not state, so
-  // there's no orphaned setter. getDashboard still takes it (the current month is a
-  // real, meaningful default for anything month-scoped it returns).
-  const month = new Date().toISOString().slice(0, 7);
   const [targetsOpen, setTargetsOpen] = useState(false);
   const [quickActionsOpen, setQuickActionsOpen] = useState(false);
   const quickActionsRef = useCloseOnOutsideClick(quickActionsOpen, setQuickActionsOpen);
@@ -78,8 +73,8 @@ export default function DashboardPage() {
   });
 
   const { data, isPending, isError, refetch } = useQuery({
-    queryKey: ['dashboard', thresholdDays, month],
-    queryFn: () => getDashboard(thresholdDays, month),
+    queryKey: ['dashboard', thresholdDays],
+    queryFn: () => getDashboard(thresholdDays),
   });
 
   const firstName = user.name.split(' ')[0];
@@ -145,7 +140,7 @@ export default function DashboardPage() {
     );
   }
 
-  const { stats, finance, quotationsByStatus, expiringDocuments, recentActivity, myPendingActions, mobilisationsByStatus, activeSubcontractors, attendanceSummary, pendingLeave, pendingExit, myRequirementsSummary } =
+  const { stats, finance, expiringDocuments, recentActivity, myPendingActions, mobilisationsByStatus, activeSubcontractors, attendanceSummary, pendingLeave, pendingExit, myRequirementsSummary } =
     data;
 
   return (
@@ -289,18 +284,9 @@ export default function DashboardPage() {
         </>
       )}
 
-      {/* Breakdowns — these two are mutually exclusive by role (quotationsByStatus is
-          always null for a Coordinator server-side; the coordinator pipeline only ever
-          renders for one), so there's never a real second card to pair either with —
-          full width each, no 2-col grid (removed 2026-09-24 alongside Workforce by
-          status, below, which used to be the thing on the other side of this grid). */}
-      {quotationsByStatus != null && (
-        <StatusBreakdown
-          title={t('staffDashboard.quotationsByStatus')}
-          data={quotationsByStatus}
-          colors={{ Draft: 'default', Approved: 'success', Rejected: 'danger' }}
-        />
-      )}
+      {/* The coordinator's own pipeline breakdown — full width, no 2-col grid
+          to pair it with (removed 2026-09-24 alongside Workforce by status,
+          which used to be the thing on the other side of this grid). */}
       {isCoordinator && mobilisationsByStatus != null && (
         <StatusBreakdown
           title={t('staffDashboard.myPipelineTitle')}

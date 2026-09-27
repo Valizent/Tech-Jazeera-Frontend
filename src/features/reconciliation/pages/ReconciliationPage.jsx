@@ -24,7 +24,6 @@ const SEVERITY_VARIANT = { high: 'danger', medium: 'warning', low: 'default' };
 const CATEGORY_LABELS = {
   orphanedMobilisation: 'Mobilisation with no Deployment',
   doubleBookedWorker: 'Worker placed at two clients at once',
-  invoiceLedgerMismatch: 'Invoice payment ledger mismatch',
   advanceOverRepaid: 'Salary advance over-repaid',
   advanceStatusMismatch: 'Salary advance status mismatch',
   payrollRunMismatch: 'Payroll run total mismatch',

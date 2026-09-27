@@ -436,11 +436,9 @@
     },
     "sales": {
       "label": "Sales & Clients",
-      "description": "Client relationships, worker placements and quotations.",
+      "description": "Client relationships and worker placements.",
       "clients": { "label": "Clients", "description": "Companies your workers are placed with." },
       "deployments": { "label": "Deployments", "description": "Which worker is placed where." },
-      "paymentsDue": { "label": "Payments Due", "description": "Invoiced client payments awaiting collection." },
-      "quotations": { "label": "Quotations", "description": "Pricing sent to clients, pre-invoice." },
       "mobilisations": { "label": "Mobilisations", "description": "Worker placements with client billing terms." },
       "subcontractors": { "label": "Subcontractors", "description": "Companies a mobilisation is sometimes routed through." },
       "dailyUpdates": { "label": "Daily Updates", "description": "Coordinators' day-to-day tasks and work log." },
@@ -448,9 +446,9 @@
     },
     "financial": {
       "label": "Financial",
-      "description": "Money in, money out, and payroll.",
-      "invoices": { "label": "Invoices", "description": "Billed to clients, payments tracked." },
-      "creditNotes": { "label": "Credit Notes", "description": "Corrections issued against billed invoices." },
+      "description": "Payroll, expenses, and internal financial requests.",
+      "readyToInvoice": { "label": "Ready to Invoice", "description": "Approved months waiting on a client invoice." },
+      "paymentsDue": { "label": "Payments Due", "description": "Invoiced client payments awaiting collection." },
       "payroll": { "label": "Payroll", "description": "Monthly runs and payslips." },
       "expenses": { "label": "Expenses", "description": "Company spending, internal only." },
       "financialRequests": { "label": "Financial Requests", "description": "Salary advances and reimbursements." }
@@ -488,9 +486,6 @@
       "workersHint": "{{total}} total · {{onLeave}} on leave",
       "activeClients": "Active clients",
       "yourClients": "Your clients",
-      "pendingQuotations": "Pending quotations",
-      "yourDraftsAwaiting": "Your drafts, awaiting approval",
-      "draftAwaiting": "Draft, awaiting approval",
       "expiringSoon": "Expiring soon",
       "documentsNeedingAttention": "Documents needing attention",
       "markedToday": "Marked today",
@@ -507,28 +502,6 @@
       "Open tasks": "Open tasks",
       "Payments due soon": "Payments due soon"
     },
-    "pipeline": {
-      "title": "Pipeline",
-      "approvedRevenue": "Approved revenue",
-      "approvedQuotations": "Approved quotations",
-      "pipeline": "Pipeline",
-      "draftQuotations": "Draft quotations",
-      "monthlyPayroll": "Monthly payroll",
-      "workforceSalariesRunRate": "Active workforce salaries, run-rate"
-    },
-    "profit": {
-      "title": "Profit",
-      "revenue": "Revenue",
-      "invoicedThisMonth": "Invoiced this month",
-      "payrollCost": "Payroll cost",
-      "finalizedRun": "Finalized run",
-      "expenses": "Expenses",
-      "recordedThisMonth": "Recorded this month",
-      "netProfit": "Net profit",
-      "revenueMinusPayrollMinusExpenses": "Revenue − payroll − expenses",
-      "last6Months": "Last 6 months"
-    },
-    "quotationsByStatus": "Quotations by status",
     "noDataYet": "No data yet.",
     "expiringDocuments": {
       "title": "Expiring documents",
@@ -553,8 +526,7 @@
       "addClient": "Add client",
       "addSupplier": "Add supplier",
       "newMobilisation": "New mobilisation",
-      "attendance": "Attendance",
-      "newQuotation": "New quotation"
+      "attendance": "Attendance"
     },
     "couldNotLoad": "Could not load the dashboard",
     "checkConnectionRetry": "Check your connection and try again.",
@@ -1349,7 +1321,7 @@
       "rejectedTitle": "This submission was rejected.",
       "resubmitHint": "Saving changes resubmits it for approval.",
       "pendingBadge": "Pending approval",
-      "pendingHint": "Not usable for deployments or quotations yet — waiting on a review.",
+      "pendingHint": "Not usable for deployments yet — waiting on a review.",
       "sectionCompany": "Company",
       "companyName": "Company name *",
       "industry": "Industry",
@@ -1405,9 +1377,7 @@
       "tabs": {
         "overview": "Overview",
         "workers": "Workers",
-        "documents": "Documents",
-        "quotations": "Quotations",
-        "invoices": "Invoices"
+        "documents": "Documents"
       },
       "companyDetails": "Company details",
       "fields": {
@@ -1557,6 +1527,19 @@
       "emptyTitle": "Nothing due",
       "emptyDescription": "No invoiced payment is currently outstanding."
     },
+    "readyToInvoice": {
+      "pageTitle": "Ready to invoice",
+      "pageDescription": "Every approved month waiting on a client invoice, oldest first.",
+      "columns": {
+        "worker": "Worker / client",
+        "month": "Month",
+        "hours": "Hours",
+        "waitingSince": "Approved on"
+      },
+      "couldNotLoad": "Could not load the invoicing queue",
+      "emptyTitle": "Nothing to invoice",
+      "emptyDescription": "Every approved month has already been invoiced."
+    },
     "detail": {
       "notFoundTitle": "Deployment not found",
       "notFoundDescription": "It may have been removed.",
@@ -1689,111 +1672,6 @@
       "notDeployed": "Not currently deployed.",
       "viewDeployment": "View deployment",
       "historyTitle": "Deployment history"
-    }
-  },
-  "staffQuotations": {
-    "lineTypeLabels": {
-      "Labour": "Labour",
-      "Trading": "Trading"
-    },
-    "totals": {
-      "subtotal": "Subtotal",
-      "discount": "Discount",
-      "vatTax": "VAT / Tax",
-      "grandTotal": "Grand total"
-    },
-    "list": {
-      "pageTitle": "Quotations",
-      "pageDescription": "Priced offers to clients.",
-      "newQuotation": "New quotation",
-      "searchPlaceholder": "Search number or client…",
-      "searchAriaLabel": "Search quotations",
-      "filterStatusAriaLabel": "Filter by status",
-      "couldNotLoad": "Could not load quotations",
-      "couldNotLoadDescription": "Please try again.",
-      "emptyTitleNoFilters": "No quotations yet",
-      "emptyTitleFiltered": "No quotations match",
-      "emptyDescriptionNoFilters": "Create your first quotation for a client."
-    },
-    "columns": {
-      "number": "Number",
-      "client": "Client",
-      "date": "Date",
-      "status": "Status",
-      "total": "Total"
-    },
-    "panel": {
-      "title": "Quotations",
-      "newQuotation": "New quotation",
-      "emptyTitle": "No quotations yet",
-      "emptyDescriptionWrite": "Create a priced offer for this client.",
-      "emptyDescriptionView": "No quotations for this client."
-    },
-    "form": {
-      "clientLabel": "Client *",
-      "selectClient": "Select a client…",
-      "noApprovedClients": "No approved clients yet —",
-      "addOneFirst": "add one first",
-      "status": "Status",
-      "date": "Date",
-      "validUntil": "Valid until",
-      "lineItemsTitle": "Line items",
-      "addLine": "Add line",
-      "typeAriaLabel": "Type",
-      "descriptionPlaceholder": "Description",
-      "qtyPlaceholder": "Qty",
-      "quantityAriaLabel": "Quantity",
-      "unitPricePlaceholder": "Unit price",
-      "unitPriceAriaLabel": "Unit price",
-      "discPlaceholder": "Disc%",
-      "discountAriaLabel": "Discount %",
-      "taxPlaceholder": "Tax%",
-      "taxAriaLabel": "Tax %",
-      "removeLineAriaLabel": "Remove line {{index}}",
-      "notes": "Notes",
-      "notesPlaceholder": "Payment terms, scope, conditions…"
-    },
-    "new": {
-      "pageTitle": "New quotation",
-      "pageDescription": "Build a priced offer for a client.",
-      "submitLabel": "Create quotation",
-      "createdToast": "{{number}} created."
-    },
-    "edit": {
-      "pageTitlePrefix": "Edit {{number}}",
-      "submitLabel": "Save changes",
-      "updatedToast": "{{number}} updated.",
-      "notFoundTitle": "Quotation not found",
-      "notFoundDescription": "It may have been deleted."
-    },
-    "view": {
-      "notFoundTitle": "Quotation not found",
-      "notFoundDescription": "It may have been deleted.",
-      "backToList": "Back to quotations",
-      "viewInvoice": "View invoice",
-      "createInvoice": "Create invoice",
-      "invoiceCreatedToast": "{{number}} created.",
-      "duplicate": "Duplicate",
-      "duplicatedToast": "Duplicated as {{number}}.",
-      "deletedToast": "{{number}} deleted.",
-      "deleteConfirmTitle": "Delete quotation?",
-      "deleteConfirmMessage": "{{number}} will be permanently removed.",
-      "date": "Date",
-      "validUntil": "Valid until",
-      "columns": {
-        "type": "Type",
-        "description": "Description",
-        "qty": "Qty",
-        "unit": "Unit",
-        "disc": "Disc%",
-        "tax": "Tax%",
-        "amount": "Amount"
-      },
-      "notes": "Notes"
-    },
-    "pdfButton": {
-      "label": "PDF",
-      "failedToast": "Could not generate the PDF."
     }
   },
   "staffMobilisations": {
@@ -2102,117 +1980,6 @@
     },
     "deleteConfirmTitle": "Delete subcontractor?",
     "deleteConfirmMessage": "{{name}} will be permanently removed."
-  },
-  "staffInvoices": {
-    "list": {
-      "pageTitle": "Invoices",
-      "pageDescription": "Billed amounts and payments received, created from approved quotations.",
-      "searchPlaceholder": "Search number or client…",
-      "searchAriaLabel": "Search invoices",
-      "filterStatusAriaLabel": "Filter by status",
-      "couldNotLoad": "Could not load invoices",
-      "couldNotLoadDescription": "Please try again.",
-      "emptyTitleNoFilters": "No invoices yet",
-      "emptyTitleFiltered": "No invoices match",
-      "emptyDescriptionNoFilters": "Approve a quotation, then create an invoice from it."
-    },
-    "columns": {
-      "number": "Number",
-      "client": "Client",
-      "date": "Date",
-      "due": "Due",
-      "status": "Status",
-      "balanceDue": "Balance due",
-      "overdue": "Overdue"
-    },
-    "panel": {
-      "title": "Invoices",
-      "emptyTitle": "No invoices yet",
-      "emptyDescription": "Invoices are created from an approved quotation for this client."
-    },
-    "view": {
-      "notFoundTitle": "Invoice not found",
-      "notFoundDescription": "It may have been deleted.",
-      "backToList": "Back to invoices",
-      "recordPayment": "Record payment",
-      "date": "Date",
-      "dueDate": "Due date",
-      "fromQuotation": "From quotation",
-      "columns": {
-        "type": "Type",
-        "description": "Description",
-        "qty": "Qty",
-        "unit": "Unit",
-        "disc": "Disc%",
-        "tax": "Tax%",
-        "amount": "Amount"
-      },
-      "clientVat": "VAT {{number}}",
-      "paid": "Paid",
-      "creditedLabel": "Credited",
-      "balanceDueLabel": "Balance due",
-      "notes": "Notes",
-      "paymentsTitle": "Payments",
-      "noPaymentsTitle": "No payments yet",
-      "noPaymentsDescription": "Record a payment as it's received.",
-      "recordPaymentModalTitle": "Record a payment",
-      "balanceDueLine": "Balance due: {{amount}}",
-      "amount": "Amount *",
-      "paymentDate": "Date *",
-      "method": "Method",
-      "methodPlaceholder": "Bank Transfer, Cheque, Cash…",
-      "reference": "Reference",
-      "savePayment": "Save payment",
-      "paymentRecordedToast": "Payment recorded — invoice {{status}}.",
-      "deletedToast": "{{number}} deleted.",
-      "deleteConfirmTitle": "Delete invoice?",
-      "deleteConfirmMessage": "{{number}} will be permanently removed."
-    },
-    "creditNotes": {
-      "list": {
-        "pageTitle": "Credit notes",
-        "pageDescription": "Every correction issued against a billed invoice, company-wide.",
-        "searchPlaceholder": "Search by number, invoice, or client…",
-        "searchAriaLabel": "Search credit notes",
-        "couldNotLoad": "Could not load credit notes",
-        "couldNotLoadDescription": "Check your connection and try again.",
-        "emptyTitle": "No credit notes yet",
-        "emptyDescription": "A credit note is issued from an invoice's own page when it needs correcting.",
-        "columns": {
-          "number": "Number",
-          "invoice": "Invoice",
-          "client": "Client",
-          "date": "Date",
-          "reason": "Reason",
-          "amount": "Amount"
-        }
-      },
-      "title": "Credit notes",
-      "issueButton": "Issue credit note",
-      "emptyTitle": "No credit notes",
-      "emptyDescription": "This invoice hasn't been corrected.",
-      "remainingLine": "Left to credit on this invoice: {{remaining}} of {{total}}.",
-      "modalTitle": "Issue credit note — {{number}}",
-      "reasonLabel": "Reason *",
-      "reasonPlaceholder": "Why this invoice is being corrected — e.g. wrong quantity billed, agreed price adjustment…",
-      "lineItemsLabel": "Line items",
-      "copyFromInvoice": "Copy from invoice",
-      "addLine": "Add line",
-      "removeLine": "Remove line",
-      "previewLabel": "Credit total (preview):",
-      "saveButton": "Issue credit note",
-      "issuedToast": "Credit note issued.",
-      "typeAriaLabel": "Type",
-      "descriptionAriaLabel": "Description",
-      "quantityAriaLabel": "Quantity",
-      "unitPriceAriaLabel": "Unit price",
-      "discountAriaLabel": "Discount %",
-      "fixHighlighted": "Check the highlighted fields."
-    },
-    "pdfButton": {
-      "label": "PDF",
-      "failedToast": "Could not generate the PDF."
-    }
   },
   "staffPayroll": {
     "list": {

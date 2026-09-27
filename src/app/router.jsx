@@ -60,6 +60,7 @@ const DeploymentListPage = lazy(() => import('../features/deployments/pages/Depl
 const DeploymentDetailPage = lazy(() => import('../features/deployments/pages/DeploymentDetailPage.jsx'));
 const StandbyListPage = lazy(() => import('../features/deployments/pages/StandbyListPage.jsx'));
 const PaymentsDuePage = lazy(() => import('../features/deployments/pages/PaymentsDuePage.jsx'));
+const ReadyToInvoicePage = lazy(() => import('../features/deployments/pages/ReadyToInvoicePage.jsx'));
 const MobilisationListPage = lazy(() => import('../features/mobilisations/pages/MobilisationListPage.jsx'));
 const MobilisationNewPage = lazy(() => import('../features/mobilisations/pages/MobilisationNewPage.jsx'));
 const MobilisationDetailPage = lazy(() => import('../features/mobilisations/pages/MobilisationDetailPage.jsx'));
@@ -72,10 +73,6 @@ const SubcontractorListPage = lazy(() => import('../features/subcontractors/page
 const AttendancePage = lazy(() => import('../features/attendance/pages/AttendancePage.jsx'));
 const AttendanceSummaryPage = lazy(() => import('../features/attendance/pages/AttendanceSummaryPage.jsx'));
 const DocumentListPage = lazy(() => import('../features/documents/pages/DocumentListPage.jsx'));
-const QuotationListPage = lazy(() => import('../features/quotations/pages/QuotationListPage.jsx'));
-const QuotationNewPage = lazy(() => import('../features/quotations/pages/QuotationNewPage.jsx'));
-const QuotationViewPage = lazy(() => import('../features/quotations/pages/QuotationViewPage.jsx'));
-const QuotationEditPage = lazy(() => import('../features/quotations/pages/QuotationEditPage.jsx'));
 const TimesheetProcessorPage = lazy(() => import('../features/timesheetProcessor/pages/TimesheetProcessorPage.jsx'));
 const NfcCompanyListPage = lazy(() => import('../features/nfc/pages/NfcCompanyListPage.jsx'));
 const NfcCompanyProfilePage = lazy(() => import('../features/nfc/pages/NfcCompanyProfilePage.jsx'));
@@ -95,9 +92,6 @@ const ExitDocumentsPage = lazy(() => import('../features/exitDocuments/pages/Exi
 const TimesheetsPage = lazy(() => import('../features/timesheets/pages/TimesheetsPage.jsx'));
 const PayrollListPage = lazy(() => import('../features/payroll/pages/PayrollListPage.jsx'));
 const PayrollRunPage = lazy(() => import('../features/payroll/pages/PayrollRunPage.jsx'));
-const InvoiceListPage = lazy(() => import('../features/invoices/pages/InvoiceListPage.jsx'));
-const InvoiceViewPage = lazy(() => import('../features/invoices/pages/InvoiceViewPage.jsx'));
-const CreditNoteListPage = lazy(() => import('../features/invoices/pages/CreditNoteListPage.jsx'));
 const ExpenseListPage = lazy(() => import('../features/expenses/pages/ExpenseListPage.jsx'));
 const AuditLogPage = lazy(() => import('../features/audit/pages/AuditLogPage.jsx'));
 const ReconciliationPage = lazy(() => import('../features/reconciliation/pages/ReconciliationPage.jsx'));
@@ -261,13 +255,8 @@ export const router = createBrowserRouter([
               // own hardcoded canReadDeployments exception (she needs to
               // find the deployment she's about to enter hours against).
               { path: '/deployments', element: guarded('deploymentsRelease', <DeploymentListPage />, true) },
-              // Before the /deployments/:id catch-all, or "standby"/"payments-due" is read as a deployment id.
+              // Before the /deployments/:id catch-all, or "standby" is read as a deployment id.
               { path: '/deployments/standby', element: guarded('deploymentsRelease', <StandbyListPage />, true) },
-              // No guarded() wrapper — visibility is its own rule (own
-              // mobilisations for a Coordinator, or 'mobilisationsViewer' for
-              // MM/Admin), enforced server-side; an ungranted viewer just
-              // sees an empty list, same posture as /mobilisations/worker-history.
-              { path: '/deployments/payments-due', element: <PaymentsDuePage /> },
               { path: '/deployments/:id', element: guarded('deploymentsRelease', <DeploymentDetailPage />, true) },
               { path: '/mobilisations', element: <MobilisationListPage /> },
               { path: '/mobilisations/new', element: guardedWrite('mobilisationsSelfMobilise', <MobilisationNewPage />, true) },
@@ -287,10 +276,6 @@ export const router = createBrowserRouter([
               { path: '/attendance', element: guarded(['attendanceRecords', 'attendanceSignInOut', 'attendanceOfficeLocation'], <AttendancePage />) },
               { path: '/attendance/summary', element: guarded('attendanceRecords', <AttendanceSummaryPage />) },
               { path: '/documents', element: guarded('documentsManage', <DocumentListPage />) },
-              { path: '/quotations', element: guarded('quotationsManage', <QuotationListPage />) },
-              { path: '/quotations/new', element: guardedWrite('quotationsManage', <QuotationNewPage />) },
-              { path: '/quotations/:id', element: guarded('quotationsManage', <QuotationViewPage />) },
-              { path: '/quotations/:id/edit', element: guardedWrite('quotationsManage', <QuotationEditPage />) },
               { path: '/timesheet-processor', element: guarded('timesheetProcessor', <TimesheetProcessorPage />) },
               { path: '/team', element: guarded('team', <UserListPage />) },
               { path: '/coordinator-activity', element: <CoordinatorActivityPage /> },
@@ -306,9 +291,19 @@ export const router = createBrowserRouter([
               { path: '/timesheets', element: guarded('timesheetRequests', <TimesheetsPage />) },
               { path: '/payroll', element: guarded('payroll', <PayrollListPage />) },
               { path: '/payroll/:id', element: guarded('payroll', <PayrollRunPage />) },
-              { path: '/invoices', element: guarded('invoices', <InvoiceListPage />) },
-              { path: '/invoices/:id', element: guarded('invoices', <InvoiceViewPage />) },
-              { path: '/credit-notes', element: guarded('invoices', <CreditNoteListPage />) },
+              // Client billing — the internal tracking layer on top of
+              // Deployment.monthlyHours (2026-09-27, moved out of the
+              // Deployment detail page into its own Financial-section home,
+              // the user's own ask: "financial should be for accountants and
+              // FM to do their stuff," not scattered across a workforce
+              // module). No dedicated Section Access gate on either route —
+              // each page's own data is already correctly scoped
+              // server-side (deploymentsInvoicing/mobilisationsViewer for
+              // Ready to Invoice; coordinator-own/mobilisationsViewer for
+              // Payments Due), same reasoning the old
+              // /deployments/payments-due route already used.
+              { path: '/financial/ready-to-invoice', element: guarded(['deploymentsInvoicing', 'mobilisationsViewer'], <ReadyToInvoicePage />) },
+              { path: '/financial/payments-due', element: <PaymentsDuePage /> },
               { path: '/expenses', element: guarded('expenses', <ExpenseListPage />) },
               { path: '/security-log', element: guarded('auditLog', <AuditLogPage />) },
               { path: '/reconciliation', element: guarded('reconciliation', <ReconciliationPage />) },

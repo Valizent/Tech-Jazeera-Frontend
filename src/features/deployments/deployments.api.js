@@ -107,6 +107,13 @@ export async function getPaymentsDue() {
   return data.data;
 }
 
+/** Every Approved-but-not-yet-invoiced month — the Clerk's own queue (see
+ *  deployment.service.js's getReadyToInvoice). */
+export async function getReadyToInvoice() {
+  const { data } = await api.get('/deployments/ready-to-invoice');
+  return data.data;
+}
+
 /** Demobilise — ends this deployment. `payload.reason` decides whether the
  *  worker goes back to standby or exits the company (see deployments.schema.js). */
 export async function demobiliseDeployment(id, payload) {

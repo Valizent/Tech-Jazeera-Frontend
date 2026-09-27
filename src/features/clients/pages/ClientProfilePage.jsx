@@ -6,9 +6,10 @@
  *   - Workers    — employees currently assigned here (live query on the
  *                  employee endpoint filtered by client).
  *   - Documents  — this client's files (M8).
- *   - Quotations — priced offers to this client (M9).
- *   - Invoices   — billed amounts and payments, created from an approved
- *                  quotation (P2-M6).
+ *
+ * Quotations/Invoices tabs (M9/P2-M6) were removed 2026-09-27 alongside
+ * those modules — real accounting/billing is ERPNext's job; see
+ * docs/CHANGELOG.md.
  */
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -33,8 +34,6 @@ import Skeleton from '../../../components/ui/Skeleton.jsx';
 import EmptyState from '../../../components/ui/EmptyState.jsx';
 import ProfileField from '../../../components/ui/ProfileField.jsx';
 import DocumentsPanel from '../../documents/components/DocumentsPanel.jsx';
-import QuotationsPanel from '../../quotations/components/QuotationsPanel.jsx';
-import InvoicesPanel from '../../invoices/components/InvoicesPanel.jsx';
 
 const STATUS_VARIANT = { Active: 'success', Inactive: 'default' };
 
@@ -221,8 +220,6 @@ export default function ClientProfilePage() {
     { key: 'overview', label: t('staffClients.profile.tabs.overview') },
     { key: 'workers', label: t('staffClients.profile.tabs.workers') },
     { key: 'documents', label: t('staffClients.profile.tabs.documents') },
-    { key: 'quotations', label: t('staffClients.profile.tabs.quotations') },
-    { key: 'invoices', label: t('staffClients.profile.tabs.invoices') },
   ];
 
   return (
@@ -278,8 +275,6 @@ export default function ClientProfilePage() {
       {tab === 'documents' && (
         <DocumentsPanel ownerType="Client" ownerId={id} ownerName={client.companyName} />
       )}
-      {tab === 'quotations' && <QuotationsPanel clientId={id} />}
-      {tab === 'invoices' && <InvoicesPanel clientId={id} />}
 
       <ConfirmDialog
         open={confirmingDelete}

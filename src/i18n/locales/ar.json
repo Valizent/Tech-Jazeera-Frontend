@@ -436,11 +436,9 @@
     },
     "sales": {
       "label": "المبيعات والعملاء",
-      "description": "علاقات العملاء وتنسيب العمالة وعروض الأسعار.",
+      "description": "علاقات العملاء وتنسيب العمالة.",
       "clients": { "label": "العملاء", "description": "الشركات التي يعمل لديها موظفوك." },
       "deployments": { "label": "التنسيبات", "description": "أين يعمل كل موظف حاليًا." },
-      "paymentsDue": { "label": "المدفوعات المستحقة", "description": "مدفوعات العملاء المفوترة بانتظار التحصيل." },
-      "quotations": { "label": "عروض الأسعار", "description": "الأسعار المرسلة للعملاء، قبل الفوترة." },
       "mobilisations": { "label": "التعبئة والتنسيب", "description": "تنسيب العمالة مع شروط الفوترة للعميل." },
       "subcontractors": { "label": "الباطن", "description": "الشركات التي يُوجَّه إليها التنسيب أحيانًا عبر مقاول باطن." },
       "dailyUpdates": { "label": "التحديثات اليومية", "description": "مهام المنسقين اليومية وسجل عملهم." },
@@ -448,9 +446,9 @@
     },
     "financial": {
       "label": "الشؤون المالية",
-      "description": "الإيرادات والمصروفات والرواتب.",
-      "invoices": { "label": "الفواتير", "description": "الفواتير المرسلة للعملاء، مع تتبع الدفعات." },
-      "creditNotes": { "label": "الإشعارات الدائنة", "description": "تصحيحات صادرة لفواتير مُصدرة." },
+      "description": "الرواتب والمصروفات والطلبات المالية الداخلية.",
+      "readyToInvoice": { "label": "جاهز للفوترة", "description": "أشهر مُعتمدة بانتظار فاتورة للعميل." },
+      "paymentsDue": { "label": "المدفوعات المستحقة", "description": "مدفوعات العملاء المفوترة بانتظار التحصيل." },
       "payroll": { "label": "الرواتب", "description": "دورات الرواتب الشهرية وقسائمها." },
       "expenses": { "label": "المصروفات", "description": "مصروفات الشركة، للاستخدام الداخلي فقط." },
       "financialRequests": { "label": "الطلبات المالية", "description": "السلف والمصاريف المستردة." }
@@ -488,9 +486,6 @@
       "workersHint": "الإجمالي {{total}} · في إجازة {{onLeave}}",
       "activeClients": "العملاء النشطون",
       "yourClients": "عملاؤك",
-      "pendingQuotations": "عروض الأسعار المعلقة",
-      "yourDraftsAwaiting": "مسوداتك، بانتظار الاعتماد",
-      "draftAwaiting": "مسودة، بانتظار الاعتماد",
       "expiringSoon": "قريبة الانتهاء",
       "documentsNeedingAttention": "مستندات تحتاج إلى متابعة",
       "markedToday": "تم تسجيله اليوم",
@@ -507,28 +502,6 @@
       "Open tasks": "مهام مفتوحة",
       "Payments due soon": "مدفوعات مستحقة قريبًا"
     },
-    "pipeline": {
-      "title": "خط الأعمال",
-      "approvedRevenue": "الإيرادات المعتمدة",
-      "approvedQuotations": "عروض الأسعار المعتمدة",
-      "pipeline": "قيد الإنجاز",
-      "draftQuotations": "عروض أسعار قيد الإعداد",
-      "monthlyPayroll": "الرواتب الشهرية",
-      "workforceSalariesRunRate": "رواتب القوى العاملة الحالية، بمعدل تشغيلي"
-    },
-    "profit": {
-      "title": "الأرباح",
-      "revenue": "الإيرادات",
-      "invoicedThisMonth": "المفوتر هذا الشهر",
-      "payrollCost": "تكلفة الرواتب",
-      "finalizedRun": "الدورة المعتمدة نهائيًا",
-      "expenses": "المصروفات",
-      "recordedThisMonth": "المسجلة هذا الشهر",
-      "netProfit": "صافي الربح",
-      "revenueMinusPayrollMinusExpenses": "الإيرادات − الرواتب − المصروفات",
-      "last6Months": "آخر 6 أشهر"
-    },
-    "quotationsByStatus": "عروض الأسعار حسب الحالة",
     "noDataYet": "لا توجد بيانات بعد.",
     "expiringDocuments": {
       "title": "مستندات قريبة الانتهاء",
@@ -553,8 +526,7 @@
       "addClient": "إضافة عميل",
       "addSupplier": "إضافة مقاول باطن",
       "newMobilisation": "تعبئة جديدة",
-      "attendance": "الحضور",
-      "newQuotation": "عرض سعر جديد"
+      "attendance": "الحضور"
     },
     "couldNotLoad": "تعذر تحميل لوحة التحكم",
     "checkConnectionRetry": "تحقق من اتصالك وحاول مرة أخرى.",
@@ -1349,7 +1321,7 @@
       "rejectedTitle": "تم رفض هذا الطلب.",
       "resubmitHint": "حفظ التغييرات يعيد تقديمه للموافقة.",
       "pendingBadge": "بانتظار الموافقة",
-      "pendingHint": "غير قابل للاستخدام في عمليات النشر أو عروض الأسعار بعد — بانتظار المراجعة.",
+      "pendingHint": "غير قابل للاستخدام في عمليات النشر بعد — بانتظار المراجعة.",
       "sectionCompany": "الشركة",
       "companyName": "اسم الشركة *",
       "industry": "القطاع",
@@ -1405,9 +1377,7 @@
       "tabs": {
         "overview": "نظرة عامة",
         "workers": "العمال",
-        "documents": "المستندات",
-        "quotations": "عروض الأسعار",
-        "invoices": "الفواتير"
+        "documents": "المستندات"
       },
       "companyDetails": "بيانات الشركة",
       "fields": {
@@ -1557,6 +1527,19 @@
       "emptyTitle": "لا شيء مستحق",
       "emptyDescription": "لا توجد دفعة مفوترة معلقة حاليًا."
     },
+    "readyToInvoice": {
+      "pageTitle": "جاهز للفوترة",
+      "pageDescription": "كل شهر مُعتمد بانتظار فاتورة للعميل، الأقدم أولًا.",
+      "columns": {
+        "worker": "العامل / العميل",
+        "month": "الشهر",
+        "hours": "الساعات",
+        "waitingSince": "تاريخ الاعتماد"
+      },
+      "couldNotLoad": "تعذر تحميل قائمة الفوترة",
+      "emptyTitle": "لا شيء للفوترة",
+      "emptyDescription": "تمت فوترة كل شهر مُعتمد بالفعل."
+    },
     "detail": {
       "notFoundTitle": "عملية النشر غير موجودة",
       "notFoundDescription": "ربما تمت إزالتها.",
@@ -1689,111 +1672,6 @@
       "notDeployed": "غير منشور حاليًا.",
       "viewDeployment": "عرض النشر",
       "historyTitle": "سجل عمليات النشر"
-    }
-  },
-  "staffQuotations": {
-    "lineTypeLabels": {
-      "Labour": "عمالة",
-      "Trading": "تجارة"
-    },
-    "totals": {
-      "subtotal": "المجموع الفرعي",
-      "discount": "الخصم",
-      "vatTax": "ضريبة القيمة المضافة",
-      "grandTotal": "الإجمالي الكلي"
-    },
-    "list": {
-      "pageTitle": "عروض الأسعار",
-      "pageDescription": "العروض المسعّرة المقدمة للعملاء.",
-      "newQuotation": "عرض سعر جديد",
-      "searchPlaceholder": "البحث بالرقم أو اسم العميل…",
-      "searchAriaLabel": "البحث في عروض الأسعار",
-      "filterStatusAriaLabel": "تصفية حسب الحالة",
-      "couldNotLoad": "تعذر تحميل عروض الأسعار",
-      "couldNotLoadDescription": "يرجى المحاولة مرة أخرى.",
-      "emptyTitleNoFilters": "لا توجد عروض أسعار بعد",
-      "emptyTitleFiltered": "لا توجد عروض أسعار مطابقة",
-      "emptyDescriptionNoFilters": "أنشئ أول عرض سعر لعميل."
-    },
-    "columns": {
-      "number": "الرقم",
-      "client": "العميل",
-      "date": "التاريخ",
-      "status": "الحالة",
-      "total": "الإجمالي"
-    },
-    "panel": {
-      "title": "عروض الأسعار",
-      "newQuotation": "عرض سعر جديد",
-      "emptyTitle": "لا توجد عروض أسعار بعد",
-      "emptyDescriptionWrite": "أنشئ عرضًا مسعّرًا لهذا العميل.",
-      "emptyDescriptionView": "لا توجد عروض أسعار لهذا العميل."
-    },
-    "form": {
-      "clientLabel": "العميل *",
-      "selectClient": "اختر عميلًا…",
-      "noApprovedClients": "لا يوجد عملاء معتمدون بعد —",
-      "addOneFirst": "أضف واحدًا أولاً",
-      "status": "الحالة",
-      "date": "التاريخ",
-      "validUntil": "صالح حتى",
-      "lineItemsTitle": "البنود",
-      "addLine": "إضافة بند",
-      "typeAriaLabel": "النوع",
-      "descriptionPlaceholder": "الوصف",
-      "qtyPlaceholder": "الكمية",
-      "quantityAriaLabel": "الكمية",
-      "unitPricePlaceholder": "سعر الوحدة",
-      "unitPriceAriaLabel": "سعر الوحدة",
-      "discPlaceholder": "الخصم%",
-      "discountAriaLabel": "نسبة الخصم",
-      "taxPlaceholder": "الضريبة%",
-      "taxAriaLabel": "نسبة الضريبة",
-      "removeLineAriaLabel": "إزالة البند {{index}}",
-      "notes": "ملاحظات",
-      "notesPlaceholder": "شروط الدفع، النطاق، الشروط…"
-    },
-    "new": {
-      "pageTitle": "عرض سعر جديد",
-      "pageDescription": "إنشاء عرض مسعّر لعميل.",
-      "submitLabel": "إنشاء عرض السعر",
-      "createdToast": "تم إنشاء {{number}}."
-    },
-    "edit": {
-      "pageTitlePrefix": "تعديل {{number}}",
-      "submitLabel": "حفظ التغييرات",
-      "updatedToast": "تم تحديث {{number}}.",
-      "notFoundTitle": "عرض السعر غير موجود",
-      "notFoundDescription": "ربما تم حذفه."
-    },
-    "view": {
-      "notFoundTitle": "عرض السعر غير موجود",
-      "notFoundDescription": "ربما تم حذفه.",
-      "backToList": "العودة إلى عروض الأسعار",
-      "viewInvoice": "عرض الفاتورة",
-      "createInvoice": "إنشاء فاتورة",
-      "invoiceCreatedToast": "تم إنشاء {{number}}.",
-      "duplicate": "نسخ",
-      "duplicatedToast": "تم النسخ باسم {{number}}.",
-      "deletedToast": "تم حذف {{number}}.",
-      "deleteConfirmTitle": "حذف عرض السعر؟",
-      "deleteConfirmMessage": "سيتم حذف {{number}} نهائيًا.",
-      "date": "التاريخ",
-      "validUntil": "صالح حتى",
-      "columns": {
-        "type": "النوع",
-        "description": "الوصف",
-        "qty": "الكمية",
-        "unit": "الوحدة",
-        "disc": "الخصم%",
-        "tax": "الضريبة%",
-        "amount": "المبلغ"
-      },
-      "notes": "ملاحظات"
-    },
-    "pdfButton": {
-      "label": "PDF",
-      "failedToast": "تعذر إنشاء ملف PDF."
     }
   },
   "staffMobilisations": {
@@ -2102,117 +1980,6 @@
     },
     "deleteConfirmTitle": "حذف المقاول من الباطن؟",
     "deleteConfirmMessage": "سيتم حذف {{name}} نهائيًا."
-  },
-  "staffInvoices": {
-    "list": {
-      "pageTitle": "الفواتير",
-      "pageDescription": "المبالغ المفوترة والمدفوعات المستلمة، المُنشأة من عروض أسعار معتمدة.",
-      "searchPlaceholder": "البحث بالرقم أو اسم العميل…",
-      "searchAriaLabel": "البحث في الفواتير",
-      "filterStatusAriaLabel": "تصفية حسب الحالة",
-      "couldNotLoad": "تعذر تحميل الفواتير",
-      "couldNotLoadDescription": "يرجى المحاولة مرة أخرى.",
-      "emptyTitleNoFilters": "لا توجد فواتير بعد",
-      "emptyTitleFiltered": "لا توجد فواتير مطابقة",
-      "emptyDescriptionNoFilters": "اعتمد عرض سعر، ثم أنشئ فاتورة منه."
-    },
-    "columns": {
-      "number": "الرقم",
-      "client": "العميل",
-      "date": "التاريخ",
-      "due": "الاستحقاق",
-      "status": "الحالة",
-      "balanceDue": "الرصيد المستحق",
-      "overdue": "متأخر"
-    },
-    "panel": {
-      "title": "الفواتير",
-      "emptyTitle": "لا توجد فواتير بعد",
-      "emptyDescription": "تُنشأ الفواتير من عرض سعر معتمد لهذا العميل."
-    },
-    "view": {
-      "notFoundTitle": "الفاتورة غير موجودة",
-      "notFoundDescription": "ربما تم حذفها.",
-      "backToList": "العودة إلى الفواتير",
-      "recordPayment": "تسجيل دفعة",
-      "date": "التاريخ",
-      "dueDate": "تاريخ الاستحقاق",
-      "fromQuotation": "من عرض السعر",
-      "columns": {
-        "type": "النوع",
-        "description": "الوصف",
-        "qty": "الكمية",
-        "unit": "الوحدة",
-        "disc": "الخصم%",
-        "tax": "الضريبة%",
-        "amount": "المبلغ"
-      },
-      "clientVat": "الرقم الضريبي {{number}}",
-      "paid": "المدفوع",
-      "creditedLabel": "مخصوم بإشعار دائن",
-      "balanceDueLabel": "الرصيد المستحق",
-      "notes": "ملاحظات",
-      "paymentsTitle": "المدفوعات",
-      "noPaymentsTitle": "لا توجد مدفوعات بعد",
-      "noPaymentsDescription": "سجّل الدفعة عند استلامها.",
-      "recordPaymentModalTitle": "تسجيل دفعة",
-      "balanceDueLine": "الرصيد المستحق: {{amount}}",
-      "amount": "المبلغ *",
-      "paymentDate": "التاريخ *",
-      "method": "طريقة الدفع",
-      "methodPlaceholder": "تحويل بنكي، شيك، نقدًا…",
-      "reference": "المرجع",
-      "savePayment": "حفظ الدفعة",
-      "paymentRecordedToast": "تم تسجيل الدفعة — الفاتورة {{status}}.",
-      "deletedToast": "تم حذف {{number}}.",
-      "deleteConfirmTitle": "حذف الفاتورة؟",
-      "deleteConfirmMessage": "سيتم حذف {{number}} نهائيًا."
-    },
-    "creditNotes": {
-      "list": {
-        "pageTitle": "الإشعارات الدائنة",
-        "pageDescription": "كل تصحيح صدر لفاتورة مُصدرة، على مستوى الشركة بالكامل.",
-        "searchPlaceholder": "ابحث بالرقم أو الفاتورة أو العميل…",
-        "searchAriaLabel": "بحث في الإشعارات الدائنة",
-        "couldNotLoad": "تعذر تحميل الإشعارات الدائنة",
-        "couldNotLoadDescription": "تحقق من الاتصال وحاول مرة أخرى.",
-        "emptyTitle": "لا توجد إشعارات دائنة بعد",
-        "emptyDescription": "يُصدر الإشعار الدائن من صفحة الفاتورة نفسها عند الحاجة لتصحيحها.",
-        "columns": {
-          "number": "الرقم",
-          "invoice": "الفاتورة",
-          "client": "العميل",
-          "date": "التاريخ",
-          "reason": "السبب",
-          "amount": "المبلغ"
-        }
-      },
-      "title": "إشعارات الخصم الدائنة",
-      "issueButton": "إصدار إشعار دائن",
-      "emptyTitle": "لا توجد إشعارات دائنة",
-      "emptyDescription": "لم يتم تصحيح هذه الفاتورة.",
-      "remainingLine": "المتبقي للخصم من هذه الفاتورة: {{remaining}} من أصل {{total}}.",
-      "modalTitle": "إصدار إشعار دائن — {{number}}",
-      "reasonLabel": "السبب *",
-      "reasonPlaceholder": "سبب تصحيح هذه الفاتورة — مثال: كمية خاطئة، تعديل سعر متفق عليه…",
-      "lineItemsLabel": "بنود الفاتورة",
-      "copyFromInvoice": "نسخ من الفاتورة",
-      "addLine": "إضافة بند",
-      "removeLine": "إزالة البند",
-      "previewLabel": "إجمالي الإشعار الدائن (معاينة):",
-      "saveButton": "إصدار إشعار دائن",
-      "issuedToast": "تم إصدار الإشعار الدائن.",
-      "typeAriaLabel": "النوع",
-      "descriptionAriaLabel": "الوصف",
-      "quantityAriaLabel": "الكمية",
-      "unitPriceAriaLabel": "سعر الوحدة",
-      "discountAriaLabel": "نسبة الخصم",
-      "fixHighlighted": "يرجى مراجعة الحقول المظللة."
-    },
-    "pdfButton": {
-      "label": "PDF",
-      "failedToast": "تعذر إنشاء ملف PDF."
-    }
   },
   "staffPayroll": {
     "list": {

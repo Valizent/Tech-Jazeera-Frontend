@@ -173,14 +173,6 @@ export const MONTH_NAMES = [
   'July', 'August', 'September', 'October', 'November', 'December',
 ];
 
-/** Mirrors invoice.model.js. View/create/payments is the admin-configurable
- *  SectionAccess ('invoices') mechanism now — reaching the page at all
- *  already implies full access there. Delete stays its own hardcoded,
- *  stricter circle. */
-export const INVOICE_STATUSES = ['Unpaid', 'Partially Paid', 'Paid'];
-export const INVOICE_STATUS_VARIANT = { Unpaid: 'danger', 'Partially Paid': 'warning', Paid: 'success' };
-export const INVOICE_DELETE_ROLES = ['Admin', 'Manager'];
-
 /** Mirrors expense.model.js. Internal cost data — access is the same
  *  SectionAccess ('expenses') mechanism as Payroll, not a static role list. */
 export const EXPENSE_CATEGORIES = ['Rent', 'Fuel', 'Salaries-external', 'Purchases', 'Utilities', 'Staff Reimbursement', 'Other'];
@@ -342,14 +334,3 @@ export const DOCUMENT_ACCEPT = '.pdf,.jpg,.jpeg,.png,.webp,.doc,.docx,.xls,.xlsx
 export const AVATAR_MAX_MB = 2;
 export const AVATAR_ACCEPT = '.jpg,.jpeg,.png,.webp';
 
-/** Mirrors the Quotation model enums. */
-export const QUOTATION_STATUSES = ['Draft', 'Approved', 'Rejected'];
-export const QUOTATION_LINE_TYPES = ['Labour', 'Trading'];
-
-/** Create/edit/duplicate is the admin-configurable SectionAccess
- *  ('quotationsManage') mechanism now. Delete stays its own hardcoded,
- *  stricter circle (mirrors quotation.routes.js). */
-export const QUOTATION_DELETE_ROLES = ['Admin', 'Manager'];
-
-/** Default KSA VAT rate for new line items. */
-export const DEFAULT_TAX_RATE = 15;

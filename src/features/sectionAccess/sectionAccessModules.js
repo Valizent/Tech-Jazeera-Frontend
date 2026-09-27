@@ -68,7 +68,6 @@ export const MODULE_GROUPS = [
           'deploymentsEdit',
         ],
       },
-      { ...navItem('sales', '/quotations'), sectionKeys: ['quotationsManage'] },
       { ...navItem('sales', '/clients'), sectionKeys: ['clientsManage'] },
       { ...navItem('sales', '/subcontractors'), sectionKeys: ['subcontractorsManage'] },
       { ...navItem('sales', '/daily-updates'), sectionKeys: ['dailyUpdatesOwn', 'dailyUpdatesTeam'] },
@@ -81,7 +80,6 @@ export const MODULE_GROUPS = [
     labelKey: navGroup('financial').labelKey,
     icon: navGroup('financial').icon,
     modules: [
-      { ...navItem('financial', '/invoices'), sectionKeys: ['invoices'] },
       { ...navItem('financial', '/payroll'), sectionKeys: ['payroll'] },
       { ...navItem('financial', '/expenses'), sectionKeys: ['expenses'] },
       { ...navItem('financial', '/financial-requests'), sectionKeys: ['financialRequests'] },
@@ -90,7 +88,7 @@ export const MODULE_GROUPS = [
       // label/icon are borrowed directly rather than looked up via navItem().
       {
         label: `${DASHBOARD_ITEM.label} — profit`,
-        description: 'The dashboard\'s real monthly profit figure, without granting Invoices/Payroll/Expenses themselves.',
+        description: 'The dashboard\'s real monthly profit figure, without granting Payroll/Expenses themselves.',
         icon: DASHBOARD_ITEM.icon,
         sectionKeys: ['dashboardProfit'],
       },

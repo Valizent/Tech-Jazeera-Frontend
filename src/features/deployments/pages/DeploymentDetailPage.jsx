@@ -5,7 +5,7 @@
  * a Deployment is born automatically once its source Mobilisation is
  * Approved (see the Mobilisations module).
  */
-import { useMemo, useRef, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useTranslation } from 'react-i18next';
@@ -16,10 +16,7 @@ import {
   addMonthlyHours,
   updateMonthlyHours,
   decideMonthlyHours,
-  sendInvoice,
   downloadInvoiceFile,
-  recordPayment,
-  decidePayment,
   demobiliseDeployment,
   updateDeployment,
 } from '../deployments.api.js';
@@ -34,7 +31,7 @@ import {
   editDeploymentFormSchema,
   deploymentToEditForm,
 } from '../deployments.schema.js';
-import { DEMOBILISATION_REASONS, EMPLOYEE_ONLY_DEMOBILISATION_REASONS, RECEIPT_ACCEPT, RECEIPT_MAX_MB } from '../../../lib/constants.js';
+import { DEMOBILISATION_REASONS, EMPLOYEE_ONLY_DEMOBILISATION_REASONS } from '../../../lib/constants.js';
 import { useAuth } from '../../auth/AuthContext.jsx';
 import { apiMessage, formatDate, formatMoney, cn } from '../../../lib/utils.js';
 import { useToast } from '../../../components/ui/Toast.jsx';
@@ -406,27 +403,16 @@ export default function DeploymentDetailPage() {
   // granted write immediately (see src/scripts/grant-deployments-edit.js).
   // No Office Secretary bypass — purely Section-Access-driven.
   const canEditDeployment = Boolean(user.sectionAccessWrite?.includes('deploymentsEdit'));
-  // The "Clerk" step (2026-09-27, the user's own ask) — whoever sends the
-  // client invoice once hours are approved. Admin-only until an ApprovalRole
-  // is granted, same posture as every other new Section Access key.
+  // These two no longer gate any ACTION here (Send Invoice/Record Payment/
+  // Approve-Reject Payment moved to the Financial section's own Ready to
+  // Invoice / Payments Due pages, 2026-09-27, the user's own ask) — kept
+  // only to decide whether this viewer should see the read-only Billing
+  // status column below at all.
   const canInvoice = Boolean(user.sectionAccessWrite?.includes('deploymentsInvoicing'));
-  // Financial-Manager sign-off on a recorded payment — separate from
-  // canDecideHours, a different real person/role per the user's own
-  // description of this process.
   const canDecidePaymentAccess = Boolean(user.sectionAccessWrite?.includes('deploymentsPaymentDecide'));
   const [decidingEntry, setDecidingEntry] = useState(null);
   const [decision, setDecision] = useState(null); // 'Approved' | 'Rejected'
   const [decisionNote, setDecisionNote] = useState('');
-  const [invoicingEntry, setInvoicingEntry] = useState(null);
-  const [invoiceNumberInput, setInvoiceNumberInput] = useState('');
-  const [invoiceDateInput, setInvoiceDateInput] = useState('');
-  const [invoiceFile, setInvoiceFile] = useState(null);
-  const invoiceFileInputRef = useRef(null);
-  const [payingEntry, setPayingEntry] = useState(null);
-  const [paymentAmount, setPaymentAmount] = useState('');
-  const [payDecidingEntry, setPayDecidingEntry] = useState(null);
-  const [payDecision, setPayDecision] = useState(null); // 'Approved' | 'Rejected'
-  const [payDecisionNote, setPayDecisionNote] = useState('');
 
   const { data: deployment, isPending, isError } = useQuery({
     queryKey: ['deployment', id],
@@ -466,60 +452,6 @@ export default function DeploymentDetailPage() {
       setDecidingEntry(null);
       setDecision(null);
       setDecisionNote('');
-      invalidate();
-    },
-    onError: (error) => toast.error(apiMessage(error)),
-  });
-
-  function resetInvoiceForm() {
-    setInvoiceNumberInput('');
-    setInvoiceDateInput('');
-    setInvoiceFile(null);
-    if (invoiceFileInputRef.current) invoiceFileInputRef.current.value = '';
-  }
-
-  function handleInvoiceFileChange(e) {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    if (file.size > RECEIPT_MAX_MB * 1024 * 1024) {
-      toast.error(t('staffDeployments.detail.invoiceFileTooLarge', { maxMb: RECEIPT_MAX_MB }));
-      e.target.value = '';
-      return;
-    }
-    setInvoiceFile(file);
-  }
-
-  const sendInvoiceMutation = useMutation({
-    mutationFn: ({ entryId, formData }) => sendInvoice(id, entryId, formData),
-    onSuccess: () => {
-      toast.success(t('staffDeployments.detail.invoiceSentToast'));
-      setInvoicingEntry(null);
-      resetInvoiceForm();
-      invalidate();
-    },
-    onError: (error) => toast.error(apiMessage(error)),
-  });
-
-  const recordPaymentMutation = useMutation({
-    mutationFn: ({ entryId, values }) => recordPayment(id, entryId, values),
-    onSuccess: () => {
-      toast.success(t('staffDeployments.detail.paymentRecordedToast'));
-      setPayingEntry(null);
-      setPaymentAmount('');
-      invalidate();
-    },
-    onError: (error) => toast.error(apiMessage(error)),
-  });
-
-  const decidePaymentMutation = useMutation({
-    mutationFn: ({ entryId, values }) => decidePayment(id, entryId, values),
-    onSuccess: () => {
-      toast.success(
-        payDecision === 'Approved' ? t('staffDeployments.detail.paymentApprovedToast') : t('staffDeployments.detail.paymentRejectedToast')
-      );
-      setPayDecidingEntry(null);
-      setPayDecision(null);
-      setPayDecisionNote('');
       invalidate();
     },
     onError: (error) => toast.error(apiMessage(error)),
@@ -823,11 +755,6 @@ export default function DeploymentDetailPage() {
                                 </Button>
                               </>
                             )}
-                            {canInvoice && entry.status === 'Approved' && !entry.invoiceSentAt && (
-                              <Button size="sm" variant="ghost" onClick={() => setInvoicingEntry(entry)}>
-                                {t('staffDeployments.detail.sendInvoiceButton')}
-                              </Button>
-                            )}
                             {entry.invoiceFile && (
                               <Button
                                 size="sm"
@@ -836,44 +763,6 @@ export default function DeploymentDetailPage() {
                               >
                                 {t('staffDeployments.detail.downloadInvoiceButton')}
                               </Button>
-                            )}
-                            {canEnterHours && entry.invoiceSentAt && entry.paymentDecisionStatus !== 'Approved' && (
-                              <Button
-                                size="sm"
-                                variant="ghost"
-                                onClick={() => {
-                                  setPayingEntry(entry);
-                                  setPaymentAmount(entry.amountReceived ? String(entry.amountReceived) : '');
-                                }}
-                              >
-                                {t('staffDeployments.detail.recordPaymentButton')}
-                              </Button>
-                            )}
-                            {canDecidePaymentAccess && entry.paymentDecisionStatus === 'Pending' && (
-                              <>
-                                <Button
-                                  size="sm"
-                                  variant="ghost"
-                                  onClick={() => {
-                                    setPayDecidingEntry(entry);
-                                    setPayDecision('Approved');
-                                    setPayDecisionNote('');
-                                  }}
-                                >
-                                  {t('common.approve')}
-                                </Button>
-                                <Button
-                                  size="sm"
-                                  variant="danger-ghost"
-                                  onClick={() => {
-                                    setPayDecidingEntry(entry);
-                                    setPayDecision('Rejected');
-                                    setPayDecisionNote('');
-                                  }}
-                                >
-                                  {t('common.reject')}
-                                </Button>
-                              </>
                             )}
                           </div>
                         </td>
@@ -1047,181 +936,10 @@ export default function DeploymentDetailPage() {
         )}
       </Modal>
 
-      <Modal
-        open={Boolean(invoicingEntry)}
-        onClose={() => {
-          if (sendInvoiceMutation.isPending) return;
-          setInvoicingEntry(null);
-          resetInvoiceForm();
-        }}
-        title={invoicingEntry ? t('staffDeployments.detail.sendInvoiceModalTitle', { month: invoicingEntry.month }) : ''}
-      >
-        {invoicingEntry && (
-          <div className="space-y-4">
-            <p className="text-sm text-muted">{t('staffDeployments.detail.sendInvoiceModalMessage')}</p>
-            <Input
-              label={t('staffDeployments.detail.invoiceNumberLabel')}
-              value={invoiceNumberInput}
-              onChange={(e) => setInvoiceNumberInput(e.target.value)}
-            />
-            <Input
-              label={t('staffDeployments.detail.invoiceDateLabel')}
-              type="date"
-              value={invoiceDateInput}
-              onChange={(e) => setInvoiceDateInput(e.target.value)}
-            />
-            <div>
-              <label className="mb-1.5 block text-sm font-medium">{t('staffDeployments.detail.invoiceFileLabel')}</label>
-              <input
-                ref={invoiceFileInputRef}
-                type="file"
-                accept={RECEIPT_ACCEPT}
-                className="hidden"
-                onChange={handleInvoiceFileChange}
-              />
-              <div className="flex items-center gap-3">
-                <Button type="button" variant="secondary" onClick={() => invoiceFileInputRef.current?.click()}>
-                  {invoiceFile ? t('staffDeployments.detail.changeFile') : t('staffDeployments.detail.chooseFile')}
-                </Button>
-                {invoiceFile && <span className="truncate text-sm text-muted">{invoiceFile.name}</span>}
-              </div>
-            </div>
-            <div className="flex justify-end gap-2 pt-2">
-              <Button
-                type="button"
-                variant="secondary"
-                onClick={() => {
-                  setInvoicingEntry(null);
-                  resetInvoiceForm();
-                }}
-                disabled={sendInvoiceMutation.isPending}
-              >
-                {t('common.cancel')}
-              </Button>
-              <Button
-                type="button"
-                isLoading={sendInvoiceMutation.isPending}
-                disabled={!invoiceNumberInput.trim() || !invoiceDateInput || !invoiceFile}
-                onClick={() => {
-                  const fd = new FormData();
-                  fd.append('invoiceNumber', invoiceNumberInput.trim());
-                  fd.append('invoiceDate', invoiceDateInput);
-                  fd.append('file', invoiceFile);
-                  sendInvoiceMutation.mutate({ entryId: invoicingEntry._id, formData: fd });
-                }}
-              >
-                {t('staffDeployments.detail.sendInvoiceButton')}
-              </Button>
-            </div>
-          </div>
-        )}
-      </Modal>
-
-      <Modal
-        open={Boolean(payingEntry)}
-        onClose={() => {
-          if (recordPaymentMutation.isPending) return;
-          setPayingEntry(null);
-          setPaymentAmount('');
-        }}
-        title={payingEntry ? t('staffDeployments.detail.recordPaymentModalTitle', { month: payingEntry.month }) : ''}
-      >
-        {payingEntry && (
-          <div className="space-y-4">
-            <p className="text-sm text-muted">{t('staffDeployments.detail.recordPaymentModalMessage')}</p>
-            <Input
-              label={t('staffDeployments.detail.amountReceivedLabel')}
-              type="number"
-              min="0"
-              step="0.01"
-              value={paymentAmount}
-              onChange={(e) => setPaymentAmount(e.target.value)}
-            />
-            <div className="flex justify-end gap-2 pt-2">
-              <Button type="button" variant="secondary" onClick={() => setPayingEntry(null)} disabled={recordPaymentMutation.isPending}>
-                {t('common.cancel')}
-              </Button>
-              <Button
-                type="button"
-                isLoading={recordPaymentMutation.isPending}
-                disabled={paymentAmount === '' || Number(paymentAmount) < 0}
-                onClick={() =>
-                  recordPaymentMutation.mutate({
-                    entryId: payingEntry._id,
-                    values: { amountReceived: Number(paymentAmount) },
-                  })
-                }
-              >
-                {t('staffDeployments.detail.recordPaymentButton')}
-              </Button>
-            </div>
-          </div>
-        )}
-      </Modal>
-
-      <Modal
-        open={Boolean(payDecidingEntry)}
-        onClose={() => {
-          if (decidePaymentMutation.isPending) return;
-          setPayDecidingEntry(null);
-          setPayDecision(null);
-        }}
-        title={
-          payDecidingEntry
-            ? t(
-                payDecision === 'Approved' ? 'staffDeployments.detail.approvePaymentModalTitle' : 'staffDeployments.detail.rejectPaymentModalTitle',
-                { month: payDecidingEntry.month }
-              )
-            : ''
-        }
-      >
-        {payDecidingEntry && (
-          <div className="space-y-4">
-            <p className="text-sm text-muted">
-              {t('staffDeployments.detail.decidePaymentModalMessage', {
-                amount: formatMoney(payDecidingEntry.amountReceived),
-                worker: deployment.workerName,
-              })}
-            </p>
-            <Textarea
-              label={
-                payDecision === 'Rejected'
-                  ? t('staffDeployments.detail.decisionNoteRequiredLabel')
-                  : t('staffDeployments.detail.decisionNoteOptionalLabel')
-              }
-              value={payDecisionNote}
-              onChange={(e) => setPayDecisionNote(e.target.value)}
-            />
-            <div className="flex justify-end gap-2 pt-2">
-              <Button
-                type="button"
-                variant="secondary"
-                onClick={() => {
-                  setPayDecidingEntry(null);
-                  setPayDecision(null);
-                }}
-                disabled={decidePaymentMutation.isPending}
-              >
-                {t('common.cancel')}
-              </Button>
-              <Button
-                type="button"
-                variant={payDecision === 'Rejected' ? 'danger' : 'primary'}
-                isLoading={decidePaymentMutation.isPending}
-                disabled={payDecision === 'Rejected' && !payDecisionNote.trim()}
-                onClick={() =>
-                  decidePaymentMutation.mutate({
-                    entryId: payDecidingEntry._id,
-                    values: { decision: payDecision, note: payDecisionNote.trim() || undefined },
-                  })
-                }
-              >
-                {payDecision === 'Approved' ? t('common.approve') : t('common.reject')}
-              </Button>
-            </div>
-          </div>
-        )}
-      </Modal>
+      {/* Send Invoice / Record Payment / Approve-Reject Payment moved to the
+          Financial section's own Ready to Invoice / Payments Due pages
+          (2026-09-27, the user's own ask) — only a read-only Billing status
+          readout and an invoice-file download stay here. */}
 
       <Modal
         open={demobilising}
