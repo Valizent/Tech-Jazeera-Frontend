@@ -123,7 +123,7 @@ export default function MobilisationEditPage() {
   const locations = locationData ?? [];
 
   return (
-    <div className="mx-auto max-w-3xl">
+    <div className="mx-auto max-w-[1200px]">
       <PageHeader
         title={t('staffMobilisations.edit.pageTitle')}
         description={t('staffMobilisations.edit.descriptionLine', { worker: mobilisation.workerName, client: mobilisation.clientName })}

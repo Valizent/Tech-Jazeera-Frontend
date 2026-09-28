@@ -858,8 +858,6 @@ export default function MobilisationDetailPage() {
         )}
       </Card>
 
-      <ApprovalTrailView request={m} />
-
       {(canDecide || hasReviewFields) && (
         <CommercialDetailsCard
           m={m}
@@ -872,6 +870,8 @@ export default function MobilisationDetailPage() {
           onReject={(values) => saveThenDecide('Rejected', values)}
         />
       )}
+
+      <ApprovalTrailView request={m} />
 
       </div>
 

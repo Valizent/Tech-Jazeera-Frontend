@@ -203,7 +203,7 @@ export default function MobilisationNewPage() {
   };
 
   return (
-    <div className="mx-auto max-w-3xl">
+    <div className="mx-auto max-w-[1200px]">
       <PageHeader
         title={t('staffMobilisations.new.pageTitle')}
         description={t('staffMobilisations.new.pageDescription')}
