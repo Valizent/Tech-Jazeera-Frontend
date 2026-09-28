@@ -44,13 +44,13 @@ export default {
        * of hand-rolling box-shadows.
        */
       boxShadow: {
-        xs: '0 1px 2px 0 rgb(30 27 75 / 0.05)',
-        sm: '0 1px 3px 0 rgb(30 27 75 / 0.07), 0 1px 2px -1px rgb(30 27 75 / 0.06)',
-        md: '0 4px 14px -3px rgb(30 27 75 / 0.10), 0 2px 6px -3px rgb(30 27 75 / 0.06)',
-        lg: '0 14px 32px -8px rgb(30 27 75 / 0.16), 0 6px 14px -8px rgb(30 27 75 / 0.10)',
-        xl: '0 28px 56px -14px rgb(30 27 75 / 0.26)',
+        xs: '0 1px 2px 0 rgb(30 27 75 / 0.03)',
+        sm: '0 2px 4px -1px rgb(30 27 75 / 0.04), 0 1px 2px -1px rgb(30 27 75 / 0.02)',
+        md: '0 6px 12px -3px rgb(30 27 75 / 0.06), 0 2px 6px -3px rgb(30 27 75 / 0.03)',
+        lg: '0 12px 24px -8px rgb(30 27 75 / 0.10), 0 4px 10px -8px rgb(30 27 75 / 0.04)',
+        xl: '0 20px 40px -12px rgb(30 27 75 / 0.15)',
         // A focused glow for the primary CTA — used sparingly.
-        glow: '0 8px 24px -8px rgb(79 70 229 / 0.50)',
+        glow: '0 8px 24px -8px rgb(79 70 229 / 0.40)',
       },
       // Exponential ease-outs only (no bounce/elastic) — see design laws.
       transitionTimingFunction: {

@@ -7,10 +7,11 @@ import { cn } from '../../lib/utils.js';
 import Spinner from './Spinner.jsx';
 
 const variants = {
-  primary: 'bg-gradient-to-r from-primary to-purple-500 text-white shadow-sm hover:from-primary-hover hover:to-purple-600 hover:shadow-glow border border-white/10',
-  secondary: 'bg-surface/50 backdrop-blur-md text-text border border-border/50 shadow-sm hover:bg-surface/80 hover:border-border/80',
-  ghost: 'text-muted hover:bg-surface/40 hover:backdrop-blur-md hover:text-text',
-  danger: 'bg-danger text-white shadow-sm hover:bg-danger-hover',
+  primary: 'bg-gradient-to-r from-primary to-primary-hover text-white shadow-sm hover:shadow-glow border border-white/10',
+  secondary: 'bg-surface/70 backdrop-blur-md text-text border border-border/60 shadow-sm hover:bg-surface hover:border-border hover:shadow',
+  ghost: 'text-muted hover:bg-surface/50 hover:backdrop-blur-md hover:text-text',
+  success: 'bg-success/10 text-success border border-success/20 hover:bg-success hover:text-white shadow-sm transition-colors',
+  danger: 'bg-danger/10 text-danger border border-danger/20 hover:bg-danger hover:text-white shadow-sm transition-colors',
   'danger-ghost': 'text-danger/70 hover:bg-danger/10 hover:text-danger',
 };
 

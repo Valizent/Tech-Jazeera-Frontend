@@ -13,25 +13,23 @@
   color-scheme: light;
   /* Neutrals are tinted toward the indigo brand hue (never pure #fff/#000) —
      it reads as a single calm system rather than clinical grey. */
-  --color-bg: 246 247 252; /* indigo-tinted off-white */
-  --color-surface: 255 255 255; /* near-white cards; depth comes from shadow + the bg wash */
-  --color-border: 226 229 241; /* slate-200, warmed toward indigo */
-  --color-text: 20 22 43; /* near-slate-900 with indigo tint */
-  --color-muted: 100 108 140; /* slate-500, tinted */
-  --color-primary: 79 70 229; /* indigo-600 */
+  --color-bg: 248 250 252; /* crisp cool grey background #F8FAFC */
+  --color-surface: 255 255 255; /* pristine white cards */
+  --color-border: 241 245 249; /* ultra-faint slate-100 for borderless feel */
+  --color-text: 15 23 42; /* sharp slate-900 */
+  --color-muted: 100 116 139; /* slate-500 */
+  --color-primary: 79 70 229; /* electric indigo-600 */
   --color-primary-hover: 67 56 202; /* indigo-700 */
-  --color-danger: 220 38 38; /* red-600   */
-  --color-danger-hover: 185 28 28; /* red-700   */
-  --color-success: 22 163 74; /* green-600 */
-  --color-warning: 217 119 6; /* amber-600 */
+  --color-danger: 220 38 38; /* red-600 */
+  --color-danger-hover: 185 28 28; /* red-700 */
+  --color-success: 16 185 129; /* emerald-500 (softer, premium green) */
+  --color-warning: 245 158 11; /* amber-500 */
   /* Glass = a translucent border tint, applied only on the few frosted
-     surfaces (topbar, modal scrim, auth card). Not a default. */
+     surfaces (topbar, modal scrim, auth card). */
   --glass-border: 255 255 255;
   /* The soft, fixed background wash — two faint indigo glows behind everything. */
-  --bg-wash: radial-gradient(1000px circle at 0% 0%, rgba(99, 102, 241, 0.12) 0%, transparent 100%),
-             radial-gradient(1000px circle at 100% 0%, rgba(168, 85, 247, 0.12) 0%, transparent 100%),
-             radial-gradient(1000px circle at 100% 100%, rgba(56, 189, 248, 0.12) 0%, transparent 100%),
-             radial-gradient(1000px circle at 0% 100%, rgba(236, 72, 153, 0.12) 0%, transparent 100%);
+  --bg-wash: radial-gradient(1200px circle at 0% 0%, rgba(79, 70, 229, 0.08) 0%, transparent 100%),
+             radial-gradient(1200px circle at 100% 100%, rgba(16, 185, 129, 0.05) 0%, transparent 100%);
 }
 
 .dark {
