@@ -126,7 +126,7 @@ export default function HolidayListPage() {
   ];
 
   return (
-    <div className="mx-auto max-w-4xl">
+    <div className="mx-auto max-w-[1600px]">
       <PageHeader
         title={t('staffHolidays.pageTitle')}
         description={t('staffHolidays.pageDescription')}

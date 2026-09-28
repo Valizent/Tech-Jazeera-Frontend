@@ -183,7 +183,7 @@ export default function ClientListPage() {
   const noFilters = !params.search && !params.status && !params.approvalStatus;
 
   return (
-    <div className="mx-auto max-w-6xl">
+    <div className="mx-auto max-w-[1600px]">
       <PageHeader
         title={t('staffClients.list.pageTitle')}
         description={t('staffClients.list.pageDescription')}

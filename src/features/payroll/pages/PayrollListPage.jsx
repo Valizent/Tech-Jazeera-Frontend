@@ -71,7 +71,7 @@ export default function PayrollListPage() {
   ];
 
   return (
-    <div className="mx-auto max-w-4xl">
+    <div className="mx-auto max-w-[1600px]">
       <PageHeader
         title={t('staffPayroll.list.pageTitle')}
         description={t('staffPayroll.list.pageDescription')}

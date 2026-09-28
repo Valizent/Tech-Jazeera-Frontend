@@ -140,7 +140,7 @@ export default function SubcontractorListPage() {
   const noFilters = !params.search && !params.status;
 
   return (
-    <div className="mx-auto max-w-4xl">
+    <div className="mx-auto max-w-[1600px]">
       <PageHeader
         title={t('staffSubcontractors.pageTitle')}
         description={t('staffSubcontractors.pageDescription')}

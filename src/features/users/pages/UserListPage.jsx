@@ -126,7 +126,7 @@ export default function UserListPage() {
   ];
 
   return (
-    <div className="mx-auto max-w-5xl">
+    <div className="mx-auto max-w-[1600px]">
       <PageHeader
         title="Team"
         description="Every staff and worker login. To create a new one, open the person's Employee profile."

@@ -148,7 +148,7 @@ export default function MobilisationListPage() {
   }
 
   return (
-    <div className="mx-auto max-w-5xl">
+    <div className="mx-auto max-w-[1600px]">
       <PageHeader
         title={t('staffMobilisations.list.pageTitle')}
         description={t('staffMobilisations.list.pageDescription')}

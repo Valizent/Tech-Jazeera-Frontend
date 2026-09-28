@@ -217,7 +217,7 @@ export default function AssetListPage() {
   ];
 
   return (
-    <div className="mx-auto max-w-6xl">
+    <div className="mx-auto max-w-[1600px]">
       <PageHeader
         title="Assets"
         description="Vehicles, laptops, phones, and tools — who has what."

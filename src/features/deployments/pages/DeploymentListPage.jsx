@@ -192,7 +192,7 @@ export default function DeploymentListPage() {
   ];
 
   return (
-    <div className="mx-auto max-w-6xl">
+    <div className="mx-auto max-w-[1600px]">
       <PageHeader
         title={t('staffDeployments.list.pageTitle')}
         description={t('staffDeployments.list.pageDescription')}

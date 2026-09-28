@@ -59,7 +59,7 @@ export default function SettlementListPage() {
   ];
 
   return (
-    <div className="mx-auto max-w-5xl">
+    <div className="mx-auto max-w-[1600px]">
       <PageHeader
         title={t('staffEosb.list.pageTitle')}
         description={t('staffEosb.list.pageDescription')}

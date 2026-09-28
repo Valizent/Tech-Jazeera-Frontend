@@ -207,7 +207,7 @@ export default function EmployeeListPage() {
   const noFilters = !params.search && !params.status && !params.type && !params.alerts && !params.team;
 
   return (
-    <div className="mx-auto max-w-6xl">
+    <div className="mx-auto max-w-[1600px]">
       <PageHeader
         title={t('staffEmployees.list.title')}
         description={t('staffEmployees.list.description')}

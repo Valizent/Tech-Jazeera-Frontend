@@ -96,7 +96,7 @@ export default function WorkerHistoryPage() {
   }
 
   return (
-    <div className="mx-auto max-w-4xl space-y-6">
+    <div className="mx-auto max-w-[1600px] space-y-6">
       <PageHeader
         title={t('staffMobilisations.workerHistory.pageTitle')}
         description={t('staffMobilisations.workerHistory.pageDescription')}

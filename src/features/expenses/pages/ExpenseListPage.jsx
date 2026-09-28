@@ -195,7 +195,7 @@ export default function ExpenseListPage() {
   const noFilters = !params.search && !params.category && !params.from && !params.to;
 
   return (
-    <div className="mx-auto max-w-5xl">
+    <div className="mx-auto max-w-[1600px]">
       <PageHeader
         title="Expenses"
         description="Company costs — rent, fuel, purchases, utilities — the other half of profit alongside invoices."

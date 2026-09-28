@@ -541,7 +541,7 @@ export default function LeavePage() {
   const [activeTab, setActiveTab] = useTabParam(tabs, 'requests');
 
   return (
-    <div className="mx-auto max-w-4xl space-y-6">
+    <div className="mx-auto max-w-[1600px] space-y-6">
       <PageHeader
         title={t('staffLeave.page.title')}
         onBack={() => navigate(-1)}
