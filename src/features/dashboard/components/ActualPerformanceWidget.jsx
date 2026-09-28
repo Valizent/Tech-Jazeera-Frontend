@@ -68,53 +68,26 @@ function PerformanceChart({ expenses, amountReceived }) {
   const expPct = Math.max(0, Math.min(100, (expenses / max) * 100));
   const recPct = Math.max(0, Math.min(100, (amountReceived / max) * 100));
   
-  const outerRadius = 52;
-  const innerRadius = 36;
-  const stroke = 10;
-  const center = 64; // total width/height = 128
-  
-  const outerCircumference = 2 * Math.PI * outerRadius;
-  const innerCircumference = 2 * Math.PI * innerRadius;
-  
-  const outerDasharray = `${(recPct / 100) * outerCircumference} ${outerCircumference}`;
-  const innerDasharray = `${(expPct / 100) * innerCircumference} ${innerCircumference}`;
-  
   return (
-    <div className="flex flex-col items-center justify-center">
-      <div className="relative flex items-center justify-center" style={{ width: 128, height: 128 }}>
-        <svg width="128" height="128" className="-rotate-90 transform">
-          {/* Outer track (Received) */}
-          <circle cx={center} cy={center} r={outerRadius} fill="none" className="stroke-border/40" strokeWidth={stroke} />
-          {/* Inner track (Expenses) */}
-          <circle cx={center} cy={center} r={innerRadius} fill="none" className="stroke-border/40" strokeWidth={stroke} />
-          
-          {/* Outer bar */}
-          <circle 
-            cx={center} 
-            cy={center} 
-            r={outerRadius} 
-            fill="none" 
-            className="stroke-success/80 transition-all duration-1000" 
-            strokeWidth={stroke} 
-            strokeDasharray={outerDasharray}
-            strokeLinecap="round"
-          />
-          {/* Inner bar */}
-          <circle 
-            cx={center} 
-            cy={center} 
-            r={innerRadius} 
-            fill="none" 
-            className="stroke-danger/80 transition-all duration-1000" 
-            strokeWidth={stroke} 
-            strokeDasharray={innerDasharray}
-            strokeLinecap="round"
-          />
-        </svg>
+    <div className="flex w-full flex-col justify-center space-y-4 px-2">
+      <div className="space-y-1.5">
+        <div className="flex justify-between text-xs font-semibold uppercase tracking-wide text-muted">
+          <span>Expenses</span>
+          <span>{expPct.toFixed(0)}%</span>
+        </div>
+        <div className="h-4 w-full overflow-hidden rounded-full bg-bg/50 border border-border/40 shadow-inner">
+          <div className="h-full rounded-full bg-gradient-to-r from-danger/60 to-danger transition-all duration-1000" style={{ width: `${expPct}%` }} />
+        </div>
       </div>
-      <div className="mt-2 flex gap-3 text-[10px] font-semibold uppercase tracking-wide text-muted">
-        <span className="flex items-center gap-1"><span className="h-2 w-2 rounded-full bg-danger/80"></span> Exp</span>
-        <span className="flex items-center gap-1"><span className="h-2 w-2 rounded-full bg-success/80"></span> Rec</span>
+      
+      <div className="space-y-1.5">
+        <div className="flex justify-between text-xs font-semibold uppercase tracking-wide text-muted">
+          <span>Received</span>
+          <span>{recPct.toFixed(0)}%</span>
+        </div>
+        <div className="h-4 w-full overflow-hidden rounded-full bg-bg/50 border border-border/40 shadow-inner">
+          <div className="h-full rounded-full bg-gradient-to-r from-success/60 to-success transition-all duration-1000" style={{ width: `${recPct}%` }} />
+        </div>
       </div>
     </div>
   );
@@ -144,11 +117,8 @@ export default function ActualPerformanceWidget({ performance }) {
 
       <div>
         <p className="mb-2 text-xs font-semibold text-text">{monthLabel(lastMonth.month)}</p>
-        <div className="flex flex-col gap-6 md:flex-row md:items-center">
-          <div className="shrink-0 flex justify-center md:w-40 xl:w-48">
-            <PerformanceChart expenses={lastMonth.expenses} amountReceived={lastMonth.amountReceived} />
-          </div>
-          <div className="flex-1 grid grid-cols-1 gap-3 sm:grid-cols-3 max-w-4xl">
+        <div className="flex flex-col gap-8 lg:flex-row lg:items-center">
+          <div className="grid w-full grid-cols-1 gap-3 sm:grid-cols-3 lg:w-3/5 xl:w-2/3">
             <Tile
               label={t('staffDashboard.widgets.actualPerformance.expenses')}
               value={lastMonth.expenses}
@@ -169,16 +139,16 @@ export default function ActualPerformanceWidget({ performance }) {
               colored
             />
           </div>
+          <div className="flex-1 w-full shrink-0 lg:w-2/5 xl:w-1/3">
+            <PerformanceChart expenses={lastMonth.expenses} amountReceived={lastMonth.amountReceived} />
+          </div>
         </div>
       </div>
 
       <div>
         <p className="mb-2 text-xs font-semibold text-text">{t('staffDashboard.widgets.actualPerformance.yearToDate', { year: thisYear.year })}</p>
-        <div className="flex flex-col gap-6 md:flex-row md:items-center">
-          <div className="shrink-0 flex justify-center md:w-40 xl:w-48">
-            <PerformanceChart expenses={thisYear.expenses} amountReceived={thisYear.amountReceived} />
-          </div>
-          <div className="flex-1 grid grid-cols-1 gap-3 sm:grid-cols-3 max-w-4xl">
+        <div className="flex flex-col gap-8 lg:flex-row lg:items-center">
+          <div className="grid w-full grid-cols-1 gap-3 sm:grid-cols-3 lg:w-3/5 xl:w-2/3">
             <Tile
               label={t('staffDashboard.widgets.actualPerformance.expenses')}
               value={thisYear.expenses}
@@ -198,6 +168,9 @@ export default function ActualPerformanceWidget({ performance }) {
               deltaLabel={t('staffDashboard.widgets.actualPerformance.vsLastYear')}
               colored
             />
+          </div>
+          <div className="flex-1 w-full shrink-0 lg:w-2/5 xl:w-1/3">
+            <PerformanceChart expenses={thisYear.expenses} amountReceived={thisYear.amountReceived} />
           </div>
         </div>
       </div>
