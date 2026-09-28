@@ -32,8 +32,9 @@ import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { keepPreviousData, useMutation, useQuery } from '@tanstack/react-query';
-import { listDeployments, downloadDeploymentsExport } from '../deployments.api.js';
+import { listDeployments, downloadDeploymentsExport, getPendingHoursQueue } from '../deployments.api.js';
 import { listClients } from '../../clients/clients.api.js';
+import { useAuth } from '../../auth/AuthContext.jsx';
 import { apiMessage, formatDate } from '../../../lib/utils.js';
 import { DEPLOYMENT_STATUSES } from '../../../lib/constants.js';
 import { useToast } from '../../../components/ui/Toast.jsx';
@@ -60,6 +61,7 @@ const SORT_FIELDS = [
 export default function DeploymentListPage() {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const { user } = useAuth();
   const toast = useToast();
   const [overviewOpen, setOverviewOpen] = useState(false);
   const [searchParams, setSearchParams] = useSearchParams();
@@ -105,6 +107,14 @@ export default function DeploymentListPage() {
     queryKey: ['clients', 'all-for-filter'],
     queryFn: () => listClients({ limit: 100 }),
     staleTime: 60_000,
+  });
+
+  const canDecideHours = Boolean(user.sectionAccessWrite?.includes('deploymentsHoursDecide'));
+  const { data: pendingHours } = useQuery({
+    queryKey: ['deployments', 'pending-hours'],
+    queryFn: getPendingHoursQueue,
+    enabled: canDecideHours,
+    refetchInterval: 30_000,
   });
 
   const { data, isPending, isError } = useQuery({
@@ -189,6 +199,16 @@ export default function DeploymentListPage() {
         onBack={() => navigate(-1)}
         actions={
           <div className="flex flex-wrap items-center gap-2">
+            {canDecideHours && (
+              <Button size="sm" variant="primary" onClick={() => navigate('/deployments/hours-review')} className="relative">
+                Approve Timesheet
+                {pendingHours?.length > 0 && (
+                  <span className="absolute -right-1.5 -top-1.5 flex h-4 min-w-[1rem] items-center justify-center rounded-full bg-danger px-1 text-[9px] font-bold leading-none text-white shadow-sm ring-2 ring-surface">
+                    {pendingHours.length}
+                  </span>
+                )}
+              </Button>
+            )}
             <Button size="sm" variant="secondary" isLoading={exportMutation.isPending} onClick={() => exportMutation.mutate()}>
               {t('staffDeployments.list.exportExcel')}
             </Button>
