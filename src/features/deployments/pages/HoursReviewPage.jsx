@@ -354,28 +354,28 @@ export default function HoursReviewPage() {
           <div className="space-y-4">
             <div className="space-y-2 text-sm">
               <div className="flex justify-between">
-                <span className="text-muted">Revenue (Base)</span>
-                <span className="font-medium tabular-nums">{formatMoney(breakdownRow.profitBreakdown?.revenueBase)}</span>
+                <span className="text-muted">Client Invoice Amount</span>
+                <span className="font-medium tabular-nums">{formatMoney(breakdownRow.profitBreakdown?.clientInvoiceAmount)}</span>
               </div>
-              {breakdownRow.profitBreakdown?.revenueOt > 0 && (
-                <div className="flex justify-between">
-                  <span className="text-muted">Revenue (OT)</span>
-                  <span className="font-medium tabular-nums">{formatMoney(breakdownRow.profitBreakdown?.revenueOt)}</span>
-                </div>
-              )}
               
               <div className="my-2 border-b border-border"></div>
               
+              {breakdownRow.workerType === 'SupplierEmployee' && breakdownRow.profitBreakdown?.subContractorInvoiceAmount > 0 && (
+                <div className="flex justify-between">
+                  <span className="text-muted">Sub Contractor Invoice Amount</span>
+                  <span className="font-medium tabular-nums text-danger">-{formatMoney(breakdownRow.profitBreakdown?.subContractorInvoiceAmount)}</span>
+                </div>
+              )}
+              {breakdownRow.profitBreakdown?.otCalculations > 0 && (
+                <div className="flex justify-between">
+                  <span className="text-muted">OT Calculations</span>
+                  <span className="font-medium tabular-nums text-danger">-{formatMoney(breakdownRow.profitBreakdown?.otCalculations)}</span>
+                </div>
+              )}
               {breakdownRow.profitBreakdown?.expenseClientCommission > 0 && (
                 <div className="flex justify-between">
                   <span className="text-muted">Client Commission</span>
                   <span className="font-medium tabular-nums text-danger">-{formatMoney(breakdownRow.profitBreakdown?.expenseClientCommission)}</span>
-                </div>
-              )}
-              {breakdownRow.workerType === 'SupplierEmployee' && breakdownRow.profitBreakdown?.expenseSubcontractor > 0 && (
-                <div className="flex justify-between">
-                  <span className="text-muted">Subcontractor</span>
-                  <span className="font-medium tabular-nums text-danger">-{formatMoney(breakdownRow.profitBreakdown?.expenseSubcontractor)}</span>
                 </div>
               )}
               {breakdownRow.profitBreakdown?.expenseFta > 0 && (
@@ -388,12 +388,6 @@ export default function HoursReviewPage() {
                 <div className="flex justify-between">
                   <span className="text-muted">Allowance</span>
                   <span className="font-medium tabular-nums text-danger">-{formatMoney(breakdownRow.profitBreakdown?.expenseAllowance)}</span>
-                </div>
-              )}
-              {breakdownRow.profitBreakdown?.expenseOt > 0 && (
-                <div className="flex justify-between">
-                  <span className="text-muted">Expense (OT)</span>
-                  <span className="font-medium tabular-nums text-danger">-{formatMoney(breakdownRow.profitBreakdown?.expenseOt)}</span>
                 </div>
               )}
               {breakdownRow.profitBreakdown?.expenseDeduction > 0 && (
