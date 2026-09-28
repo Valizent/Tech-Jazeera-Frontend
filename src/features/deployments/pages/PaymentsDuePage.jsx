@@ -59,6 +59,8 @@ export default function PaymentsDuePage() {
   const [openClientId, setOpenClientId] = useState(null);
   const [payingClient, setPayingClient] = useState(null); // { clientId, clientName } | null
   const [paymentAmount, setPaymentAmount] = useState('');
+  const [paymentReference, setPaymentReference] = useState('');
+  const [paymentDate, setPaymentDate] = useState(() => new Date().toISOString().split('T')[0]);
   const [decidingPayment, setDecidingPayment] = useState(null); // payment row | null
   const [payDecision, setPayDecision] = useState(null); // 'Approved' | 'Rejected'
   const [payDecisionNote, setPayDecisionNote] = useState('');
@@ -90,6 +92,8 @@ export default function PaymentsDuePage() {
       toast.success(t('staffDeployments.paymentsDue.paymentRecordedToast'));
       setPayingClient(null);
       setPaymentAmount('');
+      setPaymentReference('');
+      setPaymentDate(new Date().toISOString().split('T')[0]);
       invalidateList();
       if (openClientId) queryClient.invalidateQueries({ queryKey: ['deployments', 'payments-due', openClientId] });
     },
@@ -252,8 +256,9 @@ export default function PaymentsDuePage() {
                     <li key={p._id} className="flex items-center justify-between gap-3 rounded-lg border border-border px-3 py-2 text-sm">
                       <div>
                         <span className="font-medium text-text">{formatMoney(p.amount)}</span>
+                        {p.paymentReference && <span className="ml-2 text-xs font-mono text-muted">{p.paymentReference}</span>}
                         <span className="ml-2 text-xs text-muted">
-                          {p.recordedBy?.name} · {formatDate(p.recordedAt)}
+                          {p.recordedBy?.name} · {formatDate(p.paymentDate || p.recordedAt)}
                         </span>
                       </div>
                       {p.decisionStatus === 'Pending' ? (
@@ -314,6 +319,8 @@ export default function PaymentsDuePage() {
           if (recordMutation.isPending) return;
           setPayingClient(null);
           setPaymentAmount('');
+          setPaymentReference('');
+          setPaymentDate(new Date().toISOString().split('T')[0]);
         }}
         title={payingClient ? t('staffDeployments.paymentsDue.recordPaymentModalTitle', { client: payingClient.clientName }) : ''}
       >
@@ -321,13 +328,27 @@ export default function PaymentsDuePage() {
           <div className="space-y-4">
             <p className="text-sm text-muted">{t('staffDeployments.paymentsDue.recordPaymentModalMessage')}</p>
             <Input
-              label={t('staffDeployments.paymentsDue.amountLabel')}
+              label={t('staffDeployments.paymentsDue.amountLabel', 'Amount received *')}
               type="number"
               min="0"
               step="0.01"
               value={paymentAmount}
               onChange={(e) => setPaymentAmount(e.target.value)}
             />
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <Input
+                label={t('staffDeployments.paymentsDue.paymentReferenceLabel', 'Invoice / Reference #')}
+                value={paymentReference}
+                onChange={(e) => setPaymentReference(e.target.value)}
+                placeholder="Optional"
+              />
+              <Input
+                label={t('staffDeployments.paymentsDue.paymentDateLabel', 'Payment Date')}
+                type="date"
+                value={paymentDate}
+                onChange={(e) => setPaymentDate(e.target.value)}
+              />
+            </div>
             <div className="flex justify-end gap-2 pt-2">
               <Button type="button" variant="secondary" onClick={() => setPayingClient(null)} disabled={recordMutation.isPending}>
                 {t('common.cancel')}
@@ -335,8 +356,8 @@ export default function PaymentsDuePage() {
               <Button
                 type="button"
                 isLoading={recordMutation.isPending}
-                disabled={!paymentAmount || Number(paymentAmount) <= 0}
-                onClick={() => recordMutation.mutate({ clientId: payingClient.clientId, values: { amount: Number(paymentAmount) } })}
+                disabled={!paymentAmount || Number(paymentAmount) <= 0 || !paymentDate}
+                onClick={() => recordMutation.mutate({ clientId: payingClient.clientId, values: { amount: Number(paymentAmount), paymentReference: paymentReference || undefined, paymentDate: paymentDate || undefined } })}
               >
                 {t('staffDeployments.paymentsDue.recordPaymentButton')}
               </Button>
