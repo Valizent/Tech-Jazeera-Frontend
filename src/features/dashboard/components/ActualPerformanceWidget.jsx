@@ -50,6 +50,7 @@ function DeltaBadge({ pct }) {
 }
 
 function Tile({ label, value, deltaPct, deltaLabel, colored }) {
+  return (
     <div className="rounded-xl border border-border/60 bg-bg/50 p-4 shadow-sm transition-all hover:border-border hover:bg-bg">
       <p className="text-[11px] font-semibold uppercase tracking-wide text-muted">{label}</p>
       <p className={`mt-1 text-xl font-bold tracking-tight ${colored ? profitClass(value) ?? 'text-text' : 'text-text'}`}>{formatMoney(value)}</p>
