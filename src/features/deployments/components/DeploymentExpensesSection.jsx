@@ -24,7 +24,7 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useQuery } from '@tanstack/react-query';
 import { useAuth } from '../../auth/AuthContext.jsx';
-import { listExpenses } from '../../expenses/expenses.api.js';
+import { listExpenses, downloadExpenseReceipt } from '../../expenses/expenses.api.js';
 import ExpenseFormModal from '../../expenses/components/ExpenseFormModal.jsx';
 import Card from '../../../components/ui/Card.jsx';
 import Button from '../../../components/ui/Button.jsx';
@@ -123,6 +123,15 @@ export default function DeploymentExpensesSection({ deployment }) {
                   </div>
                   <div className="flex shrink-0 items-center gap-3">
                     <span className="font-medium tabular-nums text-text">{formatMoney(e.amount)}</span>
+                    {e.receipt && (
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        onClick={() => downloadExpenseReceipt(e._id, e.receipt.originalName)}
+                      >
+                        📎 Receipt
+                      </Button>
+                    )}
                     {canWrite && (
                       <Button size="sm" variant="ghost" onClick={() => openEdit(e)}>
                         {t('common.edit')}

@@ -831,7 +831,6 @@ export default function DeploymentDetailPage() {
         )}
       </Card>
 
-      <DeploymentExpensesSection deployment={deployment} />
 
       <Modal
         open={Boolean(editingEntry)}
