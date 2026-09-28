@@ -115,7 +115,7 @@ export default function DashboardPage() {
 
   if (isPending) {
     return (
-      <div className="mx-auto max-w-6xl space-y-6">
+      <div className="mx-auto max-w-[1600px] space-y-6">
         <Skeleton className="h-9 w-64" />
         <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
           {Array.from({ length: 4 }, (_, i) => (
@@ -129,7 +129,7 @@ export default function DashboardPage() {
 
   if (isError) {
     return (
-      <div className="mx-auto max-w-6xl">
+      <div className="mx-auto max-w-[1600px]">
         <PageHeader title={t('staffDashboard.welcomeBack', { name: firstName })} />
         <EmptyState
           title={t('staffDashboard.couldNotLoad')}
@@ -144,7 +144,7 @@ export default function DashboardPage() {
     data;
 
   return (
-    <div className="mx-auto max-w-6xl space-y-6">
+    <div className="mx-auto max-w-[1600px] space-y-6">
       <PageHeader
         title={t('staffDashboard.welcomeBack', { name: firstName })}
         description={isCoordinator ? t('staffDashboard.subtitleTeam') : t('staffDashboard.subtitleCompany')}
