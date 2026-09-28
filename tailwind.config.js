@@ -16,6 +16,10 @@ export default {
   darkMode: 'class',
   theme: {
     extend: {
+      fontFamily: {
+        sans: ['Inter', 'ui-sans-serif', 'system-ui', '-apple-system', 'Segoe UI', 'Roboto', 'Arial', 'sans-serif'],
+        heading: ['"Plus Jakarta Sans"', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+      },
       colors: {
         bg: 'rgb(var(--color-bg) / <alpha-value>)', // page background
         surface: 'rgb(var(--color-surface) / <alpha-value>)', // cards, panels

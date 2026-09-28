@@ -15,7 +15,7 @@ export default function PageHeader({ title, description, onBack, actions }) {
       <div className="flex items-center gap-3">
         {onBack && <BackButton onClick={onBack} />}
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight">{title}</h1>
+          <h1 className="font-heading text-2xl font-bold tracking-tight text-text">{title}</h1>
           {description && <p className="mt-1 text-sm text-muted">{description}</p>}
         </div>
       </div>
