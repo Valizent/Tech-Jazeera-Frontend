@@ -287,11 +287,18 @@ export default function HoursReviewPage() {
               )}
               {decidingRow.profit != null && (
                 <div 
-                  className="cursor-pointer rounded-xl outline-none ring-2 ring-transparent transition-all hover:ring-primary/20"
+                  className="group cursor-pointer rounded-xl outline-none ring-2 ring-transparent transition-all hover:bg-bg/50 hover:ring-primary/20"
                   onClick={() => setBreakdownRow(decidingRow)}
                 >
                   <StatTile
-                    label="Net profit ⓘ"
+                    label={
+                      <span className="flex items-center gap-1.5">
+                        Net profit
+                        <svg className="h-3.5 w-3.5 text-muted transition-colors group-hover:text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                      </span>
+                    }
                     value={formatMoney(decidingRow.profit)}
                     valueClass={decidingRow.profit < 0 ? 'text-danger' : 'text-success'}
                   />
