@@ -329,6 +329,12 @@ export default function DeploymentOverviewModal({ open, onClose }) {
         getValue: (d) => d.endReason,
       },
       { key: 'notes', header: t('staffDeployments.overview.columns.notes'), getText: (d) => d.notes ?? '' },
+      { 
+        key: 'recordedExpenses', 
+        header: t('staffDeployments.overview.columns.recordedExpenses', 'Expenses'), 
+        getText: (d) => (d.recordedExpenses ? formatMoney(d.recordedExpenses) : ''),
+        getNumber: (d) => Number(d.recordedExpenses) || 0
+      },
       // --- Mobilisation-sourced (2026-09-17 follow-up, see this file's own
       // module comment) — non-commercial fields, always shown ---
       {
