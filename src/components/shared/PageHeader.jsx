@@ -11,15 +11,20 @@ import BackButton from './BackButton.jsx';
 
 export default function PageHeader({ title, description, onBack, actions }) {
   return (
-    <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-      <div className="flex items-center gap-3">
-        {onBack && <BackButton onClick={onBack} />}
+    <div className="relative mb-8 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between overflow-hidden rounded-2xl bg-gradient-to-r from-surface to-bg/50 p-6 border border-border shadow-sm">
+      <div className="absolute top-0 left-0 w-2 h-full bg-primary" />
+      <div className="flex flex-col gap-2">
+        {onBack && (
+          <div className="mb-2">
+            <BackButton onClick={onBack} />
+          </div>
+        )}
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-text sm:text-3xl">{title}</h1>
-          {description && <p className="mt-1.5 text-sm text-muted">{description}</p>}
+          <h1 className="text-3xl font-extrabold tracking-tight text-text lg:text-4xl">{title}</h1>
+          {description && <p className="mt-2 text-sm font-medium text-muted/80 max-w-2xl">{description}</p>}
         </div>
       </div>
-      {actions && <div className="flex shrink-0 items-center gap-2">{actions}</div>}
+      {actions && <div className="flex shrink-0 items-center gap-3">{actions}</div>}
     </div>
   );
 }
