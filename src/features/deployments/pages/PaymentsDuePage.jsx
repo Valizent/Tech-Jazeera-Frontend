@@ -198,7 +198,7 @@ export default function PaymentsDuePage() {
       )}
 
       {/* Client drill-down: every invoice behind the balance + real payment history. */}
-      <Modal open={Boolean(openClientId)} onClose={() => setOpenClientId(null)} title={detail?.clientName ?? ''}>
+      <Modal open={Boolean(openClientId)} onClose={() => setOpenClientId(null)} title={detail?.clientName ?? ''} size="xl">
         {detailPending ? (
           <Skeleton className="h-40 w-full" />
         ) : detail ? (
