@@ -537,7 +537,8 @@ export default function MobilisationDetailPage() {
           </div>
         }
       />
-      <div className="columns-1 xl:columns-2 gap-6 [&>div]:break-inside-avoid [&>div]:mb-6 [&>form]:break-inside-avoid [&>form]:mb-6">
+      <div className="grid grid-cols-1 items-start gap-6 xl:grid-cols-2">
+      <div className="space-y-6">
       <Card>
         <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-muted">{t('staffMobilisations.detail.documentsTitle')}</h2>
         {(m.documents ?? []).length === 0 ? (
@@ -654,60 +655,23 @@ export default function MobilisationDetailPage() {
         )}
       </Card>
 
-      {hasCommercialFields && (
-        <Card>
-          <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-muted">
-            {t('staffMobilisations.detail.sectionRatesFinancials')}
-          </h2>
-          <DetailTable
-            rows={[
-              { label: t('staffMobilisations.detail.fields.clientRate'), value: formatMoney(m.clientRate) },
-              { label: t('staffMobilisations.detail.fields.clientCommission'), value: formatMoney(m.clientCommission) },
-              { label: t('staffMobilisations.detail.fields.fta'), value: formatMoney(m.fta) },
-              {
-                label: t('staffMobilisations.detail.fields.ftaType'),
-                value: m.ftaType ? t(`staffMobilisations.form.ftaType.${m.ftaType}`) : null,
-              },
-              { label: t('staffMobilisations.detail.fields.allowance'), value: formatMoney(m.allowance) },
-              { label: t('staffMobilisations.detail.fields.allowanceRemark'), value: m.allowanceRemark },
-              { label: t('staffMobilisations.detail.fields.mobilisationCost'), value: m.mobilisationCost ? formatMoney(m.mobilisationCost) : null },
-              { label: t('staffMobilisations.detail.fields.requiredTimesheetHours'), value: m.requiredTimesheetHours ?? null },
-              ...(m.hasSubcontractor
-                ? [
-                    { label: t('staffMobilisations.detail.fields.subcontractorRate'), value: formatMoney(m.subcontractorRate) },
-                    {
-                      label: t('staffMobilisations.detail.fields.subcontractorCommission'),
-                      value: formatMoney(m.subcontractorCommission),
-                    },
-                  ]
-                : []),
-              {
-                label: t('staffMobilisations.detail.fields.profitPerHour'),
-                value: formatMoney(m.profitPerHour),
-                valueClassName: profitClass(m.profitPerHour),
-              },
-              {
-                label: t('staffMobilisations.detail.fields.profitPerMonth'),
-                value: m.profitPerMonth != null ? formatMoney(m.profitPerMonth) : null,
-                valueClassName: profitClass(m.profitPerMonth),
-              },
-              {
-                label: t('staffMobilisations.detail.fields.otClientRate'),
-                value: m.otClientRate != null ? formatMoney(m.otClientRate) : null,
-              },
-              {
-                label: t('staffMobilisations.detail.fields.otEmployeeRate'),
-                value: m.otEmployeeRate != null ? formatMoney(m.otEmployeeRate) : null,
-              },
-              {
-                label: t('staffMobilisations.detail.fields.otProfitPerHour'),
-                value: m.otProfitPerHour != null ? formatMoney(m.otProfitPerHour) : null,
-                valueClassName: profitClass(m.otProfitPerHour),
-              },
-            ]}
-          />
-        </Card>
+            {(canDecide || hasReviewFields) && (
+        <CommercialDetailsCard
+          m={m}
+          canEdit={canEditDetails}
+          canDecide={canDecide}
+          isFinalStep={isFinalStep}
+          saving={commercialMutation.isPending}
+          onSave={(values) => commercialMutation.mutate(values)}
+          onApprove={(values) => saveThenDecide('Approved', values)}
+          onReject={(values) => saveThenDecide('Rejected', values)}
+        />
       )}
+
+            <ApprovalTrailView request={m} />
+
+      </div>
+      <div className="space-y-6">
 
       <Card>
         <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-muted">{t('staffMobilisations.detail.coordinatorsTitle')}</h2>
@@ -858,20 +822,60 @@ export default function MobilisationDetailPage() {
         )}
       </Card>
 
-      {(canDecide || hasReviewFields) && (
-        <CommercialDetailsCard
-          m={m}
-          canEdit={canEditDetails}
-          canDecide={canDecide}
-          isFinalStep={isFinalStep}
-          saving={commercialMutation.isPending}
-          onSave={(values) => commercialMutation.mutate(values)}
-          onApprove={(values) => saveThenDecide('Approved', values)}
-          onReject={(values) => saveThenDecide('Rejected', values)}
-        />
+            {hasCommercialFields && (
+        <Card>
+          <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-muted">
+            {t('staffMobilisations.detail.sectionRatesFinancials')}
+          </h2>
+          <DetailTable
+            rows={[
+              { label: t('staffMobilisations.detail.fields.clientRate'), value: formatMoney(m.clientRate) },
+              { label: t('staffMobilisations.detail.fields.clientCommission'), value: formatMoney(m.clientCommission) },
+              { label: t('staffMobilisations.detail.fields.fta'), value: formatMoney(m.fta) },
+              {
+                label: t('staffMobilisations.detail.fields.ftaType'),
+                value: m.ftaType ? t(`staffMobilisations.form.ftaType.${m.ftaType}`) : null,
+              },
+              { label: t('staffMobilisations.detail.fields.allowance'), value: formatMoney(m.allowance) },
+              { label: t('staffMobilisations.detail.fields.allowanceRemark'), value: m.allowanceRemark },
+              { label: t('staffMobilisations.detail.fields.mobilisationCost'), value: m.mobilisationCost ? formatMoney(m.mobilisationCost) : null },
+              { label: t('staffMobilisations.detail.fields.requiredTimesheetHours'), value: m.requiredTimesheetHours ?? null },
+              ...(m.hasSubcontractor
+                ? [
+                    { label: t('staffMobilisations.detail.fields.subcontractorRate'), value: formatMoney(m.subcontractorRate) },
+                    {
+                      label: t('staffMobilisations.detail.fields.subcontractorCommission'),
+                      value: formatMoney(m.subcontractorCommission),
+                    },
+                  ]
+                : []),
+              {
+                label: t('staffMobilisations.detail.fields.profitPerHour'),
+                value: formatMoney(m.profitPerHour),
+                valueClassName: profitClass(m.profitPerHour),
+              },
+              {
+                label: t('staffMobilisations.detail.fields.profitPerMonth'),
+                value: m.profitPerMonth != null ? formatMoney(m.profitPerMonth) : null,
+                valueClassName: profitClass(m.profitPerMonth),
+              },
+              {
+                label: t('staffMobilisations.detail.fields.otClientRate'),
+                value: m.otClientRate != null ? formatMoney(m.otClientRate) : null,
+              },
+              {
+                label: t('staffMobilisations.detail.fields.otEmployeeRate'),
+                value: m.otEmployeeRate != null ? formatMoney(m.otEmployeeRate) : null,
+              },
+              {
+                label: t('staffMobilisations.detail.fields.otProfitPerHour'),
+                value: m.otProfitPerHour != null ? formatMoney(m.otProfitPerHour) : null,
+                valueClassName: profitClass(m.otProfitPerHour),
+              },
+            ]}
+          />
+        </Card>
       )}
-
-      <ApprovalTrailView request={m} />
 
       </div>
 
