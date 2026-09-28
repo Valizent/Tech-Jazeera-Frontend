@@ -155,19 +155,20 @@ export default function DeploymentListPage() {
       render: (d) => (
         <span className="font-medium text-text">
           {d.workerName}
-          {d.worker?.employeeId && <span className="block text-xs font-normal text-muted">{d.worker.employeeId}</span>}
+          {d.worker?.employeeId && <span className="ml-2 text-xs font-normal text-muted">({d.worker.employeeId})</span>}
         </span>
       ),
     },
     {
       key: 'client',
-      header: t('staffDeployments.list.columns.clientSite'),
-      render: (d) => (
-        <span>
-          {d.clientName}
-          {d.site && <span className="block text-xs text-muted">{d.site}</span>}
-        </span>
-      ),
+      header: t('staffDeployments.list.columns.client', 'Client'),
+      render: (d) => <span>{d.clientName}</span>,
+    },
+    {
+      key: 'site',
+      header: t('staffDeployments.list.columns.site', 'Site'),
+      hideOnMobile: true,
+      render: (d) => <span className="text-muted">{d.site || '—'}</span>,
     },
     {
       key: 'startDate',

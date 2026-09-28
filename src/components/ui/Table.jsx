@@ -73,9 +73,13 @@ export default function Table({
           <tbody className="">
             {loading
               ? Array.from({ length: skeletonRows }, (_, i) => (
-                  <tr key={i} className="group bg-surface shadow-xs ring-1 ring-border/50">
+                  <tr key={i} className="group drop-shadow-sm">
                     {columns.map((col, idx) => (
-                      <td key={col.key} className={cn("px-4 py-4", idx === 0 && "rounded-l-xl", idx === columns.length - 1 && "rounded-r-xl")}>
+                      <td key={col.key} className={cn(
+                        "px-4 py-4 bg-surface border-y border-border/50", 
+                        idx === 0 && "rounded-l-xl border-l", 
+                        idx === columns.length - 1 && "rounded-r-xl border-r"
+                      )}>
                         <Skeleton className="h-4 w-3/4" />
                       </td>
                     ))}
@@ -86,12 +90,18 @@ export default function Table({
                     key={rowKey(row)}
                     onClick={rowClickHandler(onRowClick, row)}
                     className={cn(
-                      'group bg-surface shadow-xs ring-1 ring-border/50 transition-all duration-200 hover:shadow-md hover:-translate-y-px',
-                      onRowClick && 'cursor-pointer hover:ring-primary/30'
+                      'group transition-all duration-200 drop-shadow-sm hover:-translate-y-px',
+                      onRowClick && 'cursor-pointer hover:drop-shadow-md'
                     )}
                   >
                     {columns.map((col, idx) => (
-                      <td key={col.key} className={cn('px-4 py-4 align-middle', idx === 0 && 'rounded-l-xl', idx === columns.length - 1 && 'rounded-r-xl', col.className)}>
+                      <td key={col.key} className={cn(
+                        'px-4 py-4 align-middle bg-surface border-y border-border/40 transition-colors',
+                        onRowClick && 'group-hover:border-primary/40',
+                        idx === 0 && 'rounded-l-xl border-l',
+                        idx === columns.length - 1 && 'rounded-r-xl border-r',
+                        col.className
+                      )}>
                         {col.render(row)}
                       </td>
                     ))}
