@@ -74,7 +74,7 @@ export default function Modal({ open, onClose, title, size = 'md', children }) {
         className={cn(
           'relative flex w-full flex-col overflow-hidden',
           size === 'screen' ? '' : 'my-auto',
-          'rounded-2xl border border-border bg-surface shadow-xl animate-in fade-in zoom-in-95 duration-200 ease-out',
+          'rounded-2xl border border-border/60 bg-surface/95 backdrop-blur-xl shadow-2xl animate-in fade-in zoom-in-95 duration-200 ease-out',
           heightClasses[size] || 'max-h-[90vh]',
           sizeClasses[size] || sizeClasses.md
         )}
