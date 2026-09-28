@@ -59,6 +59,7 @@ const ClientEditPage = lazy(() => import('../features/clients/pages/ClientEditPa
 const DeploymentListPage = lazy(() => import('../features/deployments/pages/DeploymentListPage.jsx'));
 const DeploymentDetailPage = lazy(() => import('../features/deployments/pages/DeploymentDetailPage.jsx'));
 const StandbyListPage = lazy(() => import('../features/deployments/pages/StandbyListPage.jsx'));
+const HoursReviewPage = lazy(() => import('../features/deployments/pages/HoursReviewPage.jsx'));
 const PaymentsDuePage = lazy(() => import('../features/deployments/pages/PaymentsDuePage.jsx'));
 const ReadyToInvoicePage = lazy(() => import('../features/deployments/pages/ReadyToInvoicePage.jsx'));
 const MobilisationListPage = lazy(() => import('../features/mobilisations/pages/MobilisationListPage.jsx'));
@@ -257,6 +258,8 @@ export const router = createBrowserRouter([
               { path: '/deployments', element: guarded('deploymentsRelease', <DeploymentListPage />, true) },
               // Before the /deployments/:id catch-all, or "standby" is read as a deployment id.
               { path: '/deployments/standby', element: guarded('deploymentsRelease', <StandbyListPage />, true) },
+              // Before the /deployments/:id catch-all.
+              { path: '/deployments/hours-review', element: guarded('deploymentsHoursDecide', <HoursReviewPage />) },
               { path: '/deployments/:id', element: guarded('deploymentsRelease', <DeploymentDetailPage />, true) },
               { path: '/mobilisations', element: <MobilisationListPage /> },
               { path: '/mobilisations/new', element: guardedWrite('mobilisationsSelfMobilise', <MobilisationNewPage />, true) },

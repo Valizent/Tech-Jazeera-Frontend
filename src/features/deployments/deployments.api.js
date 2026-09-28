@@ -125,6 +125,13 @@ export async function getReadyToInvoice() {
   return data.data;
 }
 
+/** All Pending monthly-hours entries across all deployments — the manager's
+ *  approval queue (requires deploymentsHoursDecide write access). */
+export async function getPendingHoursQueue() {
+  const { data } = await api.get('/deployments/pending-hours');
+  return data.data;
+}
+
 /** Demobilise — ends this deployment. `payload.reason` decides whether the
  *  worker goes back to standby or exits the company (see deployments.schema.js). */
 export async function demobiliseDeployment(id, payload) {

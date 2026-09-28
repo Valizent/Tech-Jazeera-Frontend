@@ -208,7 +208,7 @@ function MonthlyHoursForm({ deployment, defaultValues, onSubmit, submitting, sub
         {...register('month')}
       />
 
-      <div className={cn('grid grid-cols-1 gap-4', isSupplierEmployee ? 'sm:grid-cols-3' : 'sm:grid-cols-2')}>
+      <div className={cn('grid grid-cols-1 gap-4', isSupplierEmployee ? 'sm:grid-cols-2' : 'sm:grid-cols-1')}>
         <Input
           label={t('staffDeployments.detail.clientTimesheetHoursLabel')}
           type="number"
@@ -227,15 +227,6 @@ function MonthlyHoursForm({ deployment, defaultValues, onSubmit, submitting, sub
             {...register('supplierHours')}
           />
         )}
-        <Input
-          label={t('staffDeployments.detail.daysWorkedLabel')}
-          type="number"
-          step="1"
-          min="0"
-          max="31"
-          error={errors.daysWorked?.message}
-          {...register('daysWorked')}
-        />
       </div>
 
       <div className="grid grid-cols-2 gap-3 rounded-lg border border-border bg-bg/40 p-3 sm:grid-cols-4">
@@ -651,7 +642,6 @@ export default function DeploymentDetailPage() {
                   {deployment.workerType === 'SupplierEmployee' && (
                     <th className="px-3 py-2">{t('staffDeployments.detail.columns.supplierHours')}</th>
                   )}
-                  <th className="px-3 py-2">{t('staffDeployments.detail.columns.daysWorked')}</th>
                   <th className="px-3 py-2">{t('staffDeployments.detail.columns.otHours')}</th>
                   {/* OT amount is commercial data — stripped server-side for
                       anyone without deploymentsHoursDecide access (see
@@ -694,7 +684,6 @@ export default function DeploymentDetailPage() {
                       {deployment.workerType === 'SupplierEmployee' && (
                         <td className="px-3 py-2">{entry.supplierHours ?? '—'}</td>
                       )}
-                      <td className="px-3 py-2">{entry.daysWorked || '—'}</td>
                       <td className="px-3 py-2">{entry.otHours}</td>
                       {canDecideHours && <td className="px-3 py-2">{formatMoney(entry.otAmount)}</td>}
                       <td className="px-3 py-2">
@@ -811,7 +800,6 @@ export default function DeploymentDetailPage() {
                   month: values.month,
                   actualHours: Number(values.actualHours),
                   supplierHours: values.supplierHours !== '' ? Number(values.supplierHours) : undefined,
-                  daysWorked: Number(values.daysWorked),
                   deductionAmount: values.deductionAmount ? Number(values.deductionAmount) : undefined,
                   notes: values.notes || undefined,
                 })
@@ -848,7 +836,6 @@ export default function DeploymentDetailPage() {
                 values: {
                   actualHours: Number(values.actualHours),
                   supplierHours: values.supplierHours !== '' ? Number(values.supplierHours) : undefined,
-                  daysWorked: Number(values.daysWorked),
                   deductionAmount: values.deductionAmount ? Number(values.deductionAmount) : undefined,
                   notes: values.notes || undefined,
                 },
@@ -886,33 +873,33 @@ export default function DeploymentDetailPage() {
                 above, which gates the button that opens this modal) — the
                 OT amount here is never a concern, only a decider ever sees
                 this modal at all. */}
-            <div className="grid grid-cols-2 gap-3 rounded-lg border border-border bg-bg/40 p-3 sm:grid-cols-4">
-              <div>
-                <p className="text-xs text-muted">{t('staffDeployments.detail.summaryContractHours')}</p>
-                <p className="text-sm font-semibold tabular-nums">{decidingEntry.contractHours}</p>
+            <div className="grid grid-cols-2 gap-3 rounded-xl border border-border bg-bg/50 p-4 sm:grid-cols-4">
+              <div className="rounded-lg bg-bg p-3">
+                <p className="text-xs font-medium text-muted">Contract hours</p>
+                <p className="mt-0.5 text-base font-semibold tabular-nums">{decidingEntry.contractHours}</p>
               </div>
-              <div>
-                <p className="text-xs text-muted">{t('staffDeployments.detail.summaryActualHours')}</p>
-                <p className="text-sm font-semibold tabular-nums">{decidingEntry.actualHours}</p>
+              <div className="rounded-lg bg-bg p-3">
+                <p className="text-xs font-medium text-muted">Client timesheet</p>
+                <p className="mt-0.5 text-base font-semibold tabular-nums">{decidingEntry.actualHours}</p>
               </div>
               {deployment.workerType === 'SupplierEmployee' && (
-                <div>
-                  <p className="text-xs text-muted">{t('staffDeployments.detail.summarySupplierHours')}</p>
-                  <p className="text-sm font-semibold tabular-nums">{decidingEntry.supplierHours ?? 0}</p>
+                <div className="rounded-lg bg-bg p-3">
+                  <p className="text-xs font-medium text-muted">Supplier timesheet</p>
+                  <p className="mt-0.5 text-base font-semibold tabular-nums">{decidingEntry.supplierHours ?? 0}</p>
                 </div>
               )}
-              <div>
-                <p className="text-xs text-muted">{t('staffDeployments.detail.summaryOtHours')}</p>
-                <p className="text-sm font-semibold tabular-nums">{decidingEntry.otHours}</p>
+              <div className="rounded-lg bg-bg p-3">
+                <p className="text-xs font-medium text-muted">OT hours</p>
+                <p className="mt-0.5 text-base font-semibold tabular-nums">{decidingEntry.otHours}</p>
               </div>
-              <div>
-                <p className="text-xs text-muted">{t('staffDeployments.detail.summaryOtAmount')}</p>
-                <p className="text-sm font-semibold tabular-nums">{formatMoney(decidingEntry.otAmount)}</p>
+              <div className="rounded-lg bg-bg p-3">
+                <p className="text-xs font-medium text-muted">OT amount</p>
+                <p className="mt-0.5 text-base font-semibold tabular-nums">{formatMoney(decidingEntry.otAmount)}</p>
               </div>
               {decidingEntry.deductionAmount > 0 && (
-                <div>
-                  <p className="text-xs text-muted">{t('staffDeployments.detail.summaryDeduction')}</p>
-                  <p className="text-sm font-semibold tabular-nums text-danger">{formatMoney(decidingEntry.deductionAmount)}</p>
+                <div className="rounded-lg bg-bg p-3">
+                  <p className="text-xs font-medium text-muted">Client deduction</p>
+                  <p className="mt-0.5 text-base font-semibold tabular-nums text-danger">{formatMoney(decidingEntry.deductionAmount)}</p>
                 </div>
               )}
             </div>

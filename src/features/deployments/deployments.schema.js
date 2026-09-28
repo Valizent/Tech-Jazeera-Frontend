@@ -49,7 +49,6 @@ export function buildMonthlyHoursFormSchema(workerType) {
       workerType === 'SupplierEmployee'
         ? z.string().min(1, 'Enter the supplier timesheet hours.')
         : z.string().optional().or(z.literal('')),
-    daysWorked: z.string().min(1, 'Enter the number of days worked.'),
     deductionAmount: z.string().optional().or(z.literal('')),
     notes: optionalStr(500),
   });
@@ -59,7 +58,6 @@ export const emptyMonthlyHoursForm = {
   month: '',
   actualHours: '',
   supplierHours: '',
-  daysWorked: '',
   deductionAmount: '',
   notes: '',
 };
@@ -80,7 +78,6 @@ export function monthlyHoursEntryToForm(entry) {
     month: entry.month,
     actualHours: String(entry.actualHours ?? ''),
     supplierHours: entry.supplierHours != null ? String(entry.supplierHours) : '',
-    daysWorked: String(entry.daysWorked ?? ''),
     deductionAmount: entry.deductionAmount ? String(entry.deductionAmount) : '',
     notes: entry.notes ?? '',
   };
