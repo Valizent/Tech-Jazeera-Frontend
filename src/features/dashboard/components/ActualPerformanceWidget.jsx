@@ -138,7 +138,7 @@ export default function ActualPerformanceWidget({ performance }) {
   );
 
   if (!canOpenDeployments) {
-    return <Card>{body}</Card>;
+    return <Card gradientAccent>{body}</Card>;
   }
 
   return (
@@ -147,7 +147,7 @@ export default function ActualPerformanceWidget({ performance }) {
       className="group block rounded-2xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
       aria-label={t('staffDashboard.widgets.activeRevenue.viewDeployments')}
     >
-      <Card className="relative transition-colors group-hover:border-primary/40 group-hover:bg-primary/5">
+      <Card gradientAccent className="relative transition-colors group-hover:border-primary/40 group-hover:bg-primary/5">
         <svg
           className="absolute end-4 top-4 h-3.5 w-3.5 text-muted opacity-0 transition-opacity group-hover:opacity-100"
           fill="none"

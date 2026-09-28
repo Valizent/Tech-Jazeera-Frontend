@@ -160,7 +160,7 @@ export default function ActiveRevenueWidget({ revenue, trend }) {
   );
 
   if (!canOpenDeployments) {
-    return <Card>{body}</Card>;
+    return <Card gradientAccent>{body}</Card>;
   }
 
   return (
@@ -169,7 +169,7 @@ export default function ActiveRevenueWidget({ revenue, trend }) {
       className="group block rounded-2xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
       aria-label={t('staffDashboard.widgets.activeRevenue.viewDeployments')}
     >
-      <Card className="relative transition-colors group-hover:border-primary/40 group-hover:bg-primary/5">
+      <Card gradientAccent className="relative transition-colors group-hover:border-primary/40 group-hover:bg-primary/5">
         {/* `end-4`, not `right-4` (2026-09-24, found live while checking this in
             Arabic): this app's RTL relies on native flow (flexbox/text reversal),
             which does NOT extend to an absolutely-positioned element's physical
