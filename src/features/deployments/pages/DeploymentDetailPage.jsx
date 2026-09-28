@@ -531,7 +531,7 @@ export default function DeploymentDetailPage() {
   const sortedMonths = [...deployment.monthlyHours].sort((a, b) => a.month.localeCompare(b.month));
 
   return (
-    <div className="mx-auto max-w-3xl space-y-6">
+    <div className="mx-auto max-w-[1600px] space-y-6">
       <PageHeader
         title={deployment.workerName}
         description={
@@ -567,6 +567,7 @@ export default function DeploymentDetailPage() {
         }
       />
 
+      <div className="grid grid-cols-1 items-start gap-6 xl:grid-cols-2">
       <Card>
         <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-muted">{t('staffDeployments.detail.sectionPlacement')}</h2>
         <DetailRow label={t('staffDeployments.detail.fields.worker')}>
@@ -622,6 +623,9 @@ export default function DeploymentDetailPage() {
           </div>
         )}
       </Card>
+
+      <DeploymentExpensesSection deployment={deployment} />
+      </div>
 
       <Card>
         <div className="mb-1 flex flex-wrap items-start justify-between gap-3">

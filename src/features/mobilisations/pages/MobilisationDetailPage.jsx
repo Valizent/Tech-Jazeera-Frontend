@@ -503,7 +503,7 @@ export default function MobilisationDetailPage() {
   const availableCandidates = (candidates ?? []).filter((c) => !m.coordinators.some((mc) => userId(mc) === c._id));
 
   return (
-    <div className="mx-auto max-w-3xl space-y-6">
+    <div className="mx-auto max-w-[1600px] space-y-6">
       <PageHeader
         title={`#${m.serialNumber}`}
         description={
@@ -537,7 +537,7 @@ export default function MobilisationDetailPage() {
           </div>
         }
       />
-
+      <div className="columns-1 xl:columns-2 gap-6 [&>div]:break-inside-avoid [&>div]:mb-6 [&>form]:break-inside-avoid [&>form]:mb-6">
       <Card>
         <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-muted">{t('staffMobilisations.detail.documentsTitle')}</h2>
         {(m.documents ?? []).length === 0 ? (
@@ -872,6 +872,8 @@ export default function MobilisationDetailPage() {
           onReject={(values) => saveThenDecide('Rejected', values)}
         />
       )}
+
+      </div>
 
       <ConfirmDialog
         open={Boolean(toRemove)}
