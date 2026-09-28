@@ -124,9 +124,9 @@ function nextEligibleMonth(deployment) {
 
 function DetailRow({ label, children }) {
   return (
-    <div className="flex justify-between gap-3 py-1.5 text-sm">
-      <span className="text-muted">{label}</span>
-      <span className="text-right font-medium">{children || '—'}</span>
+    <div className="flex flex-col justify-center gap-1 rounded-xl bg-bg/50 p-3.5 ring-1 ring-border/60 transition-all hover:bg-bg/80">
+      <span className="text-[11px] font-bold uppercase tracking-wider text-muted">{label}</span>
+      <span className="text-sm font-semibold text-text">{children || '—'}</span>
     </div>
   );
 }
@@ -570,6 +570,7 @@ export default function DeploymentDetailPage() {
       <div className="grid grid-cols-1 items-start gap-6 xl:grid-cols-2">
       <Card>
         <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-muted">{t('staffDeployments.detail.sectionPlacement')}</h2>
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-2">
         <DetailRow label={t('staffDeployments.detail.fields.worker')}>
           {deployment.worker?._id ? (
             <Link to={`/employees/${deployment.worker._id}`} className="text-primary hover:underline">
@@ -603,6 +604,7 @@ export default function DeploymentDetailPage() {
             )}
           </>
         )}
+        </div>
         {deployment.releaseNote && (
           <div className="mt-3 border-t border-border pt-3">
             <p className="text-xs uppercase tracking-wide text-muted">{t('staffDeployments.detail.notesLabel')}</p>
