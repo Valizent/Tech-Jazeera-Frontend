@@ -655,7 +655,7 @@ export default function MobilisationDetailPage() {
         )}
       </Card>
 
-            {(canDecide || hasReviewFields) && (
+      {(canDecide || hasReviewFields) && (
         <CommercialDetailsCard
           m={m}
           canEdit={canEditDetails}
@@ -668,7 +668,7 @@ export default function MobilisationDetailPage() {
         />
       )}
 
-            <ApprovalTrailView request={m} />
+      <ApprovalTrailView request={m} />
 
       </div>
       <div className="space-y-6">
@@ -822,7 +822,7 @@ export default function MobilisationDetailPage() {
         )}
       </Card>
 
-            {hasCommercialFields && (
+      {hasCommercialFields && (
         <Card>
           <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-muted">
             {t('staffMobilisations.detail.sectionRatesFinancials')}
@@ -877,6 +877,7 @@ export default function MobilisationDetailPage() {
         </Card>
       )}
 
+      </div>
       </div>
 
       <ConfirmDialog
