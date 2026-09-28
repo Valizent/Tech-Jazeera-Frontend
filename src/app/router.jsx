@@ -91,8 +91,7 @@ const FinancialRequestsPage = lazy(() => import('../features/financialRequests/p
 const AssetListPage = lazy(() => import('../features/assets/pages/AssetListPage.jsx'));
 const ExitDocumentsPage = lazy(() => import('../features/exitDocuments/pages/ExitDocumentsPage.jsx'));
 const TimesheetsPage = lazy(() => import('../features/timesheets/pages/TimesheetsPage.jsx'));
-const PayrollListPage = lazy(() => import('../features/payroll/pages/PayrollListPage.jsx'));
-const PayrollRunPage = lazy(() => import('../features/payroll/pages/PayrollRunPage.jsx'));
+
 const ExpenseListPage = lazy(() => import('../features/expenses/pages/ExpenseListPage.jsx'));
 const AuditLogPage = lazy(() => import('../features/audit/pages/AuditLogPage.jsx'));
 const ReconciliationPage = lazy(() => import('../features/reconciliation/pages/ReconciliationPage.jsx'));
@@ -292,8 +291,7 @@ export const router = createBrowserRouter([
               { path: '/assets', element: guarded('assetsManage', <AssetListPage />) },
               { path: '/exit-documents', element: guarded('exitDocuments', <ExitDocumentsPage />) },
               { path: '/timesheets', element: guarded('timesheetRequests', <TimesheetsPage />) },
-              { path: '/payroll', element: guarded('payroll', <PayrollListPage />) },
-              { path: '/payroll/:id', element: guarded('payroll', <PayrollRunPage />) },
+
               // Client billing — the internal tracking layer on top of
               // Deployment.monthlyHours (2026-09-27, moved out of the
               // Deployment detail page into its own Financial-section home,

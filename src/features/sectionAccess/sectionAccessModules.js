@@ -80,7 +80,7 @@ export const MODULE_GROUPS = [
     labelKey: navGroup('financial').labelKey,
     icon: navGroup('financial').icon,
     modules: [
-      { ...navItem('financial', '/payroll'), sectionKeys: ['payroll'] },
+
       { ...navItem('financial', '/expenses'), sectionKeys: ['expenses'] },
       { ...navItem('financial', '/financial-requests'), sectionKeys: ['financialRequests'] },
       // No nav hub tile of its own — Dashboard is the landing page, outside
@@ -88,7 +88,7 @@ export const MODULE_GROUPS = [
       // label/icon are borrowed directly rather than looked up via navItem().
       {
         label: `${DASHBOARD_ITEM.label} — profit`,
-        description: 'The dashboard\'s real monthly profit figure, without granting Payroll/Expenses themselves.',
+        description: 'The dashboard\'s real monthly profit figure, without granting Expenses themselves.',
         icon: DASHBOARD_ITEM.icon,
         sectionKeys: ['dashboardProfit'],
       },

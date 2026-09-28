@@ -77,12 +77,11 @@ export const EXECUTIVE_NAV_ITEMS = [
   { to: '/financial-requests', label: 'Financial Requests', icon: ICON.financialRequest, description: 'Salary advances and reimbursements.', labelKey: 'staffNav.executive.financialRequests.label', descriptionKey: 'staffNav.executive.financialRequests.description' },
   { to: '/exit-documents', label: 'Exit & Documents', icon: ICON.exit, description: 'Re-entry visas and certificates awaiting your review.', labelKey: 'staffNav.executive.exitDocuments.label', descriptionKey: 'staffNav.executive.exitDocuments.description' },
   { to: '/approvals/log', label: 'Approval Log', icon: ICON.activity, description: 'Every request decided through a workflow, in order.', labelKey: 'staffNav.executive.approvalLog.label', descriptionKey: 'staffNav.executive.approvalLog.description' },
-  // Payroll/Expenses aren't part of Executive's default circle — they show
+  // Expenses aren't part of Executive's default circle — they show
   // up here unconditionally (same "visible, page decides" pattern as the
   // grouped nav below) purely so a COO/Financial-Manager-titled Executive an
   // Admin DID grant Section Access to has somewhere to click through to; an
   // ungranted Executive just gets that page's own explained 403.
-  { to: '/payroll', sectionKey: 'payroll', label: 'Payroll', icon: ICON.banknotes, description: 'Monthly runs and payslips — if you\'ve been granted access.', labelKey: 'staffNav.executive.payroll.label', descriptionKey: 'staffNav.executive.payroll.description' },
   { to: '/expenses', sectionKey: 'expenses', label: 'Expenses', icon: ICON.expense, description: 'Company spending — if you\'ve been granted access.', labelKey: 'staffNav.executive.expenses.label', descriptionKey: 'staffNav.executive.expenses.description' },
 ];
 
@@ -139,7 +138,7 @@ export const NAV_GROUPS = [
     label: 'Financial',
     labelKey: 'staffNav.financial.label',
     icon: ICON.banknotes,
-    description: 'Payroll, expenses, and internal financial requests.',
+    description: 'Expenses and internal financial requests.',
     descriptionKey: 'staffNav.financial.description',
     items: [
       // The internal client-billing tracking layer on top of
@@ -157,7 +156,7 @@ export const NAV_GROUPS = [
       // Access mechanism (see docs/SECTION-ACCESS-notes.md); visible to
       // every staff role that reaches this hub, page 403s if not granted —
       // same dynamic-eligibility pattern as Company Settings/Approval Log.
-      { to: '/payroll', sectionKey: 'payroll', label: 'Payroll', icon: ICON.banknotes, description: 'Monthly runs and payslips.', labelKey: 'staffNav.financial.payroll.label', descriptionKey: 'staffNav.financial.payroll.description' },
+
       { to: '/expenses', sectionKey: 'expenses', label: 'Expenses', icon: ICON.expense, description: 'Company spending, internal only.', labelKey: 'staffNav.financial.expenses.label', descriptionKey: 'staffNav.financial.expenses.description' },
       { to: '/financial-requests', label: 'Financial Requests', icon: ICON.financialRequest, roles: FINANCIAL_REQUEST_VIEW_ROLES, description: 'Salary advances and reimbursements.', labelKey: 'staffNav.financial.financialRequests.label', descriptionKey: 'staffNav.financial.financialRequests.description' },
     ],
