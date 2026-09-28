@@ -103,11 +103,16 @@ export default function ClientListPage() {
       header: t('staffClients.list.columns.company'),
       sortable: true,
       render: (c) => (
-        <Link to={`/clients/${c._id}`} className="font-medium text-text hover:text-primary">
-          {c.companyName}
-          {c.contactPerson && (
-            <span className="block text-xs font-normal text-muted">{c.contactPerson}</span>
-          )}
+        <Link to={`/clients/${c._id}`} className="flex items-center gap-3 font-medium text-text hover:text-primary group">
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary font-bold shadow-sm ring-1 ring-primary/20 transition-transform group-hover:scale-105">
+            {c.companyName.charAt(0).toUpperCase()}
+          </div>
+          <div>
+            {c.companyName}
+            {c.contactPerson && (
+              <span className="block text-xs font-normal text-muted transition-colors group-hover:text-primary/70">{c.contactPerson}</span>
+            )}
+          </div>
         </Link>
       ),
     },

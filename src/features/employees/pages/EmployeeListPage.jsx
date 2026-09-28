@@ -121,11 +121,20 @@ export default function EmployeeListPage() {
       header: t('staffEmployees.list.columns.employee'),
       sortable: true,
       render: (e) => (
-        <Link to={`/employees/${e._id}`} className="font-medium text-text hover:text-primary">
-          {e.fullName}
-          <span className="block text-xs font-normal text-muted">
-            {e.employeeId} · {e.nationality}
-          </span>
+        <Link to={`/employees/${e._id}`} className="flex items-center gap-3 font-medium text-text hover:text-primary group">
+          {e.photoUrl ? (
+            <img src={e.photoUrl} alt="" className="h-10 w-10 shrink-0 rounded-full object-cover shadow-sm ring-1 ring-border/50 transition-transform group-hover:scale-105" />
+          ) : (
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary font-bold shadow-sm ring-1 ring-primary/20 transition-transform group-hover:scale-105">
+              {e.fullName.charAt(0).toUpperCase()}
+            </div>
+          )}
+          <div>
+            {e.fullName}
+            <span className="block text-xs font-normal text-muted transition-colors group-hover:text-primary/70">
+              {e.employeeId} · {e.nationality}
+            </span>
+          </div>
         </Link>
       ),
     },
