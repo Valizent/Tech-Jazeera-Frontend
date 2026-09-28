@@ -90,20 +90,31 @@ export async function downloadInvoiceFile(id, entryId, filename) {
   URL.revokeObjectURL(url);
 }
 
-export async function recordPayment(id, entryId, payload) {
-  const { data } = await api.patch(`/deployments/${id}/monthly-hours/${entryId}/payment`, payload);
-  return data.data;
-}
-
-export async function decidePayment(id, entryId, payload) {
-  const { data } = await api.patch(`/deployments/${id}/monthly-hours/${entryId}/payment/decide`, payload);
-  return data.data;
-}
-
-/** Every invoiced-but-not-yet-fully-paid month, own or company-wide
- *  depending on the viewer (see deployment.service.js's getPaymentsDue). */
+/** Every CLIENT with at least one outstanding invoice, own or company-wide
+ *  depending on the viewer (2026-09-27 bulk-payment redesign — a client
+ *  pays in bulk for everyone placed there, never per worker; see
+ *  deployment.service.js's getClientsPaymentSummary). */
 export async function getPaymentsDue() {
   const { data } = await api.get('/deployments/payments-due');
+  return data.data;
+}
+
+/** One client's full billing picture — every invoice (paid or not) plus
+ *  their real payment history — for the Payments Due page's drill-down. */
+export async function getClientPaymentDetail(clientId) {
+  const { data } = await api.get(`/deployments/payments-due/${clientId}`);
+  return data.data;
+}
+
+/** Record one bulk payment this client made. `payload: { amount }`. */
+export async function recordClientPayment(clientId, payload) {
+  const { data } = await api.post(`/deployments/payments-due/${clientId}/payments`, payload);
+  return data.data;
+}
+
+/** Approve/Reject a Pending recorded client payment. `payload: { decision, note }`. */
+export async function decideClientPayment(paymentId, payload) {
+  const { data } = await api.patch(`/deployments/client-payments/${paymentId}/decide`, payload);
   return data.data;
 }
 

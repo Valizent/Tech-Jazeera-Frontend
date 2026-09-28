@@ -1,25 +1,28 @@
 /**
- * PaymentsDuePage (2026-09-27, the user's own ask) — every invoiced-but-not-
- * yet-fully-paid month, soonest-due first. A Coordinator sees only
- * mobilisations they're on; anyone with 'mobilisationsViewer' (this
- * company's real MM already holds it, plus Admin) sees everything — see
- * deployment.service.js's getPaymentsDue for the exact visibility rule.
- * No dedicated Section Access gate on the route itself: the data is already
- * correctly scoped server-side, so an ungranted viewer just sees an empty
- * list, same reasoning MobilisationDetailPage's own worker-history page
- * gives for skipping a Section Access key on a narrowly-scoped page.
+ * PaymentsDuePage — one row per CLIENT with at least one outstanding
+ * invoice (2026-09-27 redesign, the user's own correction: a client pays in
+ * bulk for everyone placed there in a month, never per worker — see
+ * server/docs/CLIENT-PAYMENTS-notes.md). A Coordinator sees only clients
+ * where they coordinate at least one of the deployments behind an
+ * outstanding invoice; anyone with 'mobilisationsViewer' (this company's
+ * real MM already holds it, plus Admin) sees every client. No dedicated
+ * Section Access gate on the route itself — the data is already correctly
+ * scoped server-side, same reasoning MobilisationDetailPage's own
+ * worker-history page gives for skipping a Section Access key on a
+ * narrowly-scoped page.
  *
- * Gained real actions 2026-09-27 (moved here from the Deployment detail
- * page, the user's own ask — "financial should be for accountants and FM"):
+ * Clicking a client drills into every invoice behind their balance (each
+ * with its own live FIFO allocation) plus their real payment history.
  * Record Payment (Office Secretary / `deploymentsHours`) and Approve/Reject
- * (`deploymentsPaymentDecide`, the Financial Manager). The Deployment detail
- * page keeps a read-only status readout only.
+ * (`deploymentsPaymentDecide`, the Financial Manager) both live in that
+ * drill-down — moved here from the Deployment detail page, which now shows
+ * only a read-only status.
  */
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { getPaymentsDue, recordPayment, decidePayment } from '../deployments.api.js';
+import { getPaymentsDue, getClientPaymentDetail, recordClientPayment, decideClientPayment } from '../deployments.api.js';
 import { formatDate, formatMoney, apiMessage } from '../../../lib/utils.js';
 import { useAuth } from '../../auth/AuthContext.jsx';
 import { useToast } from '../../../components/ui/Toast.jsx';
@@ -29,6 +32,7 @@ import Table from '../../../components/ui/Table.jsx';
 import Badge from '../../../components/ui/Badge.jsx';
 import Button from '../../../components/ui/Button.jsx';
 import Input from '../../../components/ui/Input.jsx';
+import Select from '../../../components/ui/Select.jsx';
 import Textarea from '../../../components/ui/Textarea.jsx';
 import Modal from '../../../components/ui/Modal.jsx';
 import Skeleton from '../../../components/ui/Skeleton.jsx';
@@ -48,87 +52,69 @@ export default function PaymentsDuePage() {
   const toast = useToast();
   const queryClient = useQueryClient();
 
-  // Same gates DeploymentDetailPage.jsx used before this moved here.
   const canRecordPayment = user.role === 'Office Secretary' || Boolean(user.sectionAccessWrite?.includes('deploymentsHours'));
   const canDecidePayment = Boolean(user.sectionAccessWrite?.includes('deploymentsPaymentDecide'));
 
-  const [payingEntry, setPayingEntry] = useState(null);
+  const [supplierFilter, setSupplierFilter] = useState('');
+  const [openClientId, setOpenClientId] = useState(null);
+  const [payingClient, setPayingClient] = useState(null); // { clientId, clientName } | null
   const [paymentAmount, setPaymentAmount] = useState('');
-  const [payDecidingEntry, setPayDecidingEntry] = useState(null);
+  const [decidingPayment, setDecidingPayment] = useState(null); // payment row | null
   const [payDecision, setPayDecision] = useState(null); // 'Approved' | 'Rejected'
   const [payDecisionNote, setPayDecisionNote] = useState('');
 
-  const { data = [], isPending, isError } = useQuery({
+  const { data: rows = [], isPending, isError } = useQuery({
     queryKey: ['deployments', 'payments-due'],
     queryFn: getPaymentsDue,
   });
 
-  const invalidate = () => queryClient.invalidateQueries({ queryKey: ['deployments', 'payments-due'] });
+  const { data: detail, isPending: detailPending } = useQuery({
+    queryKey: ['deployments', 'payments-due', openClientId],
+    queryFn: () => getClientPaymentDetail(openClientId),
+    enabled: Boolean(openClientId),
+  });
 
-  const recordPaymentMutation = useMutation({
-    mutationFn: ({ deploymentId, entryId, values }) => recordPayment(deploymentId, entryId, values),
+  const supplierOptions = useMemo(() => {
+    const set = new Set();
+    for (const row of rows) for (const name of row.subcontractorNames ?? []) set.add(name);
+    return [...set].sort();
+  }, [rows]);
+
+  const filteredRows = supplierFilter ? rows.filter((row) => row.subcontractorNames?.includes(supplierFilter)) : rows;
+
+  const invalidateList = () => queryClient.invalidateQueries({ queryKey: ['deployments', 'payments-due'] });
+
+  const recordMutation = useMutation({
+    mutationFn: ({ clientId, values }) => recordClientPayment(clientId, values),
     onSuccess: () => {
-      toast.success(t('staffDeployments.detail.paymentRecordedToast'));
-      setPayingEntry(null);
+      toast.success(t('staffDeployments.paymentsDue.paymentRecordedToast'));
+      setPayingClient(null);
       setPaymentAmount('');
-      invalidate();
+      invalidateList();
+      if (openClientId) queryClient.invalidateQueries({ queryKey: ['deployments', 'payments-due', openClientId] });
     },
     onError: (error) => toast.error(apiMessage(error)),
   });
 
-  const decidePaymentMutation = useMutation({
-    mutationFn: ({ deploymentId, entryId, values }) => decidePayment(deploymentId, entryId, values),
+  const decideMutation = useMutation({
+    mutationFn: ({ paymentId, values }) => decideClientPayment(paymentId, values),
     onSuccess: () => {
       toast.success(
-        payDecision === 'Approved' ? t('staffDeployments.detail.paymentApprovedToast') : t('staffDeployments.detail.paymentRejectedToast')
+        payDecision === 'Approved' ? t('staffDeployments.paymentsDue.paymentApprovedToast') : t('staffDeployments.paymentsDue.paymentRejectedToast')
       );
-      setPayDecidingEntry(null);
+      setDecidingPayment(null);
       setPayDecision(null);
       setPayDecisionNote('');
-      invalidate();
+      invalidateList();
+      if (openClientId) queryClient.invalidateQueries({ queryKey: ['deployments', 'payments-due', openClientId] });
     },
     onError: (error) => toast.error(apiMessage(error)),
   });
 
   const columns = [
-    {
-      key: 'worker',
-      header: t('staffDeployments.paymentsDue.columns.worker'),
-      render: (row) => (
-        <span className="font-medium text-text">
-          {row.workerName}
-          <span className="block text-xs font-normal text-muted">{row.clientName}</span>
-        </span>
-      ),
-    },
-    { key: 'month', header: t('staffDeployments.paymentsDue.columns.month'), render: (row) => row.month },
-    {
-      key: 'invoice',
-      header: t('staffDeployments.paymentsDue.columns.invoice'),
-      render: (row) => (
-        <span>
-          {row.invoiceNumber ?? '—'}
-          {row.invoiceDate && <span className="block text-xs text-muted">{formatDate(row.invoiceDate)}</span>}
-        </span>
-      ),
-    },
-    {
-      key: 'amount',
-      header: t('staffDeployments.paymentsDue.columns.amount'),
-      render: (row) => (row.amountReceived > 0 ? formatMoney(row.amountReceived) : '—'),
-    },
-    {
-      key: 'status',
-      header: t('staffDeployments.paymentsDue.columns.status'),
-      render: (row) =>
-        row.paymentDecisionStatus === 'Pending' ? (
-          <Badge variant="warning">{t('staffDeployments.paymentsDue.statusPending')}</Badge>
-        ) : row.paymentDecisionStatus === 'Rejected' ? (
-          <Badge variant="danger">{t('staffDeployments.paymentsDue.statusRejected')}</Badge>
-        ) : (
-          <Badge variant="default">{t('staffDeployments.paymentsDue.statusAwaiting')}</Badge>
-        ),
-    },
+    { key: 'client', header: t('staffDeployments.paymentsDue.columns.client'), render: (row) => <span className="font-medium text-text">{row.clientName}</span> },
+    { key: 'count', header: t('staffDeployments.paymentsDue.columns.invoiceCount'), render: (row) => row.outstandingCount },
+    { key: 'total', header: t('staffDeployments.paymentsDue.columns.totalOutstanding'), render: (row) => formatMoney(row.totalOutstanding) },
     {
       key: 'due',
       header: t('staffDeployments.paymentsDue.columns.due'),
@@ -144,54 +130,21 @@ export default function PaymentsDuePage() {
     },
   ];
 
-  if (canRecordPayment || canDecidePayment) {
+  if (canRecordPayment) {
     columns.push({
       key: 'action',
       header: '',
       render: (row) => (
-        <div className="flex flex-wrap justify-end gap-1.5">
-          {canRecordPayment && row.paymentDecisionStatus !== 'Pending' && (
-            <Button
-              size="sm"
-              variant="ghost"
-              onClick={(e) => {
-                e.stopPropagation();
-                setPayingEntry(row);
-                setPaymentAmount(row.amountReceived ? String(row.amountReceived) : '');
-              }}
-            >
-              {t('staffDeployments.detail.recordPaymentButton')}
-            </Button>
-          )}
-          {canDecidePayment && row.paymentDecisionStatus === 'Pending' && (
-            <>
-              <Button
-                size="sm"
-                variant="ghost"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setPayDecidingEntry(row);
-                  setPayDecision('Approved');
-                  setPayDecisionNote('');
-                }}
-              >
-                {t('common.approve')}
-              </Button>
-              <Button
-                size="sm"
-                variant="danger-ghost"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setPayDecidingEntry(row);
-                  setPayDecision('Rejected');
-                  setPayDecisionNote('');
-                }}
-              >
-                {t('common.reject')}
-              </Button>
-            </>
-          )}
-        </div>
+        <Button
+          size="sm"
+          variant="ghost"
+          onClick={(e) => {
+            e.stopPropagation();
+            setPayingClient({ clientId: row.clientId, clientName: row.clientName });
+          }}
+        >
+          {t('staffDeployments.paymentsDue.recordPaymentButton')}
+        </Button>
       ),
     });
   }
@@ -204,6 +157,19 @@ export default function PaymentsDuePage() {
         onBack={() => navigate(-1)}
       />
 
+      {supplierOptions.length > 0 && (
+        <div className="max-w-xs">
+          <Select label={t('staffDeployments.paymentsDue.filterBySupplier')} value={supplierFilter} onChange={(e) => setSupplierFilter(e.target.value)}>
+            <option value="">{t('staffDeployments.paymentsDue.allSuppliers')}</option>
+            {supplierOptions.map((name) => (
+              <option key={name} value={name}>
+                {name}
+              </option>
+            ))}
+          </Select>
+        </div>
+      )}
+
       {isPending ? (
         <div className="space-y-4">
           <Skeleton className="h-40 w-full" />
@@ -214,9 +180,9 @@ export default function PaymentsDuePage() {
         <Card>
           <Table
             columns={columns}
-            rows={data}
-            rowKey={(row) => `${row.deploymentId}-${row.entryId}`}
-            onRowClick={(row) => navigate(`/deployments/${row.deploymentId}`)}
+            rows={filteredRows}
+            rowKey={(row) => row.clientId}
+            onRowClick={(row) => setOpenClientId(row.clientId)}
             emptyState={
               <EmptyState
                 title={t('staffDeployments.paymentsDue.emptyTitle')}
@@ -227,20 +193,135 @@ export default function PaymentsDuePage() {
         </Card>
       )}
 
+      {/* Client drill-down: every invoice behind the balance + real payment history. */}
+      <Modal open={Boolean(openClientId)} onClose={() => setOpenClientId(null)} title={detail?.clientName ?? ''}>
+        {detailPending ? (
+          <Skeleton className="h-40 w-full" />
+        ) : detail ? (
+          <div className="space-y-5">
+            {detail.creditBalance > 0 && (
+              <p className="rounded-lg bg-success/10 px-3 py-2 text-sm text-success">
+                {t('staffDeployments.paymentsDue.creditBalance', { amount: formatMoney(detail.creditBalance) })}
+              </p>
+            )}
+
+            <div>
+              <h3 className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted">{t('staffDeployments.paymentsDue.invoicesTitle')}</h3>
+              <div className="overflow-x-auto rounded-lg border border-border">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="border-b border-border bg-bg/40 text-left text-xs uppercase tracking-wide text-muted">
+                      <th className="px-3 py-2">{t('staffDeployments.paymentsDue.columns.worker')}</th>
+                      <th className="px-3 py-2">{t('staffDeployments.paymentsDue.columns.month')}</th>
+                      <th className="px-3 py-2">{t('staffDeployments.paymentsDue.columns.invoice')}</th>
+                      <th className="px-3 py-2">{t('staffDeployments.paymentsDue.columns.allocated')}</th>
+                      <th className="px-3 py-2">{t('staffDeployments.paymentsDue.columns.balance')}</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-border">
+                    {detail.invoices.map((inv) => (
+                      <tr key={inv.entryId}>
+                        <td className="px-3 py-2">{inv.workerName}</td>
+                        <td className="px-3 py-2">{inv.month}</td>
+                        <td className="px-3 py-2">
+                          {inv.invoiceNumber ?? '—'}
+                          {inv.invoiceDate && <span className="block text-xs text-muted">{formatDate(inv.invoiceDate)}</span>}
+                        </td>
+                        <td className="px-3 py-2">{formatMoney(inv.amountAllocated)}</td>
+                        <td className="px-3 py-2">
+                          {inv.fullyPaid ? (
+                            <Badge variant="success">{t('staffDeployments.paymentsDue.fullyPaid')}</Badge>
+                          ) : (
+                            formatMoney(inv.balanceDue)
+                          )}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <div>
+              <h3 className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted">{t('staffDeployments.paymentsDue.paymentHistoryTitle')}</h3>
+              {detail.payments.length === 0 ? (
+                <p className="text-sm text-muted">{t('staffDeployments.paymentsDue.noPaymentsYet')}</p>
+              ) : (
+                <ul className="space-y-2">
+                  {detail.payments.map((p) => (
+                    <li key={p._id} className="flex items-center justify-between gap-3 rounded-lg border border-border px-3 py-2 text-sm">
+                      <div>
+                        <span className="font-medium text-text">{formatMoney(p.amount)}</span>
+                        <span className="ml-2 text-xs text-muted">
+                          {p.recordedBy?.name} · {formatDate(p.recordedAt)}
+                        </span>
+                      </div>
+                      {p.decisionStatus === 'Pending' ? (
+                        canDecidePayment ? (
+                          <div className="flex gap-1.5">
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              onClick={() => {
+                                setDecidingPayment(p);
+                                setPayDecision('Approved');
+                                setPayDecisionNote('');
+                              }}
+                            >
+                              {t('common.approve')}
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="danger-ghost"
+                              onClick={() => {
+                                setDecidingPayment(p);
+                                setPayDecision('Rejected');
+                                setPayDecisionNote('');
+                              }}
+                            >
+                              {t('common.reject')}
+                            </Button>
+                          </div>
+                        ) : (
+                          <Badge variant="warning">{t('staffDeployments.paymentsDue.statusPending')}</Badge>
+                        )
+                      ) : p.decisionStatus === 'Approved' ? (
+                        <Badge variant="success">{t('staffDeployments.paymentsDue.statusApproved')}</Badge>
+                      ) : (
+                        <Badge variant="danger">{t('staffDeployments.paymentsDue.statusRejected')}</Badge>
+                      )}
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+
+            {canRecordPayment && (
+              <div className="flex justify-end">
+                <Button onClick={() => setPayingClient({ clientId: detail.clientId, clientName: detail.clientName })}>
+                  {t('staffDeployments.paymentsDue.recordPaymentButton')}
+                </Button>
+              </div>
+            )}
+          </div>
+        ) : null}
+      </Modal>
+
+      {/* Record a bulk payment for one client. */}
       <Modal
-        open={Boolean(payingEntry)}
+        open={Boolean(payingClient)}
         onClose={() => {
-          if (recordPaymentMutation.isPending) return;
-          setPayingEntry(null);
+          if (recordMutation.isPending) return;
+          setPayingClient(null);
           setPaymentAmount('');
         }}
-        title={payingEntry ? t('staffDeployments.detail.recordPaymentModalTitle', { month: payingEntry.month }) : ''}
+        title={payingClient ? t('staffDeployments.paymentsDue.recordPaymentModalTitle', { client: payingClient.clientName }) : ''}
       >
-        {payingEntry && (
+        {payingClient && (
           <div className="space-y-4">
-            <p className="text-sm text-muted">{t('staffDeployments.detail.recordPaymentModalMessage')}</p>
+            <p className="text-sm text-muted">{t('staffDeployments.paymentsDue.recordPaymentModalMessage')}</p>
             <Input
-              label={t('staffDeployments.detail.amountReceivedLabel')}
+              label={t('staffDeployments.paymentsDue.amountLabel')}
               type="number"
               min="0"
               step="0.01"
@@ -248,57 +329,46 @@ export default function PaymentsDuePage() {
               onChange={(e) => setPaymentAmount(e.target.value)}
             />
             <div className="flex justify-end gap-2 pt-2">
-              <Button type="button" variant="secondary" onClick={() => setPayingEntry(null)} disabled={recordPaymentMutation.isPending}>
+              <Button type="button" variant="secondary" onClick={() => setPayingClient(null)} disabled={recordMutation.isPending}>
                 {t('common.cancel')}
               </Button>
               <Button
                 type="button"
-                isLoading={recordPaymentMutation.isPending}
-                disabled={paymentAmount === '' || Number(paymentAmount) < 0}
-                onClick={() =>
-                  recordPaymentMutation.mutate({
-                    deploymentId: payingEntry.deploymentId,
-                    entryId: payingEntry.entryId,
-                    values: { amountReceived: Number(paymentAmount) },
-                  })
-                }
+                isLoading={recordMutation.isPending}
+                disabled={!paymentAmount || Number(paymentAmount) <= 0}
+                onClick={() => recordMutation.mutate({ clientId: payingClient.clientId, values: { amount: Number(paymentAmount) } })}
               >
-                {t('staffDeployments.detail.recordPaymentButton')}
+                {t('staffDeployments.paymentsDue.recordPaymentButton')}
               </Button>
             </div>
           </div>
         )}
       </Modal>
 
+      {/* Approve/Reject one Pending payment. */}
       <Modal
-        open={Boolean(payDecidingEntry)}
+        open={Boolean(decidingPayment)}
         onClose={() => {
-          if (decidePaymentMutation.isPending) return;
-          setPayDecidingEntry(null);
+          if (decideMutation.isPending) return;
+          setDecidingPayment(null);
           setPayDecision(null);
         }}
         title={
-          payDecidingEntry
-            ? t(
-                payDecision === 'Approved' ? 'staffDeployments.detail.approvePaymentModalTitle' : 'staffDeployments.detail.rejectPaymentModalTitle',
-                { month: payDecidingEntry.month }
-              )
+          decidingPayment
+            ? t(payDecision === 'Approved' ? 'staffDeployments.paymentsDue.approveModalTitle' : 'staffDeployments.paymentsDue.rejectModalTitle')
             : ''
         }
       >
-        {payDecidingEntry && (
+        {decidingPayment && (
           <div className="space-y-4">
             <p className="text-sm text-muted">
-              {t('staffDeployments.detail.decidePaymentModalMessage', {
-                amount: formatMoney(payDecidingEntry.amountReceived),
-                worker: payDecidingEntry.workerName,
-              })}
+              {t('staffDeployments.paymentsDue.decideModalMessage', { amount: formatMoney(decidingPayment.amount) })}
             </p>
             <Textarea
               label={
                 payDecision === 'Rejected'
-                  ? t('staffDeployments.detail.decisionNoteRequiredLabel')
-                  : t('staffDeployments.detail.decisionNoteOptionalLabel')
+                  ? t('staffDeployments.paymentsDue.decisionNoteRequiredLabel')
+                  : t('staffDeployments.paymentsDue.decisionNoteOptionalLabel')
               }
               value={payDecisionNote}
               onChange={(e) => setPayDecisionNote(e.target.value)}
@@ -308,22 +378,21 @@ export default function PaymentsDuePage() {
                 type="button"
                 variant="secondary"
                 onClick={() => {
-                  setPayDecidingEntry(null);
+                  setDecidingPayment(null);
                   setPayDecision(null);
                 }}
-                disabled={decidePaymentMutation.isPending}
+                disabled={decideMutation.isPending}
               >
                 {t('common.cancel')}
               </Button>
               <Button
                 type="button"
                 variant={payDecision === 'Rejected' ? 'danger' : 'primary'}
-                isLoading={decidePaymentMutation.isPending}
+                isLoading={decideMutation.isPending}
                 disabled={payDecision === 'Rejected' && !payDecisionNote.trim()}
                 onClick={() =>
-                  decidePaymentMutation.mutate({
-                    deploymentId: payDecidingEntry.deploymentId,
-                    entryId: payDecidingEntry.entryId,
+                  decideMutation.mutate({
+                    paymentId: decidingPayment._id,
                     values: { decision: payDecision, note: payDecisionNote.trim() || undefined },
                   })
                 }

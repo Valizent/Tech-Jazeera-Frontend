@@ -331,9 +331,17 @@ function LegacyDailyBreakdown({ entry, locale }) {
   );
 }
 
-/** The real-revenue billing lifecycle for one monthly-hours entry
- *  (2026-09-27) — a compact status readout, separate from the hours-approval
- *  Status column above it (a different, later stage of the same entry). */
+/** The real-revenue billing lifecycle for one monthly-hours entry — a
+ *  compact status readout, separate from the hours-approval Status column
+ *  above it (a different, later stage of the same entry). Read-only here;
+ *  the real actions (Send Invoice/Record Payment/Approve-Reject) live on
+ *  the Financial section's own Ready to Invoice / Payments Due pages
+ *  (2026-09-27, the user's own ask). Payment status is now the entry's own
+ *  live FIFO allocation (`amountAllocated`/`balanceDue`/`fullyPaid` —
+ *  2026-09-27 bulk-payment redesign, see deployment.service.js's
+ *  getClientAllocation) rather than a per-entry decision a person typed —
+ *  a client's bulk payment is recorded and approved at the client level,
+ *  on the Payments Due page, not here. */
 function BillingStatus({ entry, t, formatDate, formatMoney }) {
   if (entry.status !== 'Approved') return <span className="text-xs text-muted">—</span>;
   if (!entry.invoiceSentAt) {
@@ -342,27 +350,18 @@ function BillingStatus({ entry, t, formatDate, formatMoney }) {
   const invoiceRef = entry.invoiceNumber && (
     <p className="mt-1 text-xs text-muted">{t('staffDeployments.detail.billing.invoiceRef', { number: entry.invoiceNumber, date: entry.invoiceDate ? formatDate(entry.invoiceDate) : '—' })}</p>
   );
-  if (entry.paymentDecisionStatus === 'Approved') {
+  if (entry.fullyPaid) {
     return (
       <div>
-        <Badge variant="success">{t('staffDeployments.detail.billing.paymentApproved', { amount: formatMoney(entry.amountReceived) })}</Badge>
+        <Badge variant="success">{t('staffDeployments.detail.billing.paid', { amount: formatMoney(entry.amountAllocated) })}</Badge>
         {invoiceRef}
       </div>
     );
   }
-  if (entry.paymentDecisionStatus === 'Pending') {
+  if (entry.amountAllocated > 0) {
     return (
       <div>
-        <Badge variant="warning">{t('staffDeployments.detail.billing.paymentPending', { amount: formatMoney(entry.amountReceived) })}</Badge>
-        {invoiceRef}
-      </div>
-    );
-  }
-  if (entry.paymentDecisionStatus === 'Rejected') {
-    return (
-      <div>
-        <Badge variant="danger">{t('staffDeployments.detail.billing.paymentRejected')}</Badge>
-        {entry.paymentDecisionNote && <p className="mt-1 max-w-[14rem] text-xs text-muted">{entry.paymentDecisionNote}</p>}
+        <Badge variant="warning">{t('staffDeployments.detail.billing.partiallyPaid', { balance: formatMoney(entry.balanceDue) })}</Badge>
         {invoiceRef}
       </div>
     );
@@ -666,7 +665,7 @@ export default function DeploymentDetailPage() {
                       client's own timesheet in front of her. Visible to
                       everyone who can see this section at all. */}
                   <th className="px-3 py-2">{t('staffDeployments.detail.columns.deduction')}</th>
-                  {deployment.totalProfit != null && <th className="px-3 py-2">{t('staffDeployments.detail.columns.profit')}</th>}
+                  {deployment.totalProfit != null && <th className="px-3 py-2">{t('staffDeployments.detail.columns.profitOrDue')}</th>}
                   <th className="px-3 py-2">{t('staffDeployments.detail.columns.status')}</th>
                   {(canInvoice || canEnterHours || canDecidePaymentAccess) && (
                     <th className="px-3 py-2">{t('staffDeployments.detail.columns.billing')}</th>
@@ -706,8 +705,29 @@ export default function DeploymentDetailPage() {
                         )}
                       </td>
                       {deployment.totalProfit != null && (
-                        <td className={cn('px-3 py-2 font-medium tabular-nums', entry.profit >= 0 ? 'text-success' : 'text-danger')}>
-                          {formatMoney(entry.profit)}
+                        <td className="px-3 py-2">
+                          {!entry.invoiceSentAt ? (
+                            <span className={cn('font-medium tabular-nums', entry.profit >= 0 ? 'text-success' : 'text-danger')}>
+                              {formatMoney(entry.profit)}
+                              <span className="block text-[10px] font-normal uppercase tracking-wide text-muted">
+                                {t('staffDeployments.detail.expectedProfitLabel')}
+                              </span>
+                            </span>
+                          ) : entry.fullyPaid ? (
+                            <span className={cn('font-medium tabular-nums', entry.profit >= 0 ? 'text-success' : 'text-danger')}>
+                              {formatMoney(entry.profit)}
+                              <span className="block text-[10px] font-normal uppercase tracking-wide text-muted">
+                                {t('staffDeployments.detail.actualProfitLabel')}
+                              </span>
+                            </span>
+                          ) : (
+                            <span className="font-medium tabular-nums text-text">
+                              {formatMoney(entry.balanceDue)}
+                              <span className="block text-[10px] font-normal uppercase tracking-wide text-muted">
+                                {t('staffDeployments.detail.amountDueLabel')}
+                              </span>
+                            </span>
+                          )}
                         </td>
                       )}
                       <td className="px-3 py-2">
