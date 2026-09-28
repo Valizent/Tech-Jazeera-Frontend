@@ -198,8 +198,8 @@ function MonthlyHoursForm({ deployment, defaultValues, onSubmit, submitting, sub
 
   return (
     <form onSubmit={handleSubmit(onSubmit, onInvalid)} noValidate className="space-y-3">
-      {/* Row 1: Month + Timesheet inputs all on one line */}
-      <div className={cn('grid grid-cols-1 gap-3', isSupplierEmployee ? 'sm:grid-cols-3' : 'sm:grid-cols-2')}>
+      {/* Row 1: Month | Client timesheet | Supplier timesheet | Client deduction — all 4 in one line */}
+      <div className={cn('grid grid-cols-1 gap-3', isSupplierEmployee ? 'sm:grid-cols-4' : 'sm:grid-cols-3')}>
         <Input
           label={t('staffDeployments.detail.monthLabel')}
           type="month"
@@ -227,10 +227,6 @@ function MonthlyHoursForm({ deployment, defaultValues, onSubmit, submitting, sub
             {...register('supplierHours')}
           />
         )}
-      </div>
-
-      {/* Row 2: Client deduction + Notes side by side */}
-      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
         <div>
           <Input
             label={t('staffDeployments.detail.deductionAmountLabel')}
@@ -243,13 +239,10 @@ function MonthlyHoursForm({ deployment, defaultValues, onSubmit, submitting, sub
           />
           <p className="mt-1 text-xs text-muted">{t('staffDeployments.detail.deductionAmountHint')}</p>
         </div>
-        <Textarea
-          label={t('staffDeployments.detail.notesLabel')}
-          rows={2}
-          error={errors.notes?.message}
-          {...register('notes')}
-        />
       </div>
+
+      {/* Row 2: Notes full-width */}
+      <Textarea label={t('staffDeployments.detail.notesLabel')} error={errors.notes?.message} {...register('notes')} />
 
       {/* Save button */}
       <div className="flex justify-end">
