@@ -45,6 +45,7 @@ export default function HoursReviewPage() {
   const qc = useQueryClient();
 
   const [decidingRow, setDecidingRow] = useState(null); // { ...row, action: 'Approved' | 'Rejected' }
+  const [breakdownRow, setBreakdownRow] = useState(null);
   const [note, setNote] = useState('');
 
   const canDecide = Boolean(user.sectionAccessWrite?.includes('deploymentsHoursDecide'));
@@ -206,10 +207,26 @@ export default function HoursReviewPage() {
                   ...(row.otAmount != null ? [{ label: 'OT amount', value: formatMoney(row.otAmount) }] : []),
                   ...(row.deductionAmount > 0 ? [{ label: 'Deduction', value: formatMoney(row.deductionAmount), valueClass: 'text-danger' }] : []),
                   ...(row.revenue != null ? [{ label: 'Invoice amount', value: formatMoney(row.revenue) }] : []),
-                  ...(row.profit != null ? [{ label: 'Net profit', value: formatMoney(row.profit), valueClass: row.profit < 0 ? 'text-danger' : 'text-success' }] : []),
+                  ...(row.profit != null ? [{ 
+                      label: 'Net profit', 
+                      value: formatMoney(row.profit), 
+                      valueClass: row.profit < 0 ? 'text-danger' : 'text-success',
+                      onClick: () => setBreakdownRow(row)
+                  }] : []),
                 ].map((tile) => (
-                  <div key={tile.label} className="bg-surface px-5 py-3">
-                    <p className="text-xs font-medium text-muted">{tile.label}</p>
+                  <div
+                    key={tile.label}
+                    className={`bg-surface px-5 py-3 ${tile.onClick ? 'cursor-pointer transition-colors hover:bg-bg' : ''}`}
+                    onClick={tile.onClick}
+                  >
+                    <p className="flex items-center gap-1.5 text-xs font-medium text-muted">
+                      {tile.label}
+                      {tile.onClick && (
+                        <svg className="h-3.5 w-3.5 opacity-60" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                      )}
+                    </p>
                     <p className={`mt-0.5 text-sm font-semibold tabular-nums ${tile.valueClass ?? ''}`}>{tile.value}</p>
                   </div>
                 ))}
@@ -269,11 +286,16 @@ export default function HoursReviewPage() {
                 <StatTile label="Invoice amount" value={formatMoney(decidingRow.revenue)} />
               )}
               {decidingRow.profit != null && (
-                <StatTile
-                  label="Net profit"
-                  value={formatMoney(decidingRow.profit)}
-                  valueClass={decidingRow.profit < 0 ? 'text-danger' : 'text-success'}
-                />
+                <div 
+                  className="cursor-pointer rounded-xl outline-none ring-2 ring-transparent transition-all hover:ring-primary/20"
+                  onClick={() => setBreakdownRow(decidingRow)}
+                >
+                  <StatTile
+                    label="Net profit ⓘ"
+                    value={formatMoney(decidingRow.profit)}
+                    valueClass={decidingRow.profit < 0 ? 'text-danger' : 'text-success'}
+                  />
+                </div>
               )}
             </div>
 
@@ -315,6 +337,91 @@ export default function HoursReviewPage() {
                 }
               >
                 {decidingRow.action === 'Approved' ? 'Approve' : 'Reject'}
+              </Button>
+            </div>
+          </div>
+        )}
+      </Modal>
+
+      {/* Breakdown modal */}
+      <Modal
+        open={Boolean(breakdownRow)}
+        onClose={() => setBreakdownRow(null)}
+        title={`Profit Breakdown: ${breakdownRow?.month}`}
+        size="sm"
+      >
+        {breakdownRow && (
+          <div className="space-y-4">
+            <div className="space-y-2 text-sm">
+              <div className="flex justify-between">
+                <span className="text-muted">Revenue (Base)</span>
+                <span className="font-medium tabular-nums">{formatMoney(breakdownRow.profitBreakdown?.revenueBase)}</span>
+              </div>
+              {breakdownRow.profitBreakdown?.revenueOt > 0 && (
+                <div className="flex justify-between">
+                  <span className="text-muted">Revenue (OT)</span>
+                  <span className="font-medium tabular-nums">{formatMoney(breakdownRow.profitBreakdown?.revenueOt)}</span>
+                </div>
+              )}
+              
+              <div className="my-2 border-b border-border"></div>
+              
+              {breakdownRow.profitBreakdown?.expenseClientCommission > 0 && (
+                <div className="flex justify-between">
+                  <span className="text-muted">Client Commission</span>
+                  <span className="font-medium tabular-nums text-danger">-{formatMoney(breakdownRow.profitBreakdown?.expenseClientCommission)}</span>
+                </div>
+              )}
+              {breakdownRow.workerType === 'SupplierEmployee' && breakdownRow.profitBreakdown?.expenseSubcontractor > 0 && (
+                <div className="flex justify-between">
+                  <span className="text-muted">Subcontractor</span>
+                  <span className="font-medium tabular-nums text-danger">-{formatMoney(breakdownRow.profitBreakdown?.expenseSubcontractor)}</span>
+                </div>
+              )}
+              {breakdownRow.profitBreakdown?.expenseFta > 0 && (
+                <div className="flex justify-between">
+                  <span className="text-muted">FTA</span>
+                  <span className="font-medium tabular-nums text-danger">-{formatMoney(breakdownRow.profitBreakdown?.expenseFta)}</span>
+                </div>
+              )}
+              {breakdownRow.profitBreakdown?.expenseAllowance > 0 && (
+                <div className="flex justify-between">
+                  <span className="text-muted">Allowance</span>
+                  <span className="font-medium tabular-nums text-danger">-{formatMoney(breakdownRow.profitBreakdown?.expenseAllowance)}</span>
+                </div>
+              )}
+              {breakdownRow.profitBreakdown?.expenseOt > 0 && (
+                <div className="flex justify-between">
+                  <span className="text-muted">Expense (OT)</span>
+                  <span className="font-medium tabular-nums text-danger">-{formatMoney(breakdownRow.profitBreakdown?.expenseOt)}</span>
+                </div>
+              )}
+              {breakdownRow.profitBreakdown?.expenseDeduction > 0 && (
+                <div className="flex justify-between">
+                  <span className="text-muted">Client Deduction</span>
+                  <span className="font-medium tabular-nums text-danger">-{formatMoney(breakdownRow.profitBreakdown?.expenseDeduction)}</span>
+                </div>
+              )}
+              {breakdownRow.profitBreakdown?.expenseMobilisationCost > 0 && (
+                <div className="flex justify-between">
+                  <span className="text-muted">Mobilisation Cost</span>
+                  <span className="font-medium tabular-nums text-danger">-{formatMoney(breakdownRow.profitBreakdown?.expenseMobilisationCost)}</span>
+                </div>
+              )}
+              
+              <div className="my-2 border-b border-border"></div>
+              
+              <div className="flex justify-between pt-1">
+                <span className="font-semibold text-text">Net Profit</span>
+                <span className={`font-semibold tabular-nums ${breakdownRow.profit < 0 ? 'text-danger' : 'text-success'}`}>
+                  {formatMoney(breakdownRow.profit)}
+                </span>
+              </div>
+            </div>
+            
+            <div className="flex justify-end pt-2">
+              <Button type="button" variant="secondary" onClick={() => setBreakdownRow(null)}>
+                Close
               </Button>
             </div>
           </div>
