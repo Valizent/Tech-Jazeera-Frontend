@@ -57,13 +57,13 @@ export default function Table({
     <>
       {/* Desktop */}
       <div className="hidden overflow-x-auto px-1 pb-4 md:block">
-        <table className="w-full border-separate border-spacing-y-2 text-sm">
+        <table className="w-full border-separate border-spacing-y-[6px] text-sm">
           <thead className="text-left">
             <tr>
               {columns.map((col) => (
                 <th
                   key={col.key}
-                  className="whitespace-nowrap px-4 py-4 text-[14px] font-black uppercase tracking-wider text-text bg-border/40 border-b-[3px] border-border shadow-sm first:rounded-tl-2xl last:rounded-tr-2xl"
+                  className="whitespace-nowrap px-4 py-3 text-[14px] font-black uppercase tracking-wider text-text bg-border/40 border-b-[3px] border-border shadow-sm first:rounded-tl-2xl last:rounded-tr-2xl"
                 >
                   <SortableHeader column={col} sortBy={sortBy} sortOrder={sortOrder} onSort={onSort} />
                 </th>
@@ -76,7 +76,7 @@ export default function Table({
                   <tr key={i} className="group drop-shadow-sm">
                     {columns.map((col, idx) => (
                       <td key={col.key} className={cn(
-                        "px-4 py-4 bg-surface border-y border-border/50", 
+                        "px-4 py-2.5 bg-surface border-y border-border/50", 
                         idx === 0 && "rounded-l-xl border-l", 
                         idx === columns.length - 1 && "rounded-r-xl border-r"
                       )}>
@@ -96,7 +96,7 @@ export default function Table({
                   >
                     {columns.map((col, idx) => (
                       <td key={col.key} className={cn(
-                        'px-4 py-4 align-middle bg-surface border-y border-border/40 transition-colors',
+                        'px-4 py-2.5 align-middle bg-surface border-y border-border/40 transition-colors',
                         onRowClick && 'group-hover:border-primary/40',
                         idx === 0 && 'rounded-l-xl border-l',
                         idx === columns.length - 1 && 'rounded-r-xl border-r',
