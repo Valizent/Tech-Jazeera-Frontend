@@ -505,8 +505,16 @@ export default function MobilisationDetailPage() {
   return (
     <div className="mx-auto max-w-3xl space-y-6">
       <PageHeader
-        title={`#${m.serialNumber} — ${m.workerName} — ${m.clientName}`}
-        description={m.jobTitle}
+        title={`#${m.serialNumber}`}
+        description={
+          <span>
+            <strong className="text-text">{m.workerName}</strong>
+            <span className="mx-2 opacity-50">·</span>
+            <span>{m.jobTitle}</span>
+            <span className="mx-2 opacity-50">·</span>
+            <strong className="text-text">{m.clientName}</strong>
+          </span>
+        }
         onBack={() => navigate(-1)}
         actions={
           <div className="flex items-center gap-2">

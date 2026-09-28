@@ -533,8 +533,20 @@ export default function DeploymentDetailPage() {
   return (
     <div className="mx-auto max-w-3xl space-y-6">
       <PageHeader
-        title={`${deployment.workerName} — ${deployment.clientName}`}
-        description={deployment.site}
+        title={deployment.workerName}
+        description={
+          <span>
+            <span>{deployment.jobTitle}</span>
+            <span className="mx-2 opacity-50">·</span>
+            <strong className="text-text">{deployment.clientName}</strong>
+            {deployment.site && (
+              <>
+                <span className="mx-2 opacity-50">·</span>
+                <span>{deployment.site}</span>
+              </>
+            )}
+          </span>
+        }
         onBack={() => navigate(-1)}
         actions={
           <div className="flex items-center gap-2">
