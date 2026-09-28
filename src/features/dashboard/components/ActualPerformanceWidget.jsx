@@ -68,10 +68,10 @@ function PerformanceChart({ expenses, amountReceived }) {
   const expPct = Math.max(0, Math.min(100, (expenses / max) * 100));
   const recPct = Math.max(0, Math.min(100, (amountReceived / max) * 100));
   
-  const outerRadius = 36;
-  const innerRadius = 24;
-  const stroke = 8;
-  const center = 44; // total width/height = 88
+  const outerRadius = 52;
+  const innerRadius = 36;
+  const stroke = 10;
+  const center = 64; // total width/height = 128
   
   const outerCircumference = 2 * Math.PI * outerRadius;
   const innerCircumference = 2 * Math.PI * innerRadius;
@@ -81,8 +81,8 @@ function PerformanceChart({ expenses, amountReceived }) {
   
   return (
     <div className="flex flex-col items-center justify-center">
-      <div className="relative flex items-center justify-center" style={{ width: 88, height: 88 }}>
-        <svg width="88" height="88" className="-rotate-90 transform">
+      <div className="relative flex items-center justify-center" style={{ width: 128, height: 128 }}>
+        <svg width="128" height="128" className="-rotate-90 transform">
           {/* Outer track (Received) */}
           <circle cx={center} cy={center} r={outerRadius} fill="none" className="stroke-border/40" strokeWidth={stroke} />
           {/* Inner track (Expenses) */}
@@ -144,8 +144,11 @@ export default function ActualPerformanceWidget({ performance }) {
 
       <div>
         <p className="mb-2 text-xs font-semibold text-text">{monthLabel(lastMonth.month)}</p>
-        <div className="flex flex-col gap-5 md:flex-row md:items-center">
-          <div className="flex-1 grid grid-cols-1 gap-3 sm:grid-cols-3">
+        <div className="flex flex-col gap-6 md:flex-row md:items-center">
+          <div className="shrink-0 flex justify-center md:w-40 xl:w-48">
+            <PerformanceChart expenses={lastMonth.expenses} amountReceived={lastMonth.amountReceived} />
+          </div>
+          <div className="flex-1 grid grid-cols-1 gap-3 sm:grid-cols-3 max-w-4xl">
             <Tile
               label={t('staffDashboard.widgets.actualPerformance.expenses')}
               value={lastMonth.expenses}
@@ -166,16 +169,16 @@ export default function ActualPerformanceWidget({ performance }) {
               colored
             />
           </div>
-          <div className="shrink-0 flex justify-center md:w-32">
-            <PerformanceChart expenses={lastMonth.expenses} amountReceived={lastMonth.amountReceived} />
-          </div>
         </div>
       </div>
 
       <div>
         <p className="mb-2 text-xs font-semibold text-text">{t('staffDashboard.widgets.actualPerformance.yearToDate', { year: thisYear.year })}</p>
-        <div className="flex flex-col gap-5 md:flex-row md:items-center">
-          <div className="flex-1 grid grid-cols-1 gap-3 sm:grid-cols-3">
+        <div className="flex flex-col gap-6 md:flex-row md:items-center">
+          <div className="shrink-0 flex justify-center md:w-40 xl:w-48">
+            <PerformanceChart expenses={thisYear.expenses} amountReceived={thisYear.amountReceived} />
+          </div>
+          <div className="flex-1 grid grid-cols-1 gap-3 sm:grid-cols-3 max-w-4xl">
             <Tile
               label={t('staffDashboard.widgets.actualPerformance.expenses')}
               value={thisYear.expenses}
@@ -195,9 +198,6 @@ export default function ActualPerformanceWidget({ performance }) {
               deltaLabel={t('staffDashboard.widgets.actualPerformance.vsLastYear')}
               colored
             />
-          </div>
-          <div className="shrink-0 flex justify-center md:w-32">
-            <PerformanceChart expenses={thisYear.expenses} amountReceived={thisYear.amountReceived} />
           </div>
         </div>
       </div>
