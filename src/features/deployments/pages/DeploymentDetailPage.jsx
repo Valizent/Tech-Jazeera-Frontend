@@ -197,18 +197,18 @@ function MonthlyHoursForm({ deployment, defaultValues, onSubmit, submitting, sub
   }
 
   return (
-    <form onSubmit={handleSubmit(onSubmit, onInvalid)} noValidate className="space-y-4">
-      <Input
-        label={t('staffDeployments.detail.monthLabel')}
-        type="month"
-        min={start}
-        max={max}
-        disabled={monthFixed}
-        error={errors.month?.message}
-        {...register('month')}
-      />
-
-      <div className={cn('grid grid-cols-1 gap-4', isSupplierEmployee ? 'sm:grid-cols-2' : 'sm:grid-cols-1')}>
+    <form onSubmit={handleSubmit(onSubmit, onInvalid)} noValidate className="space-y-3">
+      {/* Row 1: Month + Timesheet inputs all on one line */}
+      <div className={cn('grid grid-cols-1 gap-3', isSupplierEmployee ? 'sm:grid-cols-3' : 'sm:grid-cols-2')}>
+        <Input
+          label={t('staffDeployments.detail.monthLabel')}
+          type="month"
+          min={start}
+          max={max}
+          disabled={monthFixed}
+          error={errors.month?.message}
+          {...register('month')}
+        />
         <Input
           label={t('staffDeployments.detail.clientTimesheetHoursLabel')}
           type="number"
@@ -229,6 +229,36 @@ function MonthlyHoursForm({ deployment, defaultValues, onSubmit, submitting, sub
         )}
       </div>
 
+      {/* Row 2: Client deduction + Notes side by side */}
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+        <div>
+          <Input
+            label={t('staffDeployments.detail.deductionAmountLabel')}
+            type="number"
+            step="0.01"
+            min="0"
+            placeholder={t('staffDeployments.detail.deductionAmountPlaceholder')}
+            error={errors.deductionAmount?.message}
+            {...register('deductionAmount')}
+          />
+          <p className="mt-1 text-xs text-muted">{t('staffDeployments.detail.deductionAmountHint')}</p>
+        </div>
+        <Textarea
+          label={t('staffDeployments.detail.notesLabel')}
+          rows={2}
+          error={errors.notes?.message}
+          {...register('notes')}
+        />
+      </div>
+
+      {/* Save button */}
+      <div className="flex justify-end">
+        <Button type="submit" size="sm" isLoading={submitting}>
+          {submitLabel}
+        </Button>
+      </div>
+
+      {/* Summary stats bar — live computed preview, at the very bottom */}
       <div className="grid grid-cols-2 gap-3 rounded-lg border border-border bg-bg/40 p-3 sm:grid-cols-4">
         <div>
           <p className="text-xs text-muted">{t('staffDeployments.detail.summaryContractHours')}</p>
@@ -256,25 +286,6 @@ function MonthlyHoursForm({ deployment, defaultValues, onSubmit, submitting, sub
             <p className="text-sm font-semibold tabular-nums text-danger">{formatMoney(deductionPreview)}</p>
           </div>
         )}
-      </div>
-
-      <div>
-        <Input
-          label={t('staffDeployments.detail.deductionAmountLabel')}
-          type="number"
-          step="0.01"
-          min="0"
-          placeholder={t('staffDeployments.detail.deductionAmountPlaceholder')}
-          error={errors.deductionAmount?.message}
-          {...register('deductionAmount')}
-        />
-        <p className="mt-1 text-xs text-muted">{t('staffDeployments.detail.deductionAmountHint')}</p>
-      </div>
-      <Textarea label={t('staffDeployments.detail.notesLabel')} error={errors.notes?.message} {...register('notes')} />
-      <div className="flex justify-end">
-        <Button type="submit" size="sm" isLoading={submitting}>
-          {submitLabel}
-        </Button>
       </div>
     </form>
   );
