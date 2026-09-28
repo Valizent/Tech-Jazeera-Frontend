@@ -28,7 +28,6 @@ import { listExpenses } from '../../expenses/expenses.api.js';
 import ExpenseFormModal from '../../expenses/components/ExpenseFormModal.jsx';
 import Card from '../../../components/ui/Card.jsx';
 import Button from '../../../components/ui/Button.jsx';
-import EmptyState from '../../../components/ui/EmptyState.jsx';
 import Skeleton from '../../../components/ui/Skeleton.jsx';
 import { formatDate, formatMoney, cn } from '../../../lib/utils.js';
 
@@ -76,7 +75,7 @@ export default function DeploymentExpensesSection({ deployment }) {
   }
 
   return (
-    <Card>
+    <Card className="flex h-full flex-col">
       <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
         <div>
           <h2 className="text-sm font-semibold uppercase tracking-wide text-muted">{t('staffDeployments.detail.sectionExpenses')}</h2>
@@ -94,7 +93,7 @@ export default function DeploymentExpensesSection({ deployment }) {
       ) : isError ? (
         <p className="text-sm text-danger">{t('staffDeployments.detail.expensesLoadFailed')}</p>
       ) : (
-        <>
+        <div className="flex flex-1 flex-col">
           {hasAnyFigure && (
             <div className="mb-4 grid grid-cols-1 gap-3 sm:grid-cols-3">
               <div className="rounded-lg border border-border/50 bg-bg/50 p-3">
@@ -112,19 +111,7 @@ export default function DeploymentExpensesSection({ deployment }) {
             </div>
           )}
 
-          {items.length === 0 ? (
-            <EmptyState
-              title={t('staffDeployments.detail.noExpensesYet')}
-              description={t('staffDeployments.detail.noExpensesYetDescription')}
-              action={
-                canWrite && (
-                  <Button variant="secondary" onClick={openNew}>
-                    {t('staffDeployments.detail.addExpense')}
-                  </Button>
-                )
-              }
-            />
-          ) : (
+          {items.length > 0 && (
             <div className="divide-y divide-border">
               {items.map((e) => (
                 <div key={e._id} className="flex items-center justify-between gap-3 py-2.5 text-sm">
@@ -146,7 +133,7 @@ export default function DeploymentExpensesSection({ deployment }) {
               ))}
             </div>
           )}
-        </>
+        </div>
       )}
 
       <ExpenseFormModal open={Boolean(editing)} editing={editing} onClose={closeModal} lockedDeployment={lockedDeployment} />

@@ -567,8 +567,8 @@ export default function DeploymentDetailPage() {
         }
       />
 
-      <div className="grid grid-cols-1 items-start gap-6 xl:grid-cols-2">
-      <Card>
+      <div className="grid grid-cols-1 items-stretch gap-6 xl:grid-cols-2">
+      <Card className="h-full">
         <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-muted">{t('staffDeployments.detail.sectionPlacement')}</h2>
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-2">
         <DetailRow label={t('staffDeployments.detail.fields.worker')}>
@@ -626,7 +626,7 @@ export default function DeploymentDetailPage() {
         )}
       </Card>
 
-      <DeploymentExpensesSection deployment={deployment} />
+      <div className="flex h-full flex-col"><DeploymentExpensesSection deployment={deployment} /></div>
       </div>
 
       <Card>
