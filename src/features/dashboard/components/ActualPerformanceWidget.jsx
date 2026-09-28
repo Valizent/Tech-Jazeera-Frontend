@@ -72,21 +72,21 @@ function PerformanceChart({ expenses, amountReceived }) {
     <div className="flex w-full flex-col justify-center space-y-4 px-2">
       <div className="space-y-1.5">
         <div className="flex justify-between text-xs font-semibold uppercase tracking-wide text-muted">
-          <span>Expenses</span>
-          <span>{expPct.toFixed(0)}%</span>
-        </div>
-        <div className="h-4 w-full overflow-hidden rounded-full bg-bg/50 border border-border/40 shadow-inner">
-          <div className="h-full rounded-full bg-gradient-to-r from-danger/60 to-danger transition-all duration-1000" style={{ width: `${expPct}%` }} />
-        </div>
-      </div>
-      
-      <div className="space-y-1.5">
-        <div className="flex justify-between text-xs font-semibold uppercase tracking-wide text-muted">
           <span>Received</span>
           <span>{recPct.toFixed(0)}%</span>
         </div>
         <div className="h-4 w-full overflow-hidden rounded-full bg-bg/50 border border-border/40 shadow-inner">
           <div className="h-full rounded-full bg-gradient-to-r from-success/60 to-success transition-all duration-1000" style={{ width: `${recPct}%` }} />
+        </div>
+      </div>
+
+      <div className="space-y-1.5">
+        <div className="flex justify-between text-xs font-semibold uppercase tracking-wide text-muted">
+          <span>Expenses</span>
+          <span>{expPct.toFixed(0)}%</span>
+        </div>
+        <div className="h-4 w-full overflow-hidden rounded-full bg-bg/50 border border-border/40 shadow-inner">
+          <div className="h-full rounded-full bg-gradient-to-r from-danger/60 to-danger transition-all duration-1000" style={{ width: `${expPct}%` }} />
         </div>
       </div>
     </div>
