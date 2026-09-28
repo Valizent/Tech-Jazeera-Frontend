@@ -63,7 +63,7 @@ export default function Table({
               {columns.map((col) => (
                 <th
                   key={col.key}
-                  className="whitespace-nowrap px-4 py-4 text-[14px] font-black uppercase tracking-wider text-slate-900 bg-slate-200/60 border-b-4 border-slate-300/80 shadow-sm first:rounded-tl-2xl last:rounded-tr-2xl"
+                  className="whitespace-nowrap px-4 py-4 text-[14px] font-black uppercase tracking-wider text-text bg-border/40 border-b-[3px] border-border shadow-sm first:rounded-tl-2xl last:rounded-tr-2xl"
                 >
                   <SortableHeader column={col} sortBy={sortBy} sortOrder={sortOrder} onSort={onSort} />
                 </th>
