@@ -24,8 +24,11 @@
  * `useTabParam` already established for this app; the param is stripped
  * (via `replace`) the moment the modal opens so it doesn't linger and
  * force itself back open on a later back-navigation.
+ *
+ * 2026-09-28: compact sort-and-filter popover (sortBy column, asc/desc,
+ * site text filter) behind a single icon button next to the existing filters.
  */
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { keepPreviousData, useMutation, useQuery } from '@tanstack/react-query';
@@ -46,12 +49,22 @@ import DeploymentOverviewModal from '../components/DeploymentOverviewModal.jsx';
 
 const STATUS_VARIANT = { Active: 'success', Ended: 'default' };
 
+const SORT_FIELDS = [
+  { value: 'startDate', label: 'Start date' },
+  { value: 'workerName', label: 'Worker' },
+  { value: 'clientName', label: 'Client' },
+  { value: 'site', label: 'Site' },
+  { value: 'status', label: 'Status' },
+];
+
 export default function DeploymentListPage() {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const toast = useToast();
   const [overviewOpen, setOverviewOpen] = useState(false);
   const [searchParams, setSearchParams] = useSearchParams();
+  const [sortPanelOpen, setSortPanelOpen] = useState(false);
+  const sortPanelRef = useRef(null);
 
   // Deep-link support — see this file's own header comment.
   useEffect(() => {
@@ -65,11 +78,25 @@ export default function DeploymentListPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // Close popover on outside click.
+  useEffect(() => {
+    if (!sortPanelOpen) return;
+    function handleClick(e) {
+      if (sortPanelRef.current && !sortPanelRef.current.contains(e.target)) {
+        setSortPanelOpen(false);
+      }
+    }
+    document.addEventListener('mousedown', handleClick);
+    return () => document.removeEventListener('mousedown', handleClick);
+  }, [sortPanelOpen]);
+
   const [params, setParams] = useState({
     page: 1,
     limit: 20,
     status: 'Active',
     client: '',
+    site: '',
+    sortBy: 'startDate',
     sortOrder: 'desc',
   });
 
@@ -86,9 +113,11 @@ export default function DeploymentListPage() {
       listDeployments({
         page: params.page,
         limit: params.limit,
+        sortBy: params.sortBy,
         sortOrder: params.sortOrder,
         ...(params.status && { status: params.status }),
         ...(params.client && { client: params.client }),
+        ...(params.site && { site: params.site }),
       }),
     placeholderData: keepPreviousData,
   });
@@ -96,12 +125,18 @@ export default function DeploymentListPage() {
   const exportMutation = useMutation({
     mutationFn: () =>
       downloadDeploymentsExport({
+        sortBy: params.sortBy,
         sortOrder: params.sortOrder,
         ...(params.status && { status: params.status }),
         ...(params.client && { client: params.client }),
+        ...(params.site && { site: params.site }),
       }),
     onError: (error) => toast.error(apiMessage(error)),
   });
+
+  // Show dot indicator when non-default sort/filter options are active.
+  const sortPanelActive =
+    params.sortBy !== 'startDate' || params.sortOrder !== 'desc' || params.site !== '';
 
   const columns = [
     {
@@ -130,7 +165,7 @@ export default function DeploymentListPage() {
       render: (d) => (
         <span className="text-sm">
           {formatDate(d.startDate)}
-          {d.endDate && <span className="text-muted"> → {formatDate(d.endDate)}</span>}
+          {d.endDate && <span className="text-muted"> &rarr; {formatDate(d.endDate)}</span>}
         </span>
       ),
     },
@@ -193,6 +228,106 @@ export default function DeploymentListPage() {
             ...(clientData?.items ?? []).map((c) => ({ value: c._id, label: c.companyName })),
           ]}
         />
+
+        {/* Compact sort & filter icon button + popover */}
+        <div className="relative" ref={sortPanelRef}>
+          <button
+            type="button"
+            id="deploy-sort-filter-btn"
+            onClick={() => setSortPanelOpen((o) => !o)}
+            aria-label="Sort and filter"
+            aria-expanded={sortPanelOpen}
+            className={[
+              'relative flex h-10 w-10 items-center justify-center rounded-lg border transition-colors',
+              sortPanelOpen
+                ? 'border-primary bg-primary/10 text-primary'
+                : 'border-border bg-surface text-muted hover:border-muted/50 hover:text-text',
+            ].join(' ')}
+          >
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+              <path d="M2 4h12M4 8h8M6 12h4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+              <path d="M11 10l1.5 1.5L14 10" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+            {/* Active indicator dot */}
+            {sortPanelActive && (
+              <span className="absolute -top-1 -end-1 h-2 w-2 rounded-full bg-primary" aria-hidden="true" />
+            )}
+          </button>
+
+          {sortPanelOpen && (
+            <div
+              id="deploy-sort-filter-panel"
+              className="absolute start-0 top-12 z-30 w-64 rounded-xl border border-border bg-surface p-4 shadow-lg"
+              role="dialog"
+              aria-label="Sort and filter options"
+            >
+              <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-muted">Sort &amp; Filter</p>
+
+              {/* Sort by */}
+              <label className="mb-1 block text-xs font-medium text-text">Sort by</label>
+              <div className="relative mb-3">
+                <select
+                  value={params.sortBy}
+                  onChange={(e) => setParams((p) => ({ ...p, sortBy: e.target.value, page: 1 }))}
+                  className="h-9 w-full appearance-none rounded-lg border border-border bg-bg ps-3 pe-7 text-sm text-text focus:border-primary focus:outline-none"
+                >
+                  {SORT_FIELDS.map((f) => (
+                    <option key={f.value} value={f.value}>{f.label}</option>
+                  ))}
+                </select>
+                <svg className="pointer-events-none absolute end-2 top-1/2 -translate-y-1/2 text-muted" width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
+                  <path d="M3 4.5L6 7.5L9 4.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              </div>
+
+              {/* Direction toggle */}
+              <label className="mb-1 block text-xs font-medium text-text">Direction</label>
+              <div className="mb-3 flex gap-2">
+                {[
+                  { val: 'desc', icon: '↓', label: 'Desc' },
+                  { val: 'asc', icon: '↑', label: 'Asc' },
+                ].map(({ val, icon, label }) => (
+                  <button
+                    key={val}
+                    type="button"
+                    onClick={() => setParams((p) => ({ ...p, sortOrder: val, page: 1 }))}
+                    className={[
+                      'flex flex-1 items-center justify-center gap-1 rounded-lg border py-1.5 text-sm transition-colors',
+                      params.sortOrder === val
+                        ? 'border-primary bg-primary/10 font-medium text-primary'
+                        : 'border-border bg-bg text-muted hover:border-muted/50 hover:text-text',
+                    ].join(' ')}
+                    aria-pressed={params.sortOrder === val}
+                  >
+                    <span aria-hidden="true">{icon}</span> {label}
+                  </button>
+                ))}
+              </div>
+
+              {/* Site text filter */}
+              <label htmlFor="deploy-site-filter" className="mb-1 block text-xs font-medium text-text">Filter by site</label>
+              <input
+                id="deploy-site-filter"
+                type="text"
+                value={params.site}
+                onChange={(e) => setParams((p) => ({ ...p, site: e.target.value, page: 1 }))}
+                placeholder="e.g. Jizan, Abha..."
+                className="h-9 w-full rounded-lg border border-border bg-bg px-3 text-sm text-text placeholder:text-muted focus:border-primary focus:outline-none"
+              />
+
+              {/* Reset button — only shown when something is non-default */}
+              {sortPanelActive && (
+                <button
+                  type="button"
+                  onClick={() => setParams((p) => ({ ...p, sortBy: 'startDate', sortOrder: 'desc', site: '', page: 1 }))}
+                  className="mt-3 w-full rounded-lg py-1.5 text-xs text-muted transition-colors hover:text-danger"
+                >
+                  Reset to defaults
+                </button>
+              )}
+            </div>
+          )}
+        </div>
       </div>
 
       {isError ? (
@@ -207,9 +342,9 @@ export default function DeploymentListPage() {
             onRowClick={(d) => navigate(`/deployments/${d._id}`)}
             emptyState={
               <EmptyState
-                title={params.status || params.client ? t('staffDeployments.list.emptyTitleFiltered') : t('staffDeployments.list.emptyTitleNoFilters')}
+                title={params.status || params.client || params.site ? t('staffDeployments.list.emptyTitleFiltered') : t('staffDeployments.list.emptyTitleNoFilters')}
                 description={
-                  params.status || params.client
+                  params.status || params.client || params.site
                     ? t('common.tryClearingFilters')
                     : t('staffDeployments.list.emptyDescriptionNoFilters')
                 }
