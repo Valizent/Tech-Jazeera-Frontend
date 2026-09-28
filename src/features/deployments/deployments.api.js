@@ -132,6 +132,12 @@ export async function getPendingHoursQueue() {
   return data.data;
 }
 
+/** All Pending client payments — the manager's approval queue (requires deploymentsPaymentDecide write access). */
+export async function getPendingPaymentsQueue() {
+  const { data } = await api.get('/deployments/pending-payments');
+  return data.data;
+}
+
 /** Demobilise — ends this deployment. `payload.reason` decides whether the
  *  worker goes back to standby or exits the company (see deployments.schema.js). */
 export async function demobiliseDeployment(id, payload) {

@@ -159,6 +159,13 @@ export default function PaymentsDuePage() {
         title={t('staffDeployments.paymentsDue.pageTitle')}
         description={t('staffDeployments.paymentsDue.pageDescription')}
         onBack={() => navigate(-1)}
+        actions={
+          canDecidePayment ? (
+            <Button size="sm" variant="primary" onClick={() => navigate('/financial/payments-review')} className="relative">
+              Review Pending Payments
+            </Button>
+          ) : null
+        }
       />
 
       {supplierOptions.length > 0 && (

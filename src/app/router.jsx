@@ -61,6 +61,7 @@ const DeploymentDetailPage = lazy(() => import('../features/deployments/pages/De
 const StandbyListPage = lazy(() => import('../features/deployments/pages/StandbyListPage.jsx'));
 const HoursReviewPage = lazy(() => import('../features/deployments/pages/HoursReviewPage.jsx'));
 const PaymentsDuePage = lazy(() => import('../features/deployments/pages/PaymentsDuePage.jsx'));
+const PaymentsReviewPage = lazy(() => import('../features/deployments/pages/PaymentsReviewPage.jsx'));
 const ReadyToInvoicePage = lazy(() => import('../features/deployments/pages/ReadyToInvoicePage.jsx'));
 const MobilisationListPage = lazy(() => import('../features/mobilisations/pages/MobilisationListPage.jsx'));
 const MobilisationNewPage = lazy(() => import('../features/mobilisations/pages/MobilisationNewPage.jsx'));
@@ -305,6 +306,7 @@ export const router = createBrowserRouter([
               // /deployments/payments-due route already used.
               { path: '/financial/ready-to-invoice', element: guarded(['deploymentsInvoicing', 'mobilisationsViewer'], <ReadyToInvoicePage />) },
               { path: '/financial/payments-due', element: <PaymentsDuePage /> },
+              { path: '/financial/payments-review', element: guarded('deploymentsPaymentDecide', <PaymentsReviewPage />) },
               { path: '/expenses', element: guarded('expenses', <ExpenseListPage />) },
               { path: '/security-log', element: guarded('auditLog', <AuditLogPage />) },
               { path: '/reconciliation', element: guarded('reconciliation', <ReconciliationPage />) },
