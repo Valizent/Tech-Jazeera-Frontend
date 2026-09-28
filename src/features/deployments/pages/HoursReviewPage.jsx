@@ -205,6 +205,8 @@ export default function HoursReviewPage() {
                   { label: 'OT hours', value: row.otHours },
                   ...(row.otAmount != null ? [{ label: 'OT amount', value: formatMoney(row.otAmount) }] : []),
                   ...(row.deductionAmount > 0 ? [{ label: 'Deduction', value: formatMoney(row.deductionAmount), valueClass: 'text-danger' }] : []),
+                  ...(row.revenue != null ? [{ label: 'Invoice amount', value: formatMoney(row.revenue) }] : []),
+                  ...(row.profit != null ? [{ label: 'Net profit', value: formatMoney(row.profit), valueClass: row.profit < 0 ? 'text-danger' : 'text-success' }] : []),
                 ].map((tile) => (
                   <div key={tile.label} className="bg-surface px-5 py-3">
                     <p className="text-xs font-medium text-muted">{tile.label}</p>
@@ -261,6 +263,16 @@ export default function HoursReviewPage() {
                   label="Client deduction"
                   value={formatMoney(decidingRow.deductionAmount)}
                   valueClass="text-danger"
+                />
+              )}
+              {decidingRow.revenue != null && (
+                <StatTile label="Invoice amount" value={formatMoney(decidingRow.revenue)} />
+              )}
+              {decidingRow.profit != null && (
+                <StatTile
+                  label="Net profit"
+                  value={formatMoney(decidingRow.profit)}
+                  valueClass={decidingRow.profit < 0 ? 'text-danger' : 'text-success'}
                 />
               )}
             </div>
