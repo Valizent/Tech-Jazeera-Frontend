@@ -198,8 +198,7 @@ function MonthlyHoursForm({ deployment, defaultValues, onSubmit, submitting, sub
 
   return (
     <form onSubmit={handleSubmit(onSubmit, onInvalid)} noValidate className="space-y-3">
-      {/* Row 1: Month | Client timesheet | Supplier timesheet | Client deduction — all 4 in one line */}
-      <div className={cn('grid grid-cols-1 gap-3', isSupplierEmployee ? 'sm:grid-cols-4' : 'sm:grid-cols-3')}>
+      <div className={cn('grid grid-cols-1 gap-3', isSupplierEmployee ? 'sm:grid-cols-3' : 'sm:grid-cols-2')}>
         <Input
           label={t('staffDeployments.detail.monthLabel')}
           type="month"
@@ -227,6 +226,9 @@ function MonthlyHoursForm({ deployment, defaultValues, onSubmit, submitting, sub
             {...register('supplierHours')}
           />
         )}
+      </div>
+
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
         <div>
           <Input
             label={t('staffDeployments.detail.deductionAmountLabel')}
@@ -239,10 +241,8 @@ function MonthlyHoursForm({ deployment, defaultValues, onSubmit, submitting, sub
           />
           <p className="mt-1 text-xs text-muted">{t('staffDeployments.detail.deductionAmountHint')}</p>
         </div>
+        <Textarea label={t('staffDeployments.detail.notesLabel')} error={errors.notes?.message} {...register('notes')} />
       </div>
-
-      {/* Row 2: Notes full-width */}
-      <Textarea label={t('staffDeployments.detail.notesLabel')} error={errors.notes?.message} {...register('notes')} />
 
       {/* Save button */}
       <div className="flex justify-end">
@@ -489,7 +489,13 @@ export default function DeploymentDetailPage() {
 
   const addDefaultValues = useMemo(() => {
     if (!deployment) return emptyMonthlyHoursForm;
-    return { ...emptyMonthlyHoursForm, month: nextEligibleMonth(deployment) };
+    return { 
+      ...emptyMonthlyHoursForm, 
+      month: nextEligibleMonth(deployment),
+      supplierHours: deployment.workerType === 'SupplierEmployee' && deployment.requiredTimesheetHours != null 
+        ? deployment.requiredTimesheetHours.toString() 
+        : '',
+    };
   }, [deployment]);
 
   const {
@@ -688,12 +694,11 @@ export default function DeploymentDetailPage() {
               <tbody className="divide-y divide-border">
                 {sortedMonths.map((entry) => {
                   const statusVariant = entry.status === 'Approved' ? 'success' : entry.status === 'Rejected' ? 'danger' : 'warning';
-                  // The enterer can edit Pending/Rejected only; whoever can
-                  // DECIDE may also correct an Approved entry directly (the
-                  // server enforces this exactly the same way — see
-                  // deployment.service.js's updateMonthlyHours doc comment).
+                  // The enterer can edit Pending/Rejected only; only an Admin may
+                  // correct an Approved entry (2026-09-28, user request).
+                  const isAdmin = user.role === 'Admin';
                   const canEditThis =
-                    isActive && ((canEnterHours && entry.status !== 'Approved') || (canDecideHours && entry.status === 'Approved'));
+                    isActive && ((canEnterHours && entry.status !== 'Approved') || (isAdmin && entry.status === 'Approved'));
                   const canDecideThis = canDecideHours && isActive && entry.status === 'Pending';
                   return (
                     <tr key={entry._id}>
@@ -840,6 +845,7 @@ export default function DeploymentDetailPage() {
         open={Boolean(editingEntry)}
         onClose={() => setEditingEntry(null)}
         title={editingEntry ? t('staffDeployments.detail.editModalTitle', { month: editingEntry.month }) : ''}
+        size="lg"
       >
         {editingEntry && (
           <MonthlyHoursForm
