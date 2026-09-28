@@ -8,11 +8,12 @@ export default function BackButton({ onClick, className = '' }) {
     <button
       onClick={onClick}
       aria-label="Back"
-      className={`group flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-bg border border-border text-muted transition-all duration-300 hover:bg-primary hover:text-white hover:border-primary hover:shadow-glow hover:-translate-x-1 active:scale-95 ${className}`}
+      className={`group flex items-center gap-2 text-sm font-medium text-muted transition-colors hover:text-text active:scale-95 ${className}`}
     >
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="h-5 w-5 transition-transform">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="h-4 w-4 transition-transform group-hover:-translate-x-1">
         <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
       </svg>
+      Back
     </button>
   );
 }
