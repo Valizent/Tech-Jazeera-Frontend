@@ -13,9 +13,9 @@
   color-scheme: light;
   /* Neutrals are tinted toward the indigo brand hue (never pure #fff/#000) —
      it reads as a single calm system rather than clinical grey. */
-  --color-bg: 248 250 252; /* crisp cool grey background #F8FAFC */
+  --color-bg: 241 245 249; /* slate-100 background to pop white cards #F1F5F9 */
   --color-surface: 255 255 255; /* pristine white cards */
-  --color-border: 241 245 249; /* ultra-faint slate-100 for borderless feel */
+  --color-border: 226 232 240; /* slate-200 for clean subtle definition */
   --color-text: 15 23 42; /* sharp slate-900 */
   --color-muted: 100 116 139; /* slate-500 */
   --color-primary: 79 70 229; /* electric indigo-600 */

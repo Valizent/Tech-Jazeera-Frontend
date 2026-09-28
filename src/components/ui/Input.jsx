@@ -79,7 +79,7 @@ const Input = forwardRef(function Input(
         aria-invalid={Boolean(error) || undefined}
         aria-describedby={error ? errorId : undefined}
         className={cn(
-          'h-10 w-full rounded-lg border bg-surface px-3 text-sm text-text shadow-xs',
+          'h-10 w-full rounded-lg border bg-bg/50 px-3 text-sm text-text shadow-xs',
           'placeholder:text-muted/70 transition-all outline-none',
           // A field a viewer isn't allowed to change (e.g. Marketing
           // Manager looking at Office Secretary's already-submitted

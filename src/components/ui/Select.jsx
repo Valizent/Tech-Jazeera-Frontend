@@ -24,13 +24,13 @@ const Select = forwardRef(function Select({ label, error, className, children, .
           aria-invalid={Boolean(error) || undefined}
           aria-describedby={error ? errorId : undefined}
           className={cn(
-            'h-10 w-full appearance-none rounded-lg border bg-surface ps-3 pe-7 text-sm text-text shadow-xs transition-colors',
+            'h-10 w-full appearance-none rounded-lg border bg-bg/50 ps-3 pe-7 text-sm text-text shadow-xs transition-all outline-none',
             // A field a viewer isn't allowed to change must look visibly
             // locked — see Input.jsx's identical rule.
             'disabled:cursor-not-allowed disabled:border-border disabled:bg-bg/40 disabled:text-muted disabled:hover:border-border',
             error
-              ? 'border-danger'
-              : 'border-border hover:border-muted/50 focus:border-primary'
+              ? 'border-danger focus:ring-2 focus:ring-danger/20 focus:ring-offset-2 focus:ring-offset-surface'
+              : 'border-border hover:border-muted/50 focus:border-primary focus:ring-2 focus:ring-primary/20 focus:ring-offset-2 focus:ring-offset-surface'
           )}
           {...props}
         >

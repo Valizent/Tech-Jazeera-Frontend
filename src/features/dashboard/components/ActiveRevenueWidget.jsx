@@ -81,7 +81,13 @@ function Sparkline({ trend }) {
         onTouchMove={(e) => setHoverIndex(nearestIndexFromClientX(e.touches[0].clientX))}
         onTouchEnd={() => setHoverIndex(null)}
       >
-        <path d={areaPath} className="fill-success/10" />
+        <defs>
+          <linearGradient id="spark-gradient" x1="0" x2="0" y1="0" y2="1">
+            <stop offset="0%" stopColor="rgb(16 185 129)" stopOpacity="0.3" />
+            <stop offset="100%" stopColor="rgb(16 185 129)" stopOpacity="0.0" />
+          </linearGradient>
+        </defs>
+        <path d={areaPath} fill="url(#spark-gradient)" />
         {hovered && (
           <line x1={hovered[0]} y1="0" x2={hovered[0]} y2={SPARK_HEIGHT} className="stroke-success/25" strokeWidth="1" />
         )}

@@ -50,15 +50,37 @@ function DeltaBadge({ pct }) {
 }
 
 function Tile({ label, value, deltaPct, deltaLabel, colored }) {
-  return (
-    <div className="rounded-lg border border-border/50 bg-bg/50 p-3">
+    <div className="rounded-xl border border-border/60 bg-bg/50 p-4 shadow-sm transition-all hover:border-border hover:bg-bg">
       <p className="text-[11px] font-semibold uppercase tracking-wide text-muted">{label}</p>
-      <p className={`mt-1 text-lg font-bold ${colored ? profitClass(value) ?? 'text-text' : 'text-text'}`}>{formatMoney(value)}</p>
+      <p className={`mt-1 text-xl font-bold tracking-tight ${colored ? profitClass(value) ?? 'text-text' : 'text-text'}`}>{formatMoney(value)}</p>
       {deltaPct != null && (
-        <p className="mt-0.5 text-xs text-muted">
+        <p className="mt-1 text-xs text-muted">
           <DeltaBadge pct={deltaPct} /> {deltaLabel}
         </p>
       )}
+    </div>
+  );
+}
+
+function PerformanceChart({ expenses, amountReceived }) {
+  const max = Math.max(expenses, amountReceived, 1);
+  const expPct = Math.max(2, Math.round((expenses / max) * 100));
+  const recPct = Math.max(2, Math.round((amountReceived / max) * 100));
+  
+  return (
+    <div className="mt-5 space-y-2.5 px-1">
+      <div className="flex items-center gap-3">
+        <span className="w-20 text-[10px] font-semibold tracking-wide text-muted uppercase">Expenses</span>
+        <div className="flex-1 h-2.5 rounded-full bg-bg/50 shadow-inner border border-border/40 overflow-hidden">
+          <div className="h-full bg-gradient-to-r from-danger/60 to-danger/90 rounded-full transition-all duration-1000" style={{ width: `${expPct}%` }} />
+        </div>
+      </div>
+      <div className="flex items-center gap-3">
+        <span className="w-20 text-[10px] font-semibold tracking-wide text-muted uppercase">Received</span>
+        <div className="flex-1 h-2.5 rounded-full bg-bg/50 shadow-inner border border-border/40 overflow-hidden">
+          <div className="h-full bg-gradient-to-r from-success/60 to-success/90 rounded-full transition-all duration-1000" style={{ width: `${recPct}%` }} />
+        </div>
+      </div>
     </div>
   );
 }
@@ -108,6 +130,7 @@ export default function ActualPerformanceWidget({ performance }) {
             colored
           />
         </div>
+        <PerformanceChart expenses={lastMonth.expenses} amountReceived={lastMonth.amountReceived} />
       </div>
 
       <div>
@@ -133,6 +156,7 @@ export default function ActualPerformanceWidget({ performance }) {
             colored
           />
         </div>
+        <PerformanceChart expenses={thisYear.expenses} amountReceived={thisYear.amountReceived} />
       </div>
     </div>
   );
