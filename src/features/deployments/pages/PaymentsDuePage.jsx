@@ -13,16 +13,16 @@
  *
  * Clicking a client drills into every invoice behind their balance (each
  * with its own live FIFO allocation) plus their real payment history.
- * Record Payment (Office Secretary / `deploymentsHours`) and Approve/Reject
- * (`deploymentsPaymentDecide`, the Financial Manager) both live in that
- * drill-down — moved here from the Deployment detail page, which now shows
- * only a read-only status.
+ * Record Payment (Office Secretary / `deploymentsHours`) lives in that
+ * drill-down. Approve/Reject (`deploymentsPaymentDecide`) lives only on the
+ * dedicated Payments Approval Queue (PaymentsReviewPage) — linked from the
+ * "Review Pending Payments" button below — not duplicated here.
  */
 import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { getPaymentsDue, getClientPaymentDetail, recordClientPayment, decideClientPayment } from '../deployments.api.js';
+import { getPaymentsDue, getClientPaymentDetail, recordClientPayment } from '../deployments.api.js';
 import { formatDate, formatMoney, apiMessage } from '../../../lib/utils.js';
 import { useAuth } from '../../auth/AuthContext.jsx';
 import { useToast } from '../../../components/ui/Toast.jsx';
@@ -33,7 +33,6 @@ import Badge from '../../../components/ui/Badge.jsx';
 import Button from '../../../components/ui/Button.jsx';
 import Input from '../../../components/ui/Input.jsx';
 import Select from '../../../components/ui/Select.jsx';
-import Textarea from '../../../components/ui/Textarea.jsx';
 import Modal from '../../../components/ui/Modal.jsx';
 import Skeleton from '../../../components/ui/Skeleton.jsx';
 import EmptyState from '../../../components/ui/EmptyState.jsx';
@@ -61,10 +60,6 @@ export default function PaymentsDuePage() {
   const [paymentAmount, setPaymentAmount] = useState('');
   const [paymentReference, setPaymentReference] = useState('');
   const [paymentDate, setPaymentDate] = useState(() => new Date().toISOString().split('T')[0]);
-  const [decidingPayment, setDecidingPayment] = useState(null); // payment row | null
-  const [payDecision, setPayDecision] = useState(null); // 'Approved' | 'Rejected'
-  const [payDecisionNote, setPayDecisionNote] = useState('');
-
   const { data: rows = [], isPending, isError } = useQuery({
     queryKey: ['deployments', 'payments-due'],
     queryFn: getPaymentsDue,
@@ -94,21 +89,6 @@ export default function PaymentsDuePage() {
       setPaymentAmount('');
       setPaymentReference('');
       setPaymentDate(new Date().toISOString().split('T')[0]);
-      invalidateList();
-      if (openClientId) queryClient.invalidateQueries({ queryKey: ['deployments', 'payments-due', openClientId] });
-    },
-    onError: (error) => toast.error(apiMessage(error)),
-  });
-
-  const decideMutation = useMutation({
-    mutationFn: ({ paymentId, values }) => decideClientPayment(paymentId, values),
-    onSuccess: () => {
-      toast.success(
-        payDecision === 'Approved' ? t('staffDeployments.paymentsDue.paymentApprovedToast') : t('staffDeployments.paymentsDue.paymentRejectedToast')
-      );
-      setDecidingPayment(null);
-      setPayDecision(null);
-      setPayDecisionNote('');
       invalidateList();
       if (openClientId) queryClient.invalidateQueries({ queryKey: ['deployments', 'payments-due', openClientId] });
     },
@@ -269,34 +249,7 @@ export default function PaymentsDuePage() {
                         </span>
                       </div>
                       {p.decisionStatus === 'Pending' ? (
-                        canDecidePayment ? (
-                          <div className="flex gap-1.5">
-                            <Button
-                              size="sm"
-                              variant="ghost"
-                              onClick={() => {
-                                setDecidingPayment(p);
-                                setPayDecision('Approved');
-                                setPayDecisionNote('');
-                              }}
-                            >
-                              {t('common.approve')}
-                            </Button>
-                            <Button
-                              size="sm"
-                              variant="danger-ghost"
-                              onClick={() => {
-                                setDecidingPayment(p);
-                                setPayDecision('Rejected');
-                                setPayDecisionNote('');
-                              }}
-                            >
-                              {t('common.reject')}
-                            </Button>
-                          </div>
-                        ) : (
-                          <Badge variant="warning">{t('staffDeployments.paymentsDue.statusPending')}</Badge>
-                        )
+                        <Badge variant="warning">{t('staffDeployments.paymentsDue.statusPending')}</Badge>
                       ) : p.decisionStatus === 'Approved' ? (
                         <Badge variant="success">{t('staffDeployments.paymentsDue.statusApproved')}</Badge>
                       ) : (
@@ -373,64 +326,6 @@ export default function PaymentsDuePage() {
         )}
       </Modal>
 
-      {/* Approve/Reject one Pending payment. */}
-      <Modal
-        open={Boolean(decidingPayment)}
-        onClose={() => {
-          if (decideMutation.isPending) return;
-          setDecidingPayment(null);
-          setPayDecision(null);
-        }}
-        title={
-          decidingPayment
-            ? t(payDecision === 'Approved' ? 'staffDeployments.paymentsDue.approveModalTitle' : 'staffDeployments.paymentsDue.rejectModalTitle')
-            : ''
-        }
-      >
-        {decidingPayment && (
-          <div className="space-y-4">
-            <p className="text-sm text-muted">
-              {t('staffDeployments.paymentsDue.decideModalMessage', { amount: formatMoney(decidingPayment.amount) })}
-            </p>
-            <Textarea
-              label={
-                payDecision === 'Rejected'
-                  ? t('staffDeployments.paymentsDue.decisionNoteRequiredLabel')
-                  : t('staffDeployments.paymentsDue.decisionNoteOptionalLabel')
-              }
-              value={payDecisionNote}
-              onChange={(e) => setPayDecisionNote(e.target.value)}
-            />
-            <div className="flex justify-end gap-2 pt-2">
-              <Button
-                type="button"
-                variant="secondary"
-                onClick={() => {
-                  setDecidingPayment(null);
-                  setPayDecision(null);
-                }}
-                disabled={decideMutation.isPending}
-              >
-                {t('common.cancel')}
-              </Button>
-              <Button
-                type="button"
-                variant={payDecision === 'Rejected' ? 'danger' : 'primary'}
-                isLoading={decideMutation.isPending}
-                disabled={payDecision === 'Rejected' && !payDecisionNote.trim()}
-                onClick={() =>
-                  decideMutation.mutate({
-                    paymentId: decidingPayment._id,
-                    values: { decision: payDecision, note: payDecisionNote.trim() || undefined },
-                  })
-                }
-              >
-                {payDecision === 'Approved' ? t('common.approve') : t('common.reject')}
-              </Button>
-            </div>
-          </div>
-        )}
-      </Modal>
     </div>
   );
 }

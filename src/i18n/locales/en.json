@@ -1540,14 +1540,7 @@
       "recordPaymentModalTitle": "Record payment — {{client}}",
       "recordPaymentModalMessage": "Enter the total amount this client has actually paid, covering everyone placed there. It will need Financial Manager approval, then automatically settle their oldest outstanding invoices first.",
       "amountLabel": "Amount received *",
-      "paymentRecordedToast": "Payment recorded — awaiting approval.",
-      "approveModalTitle": "Approve this payment?",
-      "rejectModalTitle": "Reject this payment?",
-      "decideModalMessage": "{{amount}} recorded as received — approving allocates it across this client's outstanding invoices, oldest first, and credits coordinator targets accordingly.",
-      "decisionNoteRequiredLabel": "Reason (required) *",
-      "decisionNoteOptionalLabel": "Note (optional)",
-      "paymentApprovedToast": "Payment approved.",
-      "paymentRejectedToast": "Payment rejected."
+      "paymentRecordedToast": "Payment recorded — awaiting approval."
     },
     "readyToInvoice": {
       "pageTitle": "Ready to invoice",
@@ -1669,15 +1662,8 @@
       "save": "Save",
       "addedToast": "Hours recorded.",
       "updatedToast": "Hours updated.",
-      "approvedToast": "Hours approved.",
-      "rejectedToast": "Hours rejected.",
       "noMonthlyHours": "No hours entered yet.",
-      "endedNote": "This deployment has ended — every month it was actually placed for has already been entered.",
-      "approveModalTitle": "Approve {{month}}?",
-      "rejectModalTitle": "Reject {{month}}?",
-      "decideModalMessage": "{{month}} hours for {{worker}} — this decision notifies whoever entered it.",
-      "decisionNoteRequiredLabel": "Reason for rejection *",
-      "decisionNoteOptionalLabel": "Note (optional)"
+      "endedNote": "This deployment has ended — every month it was actually placed for has already been entered."
     },
     "panel": {
       "title": "Deployment",

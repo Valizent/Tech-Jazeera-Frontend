@@ -15,7 +15,6 @@ import {
   getDeployment,
   addMonthlyHours,
   updateMonthlyHours,
-  decideMonthlyHours,
   downloadInvoiceFile,
   demobiliseDeployment,
   updateDeployment,
@@ -404,10 +403,6 @@ export default function DeploymentDetailPage() {
   // status column below at all.
   const canInvoice = Boolean(user.sectionAccessWrite?.includes('deploymentsInvoicing'));
   const canDecidePaymentAccess = Boolean(user.sectionAccessWrite?.includes('deploymentsPaymentDecide'));
-  const [decidingEntry, setDecidingEntry] = useState(null);
-  const [decision, setDecision] = useState(null); // 'Approved' | 'Rejected'
-  const [decisionNote, setDecisionNote] = useState('');
-
   const { data: deployment, isPending, isError } = useQuery({
     queryKey: ['deployment', id],
     queryFn: () => getDeployment(id),
@@ -432,20 +427,6 @@ export default function DeploymentDetailPage() {
     onSuccess: () => {
       toast.success(t('staffDeployments.detail.updatedToast'));
       setEditingEntry(null);
-      invalidate();
-    },
-    onError: (error) => toast.error(apiMessage(error)),
-  });
-
-  const decideMutation = useMutation({
-    mutationFn: ({ entryId, values }) => decideMonthlyHours(id, entryId, values),
-    onSuccess: () => {
-      toast.success(
-        decision === 'Approved' ? t('staffDeployments.detail.approvedToast') : t('staffDeployments.detail.rejectedToast')
-      );
-      setDecidingEntry(null);
-      setDecision(null);
-      setDecisionNote('');
       invalidate();
     },
     onError: (error) => toast.error(apiMessage(error)),
@@ -694,12 +675,13 @@ export default function DeploymentDetailPage() {
               <tbody className="divide-y divide-border">
                 {sortedMonths.map((entry) => {
                   const statusVariant = entry.status === 'Approved' ? 'success' : entry.status === 'Rejected' ? 'danger' : 'warning';
-                  // The enterer can edit Pending/Rejected only; only an Admin may
-                  // correct an Approved entry (2026-09-28, user request).
-                  const isAdmin = user.role === 'Admin';
+                  // The enterer can edit Pending/Rejected only; whoever can decide
+                  // this section may also correct an already-Approved entry
+                  // directly (2026-09-13 rule, restored — see docs/CHANGELOG.md).
+                  // Approve/Reject of a Pending entry itself now lives only on
+                  // the dedicated Hours Approval Queue (HoursReviewPage).
                   const canEditThis =
-                    isActive && ((canEnterHours && entry.status !== 'Approved') || (isAdmin && entry.status === 'Approved'));
-                  const canDecideThis = canDecideHours && isActive && entry.status === 'Pending';
+                    isActive && ((canEnterHours && entry.status !== 'Approved') || (canDecideHours && entry.status === 'Approved'));
                   return (
                     <tr key={entry._id}>
                       <td className="px-3 py-2 font-medium">
@@ -764,32 +746,6 @@ export default function DeploymentDetailPage() {
                               <Button size="sm" variant="ghost" onClick={() => setEditingEntry(entry)}>
                                 {t('staffDeployments.detail.editEntry')}
                               </Button>
-                            )}
-                            {canDecideThis && (
-                              <>
-                                <Button
-                                  size="sm"
-                                  variant="ghost"
-                                  onClick={() => {
-                                    setDecidingEntry(entry);
-                                    setDecision('Approved');
-                                    setDecisionNote('');
-                                  }}
-                                >
-                                  {t('common.approve')}
-                                </Button>
-                                <Button
-                                  size="sm"
-                                  variant="danger-ghost"
-                                  onClick={() => {
-                                    setDecidingEntry(entry);
-                                    setDecision('Rejected');
-                                    setDecisionNote('');
-                                  }}
-                                >
-                                  {t('common.reject')}
-                                </Button>
-                              </>
                             )}
                             {entry.invoiceFile && (
                               <Button
@@ -869,104 +825,6 @@ export default function DeploymentDetailPage() {
               })
             }
           />
-        )}
-      </Modal>
-
-      <Modal
-        open={Boolean(decidingEntry)}
-        onClose={() => {
-          if (decideMutation.isPending) return;
-          setDecidingEntry(null);
-          setDecision(null);
-        }}
-        title={
-          decidingEntry
-            ? t(
-                decision === 'Approved' ? 'staffDeployments.detail.approveModalTitle' : 'staffDeployments.detail.rejectModalTitle',
-                { month: decidingEntry.month }
-              )
-            : ''
-        }
-      >
-        {decidingEntry && (
-          <div className="space-y-4">
-            <p className="text-sm text-muted">
-              {t('staffDeployments.detail.decideModalMessage', {
-                month: decidingEntry.month,
-                worker: deployment.workerName,
-              })}
-            </p>
-            {/* Reachable only when canDecideHours is true (see canDecideThis
-                above, which gates the button that opens this modal) — the
-                OT amount here is never a concern, only a decider ever sees
-                this modal at all. */}
-            <div className="grid grid-cols-2 gap-3 rounded-xl border border-border bg-bg/50 p-4 sm:grid-cols-4">
-              <div className="rounded-lg bg-bg p-3">
-                <p className="text-xs font-medium text-muted">Contract hours</p>
-                <p className="mt-0.5 text-base font-semibold tabular-nums">{decidingEntry.contractHours}</p>
-              </div>
-              <div className="rounded-lg bg-bg p-3">
-                <p className="text-xs font-medium text-muted">Client timesheet</p>
-                <p className="mt-0.5 text-base font-semibold tabular-nums">{decidingEntry.actualHours}</p>
-              </div>
-              {deployment.workerType === 'SupplierEmployee' && (
-                <div className="rounded-lg bg-bg p-3">
-                  <p className="text-xs font-medium text-muted">Supplier timesheet</p>
-                  <p className="mt-0.5 text-base font-semibold tabular-nums">{decidingEntry.supplierHours ?? 0}</p>
-                </div>
-              )}
-              <div className="rounded-lg bg-bg p-3">
-                <p className="text-xs font-medium text-muted">OT hours</p>
-                <p className="mt-0.5 text-base font-semibold tabular-nums">{decidingEntry.otHours}</p>
-              </div>
-              <div className="rounded-lg bg-bg p-3">
-                <p className="text-xs font-medium text-muted">OT amount</p>
-                <p className="mt-0.5 text-base font-semibold tabular-nums">{formatMoney(decidingEntry.otAmount)}</p>
-              </div>
-              {decidingEntry.deductionAmount > 0 && (
-                <div className="rounded-lg bg-bg p-3">
-                  <p className="text-xs font-medium text-muted">Client deduction</p>
-                  <p className="mt-0.5 text-base font-semibold tabular-nums text-danger">{formatMoney(decidingEntry.deductionAmount)}</p>
-                </div>
-              )}
-            </div>
-            <Textarea
-              label={
-                decision === 'Rejected'
-                  ? t('staffDeployments.detail.decisionNoteRequiredLabel')
-                  : t('staffDeployments.detail.decisionNoteOptionalLabel')
-              }
-              value={decisionNote}
-              onChange={(e) => setDecisionNote(e.target.value)}
-            />
-            <div className="flex justify-end gap-2 pt-2">
-              <Button
-                type="button"
-                variant="secondary"
-                onClick={() => {
-                  setDecidingEntry(null);
-                  setDecision(null);
-                }}
-                disabled={decideMutation.isPending}
-              >
-                {t('common.cancel')}
-              </Button>
-              <Button
-                type="button"
-                variant={decision === 'Rejected' ? 'danger' : 'primary'}
-                isLoading={decideMutation.isPending}
-                disabled={decision === 'Rejected' && !decisionNote.trim()}
-                onClick={() =>
-                  decideMutation.mutate({
-                    entryId: decidingEntry._id,
-                    values: { decision, note: decisionNote.trim() || undefined },
-                  })
-                }
-              >
-                {decision === 'Approved' ? t('common.approve') : t('common.reject')}
-              </Button>
-            </div>
-          </div>
         )}
       </Modal>
 

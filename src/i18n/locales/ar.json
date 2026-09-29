@@ -1540,14 +1540,7 @@
       "recordPaymentModalTitle": "تسجيل دفعة — {{client}}",
       "recordPaymentModalMessage": "أدخل إجمالي المبلغ الذي دفعه هذا العميل فعليًا، مغطيًا جميع من تم تعيينهم لديه. سيحتاج ذلك إلى موافقة المدير المالي، ثم يُسدَّد تلقائيًا على أقدم الفواتير المستحقة أولًا.",
       "amountLabel": "المبلغ المستلم *",
-      "paymentRecordedToast": "تم تسجيل الدفعة — بانتظار الموافقة.",
-      "approveModalTitle": "الموافقة على هذه الدفعة؟",
-      "rejectModalTitle": "رفض هذه الدفعة؟",
-      "decideModalMessage": "تم تسجيل {{amount}} كمستلم — الموافقة توزّعه على فواتير هذا العميل المستحقة، الأقدم أولًا، وتحتسبه ضمن أهداف المنسقين.",
-      "decisionNoteRequiredLabel": "السبب (مطلوب) *",
-      "decisionNoteOptionalLabel": "ملاحظة (اختياري)",
-      "paymentApprovedToast": "تمت الموافقة على الدفعة.",
-      "paymentRejectedToast": "تم رفض الدفعة."
+      "paymentRecordedToast": "تم تسجيل الدفعة — بانتظار الموافقة."
     },
     "readyToInvoice": {
       "pageTitle": "جاهز للفوترة",
@@ -1669,15 +1662,8 @@
       "save": "حفظ",
       "addedToast": "تم تسجيل الساعات.",
       "updatedToast": "تم تحديث الساعات.",
-      "approvedToast": "تمت الموافقة على الساعات.",
-      "rejectedToast": "تم رفض الساعات.",
       "noMonthlyHours": "لم تُدخل أي ساعات بعد.",
-      "endedNote": "انتهت عملية النشر هذه — تم إدخال جميع الأشهر التي كان فيها العامل مُعيّنًا بالفعل.",
-      "approveModalTitle": "الموافقة على {{month}}؟",
-      "rejectModalTitle": "رفض {{month}}؟",
-      "decideModalMessage": "ساعات {{month}} لـ {{worker}} — سيتم إشعار من أدخلها بهذا القرار.",
-      "decisionNoteRequiredLabel": "سبب الرفض *",
-      "decisionNoteOptionalLabel": "ملاحظة (اختياري)"
+      "endedNote": "انتهت عملية النشر هذه — تم إدخال جميع الأشهر التي كان فيها العامل مُعيّنًا بالفعل."
     },
     "panel": {
       "title": "النشر",
