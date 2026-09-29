@@ -704,25 +704,18 @@ export default function DeploymentDetailPage() {
                       </td>
                       {deployment.totalProfit != null && (
                         <td className="px-3 py-2">
-                          {!entry.invoiceSentAt ? (
-                            <span className={cn('font-medium tabular-nums', entry.profit >= 0 ? 'text-success' : 'text-danger')}>
+                          {!entry.fullyPaid ? (
+                            <span className="font-medium tabular-nums text-danger">
                               {formatMoney(entry.profit)}
                               <span className="block text-[10px] font-normal uppercase tracking-wide text-muted">
-                                {t('staffDeployments.detail.expectedProfitLabel')}
+                                {t('staffDeployments.detail.amountDueLabel')}
                               </span>
                             </span>
-                          ) : entry.fullyPaid ? (
+                          ) : (
                             <span className={cn('font-medium tabular-nums', entry.profit >= 0 ? 'text-success' : 'text-danger')}>
                               {formatMoney(entry.profit)}
                               <span className="block text-[10px] font-normal uppercase tracking-wide text-muted">
                                 {t('staffDeployments.detail.actualProfitLabel')}
-                              </span>
-                            </span>
-                          ) : (
-                            <span className="font-medium tabular-nums text-text">
-                              {formatMoney(entry.balanceDue)}
-                              <span className="block text-[10px] font-normal uppercase tracking-wide text-muted">
-                                {t('staffDeployments.detail.amountDueLabel')}
                               </span>
                             </span>
                           )}
