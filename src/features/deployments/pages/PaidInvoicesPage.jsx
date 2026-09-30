@@ -29,17 +29,17 @@ export default function PaidInvoicesPage() {
   }, [rows, search]);
 
   const columns = [
-    { header: t('staffDeployments.paidInvoices.columns.client', 'Client'), key: 'clientName', sortable: true, width: 25 },
-    { header: t('staffDeployments.paidInvoices.columns.worker', 'Worker'), key: 'workerName', sortable: true, width: 20 },
-    { header: t('staffDeployments.paidInvoices.columns.month', 'Month'), key: 'month', sortable: true, width: 15 },
+    { header: t('staffDeployments.paidInvoices.columns.client', 'Client'), key: 'clientName', sortable: true, width: 25, render: (row) => row.clientName },
+    { header: t('staffDeployments.paidInvoices.columns.worker', 'Worker'), key: 'workerName', sortable: true, width: 20, render: (row) => row.workerName },
+    { header: t('staffDeployments.paidInvoices.columns.month', 'Month'), key: 'month', sortable: true, width: 15, render: (row) => row.month },
     { 
       header: t('staffDeployments.paidInvoices.columns.invoice', 'Invoice'), 
       key: 'invoiceNumber', 
       sortable: true, 
       width: 20,
-      render: (val, row) => (
+      render: (row) => (
         <div>
-          <span className="font-medium text-text">{val || '—'}</span>
+          <span className="font-medium text-text">{row.invoiceNumber || '—'}</span>
           {row.invoiceDate && <span className="block text-xs text-muted">{formatDate(row.invoiceDate)}</span>}
         </div>
       )
@@ -50,7 +50,7 @@ export default function PaidInvoicesPage() {
       sortable: true, 
       align: 'right',
       width: 20,
-      render: (val) => formatMoney(val)
+      render: (row) => formatMoney(row.amountAllocated)
     },
   ];
 
