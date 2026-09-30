@@ -7,7 +7,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { getOutsourcedEmployee, createOutsourcedEmployee, updateOutsourcedEmployee } from '../outsourcedEmployees.api.js';
 import { listSubcontractors } from '../../subcontractors/subcontractors.api.js';
 import { useToast } from '../../../components/ui/Toast.jsx';
-import { apiMessage } from '../../../lib/utils.js';
+import { apiMessage, collectFormErrorMessages } from '../../../lib/utils.js';
 import Modal from '../../../components/ui/Modal.jsx';
 import Input from '../../../components/ui/Input.jsx';
 import Select from '../../../components/ui/Select.jsx';
@@ -103,6 +103,11 @@ export default function OutsourcedEmployeeFormModal({ open, employeeId, onClose 
     },
   });
 
+  const onInvalid = (formErrors) => {
+    console.error('[employees] outsourced employee form invalid', formErrors);
+    toast.error(collectFormErrorMessages(formErrors).join(' ') || t('common.formInvalid', 'Please check the form and try again.'));
+  };
+
   return (
     <Modal
       open={open}
@@ -113,7 +118,7 @@ export default function OutsourcedEmployeeFormModal({ open, employeeId, onClose 
       {isEdit && isLoadingEmployee ? (
         <div className="py-8 text-center text-muted">{t('common.loading')}</div>
       ) : (
-        <form onSubmit={handleSubmit((v) => saveMutation.mutate(v))} className="space-y-4">
+        <form onSubmit={handleSubmit((v) => saveMutation.mutate(v), onInvalid)} className="space-y-4">
           <PickerLoadWarning failed={[{ label: 'subcontractors', isError: subcontractorsError }]} />
           
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">

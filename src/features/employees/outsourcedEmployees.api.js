@@ -1,4 +1,4 @@
-import api from '../../lib/axios.js';
+import { api } from '../../lib/axios.js';
 
 export async function listOutsourcedEmployees({ search, workerType } = {}) {
   const params = new URLSearchParams();

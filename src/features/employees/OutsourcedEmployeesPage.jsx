@@ -1,9 +1,8 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useQuery } from '@tanstack/react-query';
-import { Plus, Search, Building2, UserCircle2 } from 'lucide-react';
 import { listOutsourcedEmployees } from './outsourcedEmployees.api.js';
-import { useAuth } from '../../app/AuthContext.jsx';
+import { useAuth } from '../auth/AuthContext.jsx';
 import PageHeader from '../../components/shared/PageHeader.jsx';
 import Button from '../../components/ui/Button.jsx';
 import Input from '../../components/ui/Input.jsx';
@@ -15,7 +14,13 @@ import OutsourcedEmployeeFormModal from './components/OutsourcedEmployeeFormModa
 export default function OutsourcedEmployeesPage() {
   const { t } = useTranslation();
   const { user } = useAuth();
-  const canWrite = user.role === 'Admin' || user.role === 'HR' || user.role === 'Manager';
+  // Fixed 2026-09-30: matches the route guard (router.jsx gates this whole
+  // page on 'employeeCreate', the same key the rest of the Employees module
+  // uses) instead of a hardcoded role list that could show write controls
+  // to a role with no real grant, or hide them from a real one (e.g. an
+  // Office Secretary designated via ApprovalRole, per the app's own
+  // established pattern).
+  const canWrite = Boolean(user.sectionAccessWrite?.includes('employeeCreate'));
   const [search, setSearch] = useState('');
   const [workerType, setWorkerType] = useState('');
   const [formOpen, setFormOpen] = useState(false);
@@ -41,10 +46,12 @@ export default function OutsourcedEmployeesPage() {
       <PageHeader
         title={t('employees.outsourced.title', 'Outsourced Employees')}
         description={t('employees.outsourced.description', 'Manage freelancers and subcontractor workers.')}
-        action={
+        actions={
           canWrite && (
             <Button onClick={() => setFormOpen(true)}>
-              <Plus className="mr-2 h-4 w-4" />
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="me-2 h-4 w-4">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
+              </svg>
               {t('common.add')}
             </Button>
           )
@@ -53,12 +60,21 @@ export default function OutsourcedEmployeesPage() {
 
       <div className="flex flex-col sm:flex-row gap-4">
         <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted" />
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.5"
+            className="absolute start-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted"
+          >
+            <circle cx="11" cy="11" r="7" />
+            <path strokeLinecap="round" d="m21 21-4.3-4.3" />
+          </svg>
           <Input
             placeholder={t('common.search')}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="pl-9"
+            className="ps-9"
           />
         </div>
         <Select
@@ -103,7 +119,13 @@ export default function OutsourcedEmployeesPage() {
                     <div className="font-medium text-text">{employee.name}</div>
                     {employee.subcontractor && (
                       <div className="text-xs text-muted flex items-center gap-1 mt-0.5">
-                        <Building2 className="h-3 w-3" />
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="h-3 w-3 shrink-0">
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            d="M3 21h18M5 21V7l7-4 7 4v14M9 21v-6h6v6M9 10h.01M15 10h.01M9 14h.01M15 14h.01"
+                          />
+                        </svg>
                         {employee.subcontractor.name}
                       </div>
                     )}
