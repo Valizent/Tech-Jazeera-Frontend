@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { getPaidInvoices } from '../deployments.api.js';
 import Card from '../../../components/ui/Card.jsx';
 import Table from '../../../components/ui/Table.jsx';
+import Badge from '../../../components/ui/Badge.jsx';
 import EmptyState from '../../../components/ui/EmptyState.jsx';
 import Skeleton from '../../../components/ui/Skeleton.jsx';
 import { formatMoney, formatDate } from '../../../lib/utils.js';
@@ -29,14 +30,13 @@ export default function PaidInvoicesPage() {
   }, [rows, search]);
 
   const columns = [
-    { header: t('staffDeployments.paidInvoices.columns.client', 'Client'), key: 'clientName', sortable: true, width: 25, render: (row) => row.clientName },
-    { header: t('staffDeployments.paidInvoices.columns.worker', 'Worker'), key: 'workerName', sortable: true, width: 20, render: (row) => row.workerName },
-    { header: t('staffDeployments.paidInvoices.columns.month', 'Month'), key: 'month', sortable: true, width: 15, render: (row) => row.month },
-    { 
-      header: t('staffDeployments.paidInvoices.columns.invoice', 'Invoice'), 
-      key: 'invoiceNumber', 
-      sortable: true, 
-      width: 20,
+    { header: t('staffDeployments.paidInvoices.columns.client', 'Client'), key: 'clientName', width: 20, render: (row) => row.clientName },
+    { header: t('staffDeployments.paidInvoices.columns.worker', 'Worker'), key: 'workerName', width: 18, render: (row) => row.workerName },
+    { header: t('staffDeployments.paidInvoices.columns.month', 'Month'), key: 'month', width: 10, render: (row) => row.month },
+    {
+      header: t('staffDeployments.paidInvoices.columns.invoice', 'Invoice'),
+      key: 'invoiceNumber',
+      width: 15,
       render: (row) => (
         <div>
           <span className="font-medium text-text">{row.invoiceNumber || '—'}</span>
@@ -44,13 +44,38 @@ export default function PaidInvoicesPage() {
         </div>
       )
     },
-    { 
-      header: t('staffDeployments.paidInvoices.columns.amount', 'Amount Paid'), 
-      key: 'amountAllocated', 
-      sortable: true, 
+    {
+      header: t('staffDeployments.paidInvoices.columns.invoiceAmount', 'Invoice Amount'),
+      key: 'revenue',
       align: 'right',
-      width: 20,
+      width: 12,
+      render: (row) => formatMoney(row.revenue),
+    },
+    {
+      header: t('staffDeployments.paidInvoices.columns.amount', 'Amount Paid'),
+      key: 'amountAllocated',
+      align: 'right',
+      width: 12,
       render: (row) => formatMoney(row.amountAllocated)
+    },
+    {
+      header: t('staffDeployments.paidInvoices.columns.balance', 'Balance'),
+      key: 'balanceDue',
+      align: 'right',
+      width: 12,
+      render: (row) => (row.fullyPaid ? formatMoney(0) : formatMoney(row.balanceDue)),
+    },
+    {
+      header: t('staffDeployments.paidInvoices.columns.status', 'Status'),
+      key: 'fullyPaid',
+      width: 10,
+      render: (row) => (
+        <Badge variant={row.fullyPaid ? 'success' : 'warning'}>
+          {row.fullyPaid
+            ? t('staffDeployments.paidInvoices.statusPaid', 'Paid')
+            : t('staffDeployments.paidInvoices.statusPartial', 'Partial')}
+        </Badge>
+      ),
     },
   ];
 
@@ -68,7 +93,7 @@ export default function PaidInvoicesPage() {
       </div>
 
       <p className="text-sm text-muted">
-        {t('staffDeployments.paidInvoices.subtitle', 'A complete history of all fully-paid invoices across all clients.')}
+        {t('staffDeployments.paidInvoices.subtitle', 'Every invoice that has received a payment — in part or in full — across all clients.')}
       </p>
 
       {isPending ? (
@@ -87,7 +112,7 @@ export default function PaidInvoicesPage() {
             emptyState={
               <EmptyState
                 title={t('staffDeployments.paidInvoices.emptyTitle', 'No paid invoices found')}
-                description={t('staffDeployments.paidInvoices.emptyDescription', 'When invoices are fully paid by a client, they will appear here.')}
+                description={t('staffDeployments.paidInvoices.emptyDescription', 'Once a client pays anything toward an invoice, in part or in full, it will appear here.')}
               />
             }
           />

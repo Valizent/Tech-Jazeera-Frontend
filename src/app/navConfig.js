@@ -153,7 +153,7 @@ export const NAV_GROUPS = [
       // above already uses.
       { to: '/financial/ready-to-invoice', label: 'Ready to Invoice', icon: ICON.invoice, description: 'Approved months waiting on a client invoice.', labelKey: 'staffNav.financial.readyToInvoice.label', descriptionKey: 'staffNav.financial.readyToInvoice.description' },
       { to: '/financial/payments-due', label: 'Payments Due', icon: ICON.list, description: 'Invoiced client payments awaiting collection.', labelKey: 'staffNav.financial.paymentsDue.label', descriptionKey: 'staffNav.financial.paymentsDue.description' },
-      { to: '/financial/paid-invoices', label: 'Paid Invoices', icon: ICON.check, description: 'History of all fully-paid client invoices.', labelKey: 'staffNav.financial.paidInvoices.label', descriptionKey: 'staffNav.financial.paidInvoices.description' },
+      { to: '/financial/paid-invoices', label: 'Paid Invoices', icon: ICON.check, description: 'Invoice payment history — full and partial.', labelKey: 'staffNav.financial.paidInvoices.label', descriptionKey: 'staffNav.financial.paidInvoices.description' },
       // No static roles gate — access is the admin-configurable Section
       // Access mechanism (see docs/SECTION-ACCESS-notes.md); visible to
       // every staff role that reaches this hub, page 403s if not granted —

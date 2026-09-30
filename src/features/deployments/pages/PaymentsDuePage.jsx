@@ -205,6 +205,7 @@ export default function PaymentsDuePage() {
                       <th className="px-3 py-2">{t('staffDeployments.paymentsDue.columns.worker')}</th>
                       <th className="px-3 py-2">{t('staffDeployments.paymentsDue.columns.month')}</th>
                       <th className="px-3 py-2">{t('staffDeployments.paymentsDue.columns.invoice')}</th>
+                      <th className="px-3 py-2">{t('staffDeployments.paymentsDue.columns.invoiceAmount', 'Invoice Amount')}</th>
                       <th className="px-3 py-2">{t('staffDeployments.paymentsDue.columns.allocated')}</th>
                       <th className="px-3 py-2">{t('staffDeployments.paymentsDue.columns.balance')}</th>
                     </tr>
@@ -218,6 +219,7 @@ export default function PaymentsDuePage() {
                           {inv.invoiceNumber ?? '—'}
                           {inv.invoiceDate && <span className="block text-xs text-muted">{formatDate(inv.invoiceDate)}</span>}
                         </td>
+                        <td className="px-3 py-2">{formatMoney(inv.revenue)}</td>
                         <td className="px-3 py-2">{formatMoney(inv.amountAllocated)}</td>
                         <td className="px-3 py-2">
                           {inv.fullyPaid ? (
