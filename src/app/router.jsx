@@ -52,6 +52,7 @@ const EmployeeListPage = lazy(() => import('../features/employees/pages/Employee
 const EmployeeNewPage = lazy(() => import('../features/employees/pages/EmployeeNewPage.jsx'));
 const EmployeeProfilePage = lazy(() => import('../features/employees/pages/EmployeeProfilePage.jsx'));
 const EmployeeEditPage = lazy(() => import('../features/employees/pages/EmployeeEditPage.jsx'));
+const OutsourcedEmployeesPage = lazy(() => import('../features/employees/OutsourcedEmployeesPage.jsx'));
 const ClientListPage = lazy(() => import('../features/clients/pages/ClientListPage.jsx'));
 const ClientNewPage = lazy(() => import('../features/clients/pages/ClientNewPage.jsx'));
 const ClientProfilePage = lazy(() => import('../features/clients/pages/ClientProfilePage.jsx'));
@@ -243,6 +244,7 @@ export const router = createBrowserRouter([
               { path: '/employees', element: guarded('employeeCreate', <EmployeeListPage />) },
               { path: '/employees/new', element: guardedWrite('employeeCreate', <EmployeeNewPage />) },
               { path: '/employees/:id', element: guarded('employeeCreate', <EmployeeProfilePage />) },
+              { path: '/outsourced-employees', element: guarded('employeeCreate', <OutsourcedEmployeesPage />) },
               // NOT guardedWrite('employeeCreate', ...): editing an employee is
               // gated by a DIFFERENT, hardcoded role list (Admin/Manager/HR —
               // see employee.routes.js's PATCH /:id) than creating one

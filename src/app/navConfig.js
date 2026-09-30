@@ -103,6 +103,7 @@ export const NAV_GROUPS = [
     descriptionKey: 'staffNav.workforce.description',
     items: [
       { to: '/employees', label: 'Employees', icon: ICON.users, sectionKey: 'employeeCreate', description: 'Records, profiles, documents.', labelKey: 'staffNav.workforce.employees.label', descriptionKey: 'staffNav.workforce.employees.description' },
+      { to: '/outsourced-employees', label: 'Outsourced', icon: ICON.team, sectionKey: 'employeeCreate', description: 'Freelancers and Subcontractors.', labelKey: 'staffNav.workforce.outsourcedEmployees.label', descriptionKey: 'staffNav.workforce.outsourcedEmployees.description' },
       { to: '/attendance', label: 'Attendance', icon: ICON.calendar, sectionKey: ['attendanceRecords', 'attendanceSignInOut', 'attendanceOfficeLocation'], description: 'Daily sign-in/out and records.', labelKey: 'staffNav.workforce.attendance.label', descriptionKey: 'staffNav.workforce.attendance.description' },
       { to: '/leave', label: 'Leave', icon: ICON.calendarOff, sectionKey: 'leaveRequests', description: 'Types, requests and approvals.', labelKey: 'staffNav.workforce.leave.label', descriptionKey: 'staffNav.workforce.leave.description' },
       { to: '/holidays', label: 'Holidays', icon: ICON.holidays, description: 'The company holiday calendar.', labelKey: 'staffNav.workforce.holidays.label', descriptionKey: 'staffNav.workforce.holidays.description' },

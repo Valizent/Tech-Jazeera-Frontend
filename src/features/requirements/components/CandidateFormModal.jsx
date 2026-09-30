@@ -16,6 +16,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { addCandidate, updateCandidate } from '../requirements.api.js';
 import { candidateFormSchema, candidateToForm, emptyCandidateForm, CANDIDATE_MANUAL_STATUSES, CANDIDATE_WORKER_TYPES } from '../requirements.schema.js';
 import { listSubcontractors } from '../../subcontractors/subcontractors.api.js';
+import { listOutsourcedEmployees } from '../../employees/outsourcedEmployees.api.js';
 import { COUNTRIES } from '../../../lib/countries.js';
 import { apiMessage } from '../../../lib/utils.js';
 import { useToast } from '../../../components/ui/Toast.jsx';
@@ -46,9 +47,16 @@ export default function CandidateFormModal({ open, requirementId, candidate, onC
     reset,
     control,
     watch,
+    setValue,
     formState: { errors },
   } = useForm({ resolver: zodResolver(candidateFormSchema), defaultValues: emptyCandidateForm });
   const workerType = watch('workerType');
+
+  const { data: outsourcedEmployees } = useQuery({
+    queryKey: ['outsourcedEmployees', { workerType }],
+    queryFn: () => listOutsourcedEmployees({ workerType }),
+    enabled: open && (workerType === 'Freelancer' || workerType === 'SupplierEmployee'),
+  });
 
   // Re-seed whenever the dialog opens (new vs. which candidate is being edited).
   useEffect(() => {
@@ -130,7 +138,27 @@ export default function CandidateFormModal({ open, requirementId, candidate, onC
               ))}
             </Select>
           )}
-          <Input label={t('staffRequirements.candidates.form.workerName')} className="sm:col-span-2" error={errors.workerName?.message} {...register('workerName')} />
+          <Controller
+            name="workerName"
+            control={control}
+            render={({ field }) => (
+              <SuggestInput
+                label={t('staffRequirements.candidates.form.workerName')}
+                value={field.value}
+                onChange={(val) => {
+                  field.onChange(val);
+                  if (outsourcedEmployees) {
+                    const emp = outsourcedEmployees.find(e => e.name === val);
+                    if (emp && emp.phone) setValue('phone', emp.phone, { shouldValidate: true });
+                  }
+                }}
+                onBlur={field.onBlur}
+                options={(outsourcedEmployees || []).map(e => e.name)}
+                error={errors.workerName?.message}
+                className="sm:col-span-2"
+              />
+            )}
+          />
           <Input label={t('staffRequirements.candidates.form.iqama')} inputMode="numeric" maxLength={10} error={errors.iqamaNumber?.message} {...register('iqamaNumber')} />
           <Controller
             name="nationality"

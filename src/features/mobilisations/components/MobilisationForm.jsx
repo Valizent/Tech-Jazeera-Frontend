@@ -47,6 +47,7 @@ import {
   listPreviousMobilisedWorkers,
 } from '../mobilisations.api.js';
 import { listEmployees } from '../../employees/employees.api.js';
+import { listOutsourcedEmployees } from '../../employees/outsourcedEmployees.api.js';
 import { COUNTRIES } from '../../../lib/countries.js';
 import { formatMoney } from '../../../lib/utils.js';
 import { useToast } from '../../../components/ui/Toast.jsx';
@@ -270,6 +271,12 @@ export default function MobilisationForm({
   useOtClientRateAutofill({ control, getValues, setValue });
   const { workers, workersLoading, workersError } = useEmployeeWorkers({ workerType, existingWorkerId });
 
+  const { data: outsourcedEmployees } = useQuery({
+    queryKey: ['outsourcedEmployees', { workerType }],
+    queryFn: () => listOutsourcedEmployees({ workerType }),
+    enabled: workerType === 'Freelancer' || workerType === 'SupplierEmployee',
+  });
+
   // Fed to PreviousWorkerPicker for both SupplierEmployee (subcontractor-
   // scoped) and Freelancer (company-wide) — same fields useIqamaAutofill
   // fills in, plus markIqamaApplied so the Iqama-typed lookup above doesn't
@@ -432,10 +439,28 @@ export default function MobilisationForm({
             </div>
           ) : (
             <>
-              <Input
-                label={t('staffMobilisations.form.workerNameLabel')}
-                error={errors.workerName?.message}
-                {...register('workerName')}
+              <Controller
+                name="workerName"
+                control={control}
+                render={({ field }) => (
+                  <SuggestInput
+                    label={t('staffMobilisations.form.workerNameLabel')}
+                    value={field.value}
+                    onChange={(val) => {
+                      field.onChange(val);
+                      if (outsourcedEmployees) {
+                        const emp = outsourcedEmployees.find(e => e.name === val);
+                        if (emp) {
+                          if (emp.phone) setValue('phone', emp.phone, { shouldValidate: true, shouldDirty: true });
+                          // Can also set agreedRate or other fields if available
+                        }
+                      }
+                    }}
+                    onBlur={field.onBlur}
+                    options={(outsourcedEmployees || []).map(e => e.name)}
+                    error={errors.workerName?.message}
+                  />
+                )}
               />
               <Input
                 label={t('staffMobilisations.form.iqamaNumberLabel')}
