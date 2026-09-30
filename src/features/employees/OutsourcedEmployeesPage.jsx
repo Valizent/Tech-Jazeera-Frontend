@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useQuery } from '@tanstack/react-query';
 import { listOutsourcedEmployees } from './outsourcedEmployees.api.js';
-import { useAuth } from '../../app/AuthContext.jsx';
+import { useAuth } from '../auth/AuthContext.jsx';
 import PageHeader from '../../components/shared/PageHeader.jsx';
 import Button from '../../components/ui/Button.jsx';
 import Input from '../../components/ui/Input.jsx';
