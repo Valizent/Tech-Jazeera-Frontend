@@ -3,6 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { getPaidInvoices } from '../deployments.api.js';
+import PageHeader from '../../../components/shared/PageHeader.jsx';
 import Card from '../../../components/ui/Card.jsx';
 import Badge from '../../../components/ui/Badge.jsx';
 import EmptyState from '../../../components/ui/EmptyState.jsx';
@@ -175,15 +176,11 @@ export default function PaidInvoicesPage() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-text">{t('staffDeployments.paidInvoices.title', 'Paid Invoices')}</h1>
-          <p className="mt-1 text-sm text-muted">
-            {t('staffDeployments.paidInvoices.subtitle', 'Every invoice that has received a payment — in part or in full — across all clients. Click a row to expand financial details.')}
-          </p>
-        </div>
-      </div>
+      <PageHeader
+        title={t('staffDeployments.paidInvoices.title', 'Paid Invoices')}
+        description={t('staffDeployments.paidInvoices.subtitle', 'Every invoice that has received a payment — in part or in full — across all clients. Click a row to expand financial details.')}
+        onBack={() => navigate(-1)}
+      />
 
       {/* Filters */}
       <div className="flex flex-col sm:flex-row gap-3">

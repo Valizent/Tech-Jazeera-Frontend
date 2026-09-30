@@ -200,6 +200,7 @@ export default function RequirementsBoardPage() {
       <PageHeader
         title={t('staffRequirements.pageTitle')}
         description={t('staffRequirements.pageDescription')}
+        onBack={() => navigate(-1)}
         actions={
           <>
             {hasLostStage && (

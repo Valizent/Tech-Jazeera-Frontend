@@ -115,7 +115,14 @@ const emptyDocument = { number: '', expiry: '' };
 export const emptyEmployeeForm = {
   employeeId: '',
   fullName: '',
-  type: 'Outsourced',
+  // 2026-09-30, the user's own ask: this module only ever creates a real
+  // 'Own' (internal staff) employee now — a Freelancer or a subcontractor's
+  // worker is added through the Outsourced Employees module instead, which
+  // already captures their Iqama/nationality/rate and supports the same
+  // autofill-by-Iqama lookup Mobilisation itself uses. EmployeeForm hides the
+  // type selector entirely on create (see its own isEdit prop) — this is now
+  // the only value a brand-new record here can ever have.
+  type: 'Own',
   nationality: '',
   mobile: '',
   email: '',

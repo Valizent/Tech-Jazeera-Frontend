@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { listOutsourcedEmployees } from './outsourcedEmployees.api.js';
 import { useAuth } from '../auth/AuthContext.jsx';
@@ -15,6 +16,7 @@ import OutsourcedEmployeeFormModal from './components/OutsourcedEmployeeFormModa
 
 export default function OutsourcedEmployeesPage() {
   const { t } = useTranslation();
+  const navigate = useNavigate();
   const { user } = useAuth();
   const canWrite = Boolean(user.sectionAccessWrite?.includes('employeeCreate'));
   const [search, setSearch] = useState('');
@@ -114,6 +116,7 @@ export default function OutsourcedEmployeesPage() {
       <PageHeader
         title={t('employees.outsourced.title', 'Outsourced Employees')}
         description={t('employees.outsourced.description', 'Freelancers and subcontractor workers mobilised through this company.')}
+        onBack={() => navigate(-1)}
         actions={
           canWrite && (
             <Button onClick={() => setFormOpen(true)}>

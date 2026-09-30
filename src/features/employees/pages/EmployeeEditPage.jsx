@@ -87,6 +87,7 @@ export default function EmployeeEditPage() {
         onSubmit={(values) => mutation.mutate(formToEmployeePayload(values))}
         submitLabel={t('staffEmployees.editPage.submitLabel')}
         submitting={mutation.isPending}
+        isEdit
       />
     </div>
   );

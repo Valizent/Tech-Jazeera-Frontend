@@ -88,12 +88,14 @@ export default function AuditLogPage() {
     {
       key: 'action',
       header: 'Action',
-      render: (a) => (
-        <span className="flex flex-col gap-1">
-          <Badge variant={actionVariant(a.action)}>{describeAction(a.action)}</Badge>
-          <span className="font-mono text-[11px] text-muted">{a.action}</span>
-        </span>
-      ),
+      // 2026-09-30, the user's own ask: the raw dot-separated action key
+      // (e.g. "auth.login.success") used to print right under the badge —
+      // describeAction() already turns every one of these into a real
+      // sentence (see lib/auditActions.js), so the raw key added nothing but
+      // noise. `capitalize` is purely cosmetic (first-letter only, on
+      // display) — the underlying label stays lowercase, unchanged for the
+      // dashboard's own "Recent activity" widget that shares this same map.
+      render: (a) => <Badge variant={actionVariant(a.action)} className="capitalize">{describeAction(a.action)}</Badge>,
     },
     {
       key: 'target',

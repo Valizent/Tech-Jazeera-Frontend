@@ -47,7 +47,7 @@ function Section({ title, children }) {
   );
 }
 
-export default function EmployeeForm({ defaultValues, onSubmit, submitLabel, submitting }) {
+export default function EmployeeForm({ defaultValues, onSubmit, submitLabel, submitting, isEdit = false }) {
   const navigate = useNavigate();
   const { t } = useTranslation();
   const toast = useToast();
@@ -141,20 +141,34 @@ export default function EmployeeForm({ defaultValues, onSubmit, submitLabel, sub
         ]}
       />
       <Section title={t('staffEmployees.form.sections.employeeType')}>
-        <div className="sm:col-span-2">
-          <Select label={`${t('staffEmployees.form.type')} *`} error={errors.type?.message} {...register('type')}>
-            {selectableTypes.map((ty) => (
-              <option key={ty} value={ty}>
-                {t(`common.employeeType.${ty}`, EMPLOYEE_TYPE_LABELS[ty])}
-              </option>
-            ))}
-          </Select>
-          <p className="mt-1 text-xs text-muted">
-            {type === 'Own' && t('staffEmployees.form.typeHintOwn')}
-            {type === 'Outsourced' && t('staffEmployees.form.typeHintOutsourced')}
-            {type === 'Subcontracted' && t('staffEmployees.form.typeHintSubcontracted')}
-          </p>
-        </div>
+        {isEdit ? (
+          <div className="sm:col-span-2">
+            <Select label={`${t('staffEmployees.form.type')} *`} error={errors.type?.message} {...register('type')}>
+              {selectableTypes.map((ty) => (
+                <option key={ty} value={ty}>
+                  {t(`common.employeeType.${ty}`, EMPLOYEE_TYPE_LABELS[ty])}
+                </option>
+              ))}
+            </Select>
+            <p className="mt-1 text-xs text-muted">
+              {type === 'Own' && t('staffEmployees.form.typeHintOwn')}
+              {type === 'Outsourced' && t('staffEmployees.form.typeHintOutsourced')}
+              {type === 'Subcontracted' && t('staffEmployees.form.typeHintSubcontracted')}
+            </p>
+          </div>
+        ) : (
+          // This module only ever adds a real 'Own' (internal staff) employee
+          // now (2026-09-30, the user's own ask) — a Freelancer or a
+          // subcontractor's worker goes through the Outsourced Employees
+          // module instead. No selector to show; `type` stays a fixed 'Own'
+          // in emptyEmployeeForm. An EXISTING Outsourced/Subcontracted record
+          // is untouched — `isEdit` keeps the full selector for it above, so
+          // nothing already in the system is hidden or force-migrated.
+          <div className="sm:col-span-2">
+            <p className="text-sm font-medium text-text">{t('common.employeeType.Own', EMPLOYEE_TYPE_LABELS.Own)}</p>
+            <p className="mt-1 text-xs text-muted">{t('staffEmployees.form.typeHintOwn')}</p>
+          </div>
+        )}
         {type === 'Subcontracted' && (
           <div className="sm:col-span-2">
             <Select label={`${t('staffEmployees.form.subcontractor')} *`} error={errors.subcontractor?.message} {...register('subcontractor')}>
