@@ -3,8 +3,8 @@ import { useTranslation } from 'react-i18next';
 import { useQuery } from '@tanstack/react-query';
 import { Plus, Search, Building2, UserCircle2 } from 'lucide-react';
 import { listOutsourcedEmployees } from './outsourcedEmployees.api.js';
-import { useCanAccessSection } from '../sectionAccess/SectionAccessContext.jsx';
-import PageHeader from '../../components/layout/PageHeader.jsx';
+import { useAuth } from '../../app/AuthContext.jsx';
+import PageHeader from '../../components/shared/PageHeader.jsx';
 import Button from '../../components/ui/Button.jsx';
 import Input from '../../components/ui/Input.jsx';
 import Select from '../../components/ui/Select.jsx';
@@ -14,7 +14,8 @@ import OutsourcedEmployeeFormModal from './components/OutsourcedEmployeeFormModa
 
 export default function OutsourcedEmployeesPage() {
   const { t } = useTranslation();
-  const canWrite = useCanAccessSection('employees', 'write');
+  const { user } = useAuth();
+  const canWrite = user.role === 'Admin' || user.role === 'HR' || user.role === 'Manager';
   const [search, setSearch] = useState('');
   const [workerType, setWorkerType] = useState('');
   const [formOpen, setFormOpen] = useState(false);
