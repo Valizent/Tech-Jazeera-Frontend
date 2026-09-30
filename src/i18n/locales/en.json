@@ -30,6 +30,13 @@
     "filter": "Filter",
     "allStatuses": "All statuses",
     "allTypes": "All types",
+    "name": "Name",
+    "type": "Type",
+    "notes": "Notes",
+    "loading": "Loading…",
+    "select": "Select…",
+    "created": "Created.",
+    "updated": "Updated.",
     "tryClearingFilters": "Try clearing the search or filters.",
     "showingRange": "Showing {{from}}–{{to}} of {{total}}",
     "previous": "Previous",
@@ -2239,6 +2246,29 @@
       "moved": "Moved to {{stage}}.",
       "deleted": "Requirement deleted.",
       "updateAdded": "Update added."
+    },
+    "lost": {
+      "viewLostButton": "Lost requirements",
+      "pageTitle": "Lost Requirements",
+      "pageDescription": "Every requirement closed without converting to a mobilisation — kept here for review, out of the active board.",
+      "backToBoard": "Back to board",
+      "totalCount": "{{count}} lost requirement",
+      "totalCount_other": "{{count}} lost requirements",
+      "searchPlaceholder": "Search client, job title or #…",
+      "couldNotLoad": "Could not load lost requirements",
+      "emptyTitle": "No lost requirements",
+      "emptyDescription": "When a requirement is closed without converting to a mobilisation, it will appear here.",
+      "columns": {
+        "requirement": "Requirement #",
+        "client": "Client",
+        "jobTitle": "Job title",
+        "headcount": "Needed",
+        "stage": "Stage",
+        "coordinators": "Coordinators",
+        "neededBy": "Needed by",
+        "closedOn": "Closed on",
+        "daysChased": "Days chased"
+      }
     },
     "form": {
       "addTitle": "Add requirement",

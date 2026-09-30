@@ -29,6 +29,27 @@ export async function downloadRequirementsExport(params) {
   URL.revokeObjectURL(url);
 }
 
+/** Every card closed without converting (a terminal, non-mobilised stage) —
+ *  no age cutoff, unlike the board itself. params: coordinator, client. */
+export async function getLostRequirements(params) {
+  const { data } = await api.get('/requirements/lost', { params });
+  return data.data; // { requirements }
+}
+
+/** Same data as getLostRequirements, as one .xlsx — for handing management a
+ *  real spreadsheet of lost business. */
+export async function downloadLostRequirementsExport(params) {
+  const res = await api.get('/requirements/lost/export', { params, responseType: 'blob' });
+  const url = URL.createObjectURL(res.data);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `lost-requirements_${new Date().toISOString().slice(0, 10)}.xlsx`;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+}
+
 /** One card with its stage history and every update written on it. */
 export async function getRequirement(id) {
   const { data } = await api.get(`/requirements/${id}`);

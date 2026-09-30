@@ -30,6 +30,13 @@
     "filter": "تصفية",
     "allStatuses": "كل الحالات",
     "allTypes": "كل الأنواع",
+    "name": "الاسم",
+    "type": "النوع",
+    "notes": "ملاحظات",
+    "loading": "جارٍ التحميل…",
+    "select": "اختر…",
+    "created": "تم الإنشاء.",
+    "updated": "تم التحديث.",
     "tryClearingFilters": "جرّب مسح البحث أو عوامل التصفية.",
     "showingRange": "عرض {{from}}–{{to}} من {{total}}",
     "previous": "السابق",
@@ -2239,6 +2246,29 @@
       "moved": "تم النقل إلى {{stage}}.",
       "deleted": "تم حذف الطلب.",
       "updateAdded": "تمت إضافة التحديث."
+    },
+    "lost": {
+      "viewLostButton": "الطلبات الخاسرة",
+      "pageTitle": "الطلبات الخاسرة",
+      "pageDescription": "كل طلب أُغلق دون أن يتحول إلى نقل عامل — محفوظ هنا للمراجعة، خارج اللوحة النشطة.",
+      "backToBoard": "العودة إلى اللوحة",
+      "totalCount": "طلب خاسر واحد",
+      "totalCount_other": "{{count}} طلبات خاسرة",
+      "searchPlaceholder": "ابحث بالعميل أو المسمى الوظيفي أو الرقم…",
+      "couldNotLoad": "تعذر تحميل الطلبات الخاسرة",
+      "emptyTitle": "لا توجد طلبات خاسرة",
+      "emptyDescription": "عند إغلاق طلب دون تحويله إلى نقل عامل، سيظهر هنا.",
+      "columns": {
+        "requirement": "رقم الطلب",
+        "client": "العميل",
+        "jobTitle": "المسمى الوظيفي",
+        "headcount": "العدد المطلوب",
+        "stage": "المرحلة",
+        "coordinators": "المنسقون",
+        "neededBy": "مطلوب بحلول",
+        "closedOn": "تاريخ الإغلاق",
+        "daysChased": "أيام المتابعة"
+      }
     },
     "form": {
       "addTitle": "إضافة طلب",

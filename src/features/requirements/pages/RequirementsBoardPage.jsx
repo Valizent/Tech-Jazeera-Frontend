@@ -19,7 +19,7 @@
  * "Export to Excel" of whatever the current filters show.
  */
 import { useMemo, useState } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { getBoard, listRequirementCoordinators, moveRequirement, createSuggestedStages, downloadRequirementsExport } from '../requirements.api.js';
@@ -45,6 +45,7 @@ export default function RequirementsBoardPage() {
   const { t } = useTranslation();
   const { user } = useAuth();
   const toast = useToast();
+  const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [searchParams, setSearchParams] = useSearchParams();
 
@@ -99,6 +100,7 @@ export default function RequirementsBoardPage() {
   }, [stages, requirements]);
   const staleTotal = (requirements ?? []).filter((r) => r.stale).length;
   const hasClosedStage = stages.some((s) => s.isTerminal);
+  const hasLostStage = stages.some((s) => s.isTerminal && !s.isMobilisedStage);
   const clientChoices = data?.filterOptions?.clients ?? [];
   const subcontractorChoices = data?.filterOptions?.subcontractors ?? [];
 
@@ -200,6 +202,11 @@ export default function RequirementsBoardPage() {
         description={t('staffRequirements.pageDescription')}
         actions={
           <>
+            {hasLostStage && (
+              <Button size="sm" variant="secondary" onClick={() => navigate('/requirements/lost')}>
+                {t('staffRequirements.lost.viewLostButton')}
+              </Button>
+            )}
             {stages.length > 0 && (
               <Button size="sm" variant="secondary" isLoading={exportMutation.isPending} onClick={() => exportMutation.mutate()}>
                 {t('staffRequirements.exportExcel')}
