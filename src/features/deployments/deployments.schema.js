@@ -46,6 +46,13 @@ export function daysInMonth(monthStr) {
 // only check non-empty, so a negative or wildly-too-high value passed here
 // and only ever got caught by a raw server-error toast instead of inline
 // field feedback).
+// The real "impossible hours" ceiling (18h/day × this deployment's actual
+// placement days in the selected month) depends on the currently-typed
+// month, which would mean rebuilding this schema/resolver on every keystroke
+// — instead enforced as a live warning + submit guard in
+// DeploymentDetailPage's own MonthlyHoursForm (mirroring
+// deployment.service.js's real, authoritative assertPossibleHours check).
+// This flat 1000 stays as a basic sanity bound underneath that.
 const hoursField = (message) =>
   z
     .string()

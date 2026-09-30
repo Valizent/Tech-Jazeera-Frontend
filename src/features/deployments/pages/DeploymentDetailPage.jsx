@@ -60,6 +60,24 @@ function previousMonthStr() {
   return addMonthsToStr(monthStrOf(new Date()), -1);
 }
 
+const HOURS_CAP_PER_DAY = 18;
+
+/** Mirrors deployment.service.js's own realPlacementDaysInMonth exactly, for
+ *  immediate client-side feedback — the server re-checks this for real, this
+ *  is purely so the "impossible hours" warning shows before a round trip. */
+function realPlacementDaysInMonth(deployment, monthStr) {
+  if (!monthStr || !/^\d{4}-\d{2}$/.test(monthStr)) return 31;
+  const [year, month] = monthStr.split('-').map(Number);
+  const monthStart = new Date(year, month - 1, 1);
+  const monthEnd = new Date(year, month, 0);
+  const placementStart = new Date(deployment.startDate);
+  const placementEnd = deployment.endDate ? new Date(deployment.endDate) : monthEnd;
+  const effectiveStart = placementStart > monthStart ? placementStart : monthStart;
+  const effectiveEnd = placementEnd < monthEnd ? placementEnd : monthEnd;
+  const days = Math.floor((effectiveEnd - effectiveStart) / 86_400_000) + 1;
+  return Math.max(0, days);
+}
+
 /** Locale-aware weekday abbreviation for one calendar day of a 'YYYY-MM'
  *  month — shown above each day's input so a reviewer can see at a glance
  *  which days are weekends without cross-checking a calendar. Intl's 'short'
@@ -171,6 +189,7 @@ function MonthlyHoursForm({ deployment, defaultValues, onSubmit, submitting, sub
   const max = maxEligibleMonthFor(deployment);
 
   const agreementHours = contractHours ?? 0;
+  const watchedMonth = watch('month');
   const actualHoursPreview = Number(watch('actualHours')) || 0;
   const supplierHoursPreview = Number(watch('supplierHours')) || 0;
   // Formula depends on worker type (2026-09-19, the user's own ask) — see
@@ -181,6 +200,16 @@ function MonthlyHoursForm({ deployment, defaultValues, onSubmit, submitting, sub
     : Math.max(0, actualHoursPreview - agreementHours);
   const otAmountPreview = otHoursPreview * (otClientRate ?? 0);
   const deductionPreview = Number(watch('deductionAmount')) || 0;
+
+  // "Impossible hours" guard (2026-09-30, the user's own ask): 18h/day × the
+  // real placement days this deployment actually covers in the selected
+  // month — tighter than a flat cap for a month it only partly covered (e.g.
+  // demobilised mid-month). A live warning here, not a Zod bound — the
+  // ceiling depends on the currently-typed month, which would otherwise mean
+  // rebuilding the resolver on every keystroke; deployment.service.js's own
+  // assertPossibleHours is the real, authoritative enforcement regardless.
+  const maxPossibleHours = HOURS_CAP_PER_DAY * realPlacementDaysInMonth(deployment, watchedMonth);
+  const exceedsPossibleHours = actualHoursPreview > maxPossibleHours || supplierHoursPreview > maxPossibleHours;
 
   // A client-side validation failure previously failed silently (react-hook-
   // form never fires a mutation's own onError for one) — found via a real
@@ -195,8 +224,21 @@ function MonthlyHoursForm({ deployment, defaultValues, onSubmit, submitting, sub
     toast.error(messages.length ? messages.join(' · ') : t('staffDeployments.detail.fixHighlighted'));
   }
 
+  function onSubmitGuarded(values) {
+    if (exceedsPossibleHours) {
+      toast.error(
+        t(
+          'staffDeployments.detail.impossibleHoursError',
+          `That's more hours than physically possible for this period — max ${maxPossibleHours}h at 18h/day for this deployment's real placement days in ${watchedMonth || 'that month'}.`
+        )
+      );
+      return;
+    }
+    onSubmit(values);
+  }
+
   return (
-    <form onSubmit={handleSubmit(onSubmit, onInvalid)} noValidate className="space-y-3">
+    <form onSubmit={handleSubmit(onSubmitGuarded, onInvalid)} noValidate className="space-y-3">
       {/* Row 1: Month | Client timesheet | Supplier timesheet | Client deduction — all 4 in one line */}
       <div className={cn('grid grid-cols-1 gap-3', isSupplierEmployee ? 'sm:grid-cols-4' : 'sm:grid-cols-3')}>
         <Input
@@ -239,6 +281,15 @@ function MonthlyHoursForm({ deployment, defaultValues, onSubmit, submitting, sub
           <p className="mt-1 text-xs text-muted">{t('staffDeployments.detail.deductionAmountHint')}</p>
         </div>
       </div>
+
+      {exceedsPossibleHours && (
+        <p className="rounded-lg bg-danger/10 px-3 py-2 text-sm font-medium text-danger">
+          {t(
+            'staffDeployments.detail.impossibleHoursWarning',
+            `That's more hours than physically possible for this period — max ${maxPossibleHours}h at 18h/day for this deployment's real placement days in ${watchedMonth || 'that month'}.`
+          )}
+        </p>
+      )}
 
       {/* Row 2: Notes full-width */}
       <Textarea label={t('staffDeployments.detail.notesLabel')} error={errors.notes?.message} {...register('notes')} />

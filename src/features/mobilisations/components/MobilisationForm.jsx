@@ -607,14 +607,16 @@ export default function MobilisationForm({
             error={errors.otClientRate?.message}
             {...register('otClientRate')}
           />
-          <Input
-            label={t('staffMobilisations.form.otEmployeeRate')}
-            type="number"
-            step="0.01"
-            min="0"
-            error={errors.otEmployeeRate?.message}
-            {...register('otEmployeeRate')}
-          />
+          {workerType !== 'Employee' && (
+            <Input
+              label={t('staffMobilisations.form.otEmployeeRate')}
+              type="number"
+              step="0.01"
+              min="0"
+              error={errors.otEmployeeRate?.message}
+              {...register('otEmployeeRate')}
+            />
+          )}
         </div>
       </section>
 

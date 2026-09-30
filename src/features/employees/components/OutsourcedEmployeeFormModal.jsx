@@ -1,15 +1,22 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useForm, useWatch, Controller } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { getOutsourcedEmployee, createOutsourcedEmployee, updateOutsourcedEmployee } from '../outsourcedEmployees.api.js';
+import {
+  getOutsourcedEmployee,
+  createOutsourcedEmployee,
+  updateOutsourcedEmployee,
+  uploadOutsourcedEmployeeDocument,
+  deleteOutsourcedEmployeeDocument,
+  downloadOutsourcedEmployeeDocument,
+} from '../outsourcedEmployees.api.js';
 import { listSubcontractors } from '../../subcontractors/subcontractors.api.js';
 import { lookupMobilisationWorkerByIqama } from '../../mobilisations/mobilisations.api.js';
 import { COUNTRIES } from '../../../lib/countries.js';
 import { useToast } from '../../../components/ui/Toast.jsx';
-import { apiMessage, collectFormErrorMessages, formatMoney } from '../../../lib/utils.js';
+import { apiMessage, collectFormErrorMessages, formatMoney, formatFileSize, formatDate } from '../../../lib/utils.js';
 import Modal from '../../../components/ui/Modal.jsx';
 import Input from '../../../components/ui/Input.jsx';
 import Select from '../../../components/ui/Select.jsx';
@@ -17,6 +24,7 @@ import SuggestInput from '../../../components/ui/SuggestInput.jsx';
 import Textarea from '../../../components/ui/Textarea.jsx';
 import Button from '../../../components/ui/Button.jsx';
 import PickerLoadWarning from '../../../components/shared/PickerLoadWarning.jsx';
+import ConfirmDialog from '../../../components/shared/ConfirmDialog.jsx';
 
 const schema = z.object({
   name: z.string().min(1, 'Name is required').max(100),
@@ -93,7 +101,133 @@ function useIqamaAutofill({ control, setValue, toast }) {
   return { previousWorker: enabled ? foundWorker : null };
 }
 
-export default function OutsourcedEmployeeFormModal({ open, employeeId, onClose }) {
+/** ID copies, contracts, CVs — one at a time, each with its own title and
+ *  optional expiry date. Only shown once the record exists (a new record has
+ *  no id to attach a document to yet — save it first). Reuses the same
+ *  private-Cloudinary/signed-URL pipeline every other document upload in
+ *  this app uses (see middleware/upload.js). Added 2026-09-30: this record's
+ *  `documents` field existed since the module was first built with no route
+ *  or UI ever wired to it — a real gap found live, not a new feature ask. */
+function DocumentsSection({ employeeId, documents, canWrite, toast, queryClient, t }) {
+  const [title, setTitle] = useState('');
+  const [expiryDate, setExpiryDate] = useState('');
+  const [file, setFile] = useState(null);
+  const [confirmDeleteId, setConfirmDeleteId] = useState(null);
+
+  const invalidate = () => {
+    queryClient.invalidateQueries({ queryKey: ['outsourcedEmployee', employeeId] });
+    queryClient.invalidateQueries({ queryKey: ['outsourcedEmployees'] });
+  };
+
+  const uploadMutation = useMutation({
+    mutationFn: () => uploadOutsourcedEmployeeDocument(employeeId, file, { title, expiryDate: expiryDate || undefined }),
+    onSuccess: () => {
+      toast.success(t('employees.outsourced.documents.uploadedToast', 'Document uploaded.'));
+      setTitle('');
+      setExpiryDate('');
+      setFile(null);
+      invalidate();
+    },
+    onError: (error) => {
+      console.error('[employees] outsourced employee document upload failed', error);
+      toast.error(apiMessage(error));
+    },
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: (fileId) => deleteOutsourcedEmployeeDocument(employeeId, fileId),
+    onSuccess: () => {
+      toast.success(t('employees.outsourced.documents.removedToast', 'Document removed.'));
+      setConfirmDeleteId(null);
+      invalidate();
+    },
+    onError: (error) => {
+      console.error('[employees] outsourced employee document delete failed', error);
+      toast.error(apiMessage(error));
+    },
+  });
+
+  return (
+    <div className="space-y-3 border-t border-border pt-4">
+      <h3 className="text-sm font-semibold text-text">{t('employees.outsourced.documents.heading', 'Documents')}</h3>
+
+      {documents.length === 0 ? (
+        <p className="text-sm text-muted">{t('employees.outsourced.documents.empty', 'No documents uploaded yet.')}</p>
+      ) : (
+        <ul className="divide-y divide-border">
+          {documents.map((d) => (
+            <li key={d._id} className="flex items-center justify-between gap-3 py-2 text-sm">
+              <span className="min-w-0 truncate">
+                <span className="font-medium text-text">{d.title}</span>{' '}
+                <span className="text-xs text-muted">
+                  ({d.originalName}, {formatFileSize(d.size)}
+                  {d.expiryDate && `, ${t('employees.outsourced.documents.expires', 'expires')} ${formatDate(d.expiryDate)}`})
+                </span>
+              </span>
+              <span className="flex shrink-0 gap-2">
+                <Button type="button" size="sm" variant="ghost" onClick={() => downloadOutsourcedEmployeeDocument(employeeId, d._id, d.originalName)}>
+                  {t('common.download')}
+                </Button>
+                {canWrite && (
+                  <Button type="button" size="sm" variant="danger-ghost" onClick={() => setConfirmDeleteId(d._id)}>
+                    {t('common.delete')}
+                  </Button>
+                )}
+              </span>
+            </li>
+          ))}
+        </ul>
+      )}
+
+      {canWrite && (
+        <div className="flex flex-wrap items-end gap-2">
+          <Input
+            label={t('employees.outsourced.documents.titleLabel', 'Title')}
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            className="min-w-[140px]"
+          />
+          <Input
+            label={t('employees.outsourced.documents.expiryLabel', 'Expiry (optional)')}
+            type="date"
+            value={expiryDate}
+            onChange={(e) => setExpiryDate(e.target.value)}
+          />
+          <div>
+            <label className="mb-1.5 block text-sm font-medium">{t('employees.outsourced.documents.fileLabel', 'File')}</label>
+            <input
+              type="file"
+              accept=".pdf,.jpg,.jpeg,.png,.webp,.doc,.docx,.xls,.xlsx"
+              onChange={(e) => setFile(e.target.files[0] ?? null)}
+              className="text-sm"
+            />
+          </div>
+          <Button
+            type="button"
+            size="sm"
+            disabled={!file || !title.trim()}
+            isLoading={uploadMutation.isPending}
+            onClick={() => uploadMutation.mutate()}
+          >
+            {t('employees.outsourced.documents.upload', 'Upload')}
+          </Button>
+        </div>
+      )}
+
+      <ConfirmDialog
+        open={Boolean(confirmDeleteId)}
+        title={t('employees.outsourced.documents.deleteConfirmTitle', 'Delete document?')}
+        message={t('employees.outsourced.documents.deleteConfirmMessage', 'This cannot be undone.')}
+        confirmLabel={t('common.delete')}
+        loading={deleteMutation.isPending}
+        onConfirm={() => deleteMutation.mutate(confirmDeleteId)}
+        onCancel={() => setConfirmDeleteId(null)}
+      />
+    </div>
+  );
+}
+
+export default function OutsourcedEmployeeFormModal({ open, employeeId, canWrite = true, onClose }) {
   const { t } = useTranslation();
   const toast = useToast();
   const queryClient = useQueryClient();
@@ -238,6 +372,17 @@ export default function OutsourcedEmployeeFormModal({ open, employeeId, onClose 
           </div>
           
           <Textarea label={t('common.notes')} rows={3} error={errors.notes?.message} {...register('notes')} />
+
+          {isEdit && employee && (
+            <DocumentsSection
+              employeeId={employeeId}
+              documents={employee.documents ?? []}
+              canWrite={canWrite}
+              toast={toast}
+              queryClient={queryClient}
+              t={t}
+            />
+          )}
 
           <div className="flex justify-end gap-2 pt-2">
             <Button variant="secondary" onClick={onClose} disabled={saveMutation.isPending}>{t('common.cancel')}</Button>

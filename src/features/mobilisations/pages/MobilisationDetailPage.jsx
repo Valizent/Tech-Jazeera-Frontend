@@ -243,10 +243,20 @@ function CommercialDetailsForm({ m, canDecide, isFinalStep, onSave, saving, onAp
           <Input label={t('staffMobilisations.detail.clientQuotationDate')} type="date" error={errors.clientQuotationDate?.message} {...register('clientQuotationDate')} />
           <Input label={t('staffMobilisations.detail.clientPO')} error={errors.clientPO?.message} {...register('clientPO')} />
           <Input label={t('staffMobilisations.detail.clientPODate')} type="date" error={errors.clientPODate?.message} {...register('clientPODate')} />
-          <Input label={t('staffMobilisations.detail.subQuotation')} error={errors.subQuotation?.message} {...register('subQuotation')} />
-          <Input label={t('staffMobilisations.detail.subQuotationDate')} type="date" error={errors.subQuotationDate?.message} {...register('subQuotationDate')} />
-          <Input label={t('staffMobilisations.detail.subPO')} error={errors.subPO?.message} {...register('subPO')} />
-          <Input label={t('staffMobilisations.detail.subPODate')} type="date" error={errors.subPODate?.message} {...register('subPODate')} />
+          {/* Sub quotation/PO only apply when there's actually a subcontractor
+              to get one from (2026-09-30, the user's own ask) — same
+              `hasSubcontractor` reasoning the read-only DetailTable above
+              already uses, just extended to this editable form, which
+              previously showed these fields unconditionally even for an own-
+              Employee/Freelancer placement with no subcontractor at all. */}
+          {m.workerType === 'SupplierEmployee' && (
+            <>
+              <Input label={t('staffMobilisations.detail.subQuotation')} error={errors.subQuotation?.message} {...register('subQuotation')} />
+              <Input label={t('staffMobilisations.detail.subQuotationDate')} type="date" error={errors.subQuotationDate?.message} {...register('subQuotationDate')} />
+              <Input label={t('staffMobilisations.detail.subPO')} error={errors.subPO?.message} {...register('subPO')} />
+              <Input label={t('staffMobilisations.detail.subPODate')} type="date" error={errors.subPODate?.message} {...register('subPODate')} />
+            </>
+          )}
         </div>
         <Textarea label={t('staffMobilisations.form.remark')} error={errors.remark?.message} {...register('remark')} />
         <div className="flex flex-wrap justify-end gap-2 pt-2">

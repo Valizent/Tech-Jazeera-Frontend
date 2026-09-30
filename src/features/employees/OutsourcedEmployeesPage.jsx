@@ -65,6 +65,16 @@ export default function OutsourcedEmployeesPage() {
       ),
     },
     {
+      key: 'iqamaNumber',
+      header: t('employees.outsourced.iqamaNumber', 'Iqama Number'),
+      render: (row) => (
+        <div>
+          <div className="text-sm tabular-nums text-text">{row.iqamaNumber || '—'}</div>
+          {row.nationality && <div className="text-xs text-muted mt-0.5">{row.nationality}</div>}
+        </div>
+      ),
+    },
+    {
       key: 'contact',
       header: t('employees.outsourced.contact', 'Contact'),
       render: (row) => (
@@ -165,6 +175,7 @@ export default function OutsourcedEmployeesPage() {
       <OutsourcedEmployeeFormModal
         open={formOpen}
         employeeId={editingId}
+        canWrite={canWrite}
         onClose={closeForm}
       />
     </div>

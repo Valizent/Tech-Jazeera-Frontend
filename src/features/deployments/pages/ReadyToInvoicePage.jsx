@@ -1,29 +1,145 @@
-/**
- * ReadyToInvoicePage (2026-09-27, the user's own ask) — the Clerk's own
- * work queue: every Approved-but-not-yet-invoiced monthly-hours entry
- * across every Deployment, oldest-approved-first. Replaces hunting through
- * individual Deployment detail pages for a "Send Invoice" button — this
- * page IS that button now, moved into its own home under Financial (real
- * accounting/invoicing is ERPNext's job; this app only tracks whether a
- * client has been billed, for target-crediting purposes — see
- * deployment.service.js's getReadyToInvoice).
- */
-import { useRef, useState } from 'react';
+import { useRef, useState, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { getReadyToInvoice, sendInvoice } from '../deployments.api.js';
 import { RECEIPT_ACCEPT, RECEIPT_MAX_MB } from '../../../lib/constants.js';
-import { apiMessage, formatDate } from '../../../lib/utils.js';
+import { apiMessage, formatDate, formatMoney } from '../../../lib/utils.js';
 import { useToast } from '../../../components/ui/Toast.jsx';
 import PageHeader from '../../../components/shared/PageHeader.jsx';
 import Card from '../../../components/ui/Card.jsx';
-import Table from '../../../components/ui/Table.jsx';
 import Button from '../../../components/ui/Button.jsx';
 import Input from '../../../components/ui/Input.jsx';
 import Modal from '../../../components/ui/Modal.jsx';
 import Skeleton from '../../../components/ui/Skeleton.jsx';
 import EmptyState from '../../../components/ui/EmptyState.jsx';
+
+function DetailRow({ label, value, valueClass = '' }) {
+  return (
+    <div className="flex items-center justify-between py-1.5 border-b border-border/40 last:border-0">
+      <span className="text-xs text-muted">{label}</span>
+      <span className={`text-xs font-medium text-text ${valueClass}`}>{value}</span>
+    </div>
+  );
+}
+
+function ReadyToInvoiceRow({ row, isOpen, onToggle, onSendInvoice, t, navigate }) {
+  const isSupplier = row.workerType === 'SupplierEmployee';
+
+  return (
+    <>
+      <tr
+        className="group transition-all duration-200 drop-shadow-sm hover:-translate-y-px cursor-pointer"
+        onClick={onToggle}
+      >
+        <td className="px-4 py-3 align-middle bg-surface border-y border-l border-border/40 rounded-l-xl group-hover:border-primary/30 transition-colors">
+          <div className="font-semibold text-text text-sm">{row.clientName}</div>
+          <div className="text-xs text-muted mt-0.5">{row.workerName}</div>
+        </td>
+        <td className="px-4 py-3 align-middle bg-surface border-y border-border/40 group-hover:border-primary/30 transition-colors">
+          <span className="text-sm text-text font-medium">{row.month}</span>
+        </td>
+        <td className="px-4 py-3 align-middle bg-surface border-y border-border/40 group-hover:border-primary/30 transition-colors">
+          <span className="text-sm text-text">{row.actualHours} hrs</span>
+        </td>
+        <td className="px-4 py-3 align-middle bg-surface border-y border-border/40 group-hover:border-primary/30 transition-colors">
+          <span className="text-sm font-semibold text-primary">{formatMoney(row.revenue)}</span>
+        </td>
+        <td className="px-4 py-3 align-middle bg-surface border-y border-border/40 group-hover:border-primary/30 transition-colors">
+          <span className="text-sm text-muted">{row.hoursApprovedAt ? formatDate(row.hoursApprovedAt) : '—'}</span>
+        </td>
+        <td className="px-4 py-3 align-middle text-right bg-surface border-y border-r border-border/40 rounded-r-xl group-hover:border-primary/30 transition-colors">
+          <div className="flex items-center justify-end gap-3">
+            <Button
+              size="sm"
+              onClick={(e) => {
+                e.stopPropagation();
+                onSendInvoice(row);
+              }}
+            >
+              {t('staffDeployments.detail.sendInvoiceButton', 'Send invoice')}
+            </Button>
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              className={`h-4 w-4 text-muted transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`}
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" d="m6 9 6 6 6-6" />
+            </svg>
+          </div>
+        </td>
+      </tr>
+
+      {isOpen && (
+        <tr>
+          <td colSpan={6} className="px-4 pb-3">
+            <div className="rounded-xl border border-border/60 bg-surface/70 p-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 text-sm">
+              <div>
+                <p className="text-xs font-black uppercase tracking-wider text-muted mb-2">Client</p>
+                <div className="space-y-0">
+                  <DetailRow label="Client Rate / hr" value={row.clientRate != null ? formatMoney(row.clientRate) : '—'} />
+                  <DetailRow label="Client Commission / hr" value={row.clientCommission != null ? formatMoney(row.clientCommission) : '—'} />
+                  <DetailRow label="Invoice Amount" value={formatMoney(row.revenue)} valueClass="text-primary" />
+                </div>
+              </div>
+
+              {isSupplier && (
+                <div>
+                  <p className="text-xs font-black uppercase tracking-wider text-muted mb-2">Subcontractor</p>
+                  <div className="space-y-0">
+                    <DetailRow label="Sub Rate / hr" value={row.subcontractorRate != null ? formatMoney(row.subcontractorRate) : '—'} />
+                    <DetailRow label="Sub Commission / hr" value={row.subcontractorCommission != null ? formatMoney(row.subcontractorCommission) : '—'} />
+                    <DetailRow label="Sub Invoice" value={formatMoney(row.breakdown?.subContractorInvoiceAmount ?? 0)} valueClass="text-danger" />
+                  </div>
+                </div>
+              )}
+
+              <div>
+                <p className="text-xs font-black uppercase tracking-wider text-muted mb-2">Expenses</p>
+                <div className="space-y-0">
+                  {(row.fta ?? 0) > 0 && <DetailRow label="FTA" value={formatMoney(row.fta)} />}
+                  {(row.allowance ?? 0) > 0 && <DetailRow label="Allowance" value={formatMoney(row.allowance)} />}
+                  {(row.deductionAmount ?? 0) > 0 && <DetailRow label="Deduction" value={formatMoney(row.deductionAmount)} />}
+                  {(row.mobilisationCost ?? 0) > 0 && <DetailRow label="Mob. Cost" value={formatMoney(row.mobilisationCost)} />}
+                  {(row.breakdown?.otCalculations ?? 0) > 0 && <DetailRow label="OT Cost" value={formatMoney(row.breakdown.otCalculations)} />}
+                  <DetailRow label="Total Expenses" value={formatMoney(row.expenses ?? 0)} valueClass="text-danger" />
+                </div>
+              </div>
+
+              <div>
+                <p className="text-xs font-black uppercase tracking-wider text-muted mb-2">Summary</p>
+                <div className="space-y-0">
+                  <DetailRow label="Actual Hours" value={row.actualHours ?? '—'} />
+                  {(row.otHours ?? 0) > 0 && <DetailRow label="OT Hours" value={row.otHours} />}
+                  <DetailRow
+                    label="Net Profit"
+                    value={formatMoney(row.profit ?? 0)}
+                    valueClass={(row.profit ?? 0) >= 0 ? 'text-success' : 'text-danger'}
+                  />
+                  <div className="mt-3">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="w-full justify-center"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        navigate(`/deployments/${row.deploymentId}`);
+                      }}
+                    >
+                      View Deployment Details
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </td>
+        </tr>
+      )}
+    </>
+  );
+}
 
 export default function ReadyToInvoicePage() {
   const { t } = useTranslation();
@@ -36,11 +152,23 @@ export default function ReadyToInvoicePage() {
   const [invoiceDateInput, setInvoiceDateInput] = useState('');
   const [invoiceFile, setInvoiceFile] = useState(null);
   const invoiceFileInputRef = useRef(null);
+  
+  const [search, setSearch] = useState('');
+  const [openRowId, setOpenRowId] = useState(null);
 
   const { data = [], isPending, isError } = useQuery({
     queryKey: ['deployments', 'ready-to-invoice'],
     queryFn: getReadyToInvoice,
   });
+
+  const filteredRows = useMemo(() => {
+    if (!search.trim()) return data;
+    const lower = search.toLowerCase();
+    return data.filter((r) =>
+      (r.clientName && r.clientName.toLowerCase().includes(lower)) ||
+      (r.workerName && r.workerName.toLowerCase().includes(lower))
+    );
+  }, [data, search]);
 
   function resetInvoiceForm() {
     setInvoiceNumberInput('');
@@ -71,48 +199,24 @@ export default function ReadyToInvoicePage() {
     onError: (error) => toast.error(apiMessage(error)),
   });
 
-  const columns = [
-    {
-      key: 'worker',
-      header: t('staffDeployments.readyToInvoice.columns.worker'),
-      render: (row) => (
-        <span className="font-medium text-text">
-          {row.workerName}
-          <span className="block text-xs font-normal text-muted">{row.clientName}</span>
-        </span>
-      ),
-    },
-    { key: 'month', header: t('staffDeployments.readyToInvoice.columns.month'), render: (row) => row.month },
-    { key: 'hours', header: t('staffDeployments.readyToInvoice.columns.hours'), render: (row) => row.actualHours },
-    {
-      key: 'waitingSince',
-      header: t('staffDeployments.readyToInvoice.columns.waitingSince'),
-      render: (row) => (row.hoursApprovedAt ? formatDate(row.hoursApprovedAt) : '—'),
-    },
-    {
-      key: 'action',
-      header: '',
-      render: (row) => (
-        <Button
-          size="sm"
-          onClick={(e) => {
-            e.stopPropagation();
-            setInvoicingEntry(row);
-          }}
-        >
-          {t('staffDeployments.detail.sendInvoiceButton')}
-        </Button>
-      ),
-    },
-  ];
+  const toggleRow = (id) => setOpenRowId((prev) => (prev === id ? null : id));
 
   return (
     <div className="mx-auto max-w-6xl space-y-6">
       <PageHeader
-        title={t('staffDeployments.readyToInvoice.pageTitle')}
-        description={t('staffDeployments.readyToInvoice.pageDescription')}
+        title={t('staffDeployments.readyToInvoice.pageTitle', 'Ready to invoice')}
+        description={t('staffDeployments.readyToInvoice.pageDescription', 'Every approved month waiting on a client invoice, oldest first.')}
         onBack={() => navigate(-1)}
       />
+
+      <div className="flex flex-col sm:flex-row gap-3">
+        <Input
+          placeholder={t('common.search', 'Search client, worker...')}
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          className="w-full sm:w-64"
+        />
+      </div>
 
       {isPending ? (
         <div className="space-y-4">
@@ -120,20 +224,40 @@ export default function ReadyToInvoicePage() {
         </div>
       ) : isError ? (
         <EmptyState title={t('staffDeployments.readyToInvoice.couldNotLoad')} description={t('common.checkConnection')} />
+      ) : filteredRows.length === 0 ? (
+        <EmptyState
+          title={t('staffDeployments.readyToInvoice.emptyTitle')}
+          description={t('staffDeployments.readyToInvoice.emptyDescription')}
+        />
       ) : (
-        <Card>
-          <Table
-            columns={columns}
-            rows={data}
-            rowKey={(row) => `${row.deploymentId}-${row.entryId}`}
-            onRowClick={(row) => navigate(`/deployments/${row.deploymentId}`)}
-            emptyState={
-              <EmptyState
-                title={t('staffDeployments.readyToInvoice.emptyTitle')}
-                description={t('staffDeployments.readyToInvoice.emptyDescription')}
-              />
-            }
-          />
+        <Card className="overflow-x-auto p-0">
+          <table className="w-full border-separate border-spacing-y-[6px] text-sm px-4">
+            <thead className="text-left">
+              <tr>
+                {['Client / Worker', 'Month', 'Hours', 'Invoice Amount', 'Approved On', ''].map((h) => (
+                  <th key={h} className="px-4 py-3 text-[13px] font-black uppercase tracking-wider text-text bg-border/30 first:rounded-l-xl last:rounded-r-xl whitespace-nowrap">
+                    {h}
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {filteredRows.map((row) => (
+                <ReadyToInvoiceRow
+                  key={`${row.deploymentId}-${row.entryId}`}
+                  row={row}
+                  isOpen={openRowId === `${row.deploymentId}-${row.entryId}`}
+                  onToggle={() => toggleRow(`${row.deploymentId}-${row.entryId}`)}
+                  onSendInvoice={setInvoicingEntry}
+                  t={t}
+                  navigate={navigate}
+                />
+              ))}
+            </tbody>
+          </table>
+          <div className="px-4 py-3 text-xs text-muted border-t border-border/40">
+            {filteredRows.length} {filteredRows.length === 1 ? 'entry' : 'entries'} {search ? '(filtered)' : ''}
+          </div>
         </Card>
       )}
 
