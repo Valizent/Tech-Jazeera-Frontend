@@ -26,7 +26,17 @@ export function assetToForm(asset) {
 
 export const assignFormSchema = z.object({
   employee: z.string().min(1, 'Choose an employee.'),
-  assignedAt: z.string().optional().or(z.literal('')),
+  // Fixed 2026-09-29, a real audit finding: this had no range check at all.
+  // The server is the real gatekeeper (per this file's own header comment)
+  // and also checks assignedAt against the specific asset's own
+  // purchaseDate — a per-asset check that doesn't fit this static schema —
+  // so only the asset-independent future-date cap is mirrored here for
+  // instant feedback.
+  assignedAt: z
+    .string()
+    .optional()
+    .or(z.literal(''))
+    .refine((v) => !v || new Date(v) <= new Date(), 'Assignment date cannot be in the future.'),
   notes: z.string().trim().max(500).optional().or(z.literal('')),
 });
 

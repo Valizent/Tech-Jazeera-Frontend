@@ -160,6 +160,7 @@
   },
   "profile": {
     "title": "My profile",
+    "formInvalid": "Please check the form and try again.",
     "loadError": "Could not load your profile",
     "edit": "Edit",
     "save": "Save changes",
@@ -251,6 +252,7 @@
   },
   "leave": {
     "title": "My leave",
+    "formInvalid": "Please check the form and try again.",
     "description": "Request leave and track its status.",
     "upcomingHolidays": "Upcoming holidays",
     "requestLeave": "Request leave",
@@ -286,6 +288,7 @@
     "description": "Salary advances and expense reimbursement claims.",
     "advances": {
       "sectionTitle": "Request a salary advance",
+      "formInvalid": "Please check the form and try again.",
       "amount": "Amount (⃁) *",
       "repaymentMonths": "Repay over (months) *",
       "reason": "Reason",
@@ -306,6 +309,7 @@
     },
     "reimbursements": {
       "sectionTitle": "Claim an expense",
+      "formInvalid": "Please check the form and try again.",
       "category": "Category *",
       "chooseCategory": "Choose a category…",
       "amount": "Amount (⃁) *",
@@ -346,6 +350,7 @@
     "description": "Exit re-entry visas, official certificates, and your assigned assets.",
     "exitReentry": {
       "sectionTitle": "Request an exit re-entry visa",
+      "formInvalid": "Please check the form and try again.",
       "visaType": "Visa type *",
       "choose": "Choose…",
       "departureDate": "Departure date *",
@@ -371,6 +376,7 @@
     },
     "certificates": {
       "sectionTitle": "Request a certificate",
+      "formInvalid": "Please check the form and try again.",
       "type": "Certificate type *",
       "choose": "Choose…",
       "purpose": "Purpose",
@@ -687,6 +693,7 @@
       "deleteMessage": "{{name}} ({{code}}) will be permanently removed, along with their login (if any) and attendance history. For staff who left the company, set status to \"Exited\" instead."
     },
     "form": {
+      "invalid": "Please check the form and try again.",
       "sections": {
         "employeeType": "Employee type",
         "personalDetails": "Personal details",
@@ -998,6 +1005,7 @@
       "modalEditTitle": "Edit leave type",
       "modalNewTitle": "New leave type",
       "form": {
+        "invalid": "Please check the form and try again.",
         "name": "Name *",
         "recurrenceLabel": "How it's earned *",
         "daysPerYear": "Days per year *",
@@ -1023,6 +1031,7 @@
       "createdSuccess": "Leave type created."
     },
     "submit": {
+      "formInvalid": "Please check the form and try again.",
       "title": "Submit your own request",
       "chooseType": "Leave type",
       "choosePlaceholder": "Choose a leave type…",
@@ -1318,6 +1327,7 @@
       "deleteConfirmMessage": "{{name}} will be permanently removed. Set status to \"Inactive\" instead if you just want to archive it."
     },
     "form": {
+      "invalid": "Please check the form and try again.",
       "rejectedTitle": "This submission was rejected.",
       "resubmitHint": "Saving changes resubmits it for approval.",
       "pendingBadge": "Pending approval",
@@ -1554,6 +1564,68 @@
       "couldNotLoad": "Could not load the invoicing queue",
       "emptyTitle": "Nothing to invoice",
       "emptyDescription": "Every approved month has already been invoiced."
+    },
+    "hoursReview": {
+      "accessRestrictedTitle": "Access restricted",
+      "accessRestrictedDescription": "You need the Hours Decide permission to access this page.",
+      "pageTitle": "Hours Approval Queue",
+      "pageDescription": "Monthly timesheet entries awaiting your review.",
+      "pendingBadge": "{{count}} pending",
+      "loadFailedTitle": "Could not load the queue",
+      "allCaughtUpTitle": "All caught up!",
+      "allCaughtUpDescription": "No timesheet entries are waiting for your approval right now.",
+      "columns": {
+        "contractHours": "Contract hours",
+        "clientTimesheet": "Client timesheet",
+        "supplierTimesheet": "Supplier timesheet",
+        "otHours": "OT hours",
+        "otAmount": "OT amount",
+        "deduction": "Deduction",
+        "invoiceAmount": "Invoice amount",
+        "netProfit": "Net profit"
+      },
+      "approveModalTitle": "Approve {{month}}?",
+      "rejectModalTitle": "Reject {{month}}?",
+      "timesheetPeriod": "Timesheet period: {{month}}",
+      "clientDeductionLabel": "Client deduction",
+      "reasonRequiredLabel": "Reason (required)",
+      "noteOptionalLabel": "Note (optional)",
+      "rejectPlaceholder": "Explain what needs to be corrected…",
+      "notePlaceholder": "Any notes for the record…",
+      "approvedToast": "Hours approved.",
+      "rejectedToast": "Hours rejected.",
+      "breakdownModalTitle": "Profit Breakdown: {{month}}",
+      "breakdown": {
+        "clientInvoiceAmount": "Client Invoice Amount",
+        "subContractorInvoiceAmount": "Sub Contractor Invoice Amount",
+        "otCalculations": "OT Calculations",
+        "clientCommission": "Client Commission",
+        "fta": "FTA",
+        "allowance": "Allowance",
+        "clientDeduction": "Client Deduction",
+        "mobilisationCost": "Mobilisation Cost",
+        "netProfit": "Net Profit"
+      }
+    },
+    "paymentsReview": {
+      "accessRestrictedTitle": "Access restricted",
+      "accessRestrictedDescription": "You need the Payments Decide permission to access this page.",
+      "pageTitle": "Payments Approval Queue",
+      "pageDescription": "Recorded client payments awaiting your review.",
+      "pendingBadge": "{{count}} pending",
+      "loadFailedTitle": "Could not load the queue",
+      "allCaughtUpTitle": "All caught up!",
+      "allCaughtUpDescription": "No payments are waiting for your approval right now.",
+      "unknownClient": "Unknown Client",
+      "recordedBy": "Recorded by {{name}}",
+      "approveModalTitle": "Approve Payment",
+      "rejectModalTitle": "Reject Payment",
+      "confirmReject": "Are you sure you want to reject this payment?",
+      "reasonRequiredLabel": "Reason for rejection (Required)",
+      "noteOptionalLabel": "Note (Optional)",
+      "notePlaceholder": "e.g. Needs correction...",
+      "approvedToast": "Payment approved.",
+      "rejectedToast": "Payment rejected."
     },
     "detail": {
       "notFoundTitle": "Deployment not found",

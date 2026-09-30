@@ -17,7 +17,7 @@ import {
 } from '../reimbursements.api.js';
 import { reimbursementFormSchema, emptyReimbursementForm } from '../financialRequests.schema.js';
 import { useAuth } from '../../auth/AuthContext.jsx';
-import { apiMessage, formatDate, formatMoney } from '../../../lib/utils.js';
+import { apiMessage, formatDate, formatMoney, collectFormErrorMessages } from '../../../lib/utils.js';
 import {
   REIMBURSEMENT_STATUSES,
   REIMBURSEMENT_STATUS_VARIANT,
@@ -97,10 +97,15 @@ export function SubmitReimbursementPanel() {
     submitMutation.mutate(values);
   }
 
+  const onInvalid = (formErrors) => {
+    console.error('[financialRequests] reimbursement form invalid', formErrors);
+    toast.error(collectFormErrorMessages(formErrors).join(' ') || 'Please check the form and try again.');
+  };
+
   return (
     <Card>
       <h2 className="mb-4 text-sm font-semibold uppercase tracking-wide text-muted">Submit your own reimbursement claim</h2>
-      <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-4">
+      <form onSubmit={handleSubmit(onSubmit, onInvalid)} noValidate className="space-y-4">
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <Select label="Category *" error={errors.category?.message} {...register('category')}>
             <option value="">Choose a category…</option>
@@ -245,7 +250,12 @@ export default function ReimbursementReviewPanel() {
                   {c.category} · {formatMoney(c.amount)} · expense {formatDate(c.expenseDate)}
                 </p>
                 {c.description && <p className="mt-1 text-xs text-muted">{c.description}</p>}
-                <ApprovalTrailView request={c} />
+                {/* Fixed 2026-09-29, a real audit finding: without this,
+                    ApprovalTrailView defaulted to Leave's own pending
+                    literal ('PendingReview') instead of ReimbursementClaim's
+                    real one ('Pending' — see reimbursement.model.js), so the
+                    current step never got its in-progress highlight. */}
+                <ApprovalTrailView request={c} pendingStatus="Pending" />
               </div>
               <div className="flex shrink-0 flex-col items-end gap-2">
                 <Badge variant={REIMBURSEMENT_STATUS_VARIANT[c.status]}>{c.status}</Badge>

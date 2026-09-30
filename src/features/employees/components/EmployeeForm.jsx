@@ -23,6 +23,8 @@ import {
   MANAGER_ELIGIBLE_ROLES,
 } from '../../../lib/constants.js';
 import { COUNTRIES } from '../../../lib/countries.js';
+import { collectFormErrorMessages } from '../../../lib/utils.js';
+import { useToast } from '../../../components/ui/Toast.jsx';
 import Input from '../../../components/ui/Input.jsx';
 import SuggestInput from '../../../components/ui/SuggestInput.jsx';
 import Select from '../../../components/ui/Select.jsx';
@@ -48,6 +50,7 @@ function Section({ title, children }) {
 export default function EmployeeForm({ defaultValues, onSubmit, submitLabel, submitting }) {
   const navigate = useNavigate();
   const { t } = useTranslation();
+  const toast = useToast();
   const { user } = useAuth();
   // Drives which employee types a Coordinator may pick (below) — unrelated
   // to coordinator ASSIGNMENT itself, which this form no longer sets at all
@@ -123,8 +126,13 @@ export default function EmployeeForm({ defaultValues, onSubmit, submitLabel, sub
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [workflows]);
 
+  const onInvalid = (formErrors) => {
+    console.error('[employees] employee form invalid', formErrors);
+    toast.error(collectFormErrorMessages(formErrors).join(' ') || t('staffEmployees.form.invalid'));
+  };
+
   return (
-    <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-6">
+    <form onSubmit={handleSubmit(onSubmit, onInvalid)} noValidate className="space-y-6">
       <PickerLoadWarning
         failed={[
           { label: 'subcontractors', isError: subcontractorsError },

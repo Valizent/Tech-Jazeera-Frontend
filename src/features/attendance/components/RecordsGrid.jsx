@@ -51,16 +51,25 @@ import Input from '../../../components/ui/Input.jsx';
 import Textarea from '../../../components/ui/Textarea.jsx';
 import ConfirmDialog from '../../../components/shared/ConfirmDialog.jsx';
 
-/** ISO datetime -> "HH:MM" in the viewer's local time, for a time input. */
+/** ISO datetime -> "HH:MM" in UTC — fixed 2026-09-29, a real audit finding:
+ *  this used to read the viewer's browser-LOCAL time while `toIsoDateTime`
+ *  below (and every other date computation in this module — see
+ *  attendance.dates.js's own header comment) is explicitly UTC-anchored.
+ *  On a Riyadh (UTC+3) browser, correcting a punch between 00:00-02:59 for
+ *  a given date produced a `checkInTime` whose UTC day was the PREVIOUS
+ *  day, silently disagreeing with the record's own `date` key. Both
+ *  functions must stay exact inverses of each other. */
 function toTimeInput(iso) {
   if (!iso) return '';
-  return new Date(iso).toTimeString().slice(0, 5);
+  return new Date(iso).toISOString().slice(11, 16);
 }
 
-/** "YYYY-MM-DD" + "HH:MM" (local) -> ISO datetime, or null if no time given. */
+/** "YYYY-MM-DD" + "HH:MM" (UTC) -> ISO datetime, or null if no time given. */
 function toIsoDateTime(dateKey, timeInput) {
   if (!timeInput) return null;
-  return new Date(`${dateKey}T${timeInput}:00`).toISOString();
+  const [year, month, day] = dateKey.split('-').map(Number);
+  const [hours, minutes] = timeInput.split(':').map(Number);
+  return new Date(Date.UTC(year, month - 1, day, hours, minutes, 0)).toISOString();
 }
 
 export default function RecordsGrid() {

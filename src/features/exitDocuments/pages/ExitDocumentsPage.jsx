@@ -20,7 +20,7 @@ import {
   emptyCertificateForm,
 } from '../exitDocuments.schema.js';
 import { useAuth } from '../../auth/AuthContext.jsx';
-import { apiMessage } from '../../../lib/utils.js';
+import { apiMessage, collectFormErrorMessages } from '../../../lib/utils.js';
 import { VISA_TYPES, CERTIFICATE_TYPES, CERTIFICATE_TYPE_LABELS } from '../../../lib/constants.js';
 import { useToast } from '../../../components/ui/Toast.jsx';
 import PageHeader from '../../../components/shared/PageHeader.jsx';
@@ -56,10 +56,15 @@ function SubmitExitReentryPanel() {
     onError: (error) => toast.error(apiMessage(error)),
   });
 
+  const onInvalid = (formErrors) => {
+    console.error('[exitDocuments] exit re-entry form invalid', formErrors);
+    toast.error(collectFormErrorMessages(formErrors).join(' ') || 'Please check the form and try again.');
+  };
+
   return (
     <Card>
       <h2 className="mb-4 text-sm font-semibold uppercase tracking-wide text-muted">Submit your own request</h2>
-      <form onSubmit={handleSubmit((values) => submitMutation.mutate(values))} noValidate className="space-y-4">
+      <form onSubmit={handleSubmit((values) => submitMutation.mutate(values), onInvalid)} noValidate className="space-y-4">
         <Select label="Visa type" error={errors.visaType?.message} {...register('visaType')}>
           <option value="">Choose a visa type…</option>
           {VISA_TYPES.map((t) => (
@@ -104,10 +109,15 @@ function SubmitCertificatePanel() {
     onError: (error) => toast.error(apiMessage(error)),
   });
 
+  const onInvalid = (formErrors) => {
+    console.error('[exitDocuments] certificate form invalid', formErrors);
+    toast.error(collectFormErrorMessages(formErrors).join(' ') || 'Please check the form and try again.');
+  };
+
   return (
     <Card>
       <h2 className="mb-4 text-sm font-semibold uppercase tracking-wide text-muted">Submit your own request</h2>
-      <form onSubmit={handleSubmit((values) => submitMutation.mutate(values))} noValidate className="space-y-4">
+      <form onSubmit={handleSubmit((values) => submitMutation.mutate(values), onInvalid)} noValidate className="space-y-4">
         <Select label="Certificate type" error={errors.type?.message} {...register('type')}>
           <option value="">Choose a type…</option>
           {CERTIFICATE_TYPES.map((t) => (

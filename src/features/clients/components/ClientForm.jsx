@@ -10,6 +10,8 @@ import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { clientFormSchema } from '../clients.schema.js';
 import { CLIENT_STATUSES } from '../../../lib/constants.js';
+import { collectFormErrorMessages } from '../../../lib/utils.js';
+import { useToast } from '../../../components/ui/Toast.jsx';
 import Input from '../../../components/ui/Input.jsx';
 import Select from '../../../components/ui/Select.jsx';
 import Textarea from '../../../components/ui/Textarea.jsx';
@@ -36,6 +38,7 @@ function Section({ title, description, children }) {
 export default function ClientForm({ defaultValues, onSubmit, submitLabel, submitting, client }) {
   const navigate = useNavigate();
   const { t } = useTranslation();
+  const toast = useToast();
   const {
     register,
     control,
@@ -45,8 +48,13 @@ export default function ClientForm({ defaultValues, onSubmit, submitLabel, submi
 
   const { fields, append, remove } = useFieldArray({ control, name: 'sites' });
 
+  const onInvalid = (formErrors) => {
+    console.error('[clients] client form invalid', formErrors);
+    toast.error(collectFormErrorMessages(formErrors).join(' ') || t('staffClients.form.invalid'));
+  };
+
   return (
-    <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-6">
+    <form onSubmit={handleSubmit(onSubmit, onInvalid)} noValidate className="space-y-6">
       {client?.approvalStatus === 'Rejected' && (
         <Card className="border-danger/30 bg-danger/5">
           <div className="flex items-start gap-3">

@@ -8,7 +8,10 @@
  * endpoint itself). Edit still navigates to the full deployment detail page
  * since correcting hours is an Office Secretary action, not a manager one.
  *
- * 2026-09-28: initial implementation.
+ * 2026-09-28: initial implementation. 2026-09-29: given full i18n (a real
+ * audit finding — this shipped 100% hardcoded English, a regression against
+ * the app's staff-panel Arabic convention every sibling financial page
+ * already follows, including PaymentsDuePage.jsx right next to it).
  */
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -61,7 +64,7 @@ export default function HoursReviewPage() {
     mutationFn: ({ deploymentId, entryId, decision, note: n }) =>
       decideMonthlyHours(deploymentId, entryId, { decision, note: n || undefined }),
     onSuccess: (_, vars) => {
-      toast.success(vars.decision === 'Approved' ? 'Hours approved.' : 'Hours rejected.');
+      toast.success(vars.decision === 'Approved' ? t('staffDeployments.hoursReview.approvedToast') : t('staffDeployments.hoursReview.rejectedToast'));
       setDecidingRow(null);
       setNote('');
       qc.invalidateQueries({ queryKey: ['deployments', 'pending-hours'] });
@@ -85,9 +88,9 @@ export default function HoursReviewPage() {
     return (
       <div className="mx-auto max-w-2xl">
         <EmptyState
-          title="Access restricted"
-          description="You need the Hours Decide permission to access this page."
-          action={<Button variant="secondary" onClick={() => navigate(-1)}>Go back</Button>}
+          title={t('staffDeployments.hoursReview.accessRestrictedTitle')}
+          description={t('staffDeployments.hoursReview.accessRestrictedDescription')}
+          action={<Button variant="secondary" onClick={() => navigate(-1)}>{t('common.back')}</Button>}
         />
       </div>
     );
@@ -96,12 +99,12 @@ export default function HoursReviewPage() {
   return (
     <div className="mx-auto max-w-5xl space-y-6">
       <PageHeader
-        title="Hours Approval Queue"
-        description="Monthly timesheet entries awaiting your review."
+        title={t('staffDeployments.hoursReview.pageTitle')}
+        description={t('staffDeployments.hoursReview.pageDescription')}
         onBack={() => navigate(-1)}
         actions={
           rows?.length > 0 && (
-            <Badge variant="warning">{rows.length} pending</Badge>
+            <Badge variant="warning">{t('staffDeployments.hoursReview.pendingBadge', { count: rows.length })}</Badge>
           )
         }
       />
@@ -114,9 +117,9 @@ export default function HoursReviewPage() {
         </div>
       ) : isError ? (
         <EmptyState
-          title="Could not load the queue"
-          description="Check your connection and try again."
-          action={<Button variant="secondary" onClick={() => refetch()}>Retry</Button>}
+          title={t('staffDeployments.hoursReview.loadFailedTitle')}
+          description={t('common.checkConnection')}
+          action={<Button variant="secondary" onClick={() => refetch()}>{t('common.retry')}</Button>}
         />
       ) : rows.length === 0 ? (
         <Card>
@@ -127,8 +130,8 @@ export default function HoursReviewPage() {
                 <path d="M5 13l4 4L19 7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
               </svg>
             </span>
-            <p className="text-base font-semibold text-text">All caught up!</p>
-            <p className="text-sm text-muted">No timesheet entries are waiting for your approval right now.</p>
+            <p className="text-base font-semibold text-text">{t('staffDeployments.hoursReview.allCaughtUpTitle')}</p>
+            <p className="text-sm text-muted">{t('staffDeployments.hoursReview.allCaughtUpDescription')}</p>
           </div>
         </Card>
       ) : (
@@ -154,7 +157,7 @@ export default function HoursReviewPage() {
                     {row.site && <span className="text-sm text-muted">· {row.site}</span>}
                   </div>
                   <div className="mt-1 flex items-center gap-2">
-                    <Badge variant="warning">Pending</Badge>
+                    <Badge variant="warning">{t('common.status.Pending')}</Badge>
                     <span className="text-xs font-medium text-muted">{row.month}</span>
                   </div>
                 </div>
@@ -168,7 +171,7 @@ export default function HoursReviewPage() {
                     <svg width="12" height="12" viewBox="0 0 16 16" fill="none" aria-hidden="true">
                       <path d="M11.333 2.667L13.333 4.667L5.333 12.667H3.333V10.667L11.333 2.667Z" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/>
                     </svg>
-                    Edit
+                    {t('common.edit')}
                   </Link>
                   <button
                     type="button"
@@ -179,7 +182,7 @@ export default function HoursReviewPage() {
                     <svg width="12" height="12" viewBox="0 0 16 16" fill="none" aria-hidden="true">
                       <path d="M3 8.5L6.5 12L13 5" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
                     </svg>
-                    Approve
+                    {t('common.approve')}
                   </button>
                   <button
                     type="button"
@@ -190,7 +193,7 @@ export default function HoursReviewPage() {
                     <svg width="12" height="12" viewBox="0 0 16 16" fill="none" aria-hidden="true">
                       <path d="M4 4L12 12M12 4L4 12" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round"/>
                     </svg>
-                    Reject
+                    {t('common.reject')}
                   </button>
                 </div>
               </div>
@@ -198,18 +201,18 @@ export default function HoursReviewPage() {
               {/* Hours grid */}
               <div className="grid grid-cols-2 gap-px bg-border sm:grid-cols-4">
                 {[
-                  { label: 'Contract hours', value: row.contractHours },
-                  { label: 'Client timesheet', value: row.actualHours },
+                  { label: t('staffDeployments.hoursReview.columns.contractHours'), value: row.contractHours },
+                  { label: t('staffDeployments.hoursReview.columns.clientTimesheet'), value: row.actualHours },
                   ...(row.workerType === 'SupplierEmployee'
-                    ? [{ label: 'Supplier timesheet', value: row.supplierHours ?? '—' }]
+                    ? [{ label: t('staffDeployments.hoursReview.columns.supplierTimesheet'), value: row.supplierHours ?? '—' }]
                     : []),
-                  { label: 'OT hours', value: row.otHours },
-                  ...(row.otAmount != null ? [{ label: 'OT amount', value: formatMoney(row.otAmount) }] : []),
-                  ...(row.deductionAmount > 0 ? [{ label: 'Deduction', value: formatMoney(row.deductionAmount), valueClass: 'text-danger' }] : []),
-                  ...(row.revenue != null ? [{ label: 'Invoice amount', value: formatMoney(row.revenue) }] : []),
-                  ...(row.profit != null ? [{ 
-                      label: 'Net profit', 
-                      value: formatMoney(row.profit), 
+                  { label: t('staffDeployments.hoursReview.columns.otHours'), value: row.otHours },
+                  ...(row.otAmount != null ? [{ label: t('staffDeployments.hoursReview.columns.otAmount'), value: formatMoney(row.otAmount) }] : []),
+                  ...(row.deductionAmount > 0 ? [{ label: t('staffDeployments.hoursReview.columns.deduction'), value: formatMoney(row.deductionAmount), valueClass: 'text-danger' }] : []),
+                  ...(row.revenue != null ? [{ label: t('staffDeployments.hoursReview.columns.invoiceAmount'), value: formatMoney(row.revenue) }] : []),
+                  ...(row.profit != null ? [{
+                      label: t('staffDeployments.hoursReview.columns.netProfit'),
+                      value: formatMoney(row.profit),
                       valueClass: row.profit < 0 ? 'text-danger' : 'text-success',
                       onClick: () => setBreakdownRow(row)
                   }] : []),
@@ -248,7 +251,7 @@ export default function HoursReviewPage() {
         onClose={closeModal}
         title={
           decidingRow
-            ? `${decidingRow.action === 'Approved' ? 'Approve' : 'Reject'} ${decidingRow.month}?`
+            ? t(decidingRow.action === 'Approved' ? 'staffDeployments.hoursReview.approveModalTitle' : 'staffDeployments.hoursReview.rejectModalTitle', { month: decidingRow.month })
             : ''
         }
       >
@@ -261,39 +264,39 @@ export default function HoursReviewPage() {
                 <span className="font-normal text-muted"> · {decidingRow.clientName}</span>
                 {decidingRow.site && <span className="font-normal text-muted"> · {decidingRow.site}</span>}
               </p>
-              <p className="mt-0.5 text-xs text-muted">Timesheet period: {decidingRow.month}</p>
+              <p className="mt-0.5 text-xs text-muted">{t('staffDeployments.hoursReview.timesheetPeriod', { month: decidingRow.month })}</p>
             </div>
 
             {/* Hours summary grid */}
             <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
-              <StatTile label="Contract hours" value={decidingRow.contractHours} />
-              <StatTile label="Client timesheet" value={decidingRow.actualHours} />
+              <StatTile label={t('staffDeployments.hoursReview.columns.contractHours')} value={decidingRow.contractHours} />
+              <StatTile label={t('staffDeployments.hoursReview.columns.clientTimesheet')} value={decidingRow.actualHours} />
               {decidingRow.workerType === 'SupplierEmployee' && (
-                <StatTile label="Supplier timesheet" value={decidingRow.supplierHours ?? '—'} />
+                <StatTile label={t('staffDeployments.hoursReview.columns.supplierTimesheet')} value={decidingRow.supplierHours ?? '—'} />
               )}
-              <StatTile label="OT hours" value={decidingRow.otHours} />
+              <StatTile label={t('staffDeployments.hoursReview.columns.otHours')} value={decidingRow.otHours} />
               {decidingRow.otAmount != null && (
-                <StatTile label="OT amount" value={formatMoney(decidingRow.otAmount)} />
+                <StatTile label={t('staffDeployments.hoursReview.columns.otAmount')} value={formatMoney(decidingRow.otAmount)} />
               )}
               {decidingRow.deductionAmount > 0 && (
                 <StatTile
-                  label="Client deduction"
+                  label={t('staffDeployments.hoursReview.clientDeductionLabel')}
                   value={formatMoney(decidingRow.deductionAmount)}
                   valueClass="text-danger"
                 />
               )}
               {decidingRow.revenue != null && (
-                <StatTile label="Invoice amount" value={formatMoney(decidingRow.revenue)} />
+                <StatTile label={t('staffDeployments.hoursReview.columns.invoiceAmount')} value={formatMoney(decidingRow.revenue)} />
               )}
               {decidingRow.profit != null && (
-                <div 
+                <div
                   className="group cursor-pointer rounded-xl outline-none ring-2 ring-transparent transition-all hover:bg-bg/50 hover:ring-primary/20"
                   onClick={() => setBreakdownRow(decidingRow)}
                 >
                   <StatTile
                     label={
                       <span className="flex items-center gap-1.5">
-                        Net profit
+                        {t('staffDeployments.hoursReview.columns.netProfit')}
                         <svg className="h-3.5 w-3.5 text-muted transition-colors group-hover:text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                         </svg>
@@ -308,14 +311,14 @@ export default function HoursReviewPage() {
 
             {/* Note */}
             <Textarea
-              label={decidingRow.action === 'Rejected' ? 'Reason (required)' : 'Note (optional)'}
+              label={decidingRow.action === 'Rejected' ? t('staffDeployments.hoursReview.reasonRequiredLabel') : t('staffDeployments.hoursReview.noteOptionalLabel')}
               value={note}
               onChange={(e) => setNote(e.target.value)}
               rows={3}
               placeholder={
                 decidingRow.action === 'Rejected'
-                  ? 'Explain what needs to be corrected…'
-                  : 'Any notes for the record…'
+                  ? t('staffDeployments.hoursReview.rejectPlaceholder')
+                  : t('staffDeployments.hoursReview.notePlaceholder')
               }
             />
 
@@ -327,7 +330,7 @@ export default function HoursReviewPage() {
                 onClick={closeModal}
                 disabled={decideMutation.isPending}
               >
-                Cancel
+                {t('common.cancel')}
               </Button>
               <Button
                 type="button"
@@ -343,7 +346,7 @@ export default function HoursReviewPage() {
                   })
                 }
               >
-                {decidingRow.action === 'Approved' ? 'Approve' : 'Reject'}
+                {decidingRow.action === 'Approved' ? t('common.approve') : t('common.reject')}
               </Button>
             </div>
           </div>
@@ -354,75 +357,75 @@ export default function HoursReviewPage() {
       <Modal
         open={Boolean(breakdownRow)}
         onClose={() => setBreakdownRow(null)}
-        title={`Profit Breakdown: ${breakdownRow?.month}`}
+        title={t('staffDeployments.hoursReview.breakdownModalTitle', { month: breakdownRow?.month })}
         size="sm"
       >
         {breakdownRow && (
           <div className="space-y-4">
             <div className="space-y-2 text-sm">
               <div className="flex justify-between">
-                <span className="text-muted">Client Invoice Amount</span>
+                <span className="text-muted">{t('staffDeployments.hoursReview.breakdown.clientInvoiceAmount')}</span>
                 <span className="font-medium tabular-nums">{formatMoney(breakdownRow.profitBreakdown?.clientInvoiceAmount)}</span>
               </div>
-              
+
               <div className="my-2 border-b border-border"></div>
-              
+
               {breakdownRow.workerType === 'SupplierEmployee' && breakdownRow.profitBreakdown?.subContractorInvoiceAmount > 0 && (
                 <div className="flex justify-between">
-                  <span className="text-muted">Sub Contractor Invoice Amount</span>
+                  <span className="text-muted">{t('staffDeployments.hoursReview.breakdown.subContractorInvoiceAmount')}</span>
                   <span className="font-medium tabular-nums text-danger">-{formatMoney(breakdownRow.profitBreakdown?.subContractorInvoiceAmount)}</span>
                 </div>
               )}
               {breakdownRow.profitBreakdown?.otCalculations > 0 && (
                 <div className="flex justify-between">
-                  <span className="text-muted">OT Calculations</span>
+                  <span className="text-muted">{t('staffDeployments.hoursReview.breakdown.otCalculations')}</span>
                   <span className="font-medium tabular-nums text-danger">-{formatMoney(breakdownRow.profitBreakdown?.otCalculations)}</span>
                 </div>
               )}
               {breakdownRow.profitBreakdown?.expenseClientCommission > 0 && (
                 <div className="flex justify-between">
-                  <span className="text-muted">Client Commission</span>
+                  <span className="text-muted">{t('staffDeployments.hoursReview.breakdown.clientCommission')}</span>
                   <span className="font-medium tabular-nums text-danger">-{formatMoney(breakdownRow.profitBreakdown?.expenseClientCommission)}</span>
                 </div>
               )}
               {breakdownRow.profitBreakdown?.expenseFta > 0 && (
                 <div className="flex justify-between">
-                  <span className="text-muted">FTA</span>
+                  <span className="text-muted">{t('staffDeployments.hoursReview.breakdown.fta')}</span>
                   <span className="font-medium tabular-nums text-danger">-{formatMoney(breakdownRow.profitBreakdown?.expenseFta)}</span>
                 </div>
               )}
               {breakdownRow.profitBreakdown?.expenseAllowance > 0 && (
                 <div className="flex justify-between">
-                  <span className="text-muted">Allowance</span>
+                  <span className="text-muted">{t('staffDeployments.hoursReview.breakdown.allowance')}</span>
                   <span className="font-medium tabular-nums text-danger">-{formatMoney(breakdownRow.profitBreakdown?.expenseAllowance)}</span>
                 </div>
               )}
               {breakdownRow.profitBreakdown?.expenseDeduction > 0 && (
                 <div className="flex justify-between">
-                  <span className="text-muted">Client Deduction</span>
+                  <span className="text-muted">{t('staffDeployments.hoursReview.breakdown.clientDeduction')}</span>
                   <span className="font-medium tabular-nums text-danger">-{formatMoney(breakdownRow.profitBreakdown?.expenseDeduction)}</span>
                 </div>
               )}
               {breakdownRow.profitBreakdown?.expenseMobilisationCost > 0 && (
                 <div className="flex justify-between">
-                  <span className="text-muted">Mobilisation Cost</span>
+                  <span className="text-muted">{t('staffDeployments.hoursReview.breakdown.mobilisationCost')}</span>
                   <span className="font-medium tabular-nums text-danger">-{formatMoney(breakdownRow.profitBreakdown?.expenseMobilisationCost)}</span>
                 </div>
               )}
-              
+
               <div className="my-2 border-b border-border"></div>
-              
+
               <div className="flex justify-between pt-1">
-                <span className="font-semibold text-text">Net Profit</span>
+                <span className="font-semibold text-text">{t('staffDeployments.hoursReview.breakdown.netProfit')}</span>
                 <span className={`font-semibold tabular-nums ${breakdownRow.profit < 0 ? 'text-danger' : 'text-success'}`}>
                   {formatMoney(breakdownRow.profit)}
                 </span>
               </div>
             </div>
-            
+
             <div className="flex justify-end pt-2">
               <Button type="button" variant="secondary" onClick={() => setBreakdownRow(null)}>
-                Close
+                {t('common.close')}
               </Button>
             </div>
           </div>

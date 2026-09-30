@@ -30,6 +30,22 @@ import { APPROVAL_REQUEST_TYPES, APPROVAL_REQUEST_TYPE_LABELS } from '../../../l
 // indistinguishable from "no decisions yet." Filtered out of THIS page's
 // own dropdown only; the shared constant itself is untouched.
 const LOG_FILTER_TYPES = APPROVAL_REQUEST_TYPES.filter((t) => t !== 'Mobilisation');
+
+// Fixed 2026-09-29, a real audit finding: ApprovalTrailView was rendered
+// with no `pendingStatus`, so it always defaulted to Leave's own literal
+// ('PendingReview') — every Timesheet/SalaryAdvance/Reimbursement/
+// ExitReentry/Certificate row (each with a DIFFERENT real pending literal —
+// see each module's own `pendingStatus` in its service file) silently never
+// got the current-step in-progress highlight this log otherwise shows
+// correctly for Leave.
+const PENDING_STATUS_BY_TYPE = {
+  Leave: 'PendingReview',
+  Timesheet: 'Submitted',
+  SalaryAdvance: 'Pending',
+  Reimbursement: 'Pending',
+  ExitReentry: 'Pending',
+  Certificate: 'Pending',
+};
 import { apiMessage, formatDate } from '../../../lib/utils.js';
 import PageHeader from '../../../components/shared/PageHeader.jsx';
 import ApprovalTrailView from '../../../components/shared/ApprovalTrailView.jsx';
@@ -145,7 +161,7 @@ export default function ApprovalLogPage() {
                   </div>
                   <Badge variant={statusVariant(item.status)}>{statusLabel(item.status)}</Badge>
                 </div>
-                <ApprovalTrailView request={item} />
+                <ApprovalTrailView request={item} pendingStatus={PENDING_STATUS_BY_TYPE[item.requestType]} />
               </div>
             ))}
           </div>

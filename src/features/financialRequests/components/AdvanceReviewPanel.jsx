@@ -16,7 +16,7 @@ import {
   emptyAdvanceForm,
 } from '../financialRequests.schema.js';
 import { useAuth } from '../../auth/AuthContext.jsx';
-import { apiMessage, formatDate, formatMoney } from '../../../lib/utils.js';
+import { apiMessage, formatDate, formatMoney, collectFormErrorMessages } from '../../../lib/utils.js';
 import {
   ADVANCE_STATUSES,
   ADVANCE_STATUS_VARIANT,
@@ -61,10 +61,15 @@ export function SubmitAdvancePanel() {
     onError: (error) => toast.error(apiMessage(error)),
   });
 
+  const onInvalid = (formErrors) => {
+    console.error('[financialRequests] advance form invalid', formErrors);
+    toast.error(collectFormErrorMessages(formErrors).join(' ') || 'Please check the form and try again.');
+  };
+
   return (
     <Card>
       <h2 className="mb-4 text-sm font-semibold uppercase tracking-wide text-muted">Submit your own advance request</h2>
-      <form onSubmit={handleSubmit((values) => submitMutation.mutate(values))} noValidate className="space-y-4">
+      <form onSubmit={handleSubmit((values) => submitMutation.mutate(values), onInvalid)} noValidate className="space-y-4">
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <Input label="Amount *" type="number" step="0.01" min="1" error={errors.amount?.message} {...register('amount')} />
           <Input
@@ -143,6 +148,11 @@ export default function AdvanceReviewPanel() {
     setRepaying(advance);
   }
 
+  const onRepayInvalid = (formErrors) => {
+    console.error('[financialRequests] repayment form invalid', formErrors);
+    toast.error(collectFormErrorMessages(formErrors).join(' ') || 'Please check the form and try again.');
+  };
+
   return (
       <Card>
       <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
@@ -186,7 +196,12 @@ export default function AdvanceReviewPanel() {
                     <span className="font-semibold">{formatMoney(a.outstandingBalance)}</span>
                   </p>
                 )}
-                <ApprovalTrailView request={a} />
+                {/* Fixed 2026-09-29, a real audit finding: without this,
+                    ApprovalTrailView defaulted to Leave's own pending
+                    literal ('PendingReview') instead of SalaryAdvance's real
+                    one ('Pending' — see advance.model.js), so the current
+                    step never got its in-progress highlight. */}
+                <ApprovalTrailView request={a} pendingStatus="Pending" />
               </div>
               <div className="flex shrink-0 flex-col items-end gap-2">
                 <Badge variant={ADVANCE_STATUS_VARIANT[a.status]}>{a.status}</Badge>
@@ -214,7 +229,7 @@ export default function AdvanceReviewPanel() {
       <Modal open={!!repaying} onClose={() => setRepaying(null)} title="Record a repayment">
         {repaying && (
           <form
-            onSubmit={handleSubmit((values) => repayMutation.mutate({ id: repaying._id, values }))}
+            onSubmit={handleSubmit((values) => repayMutation.mutate({ id: repaying._id, values }), onRepayInvalid)}
             noValidate
             className="space-y-4"
           >

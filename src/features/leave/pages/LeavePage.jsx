@@ -29,7 +29,7 @@ import {
   emptySubmitLeaveForm,
 } from '../leave.schema.js';
 import { useAuth } from '../../auth/AuthContext.jsx';
-import { apiMessage, formatDate } from '../../../lib/utils.js';
+import { apiMessage, formatDate, collectFormErrorMessages } from '../../../lib/utils.js';
 import {
   LEAVE_RECURRENCES,
   LEAVE_RECURRENCE_LABELS,
@@ -110,6 +110,11 @@ function LeaveTypesPanel() {
     setEditing(type);
   }
 
+  const onInvalid = (formErrors) => {
+    console.error('[leave] leave type form invalid', formErrors);
+    toast.error(collectFormErrorMessages(formErrors).join(' ') || t('staffLeave.types.form.invalid'));
+  };
+
   return (
     <Card>
       <div className="mb-4 flex items-center justify-between gap-3">
@@ -161,7 +166,7 @@ function LeaveTypesPanel() {
 
       <Modal open={!!editing} onClose={() => setEditing(null)} title={editing?._id ? t('staffLeave.types.modalEditTitle') : t('staffLeave.types.modalNewTitle')}>
         <form
-          onSubmit={handleSubmit((values) => saveMutation.mutate(values))}
+          onSubmit={handleSubmit((values) => saveMutation.mutate(values), onInvalid)}
           noValidate
           className="space-y-4"
         >
@@ -330,10 +335,15 @@ function SubmitLeavePanel() {
     onError: (error) => toast.error(apiMessage(error)),
   });
 
+  const onInvalid = (formErrors) => {
+    console.error('[leave] submit leave form invalid', formErrors);
+    toast.error(collectFormErrorMessages(formErrors).join(' ') || t('staffLeave.submit.formInvalid'));
+  };
+
   return (
     <Card>
       <h2 className="mb-4 text-sm font-semibold uppercase tracking-wide text-muted">{t('staffLeave.submit.title')}</h2>
-      <form onSubmit={handleSubmit((values) => submitMutation.mutate(values))} noValidate className="space-y-4">
+      <form onSubmit={handleSubmit((values) => submitMutation.mutate(values), onInvalid)} noValidate className="space-y-4">
         <PickerLoadWarning failed={[{ label: 'leave types', isError: typesError }]} />
         <Select label={t('staffLeave.submit.chooseType')} error={errors.leaveType?.message} {...register('leaveType')}>
           <option value="">{t('staffLeave.submit.choosePlaceholder')}</option>

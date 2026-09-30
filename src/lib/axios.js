@@ -31,6 +31,20 @@ export function subscribeUnauthorized(callback) {
   return () => unauthorizedSubscribers.delete(callback);
 }
 
+/** AuthContext registers here to receive the fresh `user` object whenever
+ *  the transparent 401-refresh below succeeds (2026-09-29 fix — a real
+ *  audit finding: this used to only update the access token, so an Admin
+ *  granting/revoking a Section Access key or changing a login's role via
+ *  PATCH /employees/:id/user/role mid-session never reached the already-
+ *  logged-in user's in-memory `user.sectionAccess`/`sectionAccessWrite`/
+ *  `role` — they'd see stale nav/button visibility until logout or a hard
+ *  reload, even though every server-side check was already correct). */
+const sessionRefreshedSubscribers = new Set();
+export function subscribeSessionRefreshed(callback) {
+  sessionRefreshedSubscribers.add(callback);
+  return () => sessionRefreshedSubscribers.delete(callback);
+}
+
 export const api = axios.create({
   baseURL: API_URL,
   // Sends/receives the httpOnly refresh cookie. Works only because the
@@ -63,6 +77,7 @@ api.interceptors.response.use(
           .finally(() => (refreshPromise = null));
         const { data } = await refreshPromise;
         setAccessToken(data.data.accessToken);
+        if (data.data.user) sessionRefreshedSubscribers.forEach((cb) => cb(data.data.user));
         return api(config); // replay the original request
       } catch {
         setAccessToken(null);

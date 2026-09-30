@@ -11,9 +11,18 @@ const optionalNum = z
   .or(z.literal(''))
   .transform((v) => (v === '' || v === undefined ? undefined : v));
 
+// Bound mirrors leaveType.model.js/leave.validation.js's own payPercent
+// exactly (2026-09-29, a real audit finding: this used to only check
+// non-empty, so a value like 500 passed here — the `max="100"` on the
+// <input> is trivially bypassed since this form has `noValidate` — and only
+// ever got caught by a raw server-error toast).
 const sickPayTierFormSchema = z.object({
   days: z.string().min(1, 'Required.'),
-  payPercent: z.string().min(1, 'Required.'),
+  payPercent: z
+    .string()
+    .min(1, 'Required.')
+    .refine((v) => !Number.isNaN(Number(v)), 'Required.')
+    .refine((v) => Number(v) >= 0 && Number(v) <= 100, 'Must be between 0 and 100.'),
 });
 
 export const leaveTypeFormSchema = z
@@ -97,11 +106,19 @@ export function leaveTypeToForm(type) {
   };
 }
 
-export const submitLeaveFormSchema = z.object({
-  leaveType: z.string().min(1, 'Choose a leave type.'),
-  startDate: z.string().min(1, 'Start date is required.'),
-  endDate: z.string().min(1, 'End date is required.'),
-  reason: z.string().trim().max(500).optional().or(z.literal('')),
-});
+export const submitLeaveFormSchema = z
+  .object({
+    leaveType: z.string().min(1, 'Choose a leave type.'),
+    startDate: z.string().min(1, 'Start date is required.'),
+    endDate: z.string().min(1, 'End date is required.'),
+    reason: z.string().trim().max(500).optional().or(z.literal('')),
+  })
+  // Fixed 2026-09-29 (a real audit finding): there was no cross-field check
+  // at all — an end date before the start date passed client validation and
+  // only ever failed server-side, with no warning shown before submitting.
+  .refine((data) => !data.startDate || !data.endDate || data.endDate >= data.startDate, {
+    path: ['endDate'],
+    message: 'End date must be on or after the start date.',
+  });
 
 export const emptySubmitLeaveForm = { leaveType: '', startDate: '', endDate: '', reason: '' };

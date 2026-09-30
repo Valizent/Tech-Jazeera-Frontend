@@ -120,18 +120,39 @@ export default function RequirementsBoardPage() {
     mutationFn: ({ id, stage }) => moveRequirement(id, stage),
     onMutate: async ({ id, stage }) => {
       await queryClient.cancelQueries({ queryKey: BOARD_KEY });
-      const previous = queryClient.getQueriesData({ queryKey: BOARD_KEY });
+      // Fixed 2026-09-29, a real audit finding: restoring a FULL snapshot on
+      // error could wipe out a SECOND drag's own already-applied optimistic
+      // move if it landed between this mutation's onMutate and this one's
+      // onError (dragging two different cards in quick succession) — a
+      // real, if transient, "card reverts to the wrong column" flash,
+      // self-healed a moment later by onSettled's own invalidate but
+      // visible in the meantime. Capturing and restoring only THIS card's
+      // own previous stage — never the whole board wholesale — means an
+      // unrelated concurrent drag's optimistic state is never touched by
+      // this mutation's own rollback.
+      let previousStage;
       queryClient.setQueriesData({ queryKey: BOARD_KEY }, (old) => {
         if (!old) return old;
         const moved = old.requirements.find((r) => r._id === id);
         if (!moved) return old;
+        previousStage = moved.stage;
         // Appended at the end, where the server's own sort (longest-waiting first) will put it.
         return { ...old, requirements: [...old.requirements.filter((r) => r._id !== id), { ...moved, stage, daysInStage: 0, stale: false }] };
       });
-      return { previous };
+      return { id, previousStage };
     },
     onError: (error, _vars, context) => {
-      context?.previous.forEach(([key, snapshot]) => queryClient.setQueryData(key, snapshot));
+      if (context?.previousStage != null) {
+        queryClient.setQueriesData({ queryKey: BOARD_KEY }, (old) => {
+          if (!old) return old;
+          const moved = old.requirements.find((r) => r._id === context.id);
+          if (!moved) return old;
+          return {
+            ...old,
+            requirements: old.requirements.map((r) => (r._id === context.id ? { ...moved, stage: context.previousStage } : r)),
+          };
+        });
+      }
       console.error('[requirements] moving a requirement failed', error);
       toast.error(apiMessage(error));
     },

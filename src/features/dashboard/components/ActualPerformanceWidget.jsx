@@ -64,15 +64,20 @@ function Tile({ label, value, deltaPct, deltaLabel, colored }) {
 }
 
 function PerformanceChart({ expenses, amountReceived }) {
+  // Fixed 2026-09-29, a real audit finding: these two labels were hardcoded
+  // English, unlike every other label in this same widget — reuses the
+  // exact same keys the Tile components above already use for the same two
+  // concepts, rather than inventing new ones.
+  const { t } = useTranslation();
   const max = Math.max(expenses, amountReceived, 1);
   const expPct = Math.max(0, Math.min(100, (expenses / max) * 100));
   const recPct = Math.max(0, Math.min(100, (amountReceived / max) * 100));
-  
+
   return (
     <div className="flex w-full flex-col justify-center space-y-4 px-2">
       <div className="space-y-1.5">
         <div className="flex justify-between text-xs font-semibold uppercase tracking-wide text-muted">
-          <span>Received</span>
+          <span>{t('staffDashboard.widgets.actualPerformance.amountReceived')}</span>
           <span>{recPct.toFixed(0)}%</span>
         </div>
         <div className="h-4 w-full overflow-hidden rounded-full bg-bg/50 border border-border/40 shadow-inner">
@@ -82,7 +87,7 @@ function PerformanceChart({ expenses, amountReceived }) {
 
       <div className="space-y-1.5">
         <div className="flex justify-between text-xs font-semibold uppercase tracking-wide text-muted">
-          <span>Expenses</span>
+          <span>{t('staffDashboard.widgets.actualPerformance.expenses')}</span>
           <span>{expPct.toFixed(0)}%</span>
         </div>
         <div className="h-4 w-full overflow-hidden rounded-full bg-bg/50 border border-border/40 shadow-inner">

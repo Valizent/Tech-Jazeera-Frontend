@@ -12,7 +12,7 @@ import { useTranslation } from 'react-i18next';
 import { listMyLeave, submitMyLeave, cancelMyLeave, downloadMyLeaveAttachment } from '../ess.api.js';
 import { listLeaveTypes } from '../../leave/leave.api.js';
 import { submitLeaveFormSchema, emptySubmitLeaveForm } from '../../leave/leave.schema.js';
-import { apiMessage, formatDate } from '../../../lib/utils.js';
+import { apiMessage, formatDate, collectFormErrorMessages } from '../../../lib/utils.js';
 import { LEAVE_STATUS_VARIANT, RECEIPT_ACCEPT, RECEIPT_MAX_MB } from '../../../lib/constants.js';
 import { useToast } from '../../../components/ui/Toast.jsx';
 import UpcomingHolidays from '../../holidays/components/UpcomingHolidays.jsx';
@@ -88,6 +88,11 @@ export default function MyLeavePage() {
     onError: (error) => toast.error(apiMessage(error)),
   });
 
+  const onInvalid = (formErrors) => {
+    console.error('[ess] leave form invalid', formErrors);
+    toast.error(collectFormErrorMessages(formErrors).join(' ') || t('leave.formInvalid'));
+  };
+
   async function handleDownload(req) {
     setDownloadingId(req._id);
     try {
@@ -121,7 +126,7 @@ export default function MyLeavePage() {
       <Card>
         <h2 className="mb-4 text-sm font-semibold uppercase tracking-wide text-muted">{t('leave.requestLeave')}</h2>
         <form
-          onSubmit={handleSubmit((values) => submitMutation.mutate(values))}
+          onSubmit={handleSubmit((values) => submitMutation.mutate(values), onInvalid)}
           noValidate
           className="space-y-4"
         >

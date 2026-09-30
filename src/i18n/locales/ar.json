@@ -160,6 +160,7 @@
   },
   "profile": {
     "title": "ملفي الشخصي",
+    "formInvalid": "يرجى مراجعة النموذج والمحاولة مرة أخرى.",
     "loadError": "تعذر تحميل ملفك الشخصي",
     "edit": "تعديل",
     "save": "حفظ التغييرات",
@@ -251,6 +252,7 @@
   },
   "leave": {
     "title": "إجازتي",
+    "formInvalid": "يرجى مراجعة النموذج والمحاولة مرة أخرى.",
     "description": "اطلب إجازة وتابع حالتها.",
     "upcomingHolidays": "الإجازات القادمة",
     "requestLeave": "طلب إجازة",
@@ -286,6 +288,7 @@
     "description": "السلف على الراتب ومطالبات استرداد المصروفات.",
     "advances": {
       "sectionTitle": "طلب سلفة على الراتب",
+      "formInvalid": "يرجى مراجعة النموذج والمحاولة مرة أخرى.",
       "amount": "المبلغ (ريال سعودي) *",
       "repaymentMonths": "السداد على مدى (أشهر) *",
       "reason": "السبب",
@@ -306,6 +309,7 @@
     },
     "reimbursements": {
       "sectionTitle": "المطالبة بمصروف",
+      "formInvalid": "يرجى مراجعة النموذج والمحاولة مرة أخرى.",
       "category": "الفئة *",
       "chooseCategory": "اختر فئة…",
       "amount": "المبلغ (ريال سعودي) *",
@@ -346,6 +350,7 @@
     "description": "تأشيرات الخروج والعودة، الشهادات الرسمية، والأصول المخصصة لك.",
     "exitReentry": {
       "sectionTitle": "طلب تأشيرة خروج وعودة",
+      "formInvalid": "يرجى مراجعة النموذج والمحاولة مرة أخرى.",
       "visaType": "نوع التأشيرة *",
       "choose": "اختر…",
       "departureDate": "تاريخ المغادرة *",
@@ -371,6 +376,7 @@
     },
     "certificates": {
       "sectionTitle": "طلب شهادة",
+      "formInvalid": "يرجى مراجعة النموذج والمحاولة مرة أخرى.",
       "type": "نوع الشهادة *",
       "choose": "اختر…",
       "purpose": "الغرض",
@@ -687,6 +693,7 @@
       "deleteMessage": "سيتم حذف {{name}} ({{code}}) نهائيًا، مع حساب الدخول (إن وجد) وسجل الحضور. للموظفين الذين تركوا الشركة، استخدم تغيير الحالة إلى \"خارج الخدمة\" بدلاً من الحذف."
     },
     "form": {
+      "invalid": "يرجى مراجعة النموذج والمحاولة مرة أخرى.",
       "sections": {
         "employeeType": "نوع الموظف",
         "personalDetails": "البيانات الشخصية",
@@ -998,6 +1005,7 @@
       "modalEditTitle": "تعديل نوع الإجازة",
       "modalNewTitle": "نوع إجازة جديد",
       "form": {
+        "invalid": "يرجى مراجعة النموذج والمحاولة مرة أخرى.",
         "name": "الاسم *",
         "recurrenceLabel": "طريقة اكتسابها *",
         "daysPerYear": "الأيام في السنة *",
@@ -1023,6 +1031,7 @@
       "createdSuccess": "تم إنشاء نوع الإجازة."
     },
     "submit": {
+      "formInvalid": "يرجى مراجعة النموذج والمحاولة مرة أخرى.",
       "title": "تقديم طلبك الخاص",
       "chooseType": "نوع الإجازة",
       "choosePlaceholder": "اختر نوع إجازة…",
@@ -1318,6 +1327,7 @@
       "deleteConfirmMessage": "سيتم حذف {{name}} نهائيًا. اجعل الحالة \"غير نشط\" بدلاً من ذلك إذا أردت أرشفته فقط."
     },
     "form": {
+      "invalid": "يرجى مراجعة النموذج والمحاولة مرة أخرى.",
       "rejectedTitle": "تم رفض هذا الطلب.",
       "resubmitHint": "حفظ التغييرات يعيد تقديمه للموافقة.",
       "pendingBadge": "بانتظار الموافقة",
@@ -1554,6 +1564,68 @@
       "couldNotLoad": "تعذر تحميل قائمة الفوترة",
       "emptyTitle": "لا شيء للفوترة",
       "emptyDescription": "تمت فوترة كل شهر مُعتمد بالفعل."
+    },
+    "hoursReview": {
+      "accessRestrictedTitle": "الوصول مقيّد",
+      "accessRestrictedDescription": "تحتاج إلى صلاحية اعتماد الساعات للوصول إلى هذه الصفحة.",
+      "pageTitle": "قائمة اعتماد الساعات",
+      "pageDescription": "إدخالات الساعات الشهرية بانتظار مراجعتك.",
+      "pendingBadge": "{{count}} بالانتظار",
+      "loadFailedTitle": "تعذر تحميل القائمة",
+      "allCaughtUpTitle": "لا يوجد ما ينتظر!",
+      "allCaughtUpDescription": "لا توجد إدخالات ساعات بانتظار موافقتك حاليًا.",
+      "columns": {
+        "contractHours": "ساعات العقد",
+        "clientTimesheet": "جدول ساعات العميل",
+        "supplierTimesheet": "جدول ساعات المورّد",
+        "otHours": "ساعات إضافية",
+        "otAmount": "مبلغ الساعات الإضافية",
+        "deduction": "خصم",
+        "invoiceAmount": "مبلغ الفاتورة",
+        "netProfit": "صافي الربح"
+      },
+      "approveModalTitle": "الموافقة على {{month}}؟",
+      "rejectModalTitle": "رفض {{month}}؟",
+      "timesheetPeriod": "فترة الجدول الزمني: {{month}}",
+      "clientDeductionLabel": "خصم العميل",
+      "reasonRequiredLabel": "السبب (مطلوب)",
+      "noteOptionalLabel": "ملاحظة (اختياري)",
+      "rejectPlaceholder": "اشرح ما يحتاج إلى تصحيح…",
+      "notePlaceholder": "أي ملاحظات للسجل…",
+      "approvedToast": "تمت الموافقة على الساعات.",
+      "rejectedToast": "تم رفض الساعات.",
+      "breakdownModalTitle": "تفصيل الربح: {{month}}",
+      "breakdown": {
+        "clientInvoiceAmount": "مبلغ فاتورة العميل",
+        "subContractorInvoiceAmount": "مبلغ فاتورة المقاول من الباطن",
+        "otCalculations": "حساب الساعات الإضافية",
+        "clientCommission": "عمولة العميل",
+        "fta": "بدل الطعام والسفر",
+        "allowance": "البدل",
+        "clientDeduction": "خصم العميل",
+        "mobilisationCost": "تكلفة التعبئة",
+        "netProfit": "صافي الربح"
+      }
+    },
+    "paymentsReview": {
+      "accessRestrictedTitle": "الوصول مقيّد",
+      "accessRestrictedDescription": "تحتاج إلى صلاحية اعتماد الدفعات للوصول إلى هذه الصفحة.",
+      "pageTitle": "قائمة اعتماد الدفعات",
+      "pageDescription": "دفعات العملاء المسجَّلة بانتظار مراجعتك.",
+      "pendingBadge": "{{count}} بالانتظار",
+      "loadFailedTitle": "تعذر تحميل القائمة",
+      "allCaughtUpTitle": "لا يوجد ما ينتظر!",
+      "allCaughtUpDescription": "لا توجد دفعات بانتظار موافقتك حاليًا.",
+      "unknownClient": "عميل غير معروف",
+      "recordedBy": "سجّلها {{name}}",
+      "approveModalTitle": "الموافقة على الدفعة",
+      "rejectModalTitle": "رفض الدفعة",
+      "confirmReject": "هل أنت متأكد من رفض هذه الدفعة؟",
+      "reasonRequiredLabel": "سبب الرفض (مطلوب)",
+      "noteOptionalLabel": "ملاحظة (اختياري)",
+      "notePlaceholder": "مثال: يحتاج إلى تصحيح...",
+      "approvedToast": "تمت الموافقة على الدفعة.",
+      "rejectedToast": "تم رفض الدفعة."
     },
     "detail": {
       "notFoundTitle": "عملية النشر غير موجودة",

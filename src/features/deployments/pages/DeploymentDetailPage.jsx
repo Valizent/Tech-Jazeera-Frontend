@@ -764,6 +764,14 @@ export default function DeploymentDetailPage() {
           <div className="border-t border-border pt-4">
             <h3 className="mb-3 text-xs font-semibold uppercase tracking-wide text-muted">{t('staffDeployments.detail.addMonthLabel')}</h3>
             <MonthlyHoursForm
+              // Fixed 2026-09-29 (a real audit finding): react-hook-form only
+              // reads `defaultValues` at mount, so without a `key` tied to the
+              // computed next-eligible-month, a successful add left this form
+              // showing the just-submitted month/values instead of advancing
+              // — the user had to manually overwrite the month field to enter
+              // the next one. Keying on the month forces a fresh mount (fresh
+              // form state) whenever `addDefaultValues` recomputes post-add.
+              key={addDefaultValues.month}
               deployment={deployment}
               defaultValues={addDefaultValues}
               submitting={addMutation.isPending}

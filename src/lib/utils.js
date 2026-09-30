@@ -27,6 +27,28 @@ export function apiMessage(error, fallback = 'Something went wrong. Please try a
   return data.message ?? fallback;
 }
 
+/**
+ * Flatten a react-hook-form `formState.errors` object into its `.message`
+ * strings, recursing into `useFieldArray` entries (an array-field error nests
+ * a level deeper than a form's own flat fields ever do, e.g.
+ * `errors.sites[2].address`) and plain nested-object fields alike. Used by
+ * every form's `onInvalid` handler to build one toast out of whatever
+ * actually failed, instead of a generic "check the form" message.
+ */
+export function collectFormErrorMessages(errors) {
+  const messages = [];
+  const walk = (node) => {
+    if (!node || typeof node !== 'object') return;
+    if (typeof node.message === 'string' && node.message) messages.push(node.message);
+    for (const key of Object.keys(node)) {
+      if (key === 'message' || key === 'type' || key === 'ref') continue;
+      walk(node[key]);
+    }
+  };
+  walk(errors);
+  return messages;
+}
+
 /** Display format: "23 Jul 2026". Em-dash for missing values. */
 export function formatDate(value) {
   if (!value) return '—';

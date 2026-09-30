@@ -197,8 +197,6 @@ export default function DashboardPage() {
         </Link>
       )}
 
-      {/* StatCards removed as requested */}
-
       <MyPendingActions items={myPendingActions} />
 
       {/* Full-width, swapped with HrComplianceWidget 2026-09-24 (the user's own ask) —

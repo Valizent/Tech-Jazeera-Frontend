@@ -15,6 +15,7 @@ import { useToast } from '../../../components/ui/Toast.jsx';
 import Card from '../../../components/ui/Card.jsx';
 import Button from '../../../components/ui/Button.jsx';
 import Skeleton from '../../../components/ui/Skeleton.jsx';
+import ConfirmDialog from '../../../components/shared/ConfirmDialog.jsx';
 
 const MAX_MB = 2;
 const ACCEPT = 'image/png,image/jpeg,image/webp';
@@ -50,10 +51,12 @@ export default function CompanyLogoCard({ canWrite }) {
     },
   });
 
+  const [confirmingRemove, setConfirmingRemove] = useState(false);
   const removeMutation = useMutation({
     mutationFn: removeCompanyLogo,
     onSuccess: () => {
       toast.success('Logo removed.');
+      setConfirmingRemove(false);
       invalidate();
     },
     onError: (error) => toast.error(apiMessage(error)),
@@ -116,8 +119,7 @@ export default function CompanyLogoCard({ canWrite }) {
                   <Button
                     type="button"
                     variant="danger-ghost"
-                    isLoading={removeMutation.isPending}
-                    onClick={() => removeMutation.mutate()}
+                    onClick={() => setConfirmingRemove(true)}
                   >
                     Remove
                   </Button>
@@ -132,6 +134,19 @@ export default function CompanyLogoCard({ canWrite }) {
           {formError}
         </p>
       )}
+
+      {/* Fixed 2026-09-29, a real audit finding: this used to fire on click
+          with no confirmation, unlike every other destructive action in the
+          app — removing the logo affects every future generated PDF/export
+          letterhead immediately. */}
+      <ConfirmDialog
+        open={confirmingRemove}
+        title="Remove company logo?"
+        message="Every future invoice, quotation, settlement, certificate, payslip, and exported timesheet will render without a logo band until a new one is uploaded."
+        loading={removeMutation.isPending}
+        onConfirm={() => removeMutation.mutate()}
+        onCancel={() => setConfirmingRemove(false)}
+      />
     </Card>
   );
 }

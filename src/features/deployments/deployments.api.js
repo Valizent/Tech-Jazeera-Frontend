@@ -99,6 +99,11 @@ export async function getPaymentsDue() {
   return data.data;
 }
 
+export async function getPaidInvoices() {
+  const { data } = await api.get('/deployments/paid-invoices');
+  return data.data;
+}
+
 /** One client's full billing picture — every invoice (paid or not) plus
  *  their real payment history — for the Payments Due page's drill-down. */
 export async function getClientPaymentDetail(clientId) {

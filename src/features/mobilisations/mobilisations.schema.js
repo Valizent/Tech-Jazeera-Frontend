@@ -6,8 +6,38 @@
  */
 import { z } from 'zod';
 
-const optionalNumberString = z.string().optional().or(z.literal(''));
 const optionalStr = (max) => z.string().trim().max(max).optional().or(z.literal(''));
+
+// Bounds mirror mobilisation.validation.js's own optionalNonNegNumber/
+// optionalNonNegMoney/requiredNonNegNumber exactly (2026-09-29, a real audit
+// finding: these rate/commission/FTA/allowance fields had no bound at all
+// client-side, so a negative or absurdly large value passed here and only
+// ever got caught by a raw server-error toast). Rates/commissions/FTA/
+// allowance are per-hour or per-unit figures — a much smaller ceiling than
+// a money-total field is the honest bound; mobilisationCost is a one-time
+// lump sum, same higher ceiling deployment.schema.js's own deductionAmount
+// uses.
+const optionalRateNumberString = z
+  .string()
+  .optional()
+  .or(z.literal(''))
+  .refine((v) => !v || !Number.isNaN(Number(v)), 'Enter a valid number.')
+  .refine((v) => !v || Number(v) >= 0, 'Cannot be negative.')
+  .refine((v) => !v || Number(v) <= 100_000, 'That looks too high — check the figure.');
+const optionalMoneyNumberString = z
+  .string()
+  .optional()
+  .or(z.literal(''))
+  .refine((v) => !v || !Number.isNaN(Number(v)), 'Enter a valid number.')
+  .refine((v) => !v || Number(v) >= 0, 'Cannot be negative.')
+  .refine((v) => !v || Number(v) <= 1_000_000, 'That looks too high — check the figure.');
+const requiredRateNumberString = (message) =>
+  z
+    .string()
+    .min(1, message)
+    .refine((v) => !Number.isNaN(Number(v)), message)
+    .refine((v) => Number(v) >= 0, 'Cannot be negative.')
+    .refine((v) => Number(v) <= 100_000, 'That looks too high — check the figure.');
 
 // Saudi Iqama numbers are exactly 10 digits. Mirrors the server's own regex
 // in mobilisation.validation.js — only meaningful for a SupplierEmployee/
@@ -69,31 +99,31 @@ const mobilisationFields = {
   // the coordinator/whoever creates this mobilisation up front, instead of
   // waiting on the current-step reviewer's later Section 2 pass (see
   // commercialDetailsFormSchema below, which no longer has them).
-  requiredTimesheetHours: optionalNumberString,
+  requiredTimesheetHours: optionalRateNumberString,
   // otClientRate = billed to the client per OT hour; otEmployeeRate = paid
   // out per OT hour to whoever actually worked it, no matter their worker
   // type (2026-09-14 correction — see mobilisation.model.js).
-  otClientRate: optionalNumberString,
-  otEmployeeRate: optionalNumberString,
+  otClientRate: optionalRateNumberString,
+  otEmployeeRate: optionalRateNumberString,
 
   client: z.string().min(1, 'Select a client.'),
   site: optionalStr(150),
   // Required (2026-09-13, the user's own ask) — every mobilisation needs a
   // real client rate from the start.
-  clientRate: z.string().min(1, 'Client rate is required.'),
-  clientCommission: optionalNumberString,
-  fta: optionalNumberString,
+  clientRate: requiredRateNumberString('Client rate is required.'),
+  clientCommission: optionalRateNumberString,
+  fta: optionalRateNumberString,
   ftaType: z.string().optional().or(z.literal('')),
-  allowance: optionalNumberString,
+  allowance: optionalRateNumberString,
   allowanceRemark: optionalStr(200),
   // One-time cost of mobilising this worker (2026-09-19, the user's own
   // ask) — mirrors mobilisation.model.js's own field.
-  mobilisationCost: optionalNumberString,
+  mobilisationCost: optionalMoneyNumberString,
 
   // Subcontractor block only applies to SupplierEmployee — see superRefine.
   subcontractor: z.string().optional().or(z.literal('')),
-  subcontractorRate: optionalNumberString,
-  subcontractorCommission: optionalNumberString,
+  subcontractorRate: optionalRateNumberString,
+  subcontractorCommission: optionalRateNumberString,
   // No otSubcontractorRate/otSubcontractorCommission here (removed
   // 2026-09-14) — see otEmployeeRate above.
 

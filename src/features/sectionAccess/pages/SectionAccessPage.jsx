@@ -38,7 +38,7 @@
  */
 import { useEffect, useMemo, useState } from 'react';
 import { Navigate, useNavigate } from 'react-router-dom';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { listSectionAccess, updateSectionAccess } from '../sectionAccess.api.js';
 import { listApprovalRoles } from '../../approvals/approvals.api.js';
 import { MODULE_GROUPS } from '../sectionAccessModules.js';
@@ -195,17 +195,37 @@ export default function SectionAccessPage() {
     });
   }, [sections]);
 
-  const [savingKey, setSavingKey] = useState(null); // single-card save in flight
-  const saveMutation = useMutation({
-    mutationFn: (sectionKey) => updateSectionAccess(sectionKey, localValues[sectionKey]),
-    onSuccess: (_data, sectionKey) => {
+  // Fixed 2026-09-29, a real audit finding: a single shared `savingKey`
+  // string (plus one shared `useMutation`) meant clicking Save on card A
+  // then card B before A resolved cleared A's own "in flight" flag (only
+  // the LATEST key was ever tracked) — A's button re-enabled mid-save and a
+  // third click re-fired the same PATCH concurrently; separately, nothing
+  // stopped clicking a card's own Save immediately followed by "Save all
+  // changes" (which still counted that card as dirty), sending two
+  // concurrent PATCHes for the same section. A `Set` of keys currently
+  // saving — shared between the per-card save and the batch save below —
+  // fixes both: each card's button disables independently, and either path
+  // skips a key the other is already saving.
+  const [savingKeys, setSavingKeys] = useState(() => new Set());
+
+  async function saveSection(sectionKey) {
+    if (savingKeys.has(sectionKey)) return;
+    setSavingKeys((prev) => new Set(prev).add(sectionKey));
+    try {
+      await updateSectionAccess(sectionKey, localValues[sectionKey]);
       const label = sections.find((s) => s.sectionKey === sectionKey)?.label ?? sectionKey;
       toast.success(`${label} access saved.`);
       queryClient.invalidateQueries({ queryKey: ['section-access'] });
-    },
-    onError: (error) => toast.error(apiMessage(error)),
-    onSettled: () => setSavingKey(null),
-  });
+    } catch (error) {
+      toast.error(apiMessage(error));
+    } finally {
+      setSavingKeys((prev) => {
+        const next = new Set(prev);
+        next.delete(sectionKey);
+        return next;
+      });
+    }
+  }
 
   const [savingAll, setSavingAll] = useState(false);
   const dirtySections = useMemo(
@@ -214,16 +234,37 @@ export default function SectionAccessPage() {
   );
 
   async function saveAll() {
+    // Skip anything already mid-save via the per-card button — same
+    // mutual-exclusion `savingKeys` gives saveSection above.
+    const keys = dirtySections.map((s) => s.sectionKey).filter((key) => !savingKeys.has(key));
+    if (keys.length === 0) return;
     setSavingAll(true);
-    const results = await Promise.allSettled(
-      dirtySections.map((s) => updateSectionAccess(s.sectionKey, localValues[s.sectionKey]))
-    );
+    setSavingKeys((prev) => {
+      const next = new Set(prev);
+      keys.forEach((key) => next.add(key));
+      return next;
+    });
+    const results = await Promise.allSettled(keys.map((key) => updateSectionAccess(key, localValues[key])));
     setSavingAll(false);
-    const failed = results.filter((r) => r.status === 'rejected');
-    if (failed.length === 0) {
+    setSavingKeys((prev) => {
+      const next = new Set(prev);
+      keys.forEach((key) => next.delete(key));
+      return next;
+    });
+    // Fixed 2026-09-29, a real audit finding: a failed batch used to report
+    // only the FIRST rejected section's error message, with no way to tell
+    // which section(s) failed short of checking every card's own "Unsaved"
+    // badge by hand — now names every failed section by label.
+    const failures = results
+      .map((r, i) => (r.status === 'rejected' ? { key: keys[i], reason: r.reason } : null))
+      .filter(Boolean);
+    if (failures.length === 0) {
       toast.success(`${results.length} section${results.length === 1 ? '' : 's'} saved.`);
     } else {
-      toast.error(`${results.length - failed.length} saved, ${failed.length} failed — ${apiMessage(failed[0].reason)}`);
+      const names = failures.map((f) => sections.find((s) => s.sectionKey === f.key)?.label ?? f.key).join(', ');
+      toast.error(
+        `${results.length - failures.length} saved, ${failures.length} failed (${names}) — ${apiMessage(failures[0].reason)}`
+      );
     }
     queryClient.invalidateQueries({ queryKey: ['section-access'] });
   }
@@ -363,11 +404,8 @@ export default function SectionAccessPage() {
                 dirty={isDirty(section, local)}
                 onToggleRead={toggleIn(key, 'readApprovalRoles')}
                 onToggleWrite={toggleIn(key, 'writeApprovalRoles')}
-                onSave={() => {
-                  setSavingKey(key);
-                  saveMutation.mutate(key);
-                }}
-                saving={savingKey === key && saveMutation.isPending}
+                onSave={() => saveSection(key)}
+                saving={savingKeys.has(key)}
                 approvalRoles={approvalRoles}
                 approvalRolesLoading={approvalRolesLoading}
                 approvalRolesError={approvalRolesError}

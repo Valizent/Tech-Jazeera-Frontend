@@ -430,6 +430,11 @@ export default function ManageTargetsModal({ open, onClose, coordinators = [] })
           open={Boolean(drillDownCoordinator)}
           onClose={() => setDrillDownCoordinator(null)}
           coordinator={drillDownCoordinator}
+          // Fixed 2026-09-29, a real audit finding: without this, the modal
+          // silently defaulted to the CURRENT month regardless of which
+          // month the viewer had selected via the picker above — see this
+          // modal's own doc comment on why it needs the exact clicked month.
+          month={month}
         />
       )}
 

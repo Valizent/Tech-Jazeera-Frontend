@@ -26,7 +26,7 @@ import {
   certificateFormSchema,
   emptyCertificateForm,
 } from '../../exitDocuments/exitDocuments.schema.js';
-import { apiMessage, formatDate } from '../../../lib/utils.js';
+import { apiMessage, formatDate, collectFormErrorMessages } from '../../../lib/utils.js';
 import {
   VISA_TYPES,
   EXIT_REENTRY_STATUS_VARIANT,
@@ -87,11 +87,16 @@ function MyExitReentrySection() {
     },
   });
 
+  const onInvalid = (formErrors) => {
+    console.error('[ess] exit re-entry form invalid', formErrors);
+    toast.error(collectFormErrorMessages(formErrors).join(' ') || t('exitDocuments.exitReentry.formInvalid'));
+  };
+
   return (
     <>
       <Card>
         <h2 className="mb-4 text-sm font-semibold uppercase tracking-wide text-muted">{t('exitDocuments.exitReentry.sectionTitle')}</h2>
-        <form onSubmit={handleSubmit((values) => submitMutation.mutate(values))} noValidate className="space-y-4">
+        <form onSubmit={handleSubmit((values) => submitMutation.mutate(values), onInvalid)} noValidate className="space-y-4">
           <Select label={t('exitDocuments.exitReentry.visaType')} error={errors.visaType?.message} {...register('visaType')}>
             <option value="">{t('exitDocuments.exitReentry.choose')}</option>
             {VISA_TYPES.map((v) => (
@@ -212,11 +217,16 @@ function MyCertificatesSection() {
     }
   }
 
+  const onInvalid = (formErrors) => {
+    console.error('[ess] certificate form invalid', formErrors);
+    toast.error(collectFormErrorMessages(formErrors).join(' ') || t('exitDocuments.certificates.formInvalid'));
+  };
+
   return (
     <>
       <Card>
         <h2 className="mb-4 text-sm font-semibold uppercase tracking-wide text-muted">{t('exitDocuments.certificates.sectionTitle')}</h2>
-        <form onSubmit={handleSubmit((values) => submitMutation.mutate(values))} noValidate className="space-y-4">
+        <form onSubmit={handleSubmit((values) => submitMutation.mutate(values), onInvalid)} noValidate className="space-y-4">
           <Select label={t('exitDocuments.certificates.type')} error={errors.type?.message} {...register('type')}>
             <option value="">{t('exitDocuments.certificates.choose')}</option>
             {CERTIFICATE_TYPES.map((ty) => (

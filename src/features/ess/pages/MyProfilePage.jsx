@@ -15,7 +15,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { getMyProfile, updateMyProfile } from '../ess.api.js';
 import { updateMyProfileFormSchema, profileToForm } from '../profile.schema.js';
-import { formatDate, formatMoney, apiMessage } from '../../../lib/utils.js';
+import { formatDate, formatMoney, apiMessage, collectFormErrorMessages } from '../../../lib/utils.js';
 import { useToast } from '../../../components/ui/Toast.jsx';
 import PageHeader from '../../../components/shared/PageHeader.jsx';
 import Card from '../../../components/ui/Card.jsx';
@@ -78,6 +78,11 @@ export default function MyProfilePage() {
     setIsEditing(false);
   }
 
+  const onInvalid = (formErrors) => {
+    console.error('[ess] profile form invalid', formErrors);
+    toast.error(collectFormErrorMessages(formErrors).join(' ') || t('profile.formInvalid'));
+  };
+
   if (isPending) {
     return (
       <div className="mx-auto max-w-3xl space-y-6">
@@ -102,7 +107,7 @@ export default function MyProfilePage() {
 
   return (
     <form
-      onSubmit={handleSubmit((values) => mutation.mutate(values))}
+      onSubmit={handleSubmit((values) => mutation.mutate(values), onInvalid)}
       noValidate
       className="mx-auto max-w-3xl space-y-6"
     >

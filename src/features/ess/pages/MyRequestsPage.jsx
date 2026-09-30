@@ -23,7 +23,7 @@ import {
   reimbursementFormSchema,
   emptyReimbursementForm,
 } from '../../financialRequests/financialRequests.schema.js';
-import { apiMessage, formatDate, formatMoney } from '../../../lib/utils.js';
+import { apiMessage, formatDate, formatMoney, collectFormErrorMessages } from '../../../lib/utils.js';
 import {
   ADVANCE_STATUS_VARIANT,
   REIMBURSEMENT_CATEGORIES,
@@ -84,11 +84,16 @@ function MyAdvancesSection() {
     },
   });
 
+  const onInvalid = (formErrors) => {
+    console.error('[ess] advance form invalid', formErrors);
+    toast.error(collectFormErrorMessages(formErrors).join(' ') || t('requests.advances.formInvalid'));
+  };
+
   return (
     <>
       <Card>
         <h2 className="mb-4 text-sm font-semibold uppercase tracking-wide text-muted">{t('requests.advances.sectionTitle')}</h2>
-        <form onSubmit={handleSubmit((values) => submitMutation.mutate(values))} noValidate className="space-y-4">
+        <form onSubmit={handleSubmit((values) => submitMutation.mutate(values), onInvalid)} noValidate className="space-y-4">
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <Input label={t('requests.advances.amount')} type="number" step="0.01" min="1" error={errors.amount?.message} {...register('amount')} />
             <Input label={t('requests.advances.repaymentMonths')} type="number" min="1" max="24" error={errors.repaymentMonths?.message} {...register('repaymentMonths')} />
@@ -229,6 +234,11 @@ function MyReimbursementsSection() {
     submitMutation.mutate(values);
   }
 
+  const onInvalid = (formErrors) => {
+    console.error('[ess] reimbursement form invalid', formErrors);
+    toast.error(collectFormErrorMessages(formErrors).join(' ') || t('requests.reimbursements.formInvalid'));
+  };
+
   async function handleDownload(claim) {
     setDownloadingId(claim._id);
     try {
@@ -244,7 +254,7 @@ function MyReimbursementsSection() {
     <>
       <Card>
         <h2 className="mb-4 text-sm font-semibold uppercase tracking-wide text-muted">{t('requests.reimbursements.sectionTitle')}</h2>
-        <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-4">
+        <form onSubmit={handleSubmit(onSubmit, onInvalid)} noValidate className="space-y-4">
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <Select label={t('requests.reimbursements.category')} error={errors.category?.message} {...register('category')}>
               <option value="">{t('requests.reimbursements.chooseCategory')}</option>

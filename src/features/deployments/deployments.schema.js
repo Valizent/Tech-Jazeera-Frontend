@@ -41,15 +41,33 @@ export function daysInMonth(monthStr) {
 // `supplierHours` is required only for a SupplierEmployee deployment — this
 // schema is built per-form-instance (via `workerType`) rather than static,
 // since only DeploymentDetailPage knows which deployment it's rendering for.
+// Bounds mirror deployment.validation.js's own actualHours/supplierHours/
+// deductionAmount exactly (2026-09-29, a real audit finding: this used to
+// only check non-empty, so a negative or wildly-too-high value passed here
+// and only ever got caught by a raw server-error toast instead of inline
+// field feedback).
+const hoursField = (message) =>
+  z
+    .string()
+    .min(1, message)
+    .refine((v) => !Number.isNaN(Number(v)), message)
+    .refine((v) => Number(v) >= 0, 'Cannot be negative.')
+    .refine((v) => Number(v) <= 1000, 'That looks too high for one month — check the figure.');
+
 export function buildMonthlyHoursFormSchema(workerType) {
   return z.object({
     month: z.string().regex(/^\d{4}-(0[1-9]|1[0-2])$/, 'Choose a month.'),
-    actualHours: z.string().min(1, 'Enter the client timesheet hours.'),
+    actualHours: hoursField('Enter the client timesheet hours.'),
     supplierHours:
       workerType === 'SupplierEmployee'
-        ? z.string().min(1, 'Enter the supplier timesheet hours.')
+        ? hoursField('Enter the supplier timesheet hours.')
         : z.string().optional().or(z.literal('')),
-    deductionAmount: z.string().optional().or(z.literal('')),
+    deductionAmount: z
+      .string()
+      .optional()
+      .or(z.literal(''))
+      .refine((v) => !v || (!Number.isNaN(Number(v)) && Number(v) >= 0), 'Cannot be negative.')
+      .refine((v) => !v || Number(v) <= 1_000_000, 'That looks too high — check the figure.'),
     notes: optionalStr(500),
   });
 }

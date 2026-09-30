@@ -13,7 +13,7 @@
  */
 import { createContext, useContext, useEffect, useMemo, useState, useCallback } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
-import { setAccessToken, subscribeUnauthorized } from '../../lib/axios.js';
+import { setAccessToken, subscribeUnauthorized, subscribeSessionRefreshed } from '../../lib/axios.js';
 import { loginRequest, refreshRequest, logoutRequest } from './auth.api.js';
 import { useToast } from '../../components/ui/Toast.jsx';
 
@@ -58,12 +58,26 @@ export function AuthProvider({ children }) {
     // re-refresh failed). This only ever fires for a previously-authed user
     // — cold visitors' bootstrap failures don't go through this path — so
     // the toast can't greet a first-time visitor with "session expired".
-    return subscribeUnauthorized(() => {
+    const unsubUnauthorized = subscribeUnauthorized(() => {
       toast.error('Your session has expired. Please sign in again.');
       queryClient.clear();
       setUser(null);
       setStatus('guest');
     });
+
+    // Axios also tells us whenever a transparent mid-session refresh
+    // succeeds (fixed 2026-09-29) — re-sync the full user object (role,
+    // sectionAccess/sectionAccessWrite) so an Admin's grant or role change
+    // takes effect on this user's very next token rotation, not just on
+    // their next login/hard-reload.
+    const unsubRefreshed = subscribeSessionRefreshed((freshUser) => {
+      setUser(normalizeUser(freshUser));
+    });
+
+    return () => {
+      unsubUnauthorized();
+      unsubRefreshed();
+    };
   }, [toast, queryClient]);
 
   // Auto-logout after 12 minutes of inactivity

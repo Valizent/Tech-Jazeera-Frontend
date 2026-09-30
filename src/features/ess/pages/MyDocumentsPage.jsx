@@ -54,7 +54,11 @@ export default function MyDocumentsPage() {
               <div>
                 <p className="font-medium">{doc.title}</p>
                 <p className="text-xs text-muted">
-                  <Badge variant="default" className="mr-2">{doc.category}</Badge>
+                  {/* Fixed 2026-09-29, a real audit finding: `mr-2` is a
+                      physical class that doesn't flip under dir="rtl" —
+                      `me-2` (logical, "margin-end") renders the gap on the
+                      correct side in Arabic too. */}
+                  <Badge variant="default" className="me-2">{doc.category}</Badge>
                   {t('documents.uploaded', { date: formatDate(doc.createdAt) })}
                 </p>
               </div>

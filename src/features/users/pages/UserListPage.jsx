@@ -34,22 +34,28 @@ export default function UserListPage() {
     queryFn: () => listStaffUsers(),
   });
 
+  const [toToggleActive, setToToggleActive] = useState(null); // the user row being (de)activated
   const toggleActiveMutation = useMutation({
     mutationFn: ({ id, isActive }) => updateStaffUser(id, { isActive }),
     onSuccess: () => {
       toast.success('User updated.');
+      setToToggleActive(null);
       queryClient.invalidateQueries({ queryKey: ['users'] });
     },
     onError: (error) => toast.error(apiMessage(error)),
   });
 
   const [created, setCreated] = useState(null); // one-time credential reveal, from a password reset
+  const [toResetPassword, setToResetPassword] = useState(null); // the user row awaiting confirmation
   // Reveals through the same one-time-password modal — the response only
   // carries { tempPassword }, so the row's own name/email (already in hand
   // at click time) fills in the rest of that modal's shape.
   const resetPasswordMutation = useMutation({
     mutationFn: (u) => resetStaffPassword(u._id).then((data) => ({ user: u, ...data, reset: true })),
-    onSuccess: (data) => setCreated(data),
+    onSuccess: (data) => {
+      setToResetPassword(null);
+      setCreated(data);
+    },
     onError: (error) => toast.error(apiMessage(error)),
   });
 
@@ -100,20 +106,14 @@ export default function UserListPage() {
       render: (u) =>
         canManage && u._id !== viewer.id ? (
           <span className="flex justify-end gap-2">
-            <Button
-              size="sm"
-              variant="ghost"
-              isLoading={resetPasswordMutation.isPending}
-              onClick={() => resetPasswordMutation.mutate(u)}
-            >
+            <Button size="sm" variant="ghost" onClick={() => setToResetPassword(u)}>
               Reset password
             </Button>
             <Button
               size="sm"
               variant="ghost"
               className={u.isActive ? 'hover:text-danger' : ''}
-              isLoading={toggleActiveMutation.isPending}
-              onClick={() => toggleActiveMutation.mutate({ id: u._id, isActive: !u.isActive })}
+              onClick={() => setToToggleActive(u)}
             >
               {u.isActive ? 'Deactivate' : 'Reactivate'}
             </Button>
@@ -174,6 +174,28 @@ export default function UserListPage() {
         loading={deleteMutation.isPending}
         onConfirm={() => deleteMutation.mutate(toDelete._id)}
         onCancel={() => setToDelete(null)}
+      />
+
+      <ConfirmDialog
+        open={Boolean(toResetPassword)}
+        title="Reset password?"
+        message={`${toResetPassword?.name}'s current password will stop working immediately, replaced by a new one-time temporary password you'll need to hand to them.`}
+        loading={resetPasswordMutation.isPending}
+        onConfirm={() => resetPasswordMutation.mutate(toResetPassword)}
+        onCancel={() => setToResetPassword(null)}
+      />
+
+      <ConfirmDialog
+        open={Boolean(toToggleActive)}
+        title={toToggleActive?.isActive ? 'Deactivate login?' : 'Reactivate login?'}
+        message={
+          toToggleActive?.isActive
+            ? `${toToggleActive?.name} will immediately lose access to their account.`
+            : `${toToggleActive?.name} will immediately regain access to their account.`
+        }
+        loading={toggleActiveMutation.isPending}
+        onConfirm={() => toggleActiveMutation.mutate({ id: toToggleActive._id, isActive: !toToggleActive.isActive })}
+        onCancel={() => setToToggleActive(null)}
       />
     </div>
   );
