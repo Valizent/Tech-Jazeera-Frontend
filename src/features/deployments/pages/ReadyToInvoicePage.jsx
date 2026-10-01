@@ -13,19 +13,9 @@ import Input from '../../../components/ui/Input.jsx';
 import Modal from '../../../components/ui/Modal.jsx';
 import Skeleton from '../../../components/ui/Skeleton.jsx';
 import EmptyState from '../../../components/ui/EmptyState.jsx';
-
-function DetailRow({ label, value, valueClass = '' }) {
-  return (
-    <div className="flex items-center justify-between py-1.5 border-b border-border/40 last:border-0">
-      <span className="text-xs text-muted">{label}</span>
-      <span className={`text-xs font-medium text-text ${valueClass}`}>{value}</span>
-    </div>
-  );
-}
+import MonthlyEntryBreakdownPanel from '../components/MonthlyEntryBreakdown.jsx';
 
 function ReadyToInvoiceRow({ row, isOpen, onToggle, onSendInvoice, t, navigate }) {
-  const isSupplier = row.workerType === 'SupplierEmployee';
-
   return (
     <>
       <tr
@@ -75,65 +65,21 @@ function ReadyToInvoiceRow({ row, isOpen, onToggle, onSendInvoice, t, navigate }
       {isOpen && (
         <tr>
           <td colSpan={6} className="px-4 pb-3">
-            <div className="rounded-xl border border-border/60 bg-surface/70 p-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 text-sm">
-              <div>
-                <p className="text-xs font-black uppercase tracking-wider text-muted mb-2">Client</p>
-                <div className="space-y-0">
-                  <DetailRow label="Client Rate / hr" value={row.clientRate != null ? formatMoney(row.clientRate) : '—'} />
-                  <DetailRow label="Client Commission / hr" value={row.clientCommission != null ? formatMoney(row.clientCommission) : '—'} />
-                  <DetailRow label="Invoice Amount" value={formatMoney(row.revenue)} valueClass="text-primary" />
-                </div>
+            <MonthlyEntryBreakdownPanel row={row} formatMoney={formatMoney}>
+              <div className="mt-3">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="w-full justify-center"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    navigate(`/deployments/${row.deploymentId}`);
+                  }}
+                >
+                  View Deployment Details
+                </Button>
               </div>
-
-              {isSupplier && (
-                <div>
-                  <p className="text-xs font-black uppercase tracking-wider text-muted mb-2">Subcontractor</p>
-                  <div className="space-y-0">
-                    <DetailRow label="Sub Rate / hr" value={row.subcontractorRate != null ? formatMoney(row.subcontractorRate) : '—'} />
-                    <DetailRow label="Sub Commission / hr" value={row.subcontractorCommission != null ? formatMoney(row.subcontractorCommission) : '—'} />
-                    <DetailRow label="Sub Invoice" value={formatMoney(row.breakdown?.subContractorInvoiceAmount ?? 0)} valueClass="text-danger" />
-                  </div>
-                </div>
-              )}
-
-              <div>
-                <p className="text-xs font-black uppercase tracking-wider text-muted mb-2">Expenses</p>
-                <div className="space-y-0">
-                  {(row.fta ?? 0) > 0 && <DetailRow label="FTA" value={formatMoney(row.fta)} />}
-                  {(row.allowance ?? 0) > 0 && <DetailRow label="Allowance" value={formatMoney(row.allowance)} />}
-                  {(row.deductionAmount ?? 0) > 0 && <DetailRow label="Deduction" value={formatMoney(row.deductionAmount)} />}
-                  {(row.mobilisationCost ?? 0) > 0 && <DetailRow label="Mob. Cost" value={formatMoney(row.mobilisationCost)} />}
-                  {(row.breakdown?.otCalculations ?? 0) > 0 && <DetailRow label="OT Cost" value={formatMoney(row.breakdown.otCalculations)} />}
-                  <DetailRow label="Total Expenses" value={formatMoney(row.expenses ?? 0)} valueClass="text-danger" />
-                </div>
-              </div>
-
-              <div>
-                <p className="text-xs font-black uppercase tracking-wider text-muted mb-2">Summary</p>
-                <div className="space-y-0">
-                  <DetailRow label="Actual Hours" value={row.actualHours ?? '—'} />
-                  {(row.otHours ?? 0) > 0 && <DetailRow label="OT Hours" value={row.otHours} />}
-                  <DetailRow
-                    label="Net Profit"
-                    value={formatMoney(row.profit ?? 0)}
-                    valueClass={(row.profit ?? 0) >= 0 ? 'text-success' : 'text-danger'}
-                  />
-                  <div className="mt-3">
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="w-full justify-center"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        navigate(`/deployments/${row.deploymentId}`);
-                      }}
-                    >
-                      View Deployment Details
-                    </Button>
-                  </div>
-                </div>
-              </div>
-            </div>
+            </MonthlyEntryBreakdownPanel>
           </td>
         </tr>
       )}

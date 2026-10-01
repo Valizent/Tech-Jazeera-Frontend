@@ -75,6 +75,15 @@ export function buildMonthlyHoursFormSchema(workerType) {
       .or(z.literal(''))
       .refine((v) => !v || (!Number.isNaN(Number(v)) && Number(v) >= 0), 'Cannot be negative.')
       .refine((v) => !v || Number(v) <= 1_000_000, 'That looks too high — check the figure.'),
+    // Supplier-side counterpart to deductionAmount above (2026-09-30) — only
+    // ever shown/sent for a SupplierEmployee deployment, same bounds.
+    supplierDeductionAmount: z
+      .string()
+      .optional()
+      .or(z.literal(''))
+      .refine((v) => !v || (!Number.isNaN(Number(v)) && Number(v) >= 0), 'Cannot be negative.')
+      .refine((v) => !v || Number(v) <= 1_000_000, 'That looks too high — check the figure.'),
+    supplierDeductionNote: optionalStr(500),
     notes: optionalStr(500),
   });
 }
@@ -84,6 +93,8 @@ export const emptyMonthlyHoursForm = {
   actualHours: '',
   supplierHours: '',
   deductionAmount: '',
+  supplierDeductionAmount: '',
+  supplierDeductionNote: '',
   notes: '',
 };
 
@@ -104,6 +115,8 @@ export function monthlyHoursEntryToForm(entry) {
     actualHours: String(entry.actualHours ?? ''),
     supplierHours: entry.supplierHours != null ? String(entry.supplierHours) : '',
     deductionAmount: entry.deductionAmount ? String(entry.deductionAmount) : '',
+    supplierDeductionAmount: entry.supplierDeductionAmount ? String(entry.supplierDeductionAmount) : '',
+    supplierDeductionNote: entry.supplierDeductionNote ?? '',
     notes: entry.notes ?? '',
   };
 }

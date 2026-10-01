@@ -200,6 +200,7 @@ function MonthlyHoursForm({ deployment, defaultValues, onSubmit, submitting, sub
     : Math.max(0, actualHoursPreview - agreementHours);
   const otAmountPreview = otHoursPreview * (otClientRate ?? 0);
   const deductionPreview = Number(watch('deductionAmount')) || 0;
+  const supplierDeductionPreview = Number(watch('supplierDeductionAmount')) || 0;
 
   // "Impossible hours" guard (2026-09-30, the user's own ask): 18h/day × the
   // real placement days this deployment actually covers in the selected
@@ -282,6 +283,32 @@ function MonthlyHoursForm({ deployment, defaultValues, onSubmit, submitting, sub
         </div>
       </div>
 
+      {/* Row 1b: Supplier deduction (amount + optional reason) — only for a
+          SupplierEmployee deployment, since only that type has a Sub Invoice
+          to deduct against (2026-09-30, the user's own ask). */}
+      {isSupplierEmployee && (
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+          <div>
+            <Input
+              label={t('staffDeployments.detail.supplierDeductionAmountLabel')}
+              type="number"
+              step="0.01"
+              min="0"
+              placeholder={t('staffDeployments.detail.supplierDeductionAmountPlaceholder')}
+              error={errors.supplierDeductionAmount?.message}
+              {...register('supplierDeductionAmount')}
+            />
+            <p className="mt-1 text-xs text-muted">{t('staffDeployments.detail.supplierDeductionAmountHint')}</p>
+          </div>
+          <Input
+            label={t('staffDeployments.detail.supplierDeductionNoteLabel')}
+            placeholder={t('staffDeployments.detail.supplierDeductionNotePlaceholder')}
+            error={errors.supplierDeductionNote?.message}
+            {...register('supplierDeductionNote')}
+          />
+        </div>
+      )}
+
       {exceedsPossibleHours && (
         <p className="rounded-lg bg-danger/10 px-3 py-2 text-sm font-medium text-danger">
           {t(
@@ -327,6 +354,12 @@ function MonthlyHoursForm({ deployment, defaultValues, onSubmit, submitting, sub
           <div>
             <p className="text-xs text-muted">{t('staffDeployments.detail.summaryDeduction')}</p>
             <p className="text-sm font-semibold tabular-nums text-danger">{formatMoney(deductionPreview)}</p>
+          </div>
+        )}
+        {isSupplierEmployee && supplierDeductionPreview > 0 && (
+          <div>
+            <p className="text-xs text-muted">{t('staffDeployments.detail.summarySupplierDeduction')}</p>
+            <p className="text-sm font-semibold tabular-nums text-success">{formatMoney(supplierDeductionPreview)}</p>
           </div>
         )}
       </div>
@@ -715,6 +748,9 @@ export default function DeploymentDetailPage() {
                       client's own timesheet in front of her. Visible to
                       everyone who can see this section at all. */}
                   <th className="px-3 py-2">{t('staffDeployments.detail.columns.deduction')}</th>
+                  {deployment.workerType === 'SupplierEmployee' && (
+                    <th className="px-3 py-2">{t('staffDeployments.detail.columns.supplierDeduction')}</th>
+                  )}
                   {deployment.totalProfit != null && <th className="px-3 py-2">{t('staffDeployments.detail.columns.profitOrDue')}</th>}
                   <th className="px-3 py-2">{t('staffDeployments.detail.columns.status')}</th>
                   {(canInvoice || canEnterHours || canDecidePaymentAccess) && (
@@ -753,6 +789,17 @@ export default function DeploymentDetailPage() {
                           '—'
                         )}
                       </td>
+                      {deployment.workerType === 'SupplierEmployee' && (
+                        <td className="px-3 py-2">
+                          {entry.supplierDeductionAmount > 0 ? (
+                            <span className="text-success" title={entry.supplierDeductionNote || undefined}>
+                              {formatMoney(entry.supplierDeductionAmount)}
+                            </span>
+                          ) : (
+                            '—'
+                          )}
+                        </td>
+                      )}
                       {deployment.totalProfit != null && (
                         <td className="px-3 py-2">
                           {!entry.fullyPaid ? (
@@ -836,6 +883,8 @@ export default function DeploymentDetailPage() {
                   actualHours: Number(values.actualHours),
                   supplierHours: values.supplierHours !== '' ? Number(values.supplierHours) : undefined,
                   deductionAmount: values.deductionAmount ? Number(values.deductionAmount) : undefined,
+                  supplierDeductionAmount: values.supplierDeductionAmount ? Number(values.supplierDeductionAmount) : undefined,
+                  supplierDeductionNote: values.supplierDeductionNote || undefined,
                   notes: values.notes || undefined,
                 })
               }
@@ -872,6 +921,8 @@ export default function DeploymentDetailPage() {
                   actualHours: Number(values.actualHours),
                   supplierHours: values.supplierHours !== '' ? Number(values.supplierHours) : undefined,
                   deductionAmount: values.deductionAmount ? Number(values.deductionAmount) : undefined,
+                  supplierDeductionAmount: values.supplierDeductionAmount ? Number(values.supplierDeductionAmount) : undefined,
+                  supplierDeductionNote: values.supplierDeductionNote || undefined,
                   notes: values.notes || undefined,
                 },
               })

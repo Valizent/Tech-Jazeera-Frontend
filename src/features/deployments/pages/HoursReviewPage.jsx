@@ -370,10 +370,23 @@ export default function HoursReviewPage() {
 
               <div className="my-2 border-b border-border"></div>
 
-              {breakdownRow.workerType === 'SupplierEmployee' && breakdownRow.profitBreakdown?.subContractorInvoiceAmount > 0 && (
+              {breakdownRow.workerType === 'SupplierEmployee' && breakdownRow.profitBreakdown?.subContractorInvoiceAmount !== 0 && (
                 <div className="flex justify-between">
                   <span className="text-muted">{t('staffDeployments.hoursReview.breakdown.subContractorInvoiceAmount')}</span>
-                  <span className="font-medium tabular-nums text-danger">-{formatMoney(breakdownRow.profitBreakdown?.subContractorInvoiceAmount)}</span>
+                  {/* Can go negative (2026-09-30, the user's own ask) when a
+                      supplier deduction exceeds the raw rate×hours amount —
+                      that's money we KEEP, not spend, so it flips to a "+"
+                      green line here instead of the usual "-" red one. */}
+                  <span className={`font-medium tabular-nums ${breakdownRow.profitBreakdown.subContractorInvoiceAmount > 0 ? 'text-danger' : 'text-success'}`}>
+                    {breakdownRow.profitBreakdown.subContractorInvoiceAmount > 0 ? '-' : '+'}
+                    {formatMoney(Math.abs(breakdownRow.profitBreakdown.subContractorInvoiceAmount))}
+                  </span>
+                </div>
+              )}
+              {breakdownRow.workerType === 'SupplierEmployee' && breakdownRow.profitBreakdown?.expenseSubCommission > 0 && (
+                <div className="flex justify-between">
+                  <span className="text-muted">{t('staffDeployments.hoursReview.breakdown.subCommission')}</span>
+                  <span className="font-medium tabular-nums text-danger">-{formatMoney(breakdownRow.profitBreakdown?.expenseSubCommission)}</span>
                 </div>
               )}
               {breakdownRow.profitBreakdown?.otCalculations > 0 && (

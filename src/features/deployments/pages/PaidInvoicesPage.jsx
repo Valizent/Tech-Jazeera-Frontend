@@ -11,19 +11,9 @@ import Skeleton from '../../../components/ui/Skeleton.jsx';
 import { formatMoney, formatDate } from '../../../lib/utils.js';
 import Input from '../../../components/ui/Input.jsx';
 import Select from '../../../components/ui/Select.jsx';
-
-function DetailRow({ label, value, valueClass = '' }) {
-  return (
-    <div className="flex items-center justify-between py-1.5 border-b border-border/40 last:border-0">
-      <span className="text-xs text-muted">{label}</span>
-      <span className={`text-xs font-medium text-text ${valueClass}`}>{value}</span>
-    </div>
-  );
-}
+import MonthlyEntryBreakdownPanel from '../components/MonthlyEntryBreakdown.jsx';
 
 function InvoiceRow({ row, isOpen, onToggle, t }) {
-  const isSupplier = row.workerType === 'SupplierEmployee';
-
   return (
     <>
       {/* Main row */}
@@ -85,59 +75,19 @@ function InvoiceRow({ row, isOpen, onToggle, t }) {
       {isOpen && (
         <tr>
           <td colSpan={7} className="px-4 pb-3">
-            <div className="rounded-xl border border-border/60 bg-surface/70 p-4 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-6 text-sm">
-
-              {/* Client Rates */}
-              <div>
-                <p className="text-xs font-black uppercase tracking-wider text-muted mb-2">Client</p>
-                <div className="space-y-0">
-                  <DetailRow label="Client Rate / hr" value={row.clientRate != null ? formatMoney(row.clientRate) : '—'} />
-                  <DetailRow label="Client Commission / hr" value={row.clientCommission != null ? formatMoney(row.clientCommission) : '—'} />
-                  <DetailRow label="Invoice Amount" value={formatMoney(row.revenue)} valueClass="text-primary" />
-                </div>
+            <MonthlyEntryBreakdownPanel row={row} formatMoney={formatMoney}>
+              <div className="my-2 border-b border-border/40" />
+              <div className="flex items-center justify-between py-1.5">
+                <span className="text-xs text-muted">Paid</span>
+                <span className="text-xs font-medium text-success">{formatMoney(row.amountAllocated)}</span>
               </div>
-
-              {/* Subcontractor Rates (only for SupplierEmployee) */}
-              {isSupplier && (
-                <div>
-                  <p className="text-xs font-black uppercase tracking-wider text-muted mb-2">Subcontractor</p>
-                  <div className="space-y-0">
-                    <DetailRow label="Sub Rate / hr" value={row.subcontractorRate != null ? formatMoney(row.subcontractorRate) : '—'} />
-                    <DetailRow label="Sub Commission / hr" value={row.subcontractorCommission != null ? formatMoney(row.subcontractorCommission) : '—'} />
-                    <DetailRow label="Sub Invoice" value={formatMoney(row.breakdown?.subContractorInvoiceAmount ?? 0)} valueClass="text-danger" />
-                  </div>
+              {!row.fullyPaid && (
+                <div className="flex items-center justify-between py-1.5">
+                  <span className="text-xs text-muted">Balance Due</span>
+                  <span className="text-xs font-medium text-danger">{formatMoney(row.balanceDue)}</span>
                 </div>
               )}
-
-              {/* Expenses */}
-              <div>
-                <p className="text-xs font-black uppercase tracking-wider text-muted mb-2">Expenses</p>
-                <div className="space-y-0">
-                  {(row.fta ?? 0) > 0 && <DetailRow label="FTA" value={formatMoney(row.fta)} />}
-                  {(row.allowance ?? 0) > 0 && <DetailRow label="Allowance" value={formatMoney(row.allowance)} />}
-                  {(row.deductionAmount ?? 0) > 0 && <DetailRow label="Deduction" value={formatMoney(row.deductionAmount)} />}
-                  {(row.mobilisationCost ?? 0) > 0 && <DetailRow label="Mob. Cost" value={formatMoney(row.mobilisationCost)} />}
-                  {(row.breakdown?.otCalculations ?? 0) > 0 && <DetailRow label="OT Cost" value={formatMoney(row.breakdown.otCalculations)} />}
-                  <DetailRow label="Total Expenses" value={formatMoney(row.expenses ?? 0)} valueClass="text-danger" />
-                </div>
-              </div>
-
-              {/* Hours + Net */}
-              <div>
-                <p className="text-xs font-black uppercase tracking-wider text-muted mb-2">Summary</p>
-                <div className="space-y-0">
-                  <DetailRow label="Actual Hours" value={row.actualHours ?? '—'} />
-                  {(row.otHours ?? 0) > 0 && <DetailRow label="OT Hours" value={row.otHours} />}
-                  <DetailRow
-                    label="Net Profit"
-                    value={formatMoney(row.profit ?? 0)}
-                    valueClass={(row.profit ?? 0) >= 0 ? 'text-success' : 'text-danger'}
-                  />
-                  <DetailRow label="Paid" value={formatMoney(row.amountAllocated)} valueClass="text-success" />
-                  {!row.fullyPaid && <DetailRow label="Balance Due" value={formatMoney(row.balanceDue)} valueClass="text-danger" />}
-                </div>
-              </div>
-            </div>
+            </MonthlyEntryBreakdownPanel>
           </td>
         </tr>
       )}
