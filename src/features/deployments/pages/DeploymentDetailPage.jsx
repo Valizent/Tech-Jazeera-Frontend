@@ -178,7 +178,7 @@ function MonthlyHoursForm({ deployment, defaultValues, onSubmit, submitting, sub
   const { t } = useTranslation();
   const toast = useToast();
   const isSupplierEmployee = deployment.workerType === 'SupplierEmployee';
-  const schema = useMemo(() => buildMonthlyHoursFormSchema(deployment.workerType), [deployment.workerType]);
+  const schema = useMemo(() => buildMonthlyHoursFormSchema(), []);
   const {
     register,
     handleSubmit,
@@ -191,14 +191,20 @@ function MonthlyHoursForm({ deployment, defaultValues, onSubmit, submitting, sub
   const agreementHours = contractHours ?? 0;
   const watchedMonth = watch('month');
   const actualHoursPreview = Number(watch('actualHours')) || 0;
-  const supplierHoursPreview = Number(watch('supplierHours')) || 0;
-  // Formula depends on worker type (2026-09-19, the user's own ask) — see
-  // deployment.service.js's computeOtHours, mirrored here purely for live
-  // feedback.
-  const otHoursPreview = isSupplierEmployee
-    ? Math.max(0, actualHoursPreview - supplierHoursPreview)
-    : Math.max(0, actualHoursPreview - agreementHours);
+  const supplierHoursRaw = watch('supplierHours');
+  const supplierHoursPreview = Number(supplierHoursRaw) || 0;
+  // Client-billed OT is always against this deployment's own contract hours,
+  // for every worker type alike (2026-10-01, the user's own correction — see
+  // deployment.service.js's computeOtHours doc comment for why this can no
+  // longer depend on the subcontractor's own, separately-entered timesheet).
+  const otHoursPreview = Math.max(0, actualHoursPreview - agreementHours);
   const otAmountPreview = otHoursPreview * (otClientRate ?? 0);
+  // The subcontractor's OWN overtime — an independent figure, only shown
+  // once they've actually typed a supplier-hours value (mirrors
+  // deployment.service.js's computeSupplierOtHours: 0/hidden while unknown,
+  // never a guess).
+  const supplierOtHoursPreview =
+    isSupplierEmployee && supplierHoursRaw ? Math.max(0, supplierHoursPreview - agreementHours) : null;
   const deductionPreview = Number(watch('deductionAmount')) || 0;
   const supplierDeductionPreview = Number(watch('supplierDeductionAmount')) || 0;
 
@@ -260,14 +266,18 @@ function MonthlyHoursForm({ deployment, defaultValues, onSubmit, submitting, sub
           {...register('actualHours')}
         />
         {isSupplierEmployee && (
-          <Input
-            label={t('staffDeployments.detail.supplierTimesheetHoursLabel')}
-            type="number"
-            step="0.01"
-            min="0"
-            error={errors.supplierHours?.message}
-            {...register('supplierHours')}
-          />
+          <div>
+            <Input
+              label={t('staffDeployments.detail.supplierTimesheetHoursLabel')}
+              type="number"
+              step="0.01"
+              min="0"
+              placeholder={t('staffDeployments.detail.supplierTimesheetHoursPlaceholder')}
+              error={errors.supplierHours?.message}
+              {...register('supplierHours')}
+            />
+            <p className="mt-1 text-xs text-muted">{t('staffDeployments.detail.supplierTimesheetHoursHint')}</p>
+          </div>
         )}
         <div>
           <Input
@@ -344,6 +354,12 @@ function MonthlyHoursForm({ deployment, defaultValues, onSubmit, submitting, sub
           <p className="text-xs text-muted">{t('staffDeployments.detail.summaryOtHours')}</p>
           <p className="text-sm font-semibold tabular-nums">{otHoursPreview}</p>
         </div>
+        {supplierOtHoursPreview != null && (
+          <div>
+            <p className="text-xs text-muted">{t('staffDeployments.detail.summarySupplierOtHours')}</p>
+            <p className="text-sm font-semibold tabular-nums">{supplierOtHoursPreview}</p>
+          </div>
+        )}
         {canDecideHours && (
           <div>
             <p className="text-xs text-muted">{t('staffDeployments.detail.summaryOtAmount')}</p>
@@ -465,6 +481,11 @@ export default function DeploymentDetailPage() {
   const [eosbPrompt, setEosbPrompt] = useState(null); // { exitDate, exitReason } | null
   const [editingEntry, setEditingEntry] = useState(null);
   const [editingDeployment, setEditingDeployment] = useState(false);
+  // The dedicated "Enter subcontractor hours" follow-up (2026-10-01) — holds
+  // the entry being completed; a single-field quick action, not the full
+  // Edit form, since that's the one real thing missing on it.
+  const [enteringSupplierHoursFor, setEnteringSupplierHoursFor] = useState(null);
+  const [supplierHoursInput, setSupplierHoursInput] = useState('');
 
   // Office Secretary is a hardcoded exception to the Section Access gate —
   // mirrors deployment.service.js's addMonthlyHours exactly (they aren't a
@@ -516,6 +537,25 @@ export default function DeploymentDetailPage() {
     onError: (error) => toast.error(apiMessage(error)),
   });
 
+  const supplierHoursMutation = useMutation({
+    mutationFn: ({ entryId, supplierHours }) =>
+      updateMonthlyHours(id, entryId, {
+        actualHours: enteringSupplierHoursFor.actualHours,
+        supplierHours,
+        deductionAmount: enteringSupplierHoursFor.deductionAmount || undefined,
+        supplierDeductionAmount: enteringSupplierHoursFor.supplierDeductionAmount || undefined,
+        supplierDeductionNote: enteringSupplierHoursFor.supplierDeductionNote || undefined,
+        notes: enteringSupplierHoursFor.notes || undefined,
+      }),
+    onSuccess: () => {
+      toast.success(t('staffDeployments.detail.supplierHoursAddedToast'));
+      setEnteringSupplierHoursFor(null);
+      setSupplierHoursInput('');
+      invalidate();
+    },
+    onError: (error) => toast.error(apiMessage(error)),
+  });
+
   const demobiliseMutation = useMutation({
     mutationFn: (values) => demobiliseDeployment(id, values),
     onSuccess: (_data, values) => {
@@ -554,13 +594,14 @@ export default function DeploymentDetailPage() {
 
   const addDefaultValues = useMemo(() => {
     if (!deployment) return emptyMonthlyHoursForm;
-    return { 
-      ...emptyMonthlyHoursForm, 
-      month: nextEligibleMonth(deployment),
-      supplierHours: deployment.workerType === 'SupplierEmployee' && deployment.requiredTimesheetHours != null 
-        ? deployment.requiredTimesheetHours.toString() 
-        : '',
-    };
+    // 2026-10-01, the user's own ask: subcontractor hours are a real,
+    // separately-known figure now — a hard requirement at creation briefly
+    // justified pre-filling a guess (the deployment's own contract hours)
+    // for the coordinator to overwrite, but doing that now would silently
+    // submit a FAKE number as if it were the subcontractor's real timesheet.
+    // Left genuinely blank until actually known (see computeSupplierOtHours's
+    // own doc comment on `null` being a real, expected interim state).
+    return { ...emptyMonthlyHoursForm, month: nextEligibleMonth(deployment) };
   }, [deployment]);
 
   const {
@@ -833,6 +874,17 @@ export default function DeploymentDetailPage() {
                       {(canEnterHours || canDecideHours || canInvoice || canDecidePaymentAccess) && isActive && (
                         <td className="px-3 py-2 text-right">
                           <div className="flex flex-wrap justify-end gap-1.5">
+                            {/* A real, dedicated follow-up step (2026-10-01, the
+                                user's own ask) — subcontractor hours are no
+                                longer required at creation, so this surfaces the
+                                one real thing still missing on this entry
+                                without making a coordinator hunt for it inside
+                                the full Edit form. */}
+                            {canEditThis && deployment.workerType === 'SupplierEmployee' && entry.supplierHours == null && (
+                              <Button size="sm" onClick={() => setEnteringSupplierHoursFor(entry)}>
+                                {t('staffDeployments.detail.enterSupplierHoursButton')}
+                              </Button>
+                            )}
                             {canEditThis && (
                               <Button size="sm" variant="ghost" onClick={() => setEditingEntry(entry)}>
                                 {t('staffDeployments.detail.editEntry')}
@@ -928,6 +980,57 @@ export default function DeploymentDetailPage() {
               })
             }
           />
+        )}
+      </Modal>
+
+      {/* "Enter subcontractor hours" — a single-field quick action (2026-10-01),
+          not the full Edit form, for the one thing a two-step entry leaves
+          missing on a fresh month. */}
+      <Modal
+        open={Boolean(enteringSupplierHoursFor)}
+        onClose={() => {
+          if (supplierHoursMutation.isPending) return;
+          setEnteringSupplierHoursFor(null);
+          setSupplierHoursInput('');
+        }}
+        title={enteringSupplierHoursFor ? t('staffDeployments.detail.enterSupplierHoursModalTitle', { month: enteringSupplierHoursFor.month }) : ''}
+      >
+        {enteringSupplierHoursFor && (
+          <div className="space-y-4">
+            <p className="text-sm text-muted">{t('staffDeployments.detail.enterSupplierHoursModalMessage')}</p>
+            <Input
+              label={t('staffDeployments.detail.supplierTimesheetHoursLabel')}
+              type="number"
+              step="0.01"
+              min="0"
+              autoFocus
+              value={supplierHoursInput}
+              onChange={(e) => setSupplierHoursInput(e.target.value)}
+            />
+            <div className="flex justify-end gap-2 pt-1">
+              <Button
+                type="button"
+                variant="secondary"
+                onClick={() => {
+                  setEnteringSupplierHoursFor(null);
+                  setSupplierHoursInput('');
+                }}
+                disabled={supplierHoursMutation.isPending}
+              >
+                {t('common.cancel')}
+              </Button>
+              <Button
+                type="button"
+                isLoading={supplierHoursMutation.isPending}
+                disabled={supplierHoursInput === '' || Number.isNaN(Number(supplierHoursInput)) || Number(supplierHoursInput) < 0}
+                onClick={() =>
+                  supplierHoursMutation.mutate({ entryId: enteringSupplierHoursFor._id, supplierHours: Number(supplierHoursInput) })
+                }
+              >
+                {t('staffDeployments.detail.save')}
+              </Button>
+            </div>
+          </div>
         )}
       </Modal>
 

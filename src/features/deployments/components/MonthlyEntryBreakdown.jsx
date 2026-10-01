@@ -63,6 +63,13 @@ export default function MonthlyEntryBreakdownPanel({ row, formatMoney, children 
           <DetailRow label="Client Commission / hr" value={row.clientCommission != null ? formatMoney(row.clientCommission) : '—'} />
           <DetailRow label="Invoice Amount" value={formatMoney(revenue)} valueClass={revenue > 0 ? 'text-success' : ''} />
           <DetailRow label="Invoice Commission Expense" value={formatMoney(clientCommissionExpense)} valueClass={clientCommissionExpense > 0 ? 'text-danger' : ''} />
+          {/* Only Paid Invoices' rows carry amountAllocated — Ready to
+              Invoice's rows are pre-invoice and simply don't have it, so
+              this line only ever appears there (2026-10-01, the user's own
+              ask to move it here from the Summary column). */}
+          {row.amountAllocated != null && (
+            <DetailRow label="Paid" value={formatMoney(row.amountAllocated)} valueClass="text-success" />
+          )}
         </div>
       </div>
 
@@ -73,6 +80,16 @@ export default function MonthlyEntryBreakdownPanel({ row, formatMoney, children 
           <div className="space-y-0">
             <DetailRow label="Sub Rate / hr" value={row.subcontractorRate != null ? formatMoney(row.subcontractorRate) : '—'} />
             <DetailRow label="Sub Commission / hr" value={row.subcontractorCommission != null ? formatMoney(row.subcontractorCommission) : '—'} />
+            {/* Subcontractor hours are now a real, optional follow-up step
+                (2026-10-01) — a plain "Not entered yet" here, same spirit as
+                `supplierHours == null` everywhere else in this app, rather
+                than a silent 0 that could read as "confirmed zero hours". */}
+            <DetailRow
+              label="Sub Timesheet Hours"
+              value={row.supplierHours != null ? row.supplierHours : 'Not entered yet'}
+              valueClass={row.supplierHours == null ? 'text-muted' : ''}
+            />
+            {b.supplierOtHours > 0 && <DetailRow label="Sub OT Hours" value={b.supplierOtHours} />}
             <DetailRow label="Sub Invoice" value={formatMoney(subInvoice)} valueClass={costColor(subInvoice)} />
             <DetailRow label="Sub Commission Expense" value={formatMoney(subCommissionExpense)} valueClass={subCommissionExpense > 0 ? 'text-danger' : ''} />
             {supplierDeduction > 0 && (

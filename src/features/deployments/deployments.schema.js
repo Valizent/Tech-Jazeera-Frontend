@@ -61,14 +61,23 @@ const hoursField = (message) =>
     .refine((v) => Number(v) >= 0, 'Cannot be negative.')
     .refine((v) => Number(v) <= 1000, 'That looks too high for one month — check the figure.');
 
-export function buildMonthlyHoursFormSchema(workerType) {
+// Optional counterpart of hoursField — same bounds when a value IS given,
+// but never required (2026-10-01, the user's own ask: subcontractor hours
+// are now a real, optional follow-up step, not a blocking requirement at
+// creation — see deployment.service.js's addMonthlyHours doc comment).
+const optionalHoursField = z
+  .string()
+  .optional()
+  .or(z.literal(''))
+  .refine((v) => !v || !Number.isNaN(Number(v)), 'Enter a number.')
+  .refine((v) => !v || Number(v) >= 0, 'Cannot be negative.')
+  .refine((v) => !v || Number(v) <= 1000, 'That looks too high for one month — check the figure.');
+
+export function buildMonthlyHoursFormSchema() {
   return z.object({
     month: z.string().regex(/^\d{4}-(0[1-9]|1[0-2])$/, 'Choose a month.'),
     actualHours: hoursField('Enter the client timesheet hours.'),
-    supplierHours:
-      workerType === 'SupplierEmployee'
-        ? hoursField('Enter the supplier timesheet hours.')
-        : z.string().optional().or(z.literal('')),
+    supplierHours: optionalHoursField,
     deductionAmount: z
       .string()
       .optional()

@@ -23,6 +23,8 @@ import Select from '../../../components/ui/Select.jsx';
 import EmptyState from '../../../components/ui/EmptyState.jsx';
 import Skeleton from '../../../components/ui/Skeleton.jsx';
 import ExpenseFormModal from '../components/ExpenseFormModal.jsx';
+import DeploymentCostsTab from '../components/DeploymentCostsTab.jsx';
+import Tabs, { useTabParam } from '../../../components/ui/Tabs.jsx';
 
 function SummaryBar() {
   const { data, isPending } = useQuery({
@@ -194,23 +196,13 @@ export default function ExpenseListPage() {
 
   const noFilters = !params.search && !params.category && !params.from && !params.to;
 
-  return (
-    <div className="mx-auto max-w-[1600px]">
-      <PageHeader
-        title="Expenses"
-        description="Company costs — rent, fuel, purchases, utilities — the other half of profit alongside invoices."
-        onBack={() => navigate(-1)}
-        actions={
-          !isError &&
-          canWrite && (
-            <Button size="sm" onClick={openNew}>
-              Add expense
-            </Button>
-          )
-        }
-      />
-
-      <SummaryBar />
+  const tabs = [
+    {
+      key: 'ledger',
+      label: 'Ledger',
+      content: (
+        <>
+          <SummaryBar />
 
       <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-end">
         <Input
@@ -291,6 +283,38 @@ export default function ExpenseListPage() {
           )}
         </>
       )}
+        </>
+      ),
+    },
+    {
+      // Read-only, scoped by worker/deployment (2026-10-01, the user's own
+      // choice) — never a new Expense record, see DeploymentCostsTab's own
+      // doc comment for why.
+      key: 'deployment-costs',
+      label: 'Deployment Costs',
+      content: <DeploymentCostsTab />,
+    },
+  ];
+  const [tab, setTab] = useTabParam(tabs, 'ledger');
+
+  return (
+    <div className="mx-auto max-w-[1600px]">
+      <PageHeader
+        title="Expenses"
+        description="Company costs — rent, fuel, purchases, utilities — the other half of profit alongside invoices."
+        onBack={() => navigate(-1)}
+        actions={
+          tab === 'ledger' &&
+          !isError &&
+          canWrite && (
+            <Button size="sm" onClick={openNew}>
+              Add expense
+            </Button>
+          )
+        }
+      />
+
+      <Tabs tabs={tabs} value={tab} onChange={setTab} />
 
       <ExpenseFormModal open={!!editing} editing={editing} duplicateFrom={duplicateFrom} onClose={closeModal} />
 

@@ -76,16 +76,16 @@ function InvoiceRow({ row, isOpen, onToggle, t }) {
         <tr>
           <td colSpan={7} className="px-4 pb-3">
             <MonthlyEntryBreakdownPanel row={row} formatMoney={formatMoney}>
-              <div className="my-2 border-b border-border/40" />
-              <div className="flex items-center justify-between py-1.5">
-                <span className="text-xs text-muted">Paid</span>
-                <span className="text-xs font-medium text-success">{formatMoney(row.amountAllocated)}</span>
-              </div>
+              {/* "Paid" itself now lives in the Client column (2026-10-01) —
+                  only Balance Due (when still outstanding) stays here. */}
               {!row.fullyPaid && (
-                <div className="flex items-center justify-between py-1.5">
-                  <span className="text-xs text-muted">Balance Due</span>
-                  <span className="text-xs font-medium text-danger">{formatMoney(row.balanceDue)}</span>
-                </div>
+                <>
+                  <div className="my-2 border-b border-border/40" />
+                  <div className="flex items-center justify-between py-1.5">
+                    <span className="text-xs text-muted">Balance Due</span>
+                    <span className="text-xs font-medium text-danger">{formatMoney(row.balanceDue)}</span>
+                  </div>
+                </>
               )}
             </MonthlyEntryBreakdownPanel>
           </td>
