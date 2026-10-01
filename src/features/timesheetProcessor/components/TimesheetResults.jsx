@@ -16,6 +16,13 @@ function Duration({ minutes }) {
   return <span className={minutes ? '' : 'text-muted'}>{text}</span>;
 }
 
+// 2026-10-01, the user's own ask, matched against a real reference export:
+// "No Attendance" (a day with zero device punches) now READS as "Absent" —
+// display text only. The underlying status value, badge color, and summary
+// field name are unchanged, so nothing elsewhere that keys off the raw
+// string ('No Attendance') needs to know about this.
+const STATUS_DISPLAY_LABEL = { 'No Attendance': 'Absent' };
+
 const COLUMNS = [
   { key: 'date', header: 'Date', render: (r) => formatDate(r.date) },
   { key: 'day', header: 'Day', render: (r) => r.day, hideOnMobile: true },
@@ -29,7 +36,9 @@ const COLUMNS = [
     key: 'status',
     header: 'Status',
     render: (r) => (
-      <Badge variant={TIMESHEET_STATUS_META[r.status]?.variant ?? 'default'}>{r.status}</Badge>
+      <Badge variant={TIMESHEET_STATUS_META[r.status]?.variant ?? 'default'}>
+        {STATUS_DISPLAY_LABEL[r.status] ?? r.status}
+      </Badge>
     ),
   },
 ];
@@ -86,7 +95,7 @@ export default function TimesheetResults({ result, onExport, exporting }) {
           <Stat label="Holidays" value={s.holidayDays} />
           <Stat label="Present Days" value={s.presentDays} />
           <Stat label="Single Punch" value={s.singlePunchDays} />
-          <Stat label="No Attendance" value={s.noAttendanceDays} />
+          <Stat label="Absent" value={s.noAttendanceDays} />
           <Stat label="Total Worked" value={minutesToHHMM(s.totalWorkedMinutes)} />
           <Stat label="Total Required" value={minutesToHHMM(s.totalRequiredMinutes)} />
           <Stat label="Total Deficiency" value={minutesToHHMM(s.totalDeficiencyMinutes)} />

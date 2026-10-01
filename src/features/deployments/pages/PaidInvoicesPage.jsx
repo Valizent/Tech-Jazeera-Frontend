@@ -33,6 +33,14 @@ function InvoiceRow({ row, isOpen, onToggle, t }) {
         <td className="px-4 py-3 align-middle bg-surface border-y border-border/40 group-hover:border-primary/30 transition-colors">
           <span className="text-sm text-text font-medium">{row.month}</span>
         </td>
+        {/* Contract Hours */}
+        <td className="px-4 py-3 align-middle text-right bg-surface border-y border-border/40 group-hover:border-primary/30 transition-colors">
+          <span className="text-sm text-text">{row.contractHours ?? '—'}</span>
+        </td>
+        {/* Timesheet Hours (the client's own actual hours for this month) */}
+        <td className="px-4 py-3 align-middle text-right bg-surface border-y border-border/40 group-hover:border-primary/30 transition-colors">
+          <span className="text-sm text-text">{row.actualHours ?? '—'}</span>
+        </td>
         {/* Invoice # */}
         <td className="px-4 py-3 align-middle bg-surface border-y border-border/40 group-hover:border-primary/30 transition-colors">
           <div className="text-sm font-medium text-text">{row.invoiceNumber || '—'}</div>
@@ -42,9 +50,12 @@ function InvoiceRow({ row, isOpen, onToggle, t }) {
         <td className="px-4 py-3 align-middle text-right bg-surface border-y border-border/40 group-hover:border-primary/30 transition-colors">
           <span className="text-sm font-semibold text-text">{formatMoney(row.revenue)}</span>
         </td>
-        {/* Amount Paid */}
+        {/* Amount Paid — this ONE payment's own amount, not the invoice's
+            cumulative total (2026-10-01, the user's own ask: a $3,000-then-
+            $2,000 invoice shows as two rows here, not one $5,000 lump). */}
         <td className="px-4 py-3 align-middle text-right bg-surface border-y border-border/40 group-hover:border-primary/30 transition-colors">
           <span className="text-sm font-semibold text-success">{formatMoney(row.amountAllocated)}</span>
+          {row.paymentDate && <div className="text-xs text-muted mt-0.5">{formatDate(row.paymentDate)}</div>}
         </td>
         {/* Balance */}
         <td className="px-4 py-3 align-middle text-right bg-surface border-y border-border/40 group-hover:border-primary/30 transition-colors">
@@ -74,7 +85,7 @@ function InvoiceRow({ row, isOpen, onToggle, t }) {
       {/* Expandable detail panel */}
       {isOpen && (
         <tr>
-          <td colSpan={7} className="px-4 pb-3">
+          <td colSpan={9} className="px-4 pb-3">
             <MonthlyEntryBreakdownPanel row={row} formatMoney={formatMoney}>
               {/* "Paid" itself now lives in the Client column (2026-10-01) —
                   only Balance Due (when still outstanding) stays here. */}
@@ -128,7 +139,7 @@ export default function PaidInvoicesPage() {
     <div className="space-y-6">
       <PageHeader
         title={t('staffDeployments.paidInvoices.title', 'Paid Invoices')}
-        description={t('staffDeployments.paidInvoices.subtitle', 'Every invoice that has received a payment — in part or in full — across all clients. Click a row to expand financial details.')}
+        description={t('staffDeployments.paidInvoices.subtitle', 'Every payment received toward an invoice, across all clients — an invoice paid in installments appears as one row per payment. Click a row to expand financial details.')}
         onBack={() => navigate(-1)}
       />
 
@@ -163,9 +174,22 @@ export default function PaidInvoicesPage() {
           <table className="w-full border-separate border-spacing-y-[6px] text-sm px-4">
             <thead className="text-left">
               <tr>
-                {['Client / Worker', 'Month', 'Invoice #', 'Invoice Amt', 'Paid', 'Balance', 'Status'].map((h) => (
-                  <th key={h} className="px-4 py-3 text-[13px] font-black uppercase tracking-wider text-text bg-border/30 first:rounded-l-xl last:rounded-r-xl whitespace-nowrap">
-                    {h}
+                {[
+                  { label: 'Client / Worker' },
+                  { label: 'Month' },
+                  { label: 'Contract Hours', align: 'right' },
+                  { label: 'Timesheet Hours', align: 'right' },
+                  { label: 'Invoice #' },
+                  { label: 'Invoice Amt', align: 'right' },
+                  { label: 'Paid', align: 'right' },
+                  { label: 'Balance', align: 'right' },
+                  { label: 'Status' },
+                ].map(({ label, align }) => (
+                  <th
+                    key={label}
+                    className={`px-4 py-3 text-[13px] font-black uppercase tracking-wider text-text bg-border/30 first:rounded-l-xl last:rounded-r-xl whitespace-nowrap ${align === 'right' ? 'text-right' : ''}`}
+                  >
+                    {label}
                   </th>
                 ))}
               </tr>
@@ -173,10 +197,10 @@ export default function PaidInvoicesPage() {
             <tbody>
               {filteredRows.map((row) => (
                 <InvoiceRow
-                  key={String(row.entryId)}
+                  key={row.rowId}
                   row={row}
-                  isOpen={openRowId === String(row.entryId)}
-                  onToggle={() => toggleRow(String(row.entryId))}
+                  isOpen={openRowId === row.rowId}
+                  onToggle={() => toggleRow(row.rowId)}
                   t={t}
                   onNavigate={() => navigate(`/deployments/${row.deploymentId}`)}
                 />
@@ -184,7 +208,7 @@ export default function PaidInvoicesPage() {
             </tbody>
           </table>
           <div className="px-4 py-3 text-xs text-muted border-t border-border/40">
-            {filteredRows.length} {filteredRows.length === 1 ? 'invoice' : 'invoices'} {search || statusFilter ? '(filtered)' : ''}
+            {filteredRows.length} {filteredRows.length === 1 ? 'payment' : 'payments'} {search || statusFilter ? '(filtered)' : ''}
           </div>
         </Card>
       )}
