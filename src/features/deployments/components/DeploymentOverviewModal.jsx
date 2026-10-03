@@ -156,7 +156,7 @@ function monthLabel(monthStr) {
 export default function DeploymentOverviewModal({ open, onClose }) {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const [filters, setFilters] = useState({});
+  const [filters, setFilters] = useState({ status: 'Active' });
   // Year + Month are two independent selects (2026-09-17, the user's own
   // ask) rather than one dropdown of only-the-months-that-have-data — this
   // is what lets someone deliberately pick a month with NO data at all
@@ -600,7 +600,9 @@ export default function DeploymentOverviewModal({ open, onClose }) {
     });
   }, [rows, filters, columns, monthFilter]);
 
-  const hasActiveFilters = Object.values(filters).some(Boolean) || Boolean(monthFilter);
+  const hasActiveFilters = 
+    Object.entries(filters).some(([k, v]) => Boolean(v) && !(k === 'status' && v === 'Active')) || 
+    Boolean(monthFilter);
 
   function goToDeployment(id) {
     onClose();
@@ -657,7 +659,7 @@ export default function DeploymentOverviewModal({ open, onClose }) {
                 size="sm"
                 variant="secondary"
                 onClick={() => {
-                  setFilters({});
+                  setFilters({ status: 'Active' });
                   setFilterYear('');
                   setFilterMonthNum('');
                 }}
