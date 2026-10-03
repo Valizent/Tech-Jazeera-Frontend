@@ -30,11 +30,13 @@ import Icon from '../../components/ui/Icon.jsx';
 import { cn } from '../../lib/utils.js';
 import { useCloseOnOutsideClick } from '../../lib/useCloseOnOutsideClick.js';
 import { DASHBOARD_ITEM, NAV_GROUPS, EXECUTIVE_NAV_ITEMS } from '../navConfig.js';
+import { useNavCounts } from '../useNavCounts.js';
 
 function Sidebar({ onNavigate }) {
   const { user } = useAuth();
   const { t } = useTranslation();
   const { name: brandName } = useBranding();
+  const badgeCounts = useNavCounts();
   // Executive still gets its own short, explicit nav — see
   // EXECUTIVE_NAV_ITEMS's doc comment for why this can't just be another
   // `roles`-filtered slice of the grouped nav below (every unguarded group
@@ -88,7 +90,22 @@ function Sidebar({ onNavigate }) {
             }
           >
             <Icon d={item.icon} />
-            {item.labelKey ? t(item.labelKey, item.label) : item.label}
+            <span className="flex-1">{item.labelKey ? t(item.labelKey, item.label) : item.label}</span>
+            {(() => {
+              // For a group, sum the badge counts of all its child items
+              let totalBadge = badgeCounts[item.to] || 0;
+              if (item.items) {
+                totalBadge = item.items.reduce((sum, child) => sum + (badgeCounts[child.to] || 0), 0);
+              }
+              if (totalBadge > 0) {
+                return (
+                  <span className="flex h-5 min-w-[1.25rem] items-center justify-center rounded-full bg-danger px-1 text-[10px] font-bold text-white shadow-sm ring-1 ring-inset ring-danger/20">
+                    {totalBadge > 99 ? '99+' : totalBadge}
+                  </span>
+                );
+              }
+              return null;
+            })()}
           </NavLink>
         ))}
       </nav>

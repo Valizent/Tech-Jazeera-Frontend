@@ -15,6 +15,25 @@ import Skeleton from '../../../components/ui/Skeleton.jsx';
 import EmptyState from '../../../components/ui/EmptyState.jsx';
 import MonthlyEntryBreakdownPanel from '../components/MonthlyEntryBreakdown.jsx';
 
+/** The earliest a real invoice for `monthStr` ('YYYY-MM') could exist: the
+ *  1st of the FOLLOWING month — the month has to actually finish, with a
+ *  real client timesheet entered and its hours approved, before an invoice
+ *  date for it makes sense (2026-10-03, a real user-reported gap: nothing
+ *  stopped picking a date before the invoiced month had even started).
+ *  Mirrors the server's own check in deployment.service.js's sendInvoice —
+ *  this is just the immediate UI feedback, not the real enforcement. */
+function earliestInvoiceDateFor(monthStr) {
+  const [year, month] = monthStr.split('-').map(Number);
+  // Built as plain string arithmetic, deliberately not via Date/toISOString
+  // — going through a Date object converts through the browser's local
+  // timezone, which can land on the wrong calendar day (this company is
+  // UTC+3, where local midnight on the 1st is still the last evening of
+  // the prior day in UTC).
+  const nextMonth = month === 12 ? 1 : month + 1;
+  const nextYear = month === 12 ? year + 1 : year;
+  return `${nextYear}-${String(nextMonth).padStart(2, '0')}-01`;
+}
+
 function ReadyToInvoiceRow({ row, isOpen, onToggle, onSendInvoice, t, navigate }) {
   return (
     <>
@@ -216,7 +235,10 @@ export default function ReadyToInvoicePage() {
         }}
         title={invoicingEntry ? t('staffDeployments.detail.sendInvoiceModalTitle', { month: invoicingEntry.month }) : ''}
       >
-        {invoicingEntry && (
+        {invoicingEntry && (() => {
+          const minInvoiceDate = earliestInvoiceDateFor(invoicingEntry.month);
+          const invoiceDateTooEarly = Boolean(invoiceDateInput) && invoiceDateInput < minInvoiceDate;
+          return (
           <div className="space-y-4">
             <p className="text-sm text-muted">{t('staffDeployments.detail.sendInvoiceModalMessage')}</p>
             <Input
@@ -227,8 +249,10 @@ export default function ReadyToInvoicePage() {
             <Input
               label={t('staffDeployments.detail.invoiceDateLabel')}
               type="date"
+              min={minInvoiceDate}
               value={invoiceDateInput}
               onChange={(e) => setInvoiceDateInput(e.target.value)}
+              error={invoiceDateTooEarly ? t('staffDeployments.detail.invoiceDateTooEarly', { month: invoicingEntry.month }) : undefined}
             />
             <div>
               <label className="mb-1.5 block text-sm font-medium">{t('staffDeployments.detail.invoiceFileLabel')}</label>
@@ -261,7 +285,7 @@ export default function ReadyToInvoicePage() {
               <Button
                 type="button"
                 isLoading={sendInvoiceMutation.isPending}
-                disabled={!invoiceNumberInput.trim() || !invoiceDateInput || !invoiceFile}
+                disabled={!invoiceNumberInput.trim() || !invoiceDateInput || !invoiceFile || invoiceDateTooEarly}
                 onClick={() => {
                   const fd = new FormData();
                   fd.append('invoiceNumber', invoiceNumberInput.trim());
@@ -274,7 +298,8 @@ export default function ReadyToInvoicePage() {
               </Button>
             </div>
           </div>
-        )}
+          );
+        })()}
       </Modal>
     </div>
   );

@@ -9,6 +9,7 @@ import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../features/auth/AuthContext.jsx';
 import PageHeader from './PageHeader.jsx';
 import Icon from '../ui/Icon.jsx';
+import { useNavCounts } from '../../app/useNavCounts.js';
 
 /** `titleKey`/`descriptionKey` and each item's `labelKey`/`descriptionKey`
  *  are optional translation keys (see navConfig.js) — `t(key, fallback)`
@@ -18,6 +19,7 @@ import Icon from '../ui/Icon.jsx';
 export default function SectionHubPage({ title, titleKey, description, descriptionKey, items }) {
   const { user } = useAuth();
   const { t } = useTranslation();
+  const badgeCounts = useNavCounts();
   const visible = items.filter((item) => {
     if (item.roles && !item.roles.includes(user.role)) return false;
     // sectionKey may be an array (e.g. Attendance's split Records/Sign
@@ -34,7 +36,9 @@ export default function SectionHubPage({ title, titleKey, description, descripti
     <div className="mx-auto max-w-4xl">
       <PageHeader title={titleKey ? t(titleKey, title) : title} description={descriptionKey ? t(descriptionKey, description) : description} />
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-        {visible.map((item) => (
+        {visible.map((item) => {
+          const badgeCount = item.badgeCount || badgeCounts[item.to] || 0;
+          return (
           <Link
             key={item.to}
             to={item.to}
@@ -50,8 +54,8 @@ export default function SectionHubPage({ title, titleKey, description, descripti
                     FinancialHubPage's overdue-invoice count) — this
                     component stays generic and knows nothing about what a
                     badge count actually means for any given item. */}
-                {item.badgeCount > 0 && (
-                  <span className="rounded-full bg-danger/10 px-2 py-0.5 text-xs font-semibold text-danger">{item.badgeCount}</span>
+                {badgeCount > 0 && (
+                  <span className="rounded-full bg-danger px-1.5 py-0.5 text-[10px] font-bold text-white shadow-sm ring-1 ring-inset ring-danger/20">{badgeCount > 99 ? '99+' : badgeCount}</span>
                 )}
               </p>
               {item.description && (
@@ -61,7 +65,8 @@ export default function SectionHubPage({ title, titleKey, description, descripti
               )}
             </div>
           </Link>
-        ))}
+          );
+        })}
       </div>
     </div>
   );

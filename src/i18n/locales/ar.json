@@ -1708,6 +1708,7 @@
       "sendInvoiceModalMessage": "يتم إنشاء الفاتورة نفسها في ERPNext — أدخل رقمها وتاريخها هنا، وأرفق نسخة منها للمرجعية.",
       "invoiceNumberLabel": "رقم الفاتورة *",
       "invoiceDateLabel": "تاريخ الفاتورة *",
+      "invoiceDateTooEarly": "شهر {{month}} لم ينتهِ بعد — اختر تاريخًا بعد انتهائه.",
       "invoiceFileLabel": "نسخة الفاتورة (PDF) *",
       "chooseFile": "اختر ملفًا",
       "changeFile": "تغيير الملف",

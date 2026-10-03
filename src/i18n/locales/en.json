@@ -1708,6 +1708,7 @@
       "sendInvoiceModalMessage": "The invoice itself is created in ERPNext — enter its number and date here, and attach a copy for reference.",
       "invoiceNumberLabel": "Invoice number *",
       "invoiceDateLabel": "Invoice date *",
+      "invoiceDateTooEarly": "{{month}} hasn't finished yet — pick a date after it ends.",
       "invoiceFileLabel": "Invoice copy (PDF) *",
       "chooseFile": "Choose file",
       "changeFile": "Change file",
