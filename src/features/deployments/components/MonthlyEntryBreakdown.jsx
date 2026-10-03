@@ -112,10 +112,12 @@ export default function MonthlyEntryBreakdownPanel({ row, formatMoney, children 
           {(row.allowance ?? 0) > 0 && <DetailRow label="Allowance" value={formatMoney(row.allowance)} />}
           {(row.deductionAmount ?? 0) > 0 && <DetailRow label="Client Deduction" value={formatMoney(row.deductionAmount)} />}
           {(row.mobilisationCost ?? 0) > 0 && <DetailRow label="Mob. Cost" value={formatMoney(row.mobilisationCost)} />}
-          {(b.otCalculations ?? 0) > 0 && <DetailRow label="OT Cost" value={formatMoney(b.otCalculations)} />}
+          {(b.otCalculations ?? 0) > 0 && <DetailRow label="Worker OT Pay" value={formatMoney(b.otCalculations)} hint={isSupplier ? "Paid directly to the worker — not part of the supplier invoice" : "OT premium paid to the worker, on top of fixed salary/rate"} valueClass="text-danger" />}
           {clientCommissionExpense > 0 && <DetailRow label="Client Commission" value={formatMoney(clientCommissionExpense)} valueClass="text-danger" />}
           {isSupplier && subInvoice !== 0 && <DetailRow label="Sub Invoice" value={formatMoney(subInvoice)} valueClass={costColor(subInvoice)} />}
           {isSupplier && subCommissionExpense > 0 && <DetailRow label="Sub Commission" value={formatMoney(subCommissionExpense)} valueClass="text-danger" />}
+          {(b.expenseEmployeeSalary ?? 0) > 0 && <DetailRow label="Employee Salary" value={formatMoney(b.expenseEmployeeSalary)} />}
+          {(b.expenseEmployeeAdditional ?? 0) > 0 && <DetailRow label="Additional Amount" value={formatMoney(b.expenseEmployeeAdditional)} />}
           <DetailRow label="Total Expenses" value={formatMoney(expensesTotal)} valueClass={costColor(expensesTotal)} />
         </div>
       </div>

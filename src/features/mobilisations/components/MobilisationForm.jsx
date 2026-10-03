@@ -221,14 +221,20 @@ function useOtClientRateAutofill({ control, getValues, setValue }) {
  * blank worker field on an old record" reasoning the filter always had,
  * just relocated. MobilisationNewPage never passes this, so its list stays
  * exactly as strict as before (server-filtered `type:'Own'`,
- * `loginRole:'Worker'`).
+ * `loginRole:'Worker'`) — plus, as of 2026-10-03, `standby:'true'` (a real
+ * user-reported gap: this picker was offering already-mobilised employees,
+ * who'd just 409 on submit). The Edit page deliberately fetches unfiltered —
+ * standby would wrongly hide the record's OWN worker, who is of course
+ * "busy" with this very mobilisation.
  */
 function useEmployeeWorkers({ workerType, existingWorkerId }) {
   const enabled = workerType === 'Employee';
   const { data, isPending, isError } = useQuery({
     queryKey: ['employees', { forMobilisation: true, existingWorkerId: existingWorkerId ?? null }],
     queryFn: () =>
-      existingWorkerId ? listEmployees({ limit: 100 }) : listEmployees({ limit: 100, type: 'Own', loginRole: 'Worker' }),
+      existingWorkerId
+        ? listEmployees({ limit: 100 })
+        : listEmployees({ limit: 100, type: 'Own', loginRole: 'Worker', standby: 'true' }),
     enabled,
   });
   const workers = (data?.items ?? []).filter((w) =>
@@ -607,7 +613,7 @@ export default function MobilisationForm({
             error={errors.otClientRate?.message}
             {...register('otClientRate')}
           />
-          {workerType !== 'Employee' && (
+          <div>
             <Input
               label={t('staffMobilisations.form.otEmployeeRate')}
               type="number"
@@ -616,7 +622,12 @@ export default function MobilisationForm({
               error={errors.otEmployeeRate?.message}
               {...register('otEmployeeRate')}
             />
-          )}
+            <p className="mt-1 text-xs text-muted">
+              {workerType === 'Employee'
+                ? t('staffMobilisations.form.otEmployeeRateHintEmployee')
+                : t('staffMobilisations.form.otEmployeeRateHint')}
+            </p>
+          </div>
         </div>
       </section>
 

@@ -73,26 +73,29 @@ const optionalHoursField = z
   .refine((v) => !v || Number(v) >= 0, 'Cannot be negative.')
   .refine((v) => !v || Number(v) <= 1000, 'That looks too high for one month — check the figure.');
 
+// Optional non-negative amount capped at 1,000,000 — shared by deductionAmount/
+// supplierDeductionAmount/employeeAdditionalAmount below (2026-10-03, a real
+// code-review finding: this exact chain was copy-pasted a 3rd time; same
+// extraction reasoning as hoursField/optionalHoursField above).
+const optionalMoneyField = z
+  .string()
+  .optional()
+  .or(z.literal(''))
+  .refine((v) => !v || (!Number.isNaN(Number(v)) && Number(v) >= 0), 'Cannot be negative.')
+  .refine((v) => !v || Number(v) <= 1_000_000, 'That looks too high — check the figure.');
+
 export function buildMonthlyHoursFormSchema() {
   return z.object({
     month: z.string().regex(/^\d{4}-(0[1-9]|1[0-2])$/, 'Choose a month.'),
     actualHours: hoursField('Enter the client timesheet hours.'),
     supplierHours: optionalHoursField,
-    deductionAmount: z
-      .string()
-      .optional()
-      .or(z.literal(''))
-      .refine((v) => !v || (!Number.isNaN(Number(v)) && Number(v) >= 0), 'Cannot be negative.')
-      .refine((v) => !v || Number(v) <= 1_000_000, 'That looks too high — check the figure.'),
+    deductionAmount: optionalMoneyField,
     // Supplier-side counterpart to deductionAmount above (2026-09-30) — only
     // ever shown/sent for a SupplierEmployee deployment, same bounds.
-    supplierDeductionAmount: z
-      .string()
-      .optional()
-      .or(z.literal(''))
-      .refine((v) => !v || (!Number.isNaN(Number(v)) && Number(v) >= 0), 'Cannot be negative.')
-      .refine((v) => !v || Number(v) <= 1_000_000, 'That looks too high — check the figure.'),
+    supplierDeductionAmount: optionalMoneyField,
     supplierDeductionNote: optionalStr(500),
+    employeeAdditionalAmount: optionalMoneyField,
+    employeeAdditionalAmountNote: optionalStr(500),
     notes: optionalStr(500),
   });
 }
@@ -104,6 +107,8 @@ export const emptyMonthlyHoursForm = {
   deductionAmount: '',
   supplierDeductionAmount: '',
   supplierDeductionNote: '',
+  employeeAdditionalAmount: '',
+  employeeAdditionalAmountNote: '',
   notes: '',
 };
 
@@ -126,6 +131,8 @@ export function monthlyHoursEntryToForm(entry) {
     deductionAmount: entry.deductionAmount ? String(entry.deductionAmount) : '',
     supplierDeductionAmount: entry.supplierDeductionAmount ? String(entry.supplierDeductionAmount) : '',
     supplierDeductionNote: entry.supplierDeductionNote ?? '',
+    employeeAdditionalAmount: entry.employeeAdditionalAmount ? String(entry.employeeAdditionalAmount) : '',
+    employeeAdditionalAmountNote: entry.employeeAdditionalAmountNote ?? '',
     notes: entry.notes ?? '',
   };
 }

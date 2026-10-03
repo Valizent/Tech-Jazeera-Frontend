@@ -207,6 +207,7 @@ function MonthlyHoursForm({ deployment, defaultValues, onSubmit, submitting, sub
     isSupplierEmployee && supplierHoursRaw ? Math.max(0, supplierHoursPreview - agreementHours) : null;
   const deductionPreview = Number(watch('deductionAmount')) || 0;
   const supplierDeductionPreview = Number(watch('supplierDeductionAmount')) || 0;
+  const employeeAdditionalAmountPreview = Number(watch('employeeAdditionalAmount')) || 0;
 
   // "Impossible hours" guard (2026-09-30, the user's own ask): 18h/day × the
   // real placement days this deployment actually covers in the selected
@@ -319,6 +320,30 @@ function MonthlyHoursForm({ deployment, defaultValues, onSubmit, submitting, sub
         </div>
       )}
 
+      {/* Row 1c: Additional amount for own employees (amount + optional reason) */}
+      {deployment.workerType === 'Employee' && (
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+          <div>
+            <Input
+              label={t('staffDeployments.detail.employeeAdditionalAmountLabel')}
+              type="number"
+              step="0.01"
+              min="0"
+              placeholder={t('staffDeployments.detail.employeeAdditionalAmountPlaceholder')}
+              error={errors.employeeAdditionalAmount?.message}
+              {...register('employeeAdditionalAmount')}
+            />
+            <p className="mt-1 text-xs text-muted">{t('staffDeployments.detail.employeeAdditionalAmountHint')}</p>
+          </div>
+          <Input
+            label={t('staffDeployments.detail.employeeAdditionalAmountNoteLabel')}
+            placeholder={t('staffDeployments.detail.employeeAdditionalAmountNotePlaceholder')}
+            error={errors.employeeAdditionalAmountNote?.message}
+            {...register('employeeAdditionalAmountNote')}
+          />
+        </div>
+      )}
+
       {exceedsPossibleHours && (
         <p className="rounded-lg bg-danger/10 px-3 py-2 text-sm font-medium text-danger">
           {t(
@@ -376,6 +401,12 @@ function MonthlyHoursForm({ deployment, defaultValues, onSubmit, submitting, sub
           <div>
             <p className="text-xs text-muted">{t('staffDeployments.detail.summarySupplierDeduction')}</p>
             <p className="text-sm font-semibold tabular-nums text-success">{formatMoney(supplierDeductionPreview)}</p>
+          </div>
+        )}
+        {deployment.workerType === 'Employee' && employeeAdditionalAmountPreview > 0 && (
+          <div>
+            <p className="text-xs text-muted">{t('staffDeployments.detail.employeeAdditionalAmountLabel')}</p>
+            <p className="text-sm font-semibold tabular-nums text-danger">{formatMoney(employeeAdditionalAmountPreview)}</p>
           </div>
         )}
       </div>
@@ -545,6 +576,8 @@ export default function DeploymentDetailPage() {
         deductionAmount: enteringSupplierHoursFor.deductionAmount || undefined,
         supplierDeductionAmount: enteringSupplierHoursFor.supplierDeductionAmount || undefined,
         supplierDeductionNote: enteringSupplierHoursFor.supplierDeductionNote || undefined,
+        employeeAdditionalAmount: enteringSupplierHoursFor.employeeAdditionalAmount || undefined,
+        employeeAdditionalAmountNote: enteringSupplierHoursFor.employeeAdditionalAmountNote || undefined,
         notes: enteringSupplierHoursFor.notes || undefined,
       }),
     onSuccess: () => {
@@ -792,6 +825,9 @@ export default function DeploymentDetailPage() {
                   {deployment.workerType === 'SupplierEmployee' && (
                     <th className="px-3 py-2">{t('staffDeployments.detail.columns.supplierDeduction')}</th>
                   )}
+                  {deployment.workerType === 'Employee' && (
+                    <th className="px-3 py-2">{t('staffDeployments.detail.columns.employeeAdditionalAmount')}</th>
+                  )}
                   {deployment.totalProfit != null && <th className="px-3 py-2">{t('staffDeployments.detail.columns.profitOrDue')}</th>}
                   <th className="px-3 py-2">{t('staffDeployments.detail.columns.status')}</th>
                   {(canInvoice || canEnterHours || canDecidePaymentAccess) && (
@@ -835,6 +871,17 @@ export default function DeploymentDetailPage() {
                           {entry.supplierDeductionAmount > 0 ? (
                             <span className="text-success" title={entry.supplierDeductionNote || undefined}>
                               {formatMoney(entry.supplierDeductionAmount)}
+                            </span>
+                          ) : (
+                            '—'
+                          )}
+                        </td>
+                      )}
+                      {deployment.workerType === 'Employee' && (
+                        <td className="px-3 py-2">
+                          {entry.employeeAdditionalAmount > 0 ? (
+                            <span className="text-danger" title={entry.employeeAdditionalAmountNote || undefined}>
+                              {formatMoney(entry.employeeAdditionalAmount)}
                             </span>
                           ) : (
                             '—'
@@ -937,6 +984,8 @@ export default function DeploymentDetailPage() {
                   deductionAmount: values.deductionAmount ? Number(values.deductionAmount) : undefined,
                   supplierDeductionAmount: values.supplierDeductionAmount ? Number(values.supplierDeductionAmount) : undefined,
                   supplierDeductionNote: values.supplierDeductionNote || undefined,
+                  employeeAdditionalAmount: values.employeeAdditionalAmount ? Number(values.employeeAdditionalAmount) : undefined,
+                  employeeAdditionalAmountNote: values.employeeAdditionalAmountNote || undefined,
                   notes: values.notes || undefined,
                 })
               }
@@ -975,6 +1024,8 @@ export default function DeploymentDetailPage() {
                   deductionAmount: values.deductionAmount ? Number(values.deductionAmount) : undefined,
                   supplierDeductionAmount: values.supplierDeductionAmount ? Number(values.supplierDeductionAmount) : undefined,
                   supplierDeductionNote: values.supplierDeductionNote || undefined,
+                  employeeAdditionalAmount: values.employeeAdditionalAmount ? Number(values.employeeAdditionalAmount) : undefined,
+                  employeeAdditionalAmountNote: values.employeeAdditionalAmountNote || undefined,
                   notes: values.notes || undefined,
                 },
               })
