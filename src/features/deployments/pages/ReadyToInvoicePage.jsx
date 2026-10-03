@@ -113,7 +113,7 @@ export default function ReadyToInvoicePage() {
   const queryClient = useQueryClient();
 
   const [invoicingEntry, setInvoicingEntry] = useState(null);
-  const [invoiceNumberInput, setInvoiceNumberInput] = useState('');
+  const [invoiceNumberInput, setInvoiceNumberInput] = useState('AJSCO-');
   const [invoiceDateInput, setInvoiceDateInput] = useState('');
   const [invoiceFile, setInvoiceFile] = useState(null);
   const invoiceFileInputRef = useRef(null);
@@ -136,7 +136,7 @@ export default function ReadyToInvoicePage() {
   }, [data, search]);
 
   function resetInvoiceForm() {
-    setInvoiceNumberInput('');
+    setInvoiceNumberInput('AJSCO-');
     setInvoiceDateInput('');
     setInvoiceFile(null);
     if (invoiceFileInputRef.current) invoiceFileInputRef.current.value = '';
@@ -255,7 +255,7 @@ export default function ReadyToInvoicePage() {
               error={invoiceDateTooEarly ? t('staffDeployments.detail.invoiceDateTooEarly', { month: invoicingEntry.month }) : undefined}
             />
             <div>
-              <label className="mb-1.5 block text-sm font-medium">{t('staffDeployments.detail.invoiceFileLabel')}</label>
+              <label className="mb-1.5 block text-sm font-medium">{t('staffDeployments.detail.invoiceFileLabel').replace(' *', '')}</label>
               <input
                 ref={invoiceFileInputRef}
                 type="file"
@@ -285,12 +285,12 @@ export default function ReadyToInvoicePage() {
               <Button
                 type="button"
                 isLoading={sendInvoiceMutation.isPending}
-                disabled={!invoiceNumberInput.trim() || !invoiceDateInput || !invoiceFile || invoiceDateTooEarly}
+                disabled={!invoiceNumberInput.trim() || !invoiceDateInput || invoiceDateTooEarly}
                 onClick={() => {
                   const fd = new FormData();
                   fd.append('invoiceNumber', invoiceNumberInput.trim());
                   fd.append('invoiceDate', invoiceDateInput);
-                  fd.append('file', invoiceFile);
+                  if (invoiceFile) fd.append('file', invoiceFile);
                   sendInvoiceMutation.mutate({ deploymentId: invoicingEntry.deploymentId, entryId: invoicingEntry.entryId, formData: fd });
                 }}
               >

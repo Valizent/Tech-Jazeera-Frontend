@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
-import { getPaidInvoices } from '../deployments.api.js';
+import { getPaidInvoices, downloadInvoiceFile } from '../deployments.api.js';
 import PageHeader from '../../../components/shared/PageHeader.jsx';
 import Card from '../../../components/ui/Card.jsx';
 import Badge from '../../../components/ui/Badge.jsx';
@@ -43,8 +43,27 @@ function InvoiceRow({ row, isOpen, onToggle, t }) {
         </td>
         {/* Invoice # */}
         <td className="px-4 py-3 align-middle bg-surface border-y border-border/40 group-hover:border-primary/30 transition-colors">
-          <div className="text-sm font-medium text-text">{row.invoiceNumber || '—'}</div>
-          {row.invoiceDate && <div className="text-xs text-muted mt-0.5">{formatDate(row.invoiceDate)}</div>}
+          <div className="flex items-center gap-3">
+            <div>
+              <div className="text-sm font-medium text-text">{row.invoiceNumber || '—'}</div>
+              {row.invoiceDate && <div className="text-xs text-muted mt-0.5">{formatDate(row.invoiceDate)}</div>}
+            </div>
+            {row.invoiceFile && (
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  downloadInvoiceFile(row.deploymentId, row.entryId, row.invoiceFile.originalName);
+                }}
+                className="rounded-full p-1.5 text-muted hover:bg-border/60 hover:text-primary transition-colors"
+                title={t('staffDeployments.detail.downloadInvoiceButton', 'Download invoice')}
+              >
+                <svg viewBox="0 0 20 20" fill="currentColor" className="h-4 w-4">
+                  <path fillRule="evenodd" d="M10 3a.75.75 0 01.75.75v7.69l2.72-2.72a.75.75 0 111.06 1.06l-4 4a.75.75 0 01-1.06 0l-4-4a.75.75 0 111.06-1.06l2.72 2.72V3.75A.75.75 0 0110 3zm-6 10a.75.75 0 01.75.75v1.5c0 .414.336.75.75.75h9a.75.75 0 00.75-.75v-1.5a.75.75 0 111.5 0v1.5A2.25 2.25 0 0114.5 18h-9A2.25 2.25 0 013 15.75v-1.5A.75.75 0 014 13z" clipRule="evenodd" />
+                </svg>
+              </button>
+            )}
+          </div>
         </td>
         {/* Invoice Amount */}
         <td className="px-4 py-3 align-middle text-right bg-surface border-y border-border/40 group-hover:border-primary/30 transition-colors">

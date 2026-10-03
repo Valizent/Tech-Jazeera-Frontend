@@ -22,7 +22,7 @@ import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { getPaymentsDue, getClientPaymentDetail, recordClientPayment } from '../deployments.api.js';
+import { getPaymentsDue, getClientPaymentDetail, recordClientPayment, downloadInvoiceFile } from '../deployments.api.js';
 import { formatDate, formatMoney, apiMessage } from '../../../lib/utils.js';
 import { useAuth } from '../../auth/AuthContext.jsx';
 import { useToast } from '../../../components/ui/Toast.jsx';
@@ -216,8 +216,27 @@ export default function PaymentsDuePage() {
                         <td className="px-3 py-2">{inv.workerName}</td>
                         <td className="px-3 py-2">{inv.month}</td>
                         <td className="px-3 py-2">
-                          {inv.invoiceNumber ?? '—'}
-                          {inv.invoiceDate && <span className="block text-xs text-muted">{formatDate(inv.invoiceDate)}</span>}
+                          <div className="flex items-center gap-2">
+                            <div>
+                              {inv.invoiceNumber ?? '—'}
+                              {inv.invoiceDate && <span className="block text-xs text-muted">{formatDate(inv.invoiceDate)}</span>}
+                            </div>
+                            {inv.invoiceFile && (
+                              <button
+                                type="button"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  downloadInvoiceFile(inv.deploymentId, inv.entryId, inv.invoiceFile.originalName);
+                                }}
+                                className="rounded-full p-1.5 text-muted hover:bg-border/60 hover:text-primary transition-colors"
+                                title={t('staffDeployments.detail.downloadInvoiceButton', 'Download invoice')}
+                              >
+                                <svg viewBox="0 0 20 20" fill="currentColor" className="h-4 w-4">
+                                  <path fillRule="evenodd" d="M10 3a.75.75 0 01.75.75v7.69l2.72-2.72a.75.75 0 111.06 1.06l-4 4a.75.75 0 01-1.06 0l-4-4a.75.75 0 111.06-1.06l2.72 2.72V3.75A.75.75 0 0110 3zm-6 10a.75.75 0 01.75.75v1.5c0 .414.336.75.75.75h9a.75.75 0 00.75-.75v-1.5a.75.75 0 111.5 0v1.5A2.25 2.25 0 0114.5 18h-9A2.25 2.25 0 013 15.75v-1.5A.75.75 0 014 13z" clipRule="evenodd" />
+                                </svg>
+                              </button>
+                            )}
+                          </div>
                         </td>
                         <td className="px-3 py-2">{formatMoney(inv.revenue)}</td>
                         <td className="px-3 py-2">{formatMoney(inv.amountAllocated)}</td>

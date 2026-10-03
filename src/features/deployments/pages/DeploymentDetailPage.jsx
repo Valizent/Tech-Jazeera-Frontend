@@ -839,13 +839,11 @@ export default function DeploymentDetailPage() {
               <tbody className="divide-y divide-border">
                 {sortedMonths.map((entry) => {
                   const statusVariant = entry.status === 'Approved' ? 'success' : entry.status === 'Rejected' ? 'danger' : 'warning';
-                  // The enterer can edit Pending/Rejected only; whoever can decide
-                  // this section may also correct an already-Approved entry
-                  // directly (2026-09-13 rule, restored — see docs/CHANGELOG.md).
-                  // Approve/Reject of a Pending entry itself now lives only on
-                  // the dedicated Hours Approval Queue (HoursReviewPage).
+                  // The enterer can edit Pending/Rejected only.
+                  // Only an Admin can edit an already-Approved entry.
+                  const isAdmin = user?.role === 'Admin';
                   const canEditThis =
-                    isActive && ((canEnterHours && entry.status !== 'Approved') || (canDecideHours && entry.status === 'Approved'));
+                    isActive && ((canEnterHours && entry.status !== 'Approved') || isAdmin);
                   return (
                     <tr key={entry._id}>
                       <td className="px-3 py-2 font-medium">
