@@ -114,7 +114,7 @@ export default function ReadyToInvoicePage() {
 
   const [invoicingEntry, setInvoicingEntry] = useState(null);
   const [invoiceNumberInput, setInvoiceNumberInput] = useState('AJSCO-');
-  const [invoiceDateInput, setInvoiceDateInput] = useState('');
+  const [invoiceDateInput, setInvoiceDateInput] = useState(() => new Date().toISOString().split('T')[0]);
   const [invoiceFile, setInvoiceFile] = useState(null);
   const invoiceFileInputRef = useRef(null);
   
@@ -137,7 +137,7 @@ export default function ReadyToInvoicePage() {
 
   function resetInvoiceForm() {
     setInvoiceNumberInput('AJSCO-');
-    setInvoiceDateInput('');
+    setInvoiceDateInput(new Date().toISOString().split('T')[0]);
     setInvoiceFile(null);
     if (invoiceFileInputRef.current) invoiceFileInputRef.current.value = '';
   }
