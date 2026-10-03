@@ -189,6 +189,15 @@ export default function DeploymentOverviewModal({ open, onClose }) {
   const [columnsMenuOpen, setColumnsMenuOpen] = useState(false);
   const columnsMenuRef = useRef(null);
 
+  // This component stays mounted behind the scenes even while closed (the
+  // query above is only gated by `enabled: open`), so `filters`' own useState
+  // initializer only ever runs once — without this, re-opening the modal
+  // would keep whatever status was left selected last, not always start on
+  // Mobilised (2026-10-03, the user's own ask).
+  useEffect(() => {
+    if (open) setFilters({ status: 'Active' });
+  }, [open]);
+
   useEffect(() => {
     if (!columnsMenuOpen) return undefined;
     function handleClickOutside(e) {
