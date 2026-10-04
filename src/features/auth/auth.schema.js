@@ -15,7 +15,13 @@ export const loginSchema = z.object({
 export const changePasswordSchema = z
   .object({
     currentPassword: z.string().min(1, 'Current password is required.').max(128),
-    newPassword: z.string().min(8, 'New password must be at least 8 characters.').max(128),
+    newPassword: z
+      .string()
+      .min(12, 'New password must be at least 12 characters.')
+      .regex(/[A-Za-z]/, 'New password must contain at least one letter.')
+      .regex(/[0-9]/, 'New password must contain at least one number.')
+      .regex(/[^A-Za-z0-9]/, 'New password must contain at least one symbol.')
+      .max(128),
     confirmPassword: z.string().min(1, 'Confirm your new password.'),
   })
   .refine((data) => data.newPassword === data.confirmPassword, {

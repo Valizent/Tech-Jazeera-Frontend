@@ -39,10 +39,10 @@ const heightClasses = {
   screen: 'h-[calc(100vh-1.5rem)]',
 };
 
-export default function Modal({ open, onClose, title, size = 'md', children }) {
+export default function Modal({ open, onClose, title, size = 'md', closable = true, children }) {
   useEffect(() => {
     if (!open) return undefined;
-    const onKey = (e) => e.key === 'Escape' && onClose();
+    const onKey = (e) => closable && e.key === 'Escape' && onClose();
     window.addEventListener('keydown', onKey);
     // Lock background scroll while the dialog is up.
     const prevOverflow = document.body.style.overflow;
@@ -51,7 +51,7 @@ export default function Modal({ open, onClose, title, size = 'md', children }) {
       window.removeEventListener('keydown', onKey);
       document.body.style.overflow = prevOverflow;
     };
-  }, [open, onClose]);
+  }, [open, onClose, closable]);
 
   if (!open) return null;
 
@@ -64,7 +64,7 @@ export default function Modal({ open, onClose, title, size = 'md', children }) {
     >
       <div
         className="fixed inset-0 bg-slate-950/50 backdrop-blur-sm animate-overlay-in"
-        onClick={onClose}
+        onClick={closable ? onClose : undefined}
         aria-hidden="true"
       />
       <div
@@ -82,16 +82,18 @@ export default function Modal({ open, onClose, title, size = 'md', children }) {
         {title && (
           <div className="flex items-center justify-between gap-4 border-b border-border px-6 py-4">
             <h2 className="text-base font-semibold tracking-tight">{title}</h2>
-            <button
-              type="button"
-              onClick={onClose}
-              aria-label="Close"
-              className="-mr-1.5 grid h-8 w-8 place-items-center rounded-lg text-muted transition-colors hover:bg-border/50 hover:text-text"
-            >
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" className="h-5 w-5">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M6 6l12 12M18 6L6 18" />
-              </svg>
-            </button>
+            {closable && (
+              <button
+                type="button"
+                onClick={onClose}
+                aria-label="Close"
+                className="-mr-1.5 grid h-8 w-8 place-items-center rounded-lg text-muted transition-colors hover:bg-border/50 hover:text-text"
+              >
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" className="h-5 w-5">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 6l12 12M18 6L6 18" />
+                </svg>
+              </button>
+            )}
           </div>
         )}
         <div className="min-h-0 flex-1 overflow-y-auto px-6 py-5">{children}</div>

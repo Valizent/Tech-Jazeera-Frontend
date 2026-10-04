@@ -21,10 +21,21 @@ export async function getMySemiAnnual(endMonth) {
   return data.data; // null, or { windowMonths, semiAnnualTarget, achieved, netProfit, excess, excessNetProfit, incentivePercent, incentiveAmount, hit }
 }
 
+export async function getMyMonthlyWindow(endMonth) {
+  const { data } = await api.get('/mobilisation-targets/monthly-window/my', { params: { endMonth } });
+  return data.data;
+}
+
 /** Management: every coordinator's rolling 6-month progress. */
 export async function getAllSemiAnnual(endMonth) {
   const { data } = await api.get('/mobilisation-targets/semi-annual', { params: { endMonth } });
   return data.data; // { windowMonths, rows: [{ coordinator, ...same shape as above }] }
+}
+
+/** Management: every coordinator's 6-month monthly progress. */
+export async function getAllMonthlyWindow(endMonth) {
+  const { data } = await api.get('/mobilisation-targets/monthly-window', { params: { endMonth } });
+  return data.data; // { windowMonths, rows: [...] }
 }
 
 /** Management: all targets across all months. */

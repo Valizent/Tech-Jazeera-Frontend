@@ -110,6 +110,7 @@ export const NAV_GROUPS = [
       { to: '/timesheets', label: 'Timesheets', icon: ICON.list, sectionKey: 'timesheetRequests', description: 'Weekly hours, submitted for approval.', labelKey: 'staffNav.workforce.timesheets.label', descriptionKey: 'staffNav.workforce.timesheets.description' },
       { to: '/eosb', label: 'End of Service', icon: ICON.eosb, sectionKey: 'eosb', description: 'EOSB settlements on exit.', labelKey: 'staffNav.workforce.eosb.label', descriptionKey: 'staffNav.workforce.eosb.description' },
       { to: '/exit-documents', label: 'Exit & Documents', icon: ICON.exit, sectionKey: 'exitDocuments', description: 'Re-entry visas, certificates.', labelKey: 'staffNav.workforce.exitDocuments.label', descriptionKey: 'staffNav.workforce.exitDocuments.description' },
+      { to: '/targets', label: 'Targets', icon: ICON.trendingUp, sectionKey: 'mobilisationTargets', description: 'Monthly targets and performance tracking.', labelKey: 'staffNav.workforce.targets.label', descriptionKey: 'staffNav.workforce.targets.description' },
     ],
   },
   {

@@ -20,7 +20,7 @@ import Modal from '../../../components/ui/Modal.jsx';
 import Input from '../../../components/ui/Input.jsx';
 import Button from '../../../components/ui/Button.jsx';
 
-export default function ChangePasswordModal({ open, onClose }) {
+export default function ChangePasswordModal({ open, onClose, force = false }) {
   const { t } = useTranslation();
   // logout() here re-sends POST /auth/logout, which is a harmless no-op —
   // the server already cleared the cookie and deleted every session row as
@@ -51,12 +51,13 @@ export default function ChangePasswordModal({ open, onClose }) {
   });
 
   function handleClose() {
+    if (force) return;
     reset(emptyChangePasswordForm);
     onClose();
   }
 
   return (
-    <Modal open={open} onClose={handleClose} title={t('changePasswordModal.title')}>
+    <Modal open={open} onClose={handleClose} title={t('changePasswordModal.title')} closable={!force}>
       <form
         onSubmit={handleSubmit((values) => mutation.mutate(values))}
         noValidate
@@ -85,9 +86,11 @@ export default function ChangePasswordModal({ open, onClose }) {
         />
         <p className="text-xs text-muted">{t('changePasswordModal.signOutNotice')}</p>
         <div className="flex justify-end gap-2 pt-2">
-          <Button variant="secondary" onClick={handleClose} disabled={mutation.isPending}>
-            {t('common.cancel')}
-          </Button>
+          {!force && (
+            <Button variant="secondary" onClick={handleClose} disabled={mutation.isPending}>
+              {t('common.cancel')}
+            </Button>
+          )}
           <Button type="submit" isLoading={mutation.isPending}>
             {t('changePasswordModal.submit')}
           </Button>

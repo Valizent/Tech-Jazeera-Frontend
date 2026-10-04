@@ -256,7 +256,7 @@ export default function DashboardLayout() {
         </main>
       </div>
 
-      <ChangePasswordModal open={changePasswordOpen} onClose={() => setChangePasswordOpen(false)} />
+      <ChangePasswordModal open={changePasswordOpen || user?.forcePasswordChange} onClose={() => setChangePasswordOpen(false)} force={user?.forcePasswordChange} />
       <AvatarUploadModal open={avatarModalOpen} onClose={() => setAvatarModalOpen(false)} />
       {canUpdateDetails && <MyDetailsModal open={myDetailsOpen} onClose={() => setMyDetailsOpen(false)} />}
     </div>

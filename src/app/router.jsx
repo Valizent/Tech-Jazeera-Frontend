@@ -94,6 +94,7 @@ const FinancialRequestsPage = lazy(() => import('../features/financialRequests/p
 const AssetListPage = lazy(() => import('../features/assets/pages/AssetListPage.jsx'));
 const ExitDocumentsPage = lazy(() => import('../features/exitDocuments/pages/ExitDocumentsPage.jsx'));
 const TimesheetsPage = lazy(() => import('../features/timesheets/pages/TimesheetsPage.jsx'));
+const TargetsListPage = lazy(() => import('../features/mobilisationTargets/pages/TargetsListPage.jsx'));
 
 const ExpenseListPage = lazy(() => import('../features/expenses/pages/ExpenseListPage.jsx'));
 const AuditLogPage = lazy(() => import('../features/audit/pages/AuditLogPage.jsx'));
@@ -296,6 +297,7 @@ export const router = createBrowserRouter([
               { path: '/assets', element: guarded('assetsManage', <AssetListPage />) },
               { path: '/exit-documents', element: guarded('exitDocuments', <ExitDocumentsPage />) },
               { path: '/timesheets', element: guarded('timesheetRequests', <TimesheetsPage />) },
+              { path: '/targets', element: guarded('mobilisationTargets', <TargetsListPage />) },
 
               // Client billing — the internal tracking layer on top of
               // Deployment.monthlyHours (2026-09-27, moved out of the

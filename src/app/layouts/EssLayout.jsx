@@ -221,7 +221,7 @@ export default function EssLayout() {
         </main>
       </div>
 
-      <ChangePasswordModal open={changePasswordOpen} onClose={() => setChangePasswordOpen(false)} />
+      <ChangePasswordModal open={changePasswordOpen || user?.forcePasswordChange} onClose={() => setChangePasswordOpen(false)} force={user?.forcePasswordChange} />
       <AvatarUploadModal open={avatarModalOpen} onClose={() => setAvatarModalOpen(false)} />
     </div>
   );
