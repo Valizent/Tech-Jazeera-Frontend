@@ -223,7 +223,7 @@ export default function DashboardPage() {
       {isCoordinator ? (
         <>
           {(activeSubcontractors != null || myTarget) && (
-            <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+            <div className="grid grid-cols-1 gap-6 lg:grid-cols-2 [&>*:last-child:nth-child(odd)]:lg:col-span-2">
               {activeSubcontractors != null && (
                 <DirectoryStatsWidget activeClients={stats.activeClients} activeSubcontractors={activeSubcontractors} />
               )}
@@ -254,7 +254,7 @@ export default function DashboardPage() {
       ) : (
         <>
           {(attendanceSummary != null || activeSubcontractors != null) && (
-            <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+            <div className="grid grid-cols-1 gap-6 lg:grid-cols-2 [&>*:last-child:nth-child(odd)]:lg:col-span-2">
               {attendanceSummary != null && (
                 <DailyAttendanceSummary summary={attendanceSummary} />
               )}
@@ -264,7 +264,7 @@ export default function DashboardPage() {
             </div>
           )}
           {(canSeeStandbyAnalysis || pendingLeave != null || pendingExit != null) && (
-            <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+            <div className="grid grid-cols-1 gap-6 lg:grid-cols-2 [&>*:last-child:nth-child(odd)]:lg:col-span-2">
               {canSeeStandbyAnalysis && <StandbyAnalysisWidget />}
               {(pendingLeave != null || pendingExit != null) && (
                 <HrComplianceWidget pendingLeave={pendingLeave} pendingExit={pendingExit} />
@@ -275,7 +275,7 @@ export default function DashboardPage() {
               never rendered for a Coordinator (their own pipeline is the
               isCoordinator-only StatusBreakdown further down). */}
           {mobilisationsByStatus != null && (
-            <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+            <div className="grid grid-cols-1 gap-6 lg:grid-cols-2 [&>*:last-child:nth-child(odd)]:lg:col-span-2">
               <CoordinatorLeaderboardWidget />
               <StatusBreakdown
                 title={t('staffDashboard.globalPipelineTitle')}
@@ -300,7 +300,7 @@ export default function DashboardPage() {
           own rule above it. `recentActivity != null` alone already reflects
           the real grant; no separate role check belongs here. */}
       {recentActivity != null ? (
-        <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-2 [&>*:last-child:nth-child(odd)]:lg:col-span-2">
           <ExpiringDocuments items={expiringDocuments} thresholdDays={thresholdDays} onThresholdChange={changeThreshold} scopedToTeam={isCoordinator} />
           <SystemLogsWidget recentActivity={recentActivity} />
         </div>
