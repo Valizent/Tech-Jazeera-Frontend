@@ -6,7 +6,7 @@
  */
 import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useForm, Controller } from 'react-hook-form';
+import { useForm, Controller, useFieldArray } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
@@ -74,6 +74,11 @@ export default function EmployeeForm({ defaultValues, onSubmit, submitLabel, sub
     setValue,
     formState: { errors },
   } = useForm({ resolver: zodResolver(employeeFormSchema), defaultValues });
+
+  const { fields: additionalDocumentFields, append: appendDocument, remove: removeDocument } = useFieldArray({
+    control,
+    name: 'additionalDocuments'
+  });
 
   // Drives which fields below render as required — nationality/mobile/
   // joining date are compliance fields both workforce types need; salary is
@@ -217,6 +222,12 @@ export default function EmployeeForm({ defaultValues, onSubmit, submitLabel, sub
           error={errors.joiningDate?.message}
           {...register('joiningDate')}
         />
+        <Input
+          label={t('staffEmployees.form.employmentEndDate', 'Employment End Date')}
+          type="date"
+          error={errors.employmentEndDate?.message}
+          {...register('employmentEndDate')}
+        />
         <Input label={`${t('staffEmployees.form.designation')} *`} placeholder="Electrician" error={errors.designation?.message} {...register('designation')} />
         <Input label={t('staffEmployees.form.department')} placeholder="Maintenance" error={errors.department?.message} {...register('department')} />
         <Input
@@ -315,6 +326,52 @@ export default function EmployeeForm({ defaultValues, onSubmit, submitLabel, sub
               </div>
             );
           })}
+        </div>
+
+        {/* Additional Documents section */}
+        <div className="mt-8">
+          <div className="mb-4 flex items-center justify-between">
+            <h3 className="text-sm font-semibold uppercase tracking-wide text-muted">Additional Documents</h3>
+            <Button variant="secondary" size="sm" onClick={() => appendDocument({ name: '', number: '', expiry: '' })}>
+              Add Document
+            </Button>
+          </div>
+          <div className="space-y-4">
+            {additionalDocumentFields.map((field, index) => (
+              <div key={field.id} className="relative rounded-md border border-border p-4">
+                <button
+                  type="button"
+                  onClick={() => removeDocument(index)}
+                  className="absolute right-2 top-2 text-muted hover:text-red-500"
+                  aria-label="Remove Document"
+                >
+                  &times;
+                </button>
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+                  <Input
+                    label="Document Name *"
+                    placeholder="e.g. Health Insurance"
+                    error={errors.additionalDocuments?.[index]?.name?.message}
+                    {...register(`additionalDocuments.${index}.name`)}
+                  />
+                  <Input
+                    label="Document Number"
+                    error={errors.additionalDocuments?.[index]?.number?.message}
+                    {...register(`additionalDocuments.${index}.number`)}
+                  />
+                  <Input
+                    label="Expiry Date"
+                    type="date"
+                    error={errors.additionalDocuments?.[index]?.expiry?.message}
+                    {...register(`additionalDocuments.${index}.expiry`)}
+                  />
+                </div>
+              </div>
+            ))}
+            {additionalDocumentFields.length === 0 && (
+              <p className="text-sm text-muted">No additional documents added.</p>
+            )}
+          </div>
         </div>
       </Card>
 

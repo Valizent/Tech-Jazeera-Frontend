@@ -28,14 +28,13 @@ function fractionLabel(f, t) {
   return t('staffEosb.view.fraction.percent', { percent: Math.round(f * 100) });
 }
 
-function Row({ label, value, note, bold }) {
+function DetailRow({ label, value, valueClass = '', hint }) {
   return (
-    <div className="flex items-start justify-between gap-4 border-b border-border py-3 last:border-0">
-      <div>
-        <p className={bold ? 'font-semibold' : 'text-sm'}>{label}</p>
-        {note && <p className="mt-0.5 text-xs text-muted">{note}</p>}
-      </div>
-      <p className={bold ? 'shrink-0 font-semibold tabular-nums' : 'shrink-0 text-sm tabular-nums'}>{value}</p>
+    <div className="flex items-center justify-between py-1.5 border-b border-border/40 last:border-0">
+      <span className="text-xs text-muted" title={hint || undefined}>
+        {label}
+      </span>
+      <span className={`text-xs font-medium ${valueClass || 'text-text'}`}>{value}</span>
     </div>
   );
 }
@@ -110,51 +109,59 @@ export default function SettlementViewPage() {
       />
 
       <Card>
-        <div className="mb-4 grid grid-cols-2 gap-4 text-sm sm:grid-cols-4">
+        <div className="rounded-xl border border-border/60 bg-surface/70 p-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 text-sm">
+          
+          {/* Employment Detail */}
           <div>
-            <p className="text-xs uppercase tracking-wide text-muted">{t('staffEosb.view.joiningDate')}</p>
-            <p className="mt-0.5 font-medium">{formatDate(s.joiningDate)}</p>
+            <p className="text-xs font-black uppercase tracking-wider text-muted mb-2">Employment Detail</p>
+            <div className="space-y-0">
+              <DetailRow label="Joining Date" value={formatDate(s.joiningDate)} />
+              <DetailRow label="Exit Date" value={formatDate(s.exitDate)} />
+              <DetailRow label="Exit Reason" value={t(`staffEosb.exitReasonLabels.${s.exitReason}`, EXIT_REASON_LABELS[s.exitReason])} />
+              <DetailRow label="Service Duration" value={t('staffEosb.view.serviceYears', { years: s.serviceYears })} />
+              <DetailRow label="Monthly Wage" value={formatMoney(s.monthlyWage)} />
+            </div>
           </div>
-          <div>
-            <p className="text-xs uppercase tracking-wide text-muted">{t('staffEosb.view.service')}</p>
-            <p className="mt-0.5 font-medium">{t('staffEosb.view.serviceYears', { years: s.serviceYears })}</p>
-          </div>
-          <div>
-            <p className="text-xs uppercase tracking-wide text-muted">{t('staffEosb.view.monthlyWage')}</p>
-            <p className="mt-0.5 font-medium">{formatMoney(s.monthlyWage)}</p>
-          </div>
-          <div>
-            <p className="text-xs uppercase tracking-wide text-muted">{t('staffEosb.view.computed')}</p>
-            <p className="mt-0.5 font-medium">{formatDate(s.createdAt)}</p>
-          </div>
-        </div>
 
-        <h2 className="mb-1 text-sm font-semibold uppercase tracking-wide text-muted">{t('staffEosb.view.eosbSectionTitle')}</h2>
-        <Row
-          label={t('staffEosb.view.grossAward')}
-          value={formatMoney(s.eosbGross)}
-          note={t('staffEosb.view.grossAwardNote')}
-        />
-        <Row
-          label={t('staffEosb.view.reductionApplied')}
-          value={fractionLabel(s.reductionFactor, t)}
-          note={s.exitReason === 'Resignation' ? t('staffEosb.view.reductionNoteResignation') : t('staffEosb.view.reductionNoteOther')}
-        />
-        <Row label={t('staffEosb.view.netAward')} value={formatMoney(s.eosbNet)} bold />
+          {/* End of Service Award */}
+          <div>
+            <p className="text-xs font-black uppercase tracking-wider text-muted mb-2">EOSB Calculation</p>
+            <div className="space-y-0">
+              <DetailRow label="Gross Award" value={formatMoney(s.eosbGross)} hint={t('staffEosb.view.grossAwardNote')} />
+              <DetailRow label="Reduction Factor" value={fractionLabel(s.reductionFactor, t)} hint={s.exitReason === 'Resignation' ? t('staffEosb.view.reductionNoteResignation') : t('staffEosb.view.reductionNoteOther')} />
+              <DetailRow label="Net EOSB Award" value={formatMoney(s.eosbNet)} valueClass={s.eosbNet > 0 ? "text-success" : ""} />
+            </div>
+          </div>
 
-        <h2 className="mb-1 mt-6 text-sm font-semibold uppercase tracking-wide text-muted">{t('staffEosb.view.vacationSectionTitle')}</h2>
-        <Row label={t('staffEosb.view.unusedLeave')} value={t('staffEosb.view.unusedLeaveDays', { count: s.unusedLeaveDays })} />
-        <Row label={t('staffEosb.view.leaveEncashment')} value={formatMoney(s.leaveEncashment)} />
+          {/* Vacation Pay */}
+          <div>
+            <p className="text-xs font-black uppercase tracking-wider text-muted mb-2">Vacation Settlement</p>
+            <div className="space-y-0">
+              <DetailRow label="Unused Leave Days" value={t('staffEosb.view.unusedLeaveDays', { count: s.unusedLeaveDays })} />
+              <DetailRow label="Leave Encashment" value={formatMoney(s.leaveEncashment)} valueClass={s.leaveEncashment > 0 ? "text-success" : ""} />
+            </div>
+          </div>
 
-        <div className="mt-4 flex items-center justify-between rounded-xl bg-primary/5 px-4 py-3">
-          <p className="font-semibold">{t('staffEosb.view.totalSettlement')}</p>
-          <p className="text-lg font-bold tabular-nums">{formatMoney(s.totalSettlement)}</p>
+          {/* Summary */}
+          <div>
+            <p className="text-xs font-black uppercase tracking-wider text-muted mb-2">Summary</p>
+            <div className="space-y-0">
+              <DetailRow label="Net EOSB Award" value={formatMoney(s.eosbNet)} />
+              <DetailRow label="Leave Encashment" value={formatMoney(s.leaveEncashment)} />
+              <div className="mt-2 pt-2 border-t border-border/40">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-semibold text-text">Total Settlement</span>
+                  <span className="text-sm font-bold text-primary tabular-nums">{formatMoney(s.totalSettlement)}</span>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
 
         {s.notes && (
-          <div className="mt-4 border-t border-border pt-4">
-            <p className="text-xs uppercase tracking-wide text-muted">{t('staffEosb.view.notes')}</p>
-            <p className="mt-1 text-sm">{s.notes}</p>
+          <div className="mt-6 border-t border-border/40 pt-4">
+            <p className="text-xs font-black uppercase tracking-wider text-muted mb-1">{t('staffEosb.view.notes')}</p>
+            <p className="text-sm text-text">{s.notes}</p>
           </div>
         )}
       </Card>

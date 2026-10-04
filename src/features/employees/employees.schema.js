@@ -57,8 +57,14 @@ export const employeeFormSchema = z
     iqama: documentSchema,
     medical: documentSchema,
     drivingLicense: documentSchema,
+    additionalDocuments: z.array(z.object({
+      name: z.string().trim().min(1, 'Name is required'),
+      number: optional,
+      expiry: z.string()
+    })).default([]),
 
     joiningDate: z.string().optional().or(z.literal('')),
+    employmentEndDate: z.string().optional().or(z.literal('')),
     designation: z.string().trim().min(2, 'Designation is required.').max(60),
     department: optional,
     salary: z
@@ -131,7 +137,9 @@ export const emptyEmployeeForm = {
   iqama: emptyDocument,
   medical: emptyDocument,
   drivingLicense: emptyDocument,
+  additionalDocuments: [],
   joiningDate: '',
+  employmentEndDate: '',
   designation: '',
   department: '',
   salary: '',
@@ -164,7 +172,9 @@ export function employeeToForm(employee) {
     iqama: doc(employee.iqama),
     medical: doc(employee.medical),
     drivingLicense: doc(employee.drivingLicense),
+    additionalDocuments: (employee.additionalDocuments || []).map(d => ({ name: d.name, number: d.number || '', expiry: toDateInput(d.expiry) })),
     joiningDate: toDateInput(employee.joiningDate),
+    employmentEndDate: toDateInput(employee.employmentEndDate),
     designation: employee.designation,
     department: employee.department ?? '',
     salary: employee.salary != null ? String(employee.salary) : '',

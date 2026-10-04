@@ -111,6 +111,18 @@ export default function SettlementNewPage() {
           </Select>
           {exitReason && <p className="-mt-2 text-xs text-muted">{t(`staffEosb.new.reasonHints.${exitReason}`)}</p>}
 
+          <div className="mt-6 border-t border-border pt-4">
+            <h3 className="mb-4 text-sm font-semibold text-muted">Manual Overrides (Optional)</h3>
+            <p className="mb-4 text-xs text-muted">If left blank, the system will automatically compute these based on length of service (e.g. 2 months salary + 45 days leave for 2+ years of service).</p>
+            <div className="space-y-4">
+              <Input label="Override EOSB Award (Gross Amount)" type="number" step="0.01" min="0" error={errors.overrideEosbGross?.message} {...register('overrideEosbGross')} />
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                <Input label="Override Unused Leave Days" type="number" step="0.5" min="0" error={errors.overrideLeaveDays?.message} {...register('overrideLeaveDays')} />
+                <Input label="Override Leave Encashment Amount" type="number" step="0.01" min="0" error={errors.overrideLeaveEncashment?.message} {...register('overrideLeaveEncashment')} />
+              </div>
+            </div>
+          </div>
+
           <Textarea label={t('staffEosb.new.notes')} placeholder={t('common.optional')} error={errors.notes?.message} {...register('notes')} />
 
           <div className="flex justify-end pt-2">
