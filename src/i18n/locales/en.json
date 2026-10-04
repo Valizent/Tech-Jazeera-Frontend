@@ -549,7 +549,7 @@
       "activeRevenue": {
         "titleMine": "Your active mobilisation profit per hour",
         "titleCompany": "Company active mobilisation profit per hour",
-        "hint": "Combined profit per hour from mobilisations active at any point this month — a rate-card estimate, not a real received payment (see Actual Performance below for that).",
+        "hint": "Combined profit per hour from currently active mobilisations — a rate-card estimate, not a real received payment (see Actual Performance below for that).",
         "vsLastMonth": "vs. last month",
         "viewDeployments": "View deployments overview"
       },
@@ -1554,6 +1554,7 @@
       "statusApproved": "Approved",
       "statusRejected": "Rejected",
       "recordPaymentButton": "Record payment",
+      "reviewPendingButton": "Review Pending Payments",
       "recordPaymentModalTitle": "Record payment — {{client}}",
       "recordPaymentModalMessage": "Enter the total amount this client has actually paid, covering everyone placed there. It will need Financial Manager approval, then automatically settle their oldest outstanding invoices first.",
       "amountLabel": "Amount received *",

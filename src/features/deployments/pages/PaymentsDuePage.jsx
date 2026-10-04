@@ -22,7 +22,7 @@ import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { getPaymentsDue, getClientPaymentDetail, recordClientPayment, downloadInvoiceFile } from '../deployments.api.js';
+import { getPaymentsDue, getClientPaymentDetail, recordClientPayment, downloadInvoiceFile, getPendingPaymentsQueue } from '../deployments.api.js';
 import { formatDate, formatMoney, apiMessage } from '../../../lib/utils.js';
 import { useAuth } from '../../auth/AuthContext.jsx';
 import { useToast } from '../../../components/ui/Toast.jsx';
@@ -64,6 +64,13 @@ export default function PaymentsDuePage() {
     queryKey: ['deployments', 'payments-due'],
     queryFn: getPaymentsDue,
   });
+
+  const { data: pendingQueue } = useQuery({
+    queryKey: ['deployments', 'pending-payments'],
+    queryFn: getPendingPaymentsQueue,
+    enabled: canDecidePayment,
+  });
+  const pendingCount = pendingQueue?.length || 0;
 
   const { data: detail, isPending: detailPending } = useQuery({
     queryKey: ['deployments', 'payments-due', openClientId],
@@ -142,7 +149,12 @@ export default function PaymentsDuePage() {
         actions={
           canDecidePayment ? (
             <Button size="sm" variant="primary" onClick={() => navigate('/financial/payments-review')} className="relative">
-              Review Pending Payments
+              {t('staffDeployments.paymentsDue.reviewPendingButton', 'Review Pending Payments')}
+              {pendingCount > 0 && (
+                <span className="ml-2 rounded-full bg-white/20 px-1.5 py-0.5 text-[10px] font-bold tracking-wide">
+                  {pendingCount}
+                </span>
+              )}
             </Button>
           ) : null
         }

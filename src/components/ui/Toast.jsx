@@ -19,7 +19,7 @@ let nextId = 0;
 
 const styles = {
   success: 'border-success/30 text-success bg-success/5',
-  error: 'border-danger/30 text-danger bg-danger/5',
+  error: 'border-danger bg-danger text-white',
   info: 'border-border text-text',
 };
 
@@ -72,11 +72,13 @@ export function ToastProvider({ children }) {
             )}
           >
             <span className="font-bold mt-0.5">{icons[t.type]}</span>
-            <p className="flex-1 text-sm text-text pt-0.5">{t.message}</p>
+            <p className={cn('flex-1 text-sm pt-0.5', t.type === 'error' ? 'text-white' : 'text-text')}>
+              {t.message}
+            </p>
             <button
               onClick={() => dismiss(t.id)}
               aria-label="Dismiss"
-              className="text-muted hover:text-text pt-0.5"
+              className={cn('pt-0.5 transition-colors', t.type === 'error' ? 'text-white/70 hover:text-white' : 'text-muted hover:text-text')}
             >
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="h-4 w-4"><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
             </button>
