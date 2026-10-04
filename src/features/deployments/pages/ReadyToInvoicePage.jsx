@@ -167,7 +167,7 @@ export default function ReadyToInvoicePage() {
   const toggleRow = (id) => setOpenRowId((prev) => (prev === id ? null : id));
 
   return (
-    <div className="mx-auto max-w-6xl space-y-6">
+    <div className="mx-auto max-w-[1600px] space-y-6">
       <PageHeader
         title={t('staffDeployments.readyToInvoice.pageTitle', 'Ready to invoice')}
         description={t('staffDeployments.readyToInvoice.pageDescription', 'Every approved month waiting on a client invoice, oldest first.')}

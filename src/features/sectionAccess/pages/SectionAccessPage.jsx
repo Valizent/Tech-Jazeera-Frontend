@@ -313,7 +313,7 @@ export default function SectionAccessPage() {
   const handleBack = activeModule ? closeModule : activeGroup ? closeGroup : () => navigate(-1);
 
   return (
-    <div className="mx-auto max-w-2xl space-y-6">
+    <div className="mx-auto max-w-[1600px] space-y-6">
       <PageHeader
         title={headerTitle}
         description={headerDescription}

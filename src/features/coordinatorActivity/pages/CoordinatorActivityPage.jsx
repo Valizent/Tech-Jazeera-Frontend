@@ -107,7 +107,7 @@ export default function CoordinatorActivityPage() {
   ];
 
   return (
-    <div className="mx-auto max-w-6xl">
+    <div className="mx-auto max-w-[1600px]">
       <PageHeader
         title="Coordinator Activity"
         description="Employees and clients your Coordinators have added themselves."

@@ -101,7 +101,7 @@ export default function ApprovalLogPage() {
   }, [data, search]);
 
   return (
-    <div className="mx-auto max-w-4xl space-y-6">
+    <div className="mx-auto max-w-[1600px] space-y-6">
       <PageHeader
         title="Approval Log"
         description="Every request decided through a configured approval workflow, in order — for anyone in the hierarchy to see."

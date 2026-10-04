@@ -124,7 +124,7 @@ export default function TimesheetProcessorPage() {
   }
 
   return (
-    <div className="mx-auto max-w-5xl">
+    <div className="mx-auto max-w-[1600px]">
       <PageHeader
         title="Timesheet Processor"
         description="Upload an employee's monthly door-access log to generate a salary-ready timesheet."

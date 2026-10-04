@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { getAllMonthlyWindow, getMyMonthlyWindow } from '../mobilisationTargets.api.js';
+import { useNavigate } from 'react-router-dom';
 import { formatMoney, formatMonthYear } from '../../../lib/utils.js';
 import PageHeader from '../../../components/shared/PageHeader.jsx';
 import Skeleton from '../../../components/ui/Skeleton.jsx';
@@ -14,6 +15,7 @@ import { useAuth } from '../../auth/AuthContext.jsx';
 export default function TargetsListPage() {
   const { t } = useTranslation();
   const { user } = useAuth();
+  const navigate = useNavigate();
   const currentMonth = new Date().toISOString().slice(0, 7);
   
   const [targetsOpen, setTargetsOpen] = useState(false);
@@ -46,8 +48,8 @@ export default function TargetsListPage() {
 
   if (!canManageTargets && !isCoordinatorBypass) {
     return (
-      <div className="mx-auto max-w-[1200px]">
-        <PageHeader title="Monthly Targets" />
+      <div className="mx-auto max-w-[1600px]">
+        <PageHeader title="Monthly Targets" onBack={() => navigate(-1)} />
         <EmptyState title="Access Denied" description="You do not have permission to view this page." />
       </div>
     );
@@ -58,8 +60,8 @@ export default function TargetsListPage() {
 
   if (isPending) {
     return (
-      <div className="mx-auto max-w-[1200px] space-y-6">
-        <PageHeader title="Monthly Targets" />
+      <div className="mx-auto max-w-[1600px] space-y-6">
+        <PageHeader title="Monthly Targets" onBack={() => navigate(-1)} />
         <div className="space-y-4">
           <Skeleton className="h-32 w-full" />
           <Skeleton className="h-32 w-full" />
@@ -70,8 +72,8 @@ export default function TargetsListPage() {
 
   if (isError) {
     return (
-      <div className="mx-auto max-w-[1200px]">
-        <PageHeader title="Monthly Targets" />
+      <div className="mx-auto max-w-[1600px]">
+        <PageHeader title="Monthly Targets" onBack={() => navigate(-1)} />
         <EmptyState title="Failed to load targets" description="Please try again later." />
       </div>
     );
@@ -90,10 +92,11 @@ export default function TargetsListPage() {
   }
 
   return (
-    <div className="mx-auto max-w-[1200px] space-y-6">
+    <div className="mx-auto max-w-[1600px] space-y-6">
       <PageHeader
         title="Monthly Targets"
         description={canManageTargets ? "Coordinator performance across the last 6 months." : "Your target performance across the last 6 months."}
+        onBack={() => navigate(-1)}
         actions={
           canManageTargets && (
             <Button onClick={() => setTargetsOpen(true)}>
@@ -113,14 +116,14 @@ export default function TargetsListPage() {
         <div className="space-y-6">
           {rows.map((row) => (
             <Card key={row.coordinator._id} className="overflow-hidden p-0">
-              <div className="border-b border-border bg-surface px-6 py-4">
+              <div className="border-b border-border bg-surface px-4 py-3">
                 <div className="flex items-center gap-3">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 text-lg font-bold text-primary">
+                  <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 text-sm font-bold text-primary">
                     {row.coordinator.name.charAt(0).toUpperCase()}
                   </div>
                   <div>
-                    <h3 className="font-semibold text-text">{row.coordinator.name}</h3>
-                    <p className="text-sm text-muted">{row.coordinator.email}</p>
+                    <h3 className="font-semibold text-text leading-none">{row.coordinator.name}</h3>
+                    <p className="text-xs text-muted mt-1">{row.coordinator.email}</p>
                   </div>
                 </div>
               </div>
@@ -129,7 +132,7 @@ export default function TargetsListPage() {
                 {row.monthlyData.map((m) => {
                   const progress = m.target > 0 ? Math.min(m.achieved / m.target, 1) : 0;
                   return (
-                    <div key={m.month} className="px-6 py-4">
+                    <div key={m.month} className="px-4 py-3">
                       <div className="mb-2 flex items-center justify-between">
                         <span className="text-sm font-medium text-text">{formatMonthYear(m.month)}</span>
                         {m.isClosed && (

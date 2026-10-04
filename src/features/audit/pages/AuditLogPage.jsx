@@ -108,7 +108,7 @@ export default function AuditLogPage() {
   ];
 
   return (
-    <div className="mx-auto max-w-6xl">
+    <div className="mx-auto max-w-[1600px]">
       <PageHeader
         title="Security Log"
         description="Complete, unfiltered record of authentication and CRUD activity across the company — never edited or deleted."

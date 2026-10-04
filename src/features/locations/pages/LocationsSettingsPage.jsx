@@ -47,7 +47,7 @@ export default function LocationsSettingsPage() {
   if (user.role !== 'Admin') return <Navigate to="/" replace />;
 
   return (
-    <div className="mx-auto max-w-2xl">
+    <div className="mx-auto max-w-[1600px]">
       <PageHeader
         title={t('staffLocations.pageTitle')}
         description={t('staffLocations.pageDescription')}

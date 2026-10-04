@@ -43,7 +43,7 @@ export default function ReconciliationPage() {
   if (!canRead) return <Navigate to="/" replace />;
 
   return (
-    <div className="mx-auto max-w-4xl space-y-6">
+    <div className="mx-auto max-w-[1600px] space-y-6">
       <PageHeader
         title="Data Reconciliation"
         description="A standing integrity check: ledger totals that no longer add up, an approved mobilisation with no deployment, a worker placed two places at once."

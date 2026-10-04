@@ -45,7 +45,7 @@ export default function MobilisationSettingsPage() {
   });
 
   return (
-    <div className="mx-auto max-w-2xl">
+    <div className="mx-auto max-w-[1600px]">
       <PageHeader
         title="Mobilisation settings"
         description="Who can view every mobilisation or self-mobilise is now configured from Section Access."

@@ -474,7 +474,7 @@ export default function ApprovalsPage() {
   const [activeTab, setActiveTab] = useTabParam(tabs, 'roles');
 
   return (
-    <div className="mx-auto max-w-4xl space-y-6">
+    <div className="mx-auto max-w-[1600px] space-y-6">
       <PageHeader
         title="Approval Hierarchy"
         description="Define your company's approval roles and the multi-step chains Leave, Salary Advance, Reimbursement and Timesheet requests route through."

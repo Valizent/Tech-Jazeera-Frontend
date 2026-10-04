@@ -69,7 +69,7 @@ export default function CompanySettingsPage() {
 
   if (isPending) {
     return (
-      <div className="mx-auto max-w-2xl space-y-4">
+      <div className="mx-auto max-w-[1600px] space-y-4">
         <Skeleton className="h-8 w-56" />
         <Skeleton className="h-40 w-full" />
         <Skeleton className="h-64 w-full" />
@@ -79,7 +79,7 @@ export default function CompanySettingsPage() {
 
   if (isError) {
     return (
-      <div className="mx-auto max-w-2xl">
+      <div className="mx-auto max-w-[1600px]">
         <PageHeader title="Company Settings" onBack={() => navigate(-1)} />
         <EmptyState
           title="You don't have access to this page"
@@ -90,7 +90,7 @@ export default function CompanySettingsPage() {
   }
 
   return (
-    <div className="mx-auto max-w-2xl space-y-6">
+    <div className="mx-auto max-w-[1600px] space-y-6">
       <PageHeader
         title="Company Settings"
         description="Your company's own identity — printed as the letterhead on every generated document."

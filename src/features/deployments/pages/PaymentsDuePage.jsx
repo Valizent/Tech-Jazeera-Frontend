@@ -141,7 +141,7 @@ export default function PaymentsDuePage() {
   }
 
   return (
-    <div className="mx-auto max-w-6xl space-y-6">
+    <div className="mx-auto max-w-[1600px] space-y-6">
       <PageHeader
         title={t('staffDeployments.paymentsDue.pageTitle')}
         description={t('staffDeployments.paymentsDue.pageDescription')}

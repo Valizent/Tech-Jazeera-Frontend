@@ -71,7 +71,7 @@ export default function SettlementViewPage() {
 
   if (isPending) {
     return (
-      <div className="mx-auto max-w-2xl space-y-4">
+      <div className="mx-auto max-w-[1600px] space-y-4">
         <Skeleton className="h-8 w-64" />
         <Skeleton className="h-64 w-full" />
       </div>
@@ -88,7 +88,7 @@ export default function SettlementViewPage() {
   }
 
   return (
-    <div className="mx-auto max-w-2xl">
+    <div className="mx-auto max-w-[1600px]">
       <PageHeader
         title={s.employeeName}
         description={t('staffEosb.view.descriptionLine', { code: s.employeeCode, date: formatDate(s.exitDate) })}
