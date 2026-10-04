@@ -30,7 +30,7 @@ import { useAuth } from '../../features/auth/AuthContext.jsx';
 import EmptyState from '../ui/EmptyState.jsx';
 import Button from '../ui/Button.jsx';
 
-export default function RequireSectionRead({ sectionKey, officeSecretaryBypass, children }) {
+export default function RequireSectionRead({ sectionKey, officeSecretaryBypass, coordinatorBypass, children }) {
   const { user } = useAuth();
   const { t } = useTranslation();
   // sectionKey also accepts an array (added 2026-09-13, for a page whose
@@ -43,6 +43,7 @@ export default function RequireSectionRead({ sectionKey, officeSecretaryBypass, 
   const allowed =
     user.role === 'Admin' ||
     (officeSecretaryBypass && user.role === 'Office Secretary') ||
+    (coordinatorBypass && user.role === 'Coordinator') ||
     keys.some((key) => user.sectionAccess?.includes(key));
 
   if (!allowed) {

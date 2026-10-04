@@ -200,8 +200,8 @@ function WorkerRouter() {
  *  Financial Requests (list/submit stays on the broader
  *  requireStaffOrExecutive floor, unchanged), Company Settings/Approval Log
  *  (already have their own dynamic in-page 403 handling). */
-const guarded = (sectionKey, element, officeSecretaryBypass) => (
-  <RequireSectionRead sectionKey={sectionKey} officeSecretaryBypass={officeSecretaryBypass}>
+const guarded = (sectionKey, element, officeSecretaryBypass, coordinatorBypass) => (
+  <RequireSectionRead sectionKey={sectionKey} officeSecretaryBypass={officeSecretaryBypass} coordinatorBypass={coordinatorBypass}>
     {element}
   </RequireSectionRead>
 );
@@ -297,7 +297,7 @@ export const router = createBrowserRouter([
               { path: '/assets', element: guarded('assetsManage', <AssetListPage />) },
               { path: '/exit-documents', element: guarded('exitDocuments', <ExitDocumentsPage />) },
               { path: '/timesheets', element: guarded('timesheetRequests', <TimesheetsPage />) },
-              { path: '/targets', element: guarded('mobilisationTargets', <TargetsListPage />) },
+              { path: '/targets', element: guarded('mobilisationTargets', <TargetsListPage />, false, true) },
 
               // Client billing — the internal tracking layer on top of
               // Deployment.monthlyHours (2026-09-27, moved out of the

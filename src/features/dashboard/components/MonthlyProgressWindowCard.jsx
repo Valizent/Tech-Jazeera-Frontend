@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import Card from '../../../components/ui/Card.jsx';
-import { formatMoney } from '../../../lib/utils.js';
+import { formatMoney, formatMonthYear } from '../../../lib/utils.js';
 
 export default function MonthlyProgressWindowCard({ data }) {
   const { t } = useTranslation();
@@ -40,7 +40,7 @@ export default function MonthlyProgressWindowCard({ data }) {
             <div key={m.month}>
               <div className="flex items-end justify-between">
                 <div>
-                  <span className="text-sm font-semibold text-text">{m.month}</span>
+                  <span className="text-sm font-semibold text-text">{formatMonthYear(m.month)}</span>
                 </div>
                 <div className="flex items-baseline gap-1.5">
                   <span className="text-sm font-semibold text-text">{formatMoney(m.achieved)}</span>

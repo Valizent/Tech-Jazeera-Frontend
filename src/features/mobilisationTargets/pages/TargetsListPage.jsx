@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
-import { getAllMonthlyWindow } from '../mobilisationTargets.api.js';
-import { formatMoney } from '../../../lib/utils.js';
+import { getAllMonthlyWindow, getMyMonthlyWindow } from '../mobilisationTargets.api.js';
+import { formatMoney, formatMonthYear } from '../../../lib/utils.js';
 import PageHeader from '../../../components/shared/PageHeader.jsx';
 import Skeleton from '../../../components/ui/Skeleton.jsx';
 import EmptyState from '../../../components/ui/EmptyState.jsx';
@@ -23,10 +23,18 @@ export default function TargetsListPage() {
     user.role === 'Manager' ||
     (user.sectionAccessWrite || []).includes('mobilisationTargets');
 
-  const { data, isPending, isError } = useQuery({
+  const isCoordinatorBypass = user.role === 'Coordinator' && !canManageTargets;
+
+  const { data: allData, isPending: isAllPending, isError: isAllError } = useQuery({
     queryKey: ['mob-targets-monthly-window-all', currentMonth],
     queryFn: () => getAllMonthlyWindow(currentMonth),
     enabled: canManageTargets,
+  });
+
+  const { data: myData, isPending: isMyPending, isError: isMyError } = useQuery({
+    queryKey: ['mob-targets-monthly-window-my', currentMonth],
+    queryFn: () => getMyMonthlyWindow(currentMonth),
+    enabled: isCoordinatorBypass,
   });
 
   const { data: coordinatorList = [] } = useQuery({
@@ -36,7 +44,7 @@ export default function TargetsListPage() {
     staleTime: 60_000,
   });
 
-  if (!canManageTargets) {
+  if (!canManageTargets && !isCoordinatorBypass) {
     return (
       <div className="mx-auto max-w-[1200px]">
         <PageHeader title="Monthly Targets" />
@@ -44,6 +52,9 @@ export default function TargetsListPage() {
       </div>
     );
   }
+
+  const isPending = canManageTargets ? isAllPending : isMyPending;
+  const isError = canManageTargets ? isAllError : isMyError;
 
   if (isPending) {
     return (
@@ -66,25 +77,37 @@ export default function TargetsListPage() {
     );
   }
 
-  const rows = data?.rows ?? [];
+  let rows = [];
+  if (canManageTargets) {
+    rows = allData?.rows ?? [];
+  } else if (isCoordinatorBypass && myData) {
+    rows = [
+      {
+        coordinator: { _id: user.id || user._id, name: user.name, email: user.email },
+        monthlyData: myData,
+      },
+    ];
+  }
 
   return (
     <div className="mx-auto max-w-[1200px] space-y-6">
       <PageHeader
         title="Monthly Targets"
-        description="Coordinator performance across the last 6 months."
+        description={canManageTargets ? "Coordinator performance across the last 6 months." : "Your target performance across the last 6 months."}
         actions={
-          <Button onClick={() => setTargetsOpen(true)}>
-            Manage Targets
-          </Button>
+          canManageTargets && (
+            <Button onClick={() => setTargetsOpen(true)}>
+              Manage Targets
+            </Button>
+          )
         }
       />
 
       {rows.length === 0 ? (
         <EmptyState
           title="No targets set"
-          description="There are no targets set for any coordinators in the current window."
-          action={<Button onClick={() => setTargetsOpen(true)}>Set a Target</Button>}
+          description={canManageTargets ? "There are no targets set for any coordinators in the current window." : "You have no targets set in the current window."}
+          action={canManageTargets ? <Button onClick={() => setTargetsOpen(true)}>Set a Target</Button> : null}
         />
       ) : (
         <div className="space-y-6">
@@ -108,7 +131,7 @@ export default function TargetsListPage() {
                   return (
                     <div key={m.month} className="px-6 py-4">
                       <div className="mb-2 flex items-center justify-between">
-                        <span className="text-sm font-medium text-text">{m.month}</span>
+                        <span className="text-sm font-medium text-text">{formatMonthYear(m.month)}</span>
                         {m.isClosed && (
                           <span className="text-[10px] font-bold uppercase text-success">Closed</span>
                         )}

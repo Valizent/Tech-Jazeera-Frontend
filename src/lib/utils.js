@@ -59,6 +59,14 @@ export function formatDate(value) {
   });
 }
 
+/** Display format: "YYYY-MM" to "Month YYYY", e.g. "September 2026". Em-dash for missing values. */
+export function formatMonthYear(yyyyMm) {
+  if (!yyyyMm) return '—';
+  const [y, m] = yyyyMm.split('-');
+  const date = new Date(y, m - 1);
+  return date.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+}
+
 /** Display format with time: "23 Jul 2026, 14:05". For logs where the exact
  *  moment matters, not just the day. Em-dash for missing values. */
 export function formatDateTime(value) {

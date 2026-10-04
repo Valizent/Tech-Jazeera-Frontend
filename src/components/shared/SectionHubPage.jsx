@@ -27,7 +27,8 @@ export default function SectionHubPage({ title, titleKey, description, descripti
     // "any of" semantics as RequireSectionRead's own route guard.
     if (item.sectionKey) {
       const keys = Array.isArray(item.sectionKey) ? item.sectionKey : [item.sectionKey];
-      if (!keys.some((key) => user.sectionAccess?.includes(key))) return false;
+      const hasAccess = keys.some((key) => user.sectionAccess?.includes(key));
+      if (!hasAccess && !(item.coordinatorBypass && user.role === 'Coordinator')) return false;
     }
     return true;
   });

@@ -235,16 +235,21 @@ export default function DashboardPage() {
               <MonthlyProgressWindowCard data={myMonthlyWindow} />
             </div>
           )}
-          {(pendingLeave != null || pendingExit != null || myRequirementsSummary != null) && (
-            <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-              {(pendingLeave != null || pendingExit != null) && (
-                <HrComplianceWidget pendingLeave={pendingLeave} pendingExit={pendingExit} />
-              )}
-              {myRequirementsSummary != null && <MyRequirementsWidget summary={myRequirementsSummary} />}
-            </div>
-          )}
-          {attendanceSummary != null && <DailyAttendanceSummary summary={attendanceSummary} />}
-          {canSeeStandbyAnalysis && <StandbyAnalysisWidget />}
+          <div className="grid grid-cols-1 gap-6 lg:grid-cols-2 [&>*:last-child:nth-child(odd)]:lg:col-span-2 mt-6">
+            {(pendingLeave != null || pendingExit != null) && (
+              <HrComplianceWidget pendingLeave={pendingLeave} pendingExit={pendingExit} />
+            )}
+            {myRequirementsSummary != null && <MyRequirementsWidget summary={myRequirementsSummary} />}
+            {mobilisationsByStatus != null && (
+              <StatusBreakdown
+                title={t('staffDashboard.myPipelineTitle')}
+                data={mobilisationsByStatus}
+                colors={{ Draft: 'default', Submitted: 'warning', Approved: 'primary', Deployed: 'success', Rejected: 'danger' }}
+              />
+            )}
+            {attendanceSummary != null && <DailyAttendanceSummary summary={attendanceSummary} />}
+            {canSeeStandbyAnalysis && <StandbyAnalysisWidget />}
+          </div>
         </>
       ) : (
         <>
@@ -282,16 +287,7 @@ export default function DashboardPage() {
         </>
       )}
 
-      {/* The coordinator's own pipeline breakdown — full width, no 2-col grid
-          to pair it with (removed 2026-09-24 alongside Workforce by status,
-          which used to be the thing on the other side of this grid). */}
-      {isCoordinator && mobilisationsByStatus != null && (
-        <StatusBreakdown
-          title={t('staffDashboard.myPipelineTitle')}
-          data={mobilisationsByStatus}
-          colors={{ Draft: 'default', Submitted: 'warning', Approved: 'primary', Deployed: 'success', Rejected: 'danger' }}
-        />
-      )}
+      {/* The coordinator's own pipeline breakdown is now rendered inside the grid above */}
 
       {/* Alerts + activity — ExpiringDocuments always renders (it's a list
           built from independently-gated sources, naturally empty rather

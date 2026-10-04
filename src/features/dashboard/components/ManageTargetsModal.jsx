@@ -18,7 +18,7 @@ import { useTranslation } from 'react-i18next';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { getAllProgress, getAllSemiAnnual, listAllTargets, setTarget, deleteTarget } from '../../mobilisationTargets/mobilisationTargets.api.js';
 import { useToast } from '../../../components/ui/Toast.jsx';
-import { apiMessage, formatMoney } from '../../../lib/utils.js';
+import { apiMessage, formatMoney, formatMonthYear } from '../../../lib/utils.js';
 import Modal from '../../../components/ui/Modal.jsx';
 import Button from '../../../components/ui/Button.jsx';
 import Input from '../../../components/ui/Input.jsx';
@@ -401,7 +401,7 @@ export default function ManageTargetsModal({ open, onClose, coordinators = [] })
                 >
                   <div className="text-sm">
                     <span className="font-medium text-text">{t2.coordinator.name}</span>
-                    <span className="ml-2 text-muted">{t2.month}</span>
+                    <span className="ml-2 text-muted">{formatMonthYear(t2.month)}</span>
                     <span className="ml-2 text-muted">{t('staffDashboard.targets.monthTargetSuffix', { target: formatMoney(t2.target) })}</span>
                     {t2.incentivePercent > 0 && (
                       <span className="ml-1 text-muted">{t('staffDashboard.targets.incentiveSuffix', { percent: t2.incentivePercent })}</span>
