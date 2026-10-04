@@ -22,7 +22,7 @@ export default function PageHeader({ title, description, onBack, actions }) {
           {description && <p className="text-sm font-medium text-muted/80 max-w-2xl">{description}</p>}
         </div>
       </div>
-      {actions && <div className="flex shrink-0 items-center gap-3">{actions}</div>}
+      {actions && <div className="flex shrink-0 flex-wrap items-center gap-3 mt-2 sm:mt-0">{actions}</div>}
     </div>
   );
 }

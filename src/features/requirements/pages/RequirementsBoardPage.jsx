@@ -100,7 +100,7 @@ export default function RequirementsBoardPage() {
   }, [stages, requirements]);
   const staleTotal = (requirements ?? []).filter((r) => r.stale).length;
   const hasClosedStage = stages.some((s) => s.isTerminal);
-  const hasLostStage = stages.some((s) => s.isTerminal && !s.isMobilisedStage);
+  const activeStages = stages.filter((s) => !(s.isTerminal && !s.isMobilisedStage));
   const clientChoices = data?.filterOptions?.clients ?? [];
   const subcontractorChoices = data?.filterOptions?.subcontractors ?? [];
 
@@ -203,11 +203,6 @@ export default function RequirementsBoardPage() {
         onBack={() => navigate(-1)}
         actions={
           <>
-            {hasLostStage && (
-              <Button size="sm" variant="secondary" onClick={() => navigate('/requirements/lost')}>
-                {t('staffRequirements.lost.viewLostButton')}
-              </Button>
-            )}
             {stages.length > 0 && (
               <Button size="sm" variant="secondary" isLoading={exportMutation.isPending} onClick={() => exportMutation.mutate()}>
                 {t('staffRequirements.exportExcel')}
@@ -320,7 +315,7 @@ export default function RequirementsBoardPage() {
         // overflow-y-hidden is required alongside overflow-x (see Tabs.jsx's note:
         // a non-visible overflow-x forces the other axis to `auto`).
         <div className="-mx-1 flex gap-4 overflow-x-auto overflow-y-hidden px-1 pb-4">
-          {stages.map((stage) => {
+          {activeStages.map((stage) => {
             const cards = byStage.get(stage._id) ?? [];
             return (
               <BoardColumn key={stage._id} stage={stage} count={cards.length} staleCount={cards.filter((c) => c.stale).length} onDropCard={moveCard}>
