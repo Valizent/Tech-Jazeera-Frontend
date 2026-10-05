@@ -85,12 +85,13 @@ export const LEAVE_TYPE_MANAGE_ROLES = ['Admin', 'HR'];
 export const LEAVE_DECIDE_ROLES = ['Admin', 'Manager', 'HR', 'Coordinator'];
 
 /** Mirror of settlement.model.js. */
-export const EXIT_REASONS = ['Resignation', 'TerminationByEmployer', 'EndOfContract', 'SponsorshipTransfer'];
+export const EXIT_REASONS = ['Resignation', 'TerminationByEmployer', 'EndOfContract', 'SponsorshipTransfer', 'CurrentEmployee'];
 export const EXIT_REASON_LABELS = {
   Resignation: 'Resignation',
   TerminationByEmployer: 'Termination by employer',
   EndOfContract: 'End of contract',
   SponsorshipTransfer: 'Sponsorship transfer (Tanazel)',
+  CurrentEmployee: 'Current Employee (Simulation)',
 };
 // EOSB access (view/compute/delete, one unified circle) is the
 // admin-configurable SectionAccess ('eosb') mechanism now — reaching the

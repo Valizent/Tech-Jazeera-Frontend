@@ -18,6 +18,7 @@ export const emptySubcontractorForm = {
   contactPerson: '',
   phone: '',
   email: '',
+  creditLimitDays: '30',
   status: 'Active',
   notes: '',
 };

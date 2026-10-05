@@ -41,7 +41,7 @@ export default function AttendancePage() {
   const [tab, setTab] = useState(tabs[0]?.key);
 
   return (
-    <div className="mx-auto max-w-6xl">
+    <div className="mx-auto max-w-[1600px]">
       <PageHeader
         title={t('staffAttendance.title')}
         description={t('staffAttendance.description')}

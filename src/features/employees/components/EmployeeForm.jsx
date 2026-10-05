@@ -223,10 +223,16 @@ export default function EmployeeForm({ defaultValues, onSubmit, submitLabel, sub
           {...register('joiningDate')}
         />
         <Input
-          label={t('staffEmployees.form.employmentEndDate', 'Employment End Date')}
+          label={t('staffEmployees.form.contractStartDate', 'Contract Start Date')}
           type="date"
-          error={errors.employmentEndDate?.message}
-          {...register('employmentEndDate')}
+          error={errors.contractStartDate?.message}
+          {...register('contractStartDate')}
+        />
+        <Input
+          label={t('staffEmployees.form.contractEndDate', 'Contract End Date')}
+          type="date"
+          error={errors.contractEndDate?.message}
+          {...register('contractEndDate')}
         />
         <Input label={`${t('staffEmployees.form.designation')} *`} placeholder="Electrician" error={errors.designation?.message} {...register('designation')} />
         <Input label={t('staffEmployees.form.department')} placeholder="Maintenance" error={errors.department?.message} {...register('department')} />

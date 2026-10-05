@@ -81,6 +81,7 @@ export default function ClientForm({ defaultValues, onSubmit, submitLabel, submi
       <Section title={t('staffClients.form.sectionCompany')}>
         <Input label={t('staffClients.form.companyName')} error={errors.companyName?.message} {...register('companyName')} />
         <Input label={t('staffClients.form.industry')} placeholder={t('staffClients.form.industryPlaceholder')} error={errors.industry?.message} {...register('industry')} />
+        <Input label="Credit Limit Days" type="number" min="0" error={errors.creditLimitDays?.message} {...register('creditLimitDays')} />
         <Input label={t('staffClients.form.contactPerson')} error={errors.contactPerson?.message} {...register('contactPerson')} />
         <Input label={t('staffClients.form.phone')} placeholder={t('staffClients.form.phonePlaceholder')} error={errors.phone?.message} {...register('phone')} />
         <Input label={t('staffClients.form.email')} type="email" error={errors.email?.message} {...register('email')} />

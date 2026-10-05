@@ -44,6 +44,7 @@ export const emptyClientForm = {
   vatNumber: '',
   crNumber: '',
   industry: '',
+  creditLimitDays: '50',
   status: 'Active',
   sites: [],
   notes: '',
@@ -60,6 +61,7 @@ export function clientToForm(client) {
     vatNumber: client.vatNumber ?? '',
     crNumber: client.crNumber ?? '',
     industry: client.industry ?? '',
+    creditLimitDays: client.creditLimitDays?.toString() ?? '50',
     status: client.status,
     sites: (client.sites ?? []).map((s) => ({
       name: s.name ?? '',

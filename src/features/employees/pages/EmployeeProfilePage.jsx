@@ -167,8 +167,17 @@ export default function EmployeeProfilePage() {
             <ProfileField label={t('staffEmployees.profile.fields.mobile')}>{employee.mobile}</ProfileField>
             <ProfileField label={t('staffEmployees.profile.fields.email')}>{employee.email}</ProfileField>
             <ProfileField label={t('staffEmployees.profile.fields.joiningDate')}>{formatDate(employee.joiningDate)}</ProfileField>
-            {employee.employmentEndDate && (
-              <ProfileField label="Employment End Date">{formatDate(employee.employmentEndDate)}</ProfileField>
+            {employee.contractStartDate && (
+              <ProfileField label="Contract Start Date">{formatDate(employee.contractStartDate)}</ProfileField>
+            )}
+            {employee.contractStartDate && (
+                <div>
+                  <dt className="text-xs text-muted">Contract Start Date</dt>
+                  <dd className="text-sm font-medium text-text">{formatDate(employee.contractStartDate)}</dd>
+                </div>
+              )}
+              {employee.contractEndDate && (
+              <ProfileField label="Contract End Date">{formatDate(employee.contractEndDate)}</ProfileField>
             )}
             <ProfileField label={t('staffEmployees.profile.fields.department')}>{employee.department}</ProfileField>
             <ProfileField label={t('staffEmployees.profile.fields.salary')}>{employee.salary != null ? formatMoney(employee.salary) : null}</ProfileField>

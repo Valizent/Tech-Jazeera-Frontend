@@ -12,7 +12,7 @@ export default function AttendanceSummaryPage() {
   const navigate = useNavigate();
   const { t } = useTranslation();
   return (
-    <div className="mx-auto max-w-6xl">
+    <div className="mx-auto max-w-[1600px]">
       <PageHeader
         title={t('staffAttendance.summary.pageTitle')}
         description={t('staffAttendance.summary.pageDescription')}

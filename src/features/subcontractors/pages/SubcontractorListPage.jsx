@@ -233,6 +233,7 @@ export default function SubcontractorListPage() {
             <Input label={t('staffSubcontractors.form.contactPerson')} error={errors.contactPerson?.message} {...register('contactPerson')} />
             <Input label={t('staffSubcontractors.form.phone')} error={errors.phone?.message} {...register('phone')} />
             <Input label={t('staffSubcontractors.form.email')} type="email" error={errors.email?.message} {...register('email')} />
+            <Input label="Credit Limit Days" type="number" min="0" error={errors.creditLimitDays?.message} {...register('creditLimitDays')} />
             <Select label={t('staffSubcontractors.form.status')} error={errors.status?.message} {...register('status')}>
               {SUBCONTRACTOR_STATUSES.map((s) => (
                 <option key={s} value={s}>

@@ -81,7 +81,7 @@ export default function SettlementNewPage() {
   });
 
   return (
-    <div className="mx-auto max-w-2xl">
+    <div className="mx-auto max-w-[1600px]">
       <PageHeader
         title={t('staffEosb.new.pageTitle')}
         description={t('staffEosb.new.pageDescription')}
