@@ -57,7 +57,7 @@ export default function ClientEditPage() {
   }
 
   return (
-    <div className="mx-auto max-w-3xl">
+    <div className="mx-auto max-w-[1600px]">
       <PageHeader title={t('staffClients.edit.pageTitlePrefix', { name: client.companyName })} onBack={() => navigate(-1)} />
       <ClientForm
         defaultValues={clientToForm(client)}

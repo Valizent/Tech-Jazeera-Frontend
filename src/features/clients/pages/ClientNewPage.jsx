@@ -28,7 +28,7 @@ export default function ClientNewPage() {
   });
 
   return (
-    <div className="mx-auto max-w-3xl">
+    <div className="mx-auto max-w-[1600px]">
       <PageHeader
         title={t('staffClients.new.pageTitle')}
         description={t('staffClients.new.pageDescription')}

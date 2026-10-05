@@ -227,21 +227,38 @@ export default function SubcontractorListPage() {
       )}
 
       <Modal open={!!editing} onClose={closeModal} title={editing?._id ? t('staffSubcontractors.modalEditTitle') : t('staffSubcontractors.modalAddTitle')} size="lg">
-        <form onSubmit={handleSubmit((values) => saveMutation.mutate(values))} noValidate className="space-y-4">
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            <Input label={t('staffSubcontractors.form.name')} error={errors.name?.message} {...register('name')} />
-            <Input label={t('staffSubcontractors.form.contactPerson')} error={errors.contactPerson?.message} {...register('contactPerson')} />
-            <Input label={t('staffSubcontractors.form.phone')} error={errors.phone?.message} {...register('phone')} />
-            <Input label={t('staffSubcontractors.form.email')} type="email" error={errors.email?.message} {...register('email')} />
-            <Input label="Credit Limit Days" type="number" min="0" error={errors.creditLimitDays?.message} {...register('creditLimitDays')} />
-            <Select label={t('staffSubcontractors.form.status')} error={errors.status?.message} {...register('status')}>
-              {SUBCONTRACTOR_STATUSES.map((s) => (
-                <option key={s} value={s}>
-                  {t(`common.status.${s}`, s)}
-                </option>
-              ))}
-            </Select>
+        <form onSubmit={handleSubmit((values) => saveMutation.mutate(values))} noValidate className="space-y-6">
+          <div className="space-y-4">
+            <h3 className="text-sm font-semibold uppercase tracking-wide text-muted">Company</h3>
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <Input label={t('staffSubcontractors.form.name')} error={errors.name?.message} {...register('name')} />
+              <Input label="Industry" placeholder="Construction, Facilities..." error={errors.industry?.message} {...register('industry')} />
+              <Input label="Credit Limit Days" type="number" min="0" error={errors.creditLimitDays?.message} {...register('creditLimitDays')} />
+              <Input label={t('staffSubcontractors.form.contactPerson')} error={errors.contactPerson?.message} {...register('contactPerson')} />
+              <Input label={t('staffSubcontractors.form.phone')} placeholder="+966 1x xxx xxxx" error={errors.phone?.message} {...register('phone')} />
+              <Input label={t('staffSubcontractors.form.email')} type="email" error={errors.email?.message} {...register('email')} />
+              <Select label={t('staffSubcontractors.form.status')} error={errors.status?.message} {...register('status')}>
+                {SUBCONTRACTOR_STATUSES.map((s) => (
+                  <option key={s} value={s}>
+                    {t(`common.status.${s}`, s)}
+                  </option>
+                ))}
+              </Select>
+            </div>
           </div>
+
+          <div className="space-y-4">
+            <div>
+              <h3 className="text-sm font-semibold uppercase tracking-wide text-muted">Legal & Address</h3>
+              <p className="mt-1 text-xs text-muted">Saudi VAT is 15 digits; Commercial Registration is 10 digits.</p>
+            </div>
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <Input label="VAT number" placeholder="3xxxxxxxxxxxxxx3" error={errors.vatNumber?.message} {...register('vatNumber')} />
+              <Input label="Commercial Registration" placeholder="10 digits" error={errors.crNumber?.message} {...register('crNumber')} />
+              <Input label="Address" className="sm:col-span-2" error={errors.address?.message} {...register('address')} />
+            </div>
+          </div>
+
           <Textarea label={t('staffSubcontractors.form.notes')} placeholder={t('common.optional')} error={errors.notes?.message} {...register('notes')} />
 
           <div className="flex justify-end gap-2 pt-2">
