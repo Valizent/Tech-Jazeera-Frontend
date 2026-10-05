@@ -147,7 +147,16 @@ function WorkersTab({ clientId }) {
         </Link>
       ),
     },
-    { key: 'workerType', header: t('staffDeployments.list.columns.type', 'Type'), render: (d) => <Badge variant="secondary">{d.workerType}</Badge> },
+    { 
+      key: 'workerType', 
+      header: t('staffDeployments.list.columns.type', 'Type'), 
+      render: (d) => {
+        let label = d.workerType;
+        if (d.workerType === 'SupplierEmployee') label = 'Supplier Employee';
+        else if (d.workerType === 'Employee') label = 'Own Employee';
+        return <Badge variant="secondary">{label}</Badge>;
+      }
+    },
     { key: 'designation', header: t('staffClients.profile.workersColumns.designation', 'Designation'), render: (d) => d.mobilisation?.jobTitle || '' },
     { key: 'site', header: t('staffClients.profile.workersColumns.site', 'Site'), render: (d) => d.site || '' },
   ];
