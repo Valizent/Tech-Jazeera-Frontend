@@ -49,7 +49,7 @@ export default function EmployeeEditPage() {
 
   if (isPending) {
     return (
-      <div className="mx-auto max-w-3xl space-y-4">
+      <div className="mx-auto max-w-[1600px] space-y-4">
         <Skeleton className="h-8 w-56" />
         <Skeleton className="h-64 w-full" />
         <Skeleton className="h-64 w-full" />
@@ -76,7 +76,7 @@ export default function EmployeeEditPage() {
   }
 
   return (
-    <div className="mx-auto max-w-3xl">
+    <div className="mx-auto max-w-[1600px]">
       <PageHeader
         title={t('staffEmployees.editPage.title', { name: employee.fullName })}
         description={employee.employeeId}

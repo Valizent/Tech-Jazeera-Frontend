@@ -29,7 +29,7 @@ export default function EmployeeNewPage() {
   });
 
   return (
-    <div className="mx-auto max-w-3xl">
+    <div className="mx-auto max-w-[1600px]">
       <PageHeader
         title={t('staffEmployees.new.title')}
         description={t('staffEmployees.new.description')}

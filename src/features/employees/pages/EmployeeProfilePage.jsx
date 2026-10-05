@@ -109,7 +109,7 @@ export default function EmployeeProfilePage() {
 
   if (isPending) {
     return (
-      <div className="mx-auto max-w-4xl space-y-4">
+      <div className="mx-auto max-w-[1600px] space-y-4">
         <Skeleton className="h-8 w-64" />
         <Skeleton className="h-40 w-full" />
         <Skeleton className="h-56 w-full" />
@@ -127,7 +127,7 @@ export default function EmployeeProfilePage() {
   }
 
   return (
-    <div className="mx-auto max-w-4xl">
+    <div className="mx-auto max-w-[1600px]">
       <PageHeader
         title={employee.fullName}
         description={`${employee.employeeId} · ${employee.designation}`}
