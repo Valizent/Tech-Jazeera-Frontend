@@ -16,7 +16,7 @@ import { useTranslation } from 'react-i18next';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { getClient, deleteClient } from '../clients.api.js';
-import { listEmployees } from '../../employees/employees.api.js';
+import { listDeployments } from '../../deployments/deployments.api.js';
 import { useAuth } from '../../auth/AuthContext.jsx';
 import { useToast } from '../../../components/ui/Toast.jsx';
 import { CLIENT_DELETE_ROLES, CLIENT_APPROVAL_VARIANT } from '../../../lib/constants.js';
@@ -122,28 +122,34 @@ function OverviewTab({ client }) {
   );
 }
 
-/** Workers tab — live query of employees assigned to this client. */
+/** WorkersTab: now backed by active deployments instead of an employee list, to include subcontractors */
 function WorkersTab({ clientId }) {
   const { t } = useTranslation();
+  const [workerType, setWorkerType] = useState('');
+
   const { data, isPending, isError } = useQuery({
-    queryKey: ['employees', { client: clientId }],
-    queryFn: () => listEmployees({ client: clientId, limit: 100 }),
+    queryKey: ['deployments', { client: clientId, status: 'Active' }],
+    queryFn: () => listDeployments({ client: clientId, status: 'Active', limit: 500 }),
   });
+
+  const rows = (data?.items ?? []).filter((d) => !workerType || d.workerType === workerType);
 
   const columns = [
     {
-      key: 'fullName',
-      header: t('staffClients.profile.workersColumns.worker'),
-      render: (e) => (
-        <Link to={`/employees/${e._id}`} className="font-medium text-text hover:text-primary">
-          {e.fullName}
-          <span className="block text-xs font-normal text-muted">{e.employeeId}</span>
+      key: 'workerName',
+      header: t('staffClients.profile.workersColumns.worker', 'Worker'),
+      render: (d) => (
+        <Link to={d.workerType === 'Employee' ? `/employees/${d.worker?._id}` : `/deployments/${d._id}`} className="font-medium text-text hover:text-primary">
+          {d.workerName}
+          <span className="block text-xs font-normal text-muted">
+            {d.workerType === 'Employee' ? d.worker?.employeeId : d.subcontractorName || 'Freelancer'}
+          </span>
         </Link>
       ),
     },
-    { key: 'designation', header: t('staffClients.profile.workersColumns.designation'), render: (e) => e.designation },
-    { key: 'currentSite', header: t('staffClients.profile.workersColumns.site'), render: (e) => e.currentSite || '' },
-    { key: 'status', header: t('staffClients.profile.workersColumns.status'), render: (e) => <Badge>{t(`common.status.${e.status}`, e.status)}</Badge> },
+    { key: 'workerType', header: t('staffDeployments.list.columns.type', 'Type'), render: (d) => <Badge variant="secondary">{d.workerType}</Badge> },
+    { key: 'designation', header: t('staffClients.profile.workersColumns.designation', 'Designation'), render: (d) => d.mobilisation?.jobTitle || '' },
+    { key: 'site', header: t('staffClients.profile.workersColumns.site', 'Site'), render: (d) => d.site || '' },
   ];
 
   if (isError) {
@@ -151,18 +157,32 @@ function WorkersTab({ clientId }) {
   }
 
   return (
-    <Table
-      columns={columns}
-      rows={data?.items ?? []}
-      rowKey={(e) => e._id}
-      loading={isPending}
-      emptyState={
-        <EmptyState
-          title={t('staffClients.profile.noWorkersTitle')}
-          description={t('staffClients.profile.noWorkersDescription')}
-        />
-      }
-    />
+    <div className="space-y-4">
+      <div className="flex justify-end">
+        <select
+          className="rounded-lg border border-border bg-surface px-3 py-1.5 text-sm outline-none focus:border-primary"
+          value={workerType}
+          onChange={(e) => setWorkerType(e.target.value)}
+        >
+          <option value="">All Types</option>
+          <option value="Employee">Own Employee</option>
+          <option value="SupplierEmployee">Supplier Employee</option>
+          <option value="Freelancer">Freelancer</option>
+        </select>
+      </div>
+      <Table
+        columns={columns}
+        rows={rows}
+        rowKey={(d) => d._id}
+        loading={isPending}
+        emptyState={
+          <EmptyState
+            title={t('staffClients.profile.noWorkersTitle')}
+            description={t('staffClients.profile.noWorkersDescription')}
+          />
+        }
+      />
+    </div>
   );
 }
 
@@ -199,7 +219,7 @@ export default function ClientProfilePage() {
 
   if (isPending) {
     return (
-      <div className="mx-auto max-w-4xl space-y-4">
+      <div className="mx-auto max-w-[1600px] space-y-4">
         <Skeleton className="h-8 w-64" />
         <Skeleton className="h-40 w-full" />
         <Skeleton className="h-56 w-full" />
@@ -223,7 +243,7 @@ export default function ClientProfilePage() {
   ];
 
   return (
-    <div className="mx-auto max-w-4xl">
+    <div className="mx-auto max-w-[1600px]">
       <PageHeader
         title={client.companyName}
         description={client.industry}

@@ -51,7 +51,7 @@ export default function MonthlyEntryBreakdownPanel({ row, formatMoney, children 
   const supplierDeduction = b.supplierDeductionAmount ?? 0;
   const clientCommissionExpense = b.expenseClientCommission ?? 0;
   const expensesTotal = row.expenses ?? 0;
-  const revenue = row.revenue ?? 0;
+  const revenue = row.clientRevenue ?? row.revenue ?? 0;
 
   return (
     <div className="rounded-xl border border-border/60 bg-surface/70 p-4 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-6 text-sm">
