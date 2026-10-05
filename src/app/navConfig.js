@@ -157,6 +157,9 @@ export const NAV_GROUPS = [
       { to: '/financial/ready-to-invoice', label: 'Ready to Invoice', icon: ICON.invoice, description: 'Approved months waiting on a client invoice.', labelKey: 'staffNav.financial.readyToInvoice.label', descriptionKey: 'staffNav.financial.readyToInvoice.description' },
       { to: '/financial/payments-due', label: 'Payments Due', icon: ICON.list, description: 'Invoiced client payments awaiting collection.', labelKey: 'staffNav.financial.paymentsDue.label', descriptionKey: 'staffNav.financial.paymentsDue.description' },
       { to: '/financial/paid-invoices', label: 'Paid Invoices', icon: ICON.check, description: 'Invoice payment history — full and partial.', labelKey: 'staffNav.financial.paidInvoices.label', descriptionKey: 'staffNav.financial.paidInvoices.description' },
+      { to: '/financial/ready-for-sub-invoice', label: 'Ready for Sub Invoice', icon: ICON.invoice, description: 'Approved months waiting on a subcontractor invoice.', labelKey: 'staffNav.financial.readyForSubInvoice.label', descriptionKey: 'staffNav.financial.readyForSubInvoice.description' },
+      { to: '/financial/sub-payments-due', label: 'Sub Payments Due', icon: ICON.list, description: 'Invoiced subcontractor payments awaiting clearance.', labelKey: 'staffNav.financial.subPaymentsDue.label', descriptionKey: 'staffNav.financial.subPaymentsDue.description' },
+      { to: '/financial/paid-sub-invoices', label: 'Paid Sub Invoices', icon: ICON.check, description: 'Subcontractor payment history — full and partial.', labelKey: 'staffNav.financial.paidSubInvoices.label', descriptionKey: 'staffNav.financial.paidSubInvoices.description' },
       // No static roles gate — access is the admin-configurable Section
       // Access mechanism (see docs/SECTION-ACCESS-notes.md); visible to
       // every staff role that reaches this hub, page 403s if not granted —

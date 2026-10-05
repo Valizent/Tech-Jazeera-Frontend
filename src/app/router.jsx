@@ -65,6 +65,9 @@ const PaymentsDuePage = lazy(() => import('../features/deployments/pages/Payment
 const PaymentsReviewPage = lazy(() => import('../features/deployments/pages/PaymentsReviewPage.jsx'));
 const ReadyToInvoicePage = lazy(() => import('../features/deployments/pages/ReadyToInvoicePage.jsx'));
 const PaidInvoicesPage = lazy(() => import('../features/deployments/pages/PaidInvoicesPage.jsx'));
+const ReadyForSubInvoicePage = lazy(() => import('../features/deployments/pages/ReadyForSubInvoicePage.jsx'));
+const SubcontractorPaymentsDuePage = lazy(() => import('../features/deployments/pages/SubcontractorPaymentsDuePage.jsx'));
+const PaidSubcontractorInvoicesPage = lazy(() => import('../features/deployments/pages/PaidSubcontractorInvoicesPage.jsx'));
 const MobilisationListPage = lazy(() => import('../features/mobilisations/pages/MobilisationListPage.jsx'));
 const MobilisationNewPage = lazy(() => import('../features/mobilisations/pages/MobilisationNewPage.jsx'));
 const MobilisationDetailPage = lazy(() => import('../features/mobilisations/pages/MobilisationDetailPage.jsx'));
@@ -313,6 +316,9 @@ export const router = createBrowserRouter([
               { path: '/financial/ready-to-invoice', element: guarded(['deploymentsInvoicing', 'mobilisationsViewer'], <ReadyToInvoicePage />) },
               { path: '/financial/payments-due', element: <PaymentsDuePage /> },
               { path: '/financial/paid-invoices', element: <PaidInvoicesPage /> },
+              { path: '/financial/ready-for-sub-invoice', element: <ReadyForSubInvoicePage /> },
+              { path: '/financial/sub-payments-due', element: <SubcontractorPaymentsDuePage /> },
+              { path: '/financial/paid-sub-invoices', element: <PaidSubcontractorInvoicesPage /> },
               { path: '/financial/payments-review', element: guarded('deploymentsPaymentDecide', <PaymentsReviewPage />) },
               { path: '/expenses', element: guarded('expenses', <ExpenseListPage />) },
               { path: '/security-log', element: guarded('auditLog', <AuditLogPage />) },
