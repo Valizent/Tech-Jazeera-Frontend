@@ -52,7 +52,7 @@ function ReadyToInvoiceRow({ row, isOpen, onToggle, onSendInvoice, t, navigate }
           <span className="text-sm text-text">{row.actualHours} hrs</span>
         </td>
         <td className="px-4 py-3 align-middle bg-surface border-y border-border/40 group-hover:border-primary/30 transition-colors">
-          <span className="text-sm font-semibold text-primary">{formatMoney(row.revenue)}</span>
+          <span className="text-sm font-semibold text-primary">{formatMoney(row.breakdown?.subContractorInvoiceAmount ?? 0)}</span>
         </td>
         <td className="px-4 py-3 align-middle bg-surface border-y border-border/40 group-hover:border-primary/30 transition-colors">
           <span className="text-sm text-muted">{row.hoursApprovedAt ? formatDate(row.hoursApprovedAt) : '—'}</span>
@@ -169,7 +169,7 @@ export default function ReadyForSubInvoicePage() {
   return (
     <div className="mx-auto max-w-[1600px] space-y-6">
       <PageHeader
-        title={t('staffDeployments.readyForSubInvoice.pageTitle', 'Ready to invoice')}
+        title={t('staffDeployments.readyForSubInvoice.pageTitle', 'Sub invoices received')}
         description={t('staffDeployments.readyForSubInvoice.pageDescription', 'Every approved month waiting on a subcontractor invoice, oldest first.')}
         onBack={() => navigate(-1)}
       />
@@ -199,7 +199,7 @@ export default function ReadyForSubInvoicePage() {
           <table className="w-full border-separate border-spacing-y-[6px] text-sm px-4">
             <thead className="text-left">
               <tr>
-                {['Subcontractor / Worker', 'Month', 'Hours', 'Invoice Amount', 'Approved On', ''].map((h) => (
+                {['Subcontractor / Worker', 'Month', 'Hours', 'Sub Invoice Amount', 'Approved On', ''].map((h) => (
                   <th key={h} className="px-4 py-3 text-[13px] font-black uppercase tracking-wider text-text bg-border/30 first:rounded-l-xl last:rounded-r-xl whitespace-nowrap">
                     {h}
                   </th>

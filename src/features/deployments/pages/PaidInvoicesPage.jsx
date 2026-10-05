@@ -157,7 +157,7 @@ export default function PaidInvoicesPage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        title={t('staffDeployments.paidInvoices.title', 'Paid Invoices')}
+        title={t('staffDeployments.paidInvoices.title', 'Received invoices')}
         description={t('staffDeployments.paidInvoices.subtitle', 'Every payment received toward an invoice, across all clients — an invoice paid in installments appears as one row per payment. Click a row to expand financial details.')}
         onBack={() => navigate(-1)}
       />
