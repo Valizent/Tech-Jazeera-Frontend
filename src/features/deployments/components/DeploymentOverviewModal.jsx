@@ -817,7 +817,7 @@ export default function DeploymentOverviewModal({ open, onClose }) {
                     {/* left-aligned, not centered: this cell's colSpan covers
                         every column (now ~30 wide with the Mobilisation
                         columns), so centered text would render far past the
-                        right edge of the visible, left-scrolled viewport —
+                        right edge of the visible, left-scrolled viewport 
                         found live while verifying this exact empty state. */}
                     <td colSpan={columns.length} className="px-3 py-8 text-left text-sm text-muted">
                       {monthFilter
@@ -833,7 +833,7 @@ export default function DeploymentOverviewModal({ open, onClose }) {
                           key={col.key}
                           className={cn('whitespace-nowrap px-3 py-2', (col.profit && profitClass(col.getNumber(d))) || 'text-text')}
                         >
-                          {col.getText(d) || '—'}
+                          {col.getText(d) || ''}
                         </td>
                       ))}
                     </tr>

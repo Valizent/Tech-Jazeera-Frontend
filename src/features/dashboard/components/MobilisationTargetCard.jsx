@@ -178,7 +178,7 @@ export default function MobilisationTargetCard({ target }) {
                 transform="rotate(-90 60 60)"
                 style={{ transition: 'stroke-dashoffset 0.8s cubic-bezier(0.34,1.56,0.64,1), stroke 0.4s' }}
               />
-              {/* Centre text — compact form (see compactMoney's own doc
+              {/* Centre text compact form (see compactMoney's own doc
                   comment above); the full amounts are in the text below. */}
               <text
                 x="60"

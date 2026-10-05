@@ -143,7 +143,7 @@ function DetailRow({ label, children }) {
   return (
     <div className="flex flex-col justify-center gap-1 rounded-xl bg-bg/50 p-3.5 ring-1 ring-border/60 transition-all hover:bg-bg/80">
       <span className="text-[11px] font-bold uppercase tracking-wider text-muted">{label}</span>
-      <span className="text-sm font-semibold text-text">{children || '—'}</span>
+      <span className="text-sm font-semibold text-text">{children || ''}</span>
     </div>
   );
 }
@@ -237,7 +237,7 @@ function MonthlyHoursForm({ deployment, defaultValues, onSubmit, submitting, sub
       toast.error(
         t(
           'staffDeployments.detail.impossibleHoursError',
-          `That's more hours than physically possible for this period — max ${maxPossibleHours}h at 18h/day for this deployment's real placement days in ${watchedMonth || 'that month'}.`
+          `That's more hours than physically possible for this period max ${maxPossibleHours}h at 18h/day for this deployment's real placement days in ${watchedMonth || 'that month'}.`
         )
       );
       return;
@@ -247,7 +247,7 @@ function MonthlyHoursForm({ deployment, defaultValues, onSubmit, submitting, sub
 
   return (
     <form onSubmit={handleSubmit(onSubmitGuarded, onInvalid)} noValidate className="space-y-3">
-      {/* Row 1: Month | Client timesheet | Supplier timesheet | Client deduction — all 4 in one line */}
+      {/* Row 1: Month | Client timesheet | Supplier timesheet | Client deduction all 4 in one line */}
       <div className={cn('grid grid-cols-1 gap-3', isSupplierEmployee ? 'sm:grid-cols-4' : 'sm:grid-cols-3')}>
         <Input
           label={t('staffDeployments.detail.monthLabel')}
@@ -294,7 +294,7 @@ function MonthlyHoursForm({ deployment, defaultValues, onSubmit, submitting, sub
         </div>
       </div>
 
-      {/* Row 1b: Supplier deduction (amount + optional reason) — only for a
+      {/* Row 1b: Supplier deduction (amount + optional reason) only for a
           SupplierEmployee deployment, since only that type has a Sub Invoice
           to deduct against (2026-09-30, the user's own ask). */}
       {isSupplierEmployee && (
@@ -348,7 +348,7 @@ function MonthlyHoursForm({ deployment, defaultValues, onSubmit, submitting, sub
         <p className="rounded-lg bg-danger/10 px-3 py-2 text-sm font-medium text-danger">
           {t(
             'staffDeployments.detail.impossibleHoursWarning',
-            `That's more hours than physically possible for this period — max ${maxPossibleHours}h at 18h/day for this deployment's real placement days in ${watchedMonth || 'that month'}.`
+            `That's more hours than physically possible for this period max ${maxPossibleHours}h at 18h/day for this deployment's real placement days in ${watchedMonth || 'that month'}.`
           )}
         </p>
       )}
@@ -363,7 +363,7 @@ function MonthlyHoursForm({ deployment, defaultValues, onSubmit, submitting, sub
         </Button>
       </div>
 
-      {/* Summary stats bar — live computed preview, at the very bottom */}
+      {/* Summary stats bar live computed preview, at the very bottom */}
       <div className="grid grid-cols-2 gap-3 rounded-lg border border-border bg-bg/40 p-3 sm:grid-cols-4">
         <div>
           <p className="text-xs text-muted">{t('staffDeployments.detail.summaryContractHours')}</p>
@@ -468,12 +468,12 @@ function LegacyDailyBreakdown({ entry, locale }) {
  *  a client's bulk payment is recorded and approved at the client level,
  *  on the Payments Due page, not here. */
 function BillingStatus({ entry, t, formatDate, formatMoney }) {
-  if (entry.status !== 'Approved') return <span className="text-xs text-muted">—</span>;
+  if (entry.status !== 'Approved') return <span className="text-xs text-muted"></span>;
   if (!entry.invoiceSentAt) {
     return <Badge variant="default">{t('staffDeployments.detail.billing.notInvoiced')}</Badge>;
   }
   const invoiceRef = entry.invoiceNumber && (
-    <p className="mt-1 text-xs text-muted">{t('staffDeployments.detail.billing.invoiceRef', { number: entry.invoiceNumber, date: entry.invoiceDate ? formatDate(entry.invoiceDate) : '—' })}</p>
+    <p className="mt-1 text-xs text-muted">{t('staffDeployments.detail.billing.invoiceRef', { number: entry.invoiceNumber, date: entry.invoiceDate ? formatDate(entry.invoiceDate) : '' })}</p>
   );
   if (entry.fullyPaid) {
     return (
@@ -494,7 +494,7 @@ function BillingStatus({ entry, t, formatDate, formatMoney }) {
   return (
     <div>
       <Badge variant="default">
-        {t('staffDeployments.detail.billing.invoicedDue', { date: entry.invoiceDueAt ? formatDate(entry.invoiceDueAt) : '—' })}
+        {t('staffDeployments.detail.billing.invoicedDue', { date: entry.invoiceDueAt ? formatDate(entry.invoiceDueAt) : '' })}
       </Badge>
       {invoiceRef}
     </div>
@@ -741,7 +741,7 @@ export default function DeploymentDetailPage() {
         {deployment.subcontractorName && (
           <DetailRow label={t('staffDeployments.detail.fields.subcontractor')}>{deployment.subcontractorName}</DetailRow>
         )}
-        <DetailRow label={t('staffDeployments.detail.fields.contractHours')}>{deployment.requiredTimesheetHours ?? '—'}</DetailRow>
+        <DetailRow label={t('staffDeployments.detail.fields.contractHours')}>{deployment.requiredTimesheetHours ?? ''}</DetailRow>
         <DetailRow label={t('staffDeployments.detail.fields.since')}>{formatDate(deployment.startDate)}</DetailRow>
         {!isActive && (
           <>
@@ -782,7 +782,7 @@ export default function DeploymentDetailPage() {
         <div className="mb-1 flex flex-wrap items-start justify-between gap-3">
           <h2 className="text-sm font-semibold uppercase tracking-wide text-muted">{t('staffDeployments.detail.sectionMonthlyHours')}</h2>
           {/* Profit is commercial data, stripped server-side for anyone
-              without deploymentsHoursDecide access — deployment.totalProfit
+              without deploymentsHoursDecide access deployment.totalProfit
               simply won't exist on the response for them, so this naturally
               disappears rather than needing a separate client-side check. */}
           {deployment.totalProfit != null && (
@@ -810,13 +810,13 @@ export default function DeploymentDetailPage() {
                     <th className="px-3 py-2">{t('staffDeployments.detail.columns.supplierHours')}</th>
                   )}
                   <th className="px-3 py-2">{t('staffDeployments.detail.columns.otHours')}</th>
-                  {/* OT amount is commercial data — stripped server-side for
+                  {/* OT amount is commercial data stripped server-side for
                       anyone without deploymentsHoursDecide access (see
                       deployment.service.js's getDeployment), same treatment
                       as profit below. canDecideHours mirrors that exact
                       check client-side. */}
                   {canDecideHours && <th className="px-3 py-2">{t('staffDeployments.detail.columns.otAmount')}</th>}
-                  {/* Deduction is NOT commercial (unlike OT amount) — the
+                  {/* Deduction is NOT commercial (unlike OT amount) the
                       user's own explicit call: whoever enters it already
                       knows the number, it's transcribed straight off the
                       client's own timesheet in front of her. Visible to
@@ -853,7 +853,7 @@ export default function DeploymentDetailPage() {
                       <td className="px-3 py-2">{entry.contractHours}</td>
                       <td className="px-3 py-2">{entry.actualHours}</td>
                       {deployment.workerType === 'SupplierEmployee' && (
-                        <td className="px-3 py-2">{entry.supplierHours ?? '—'}</td>
+                        <td className="px-3 py-2">{entry.supplierHours ?? ''}</td>
                       )}
                       <td className="px-3 py-2">{entry.otHours}</td>
                       {canDecideHours && <td className="px-3 py-2">{formatMoney(entry.otAmount)}</td>}
@@ -861,7 +861,7 @@ export default function DeploymentDetailPage() {
                         {entry.deductionAmount > 0 ? (
                           <span className="text-danger">{formatMoney(entry.deductionAmount)}</span>
                         ) : (
-                          '—'
+                          ''
                         )}
                       </td>
                       {deployment.workerType === 'SupplierEmployee' && (
@@ -871,7 +871,7 @@ export default function DeploymentDetailPage() {
                               {formatMoney(entry.supplierDeductionAmount)}
                             </span>
                           ) : (
-                            '—'
+                            ''
                           )}
                         </td>
                       )}
@@ -882,7 +882,7 @@ export default function DeploymentDetailPage() {
                               {formatMoney(entry.employeeAdditionalAmount)}
                             </span>
                           ) : (
-                            '—'
+                            ''
                           )}
                         </td>
                       )}
@@ -920,7 +920,7 @@ export default function DeploymentDetailPage() {
                         <td className="px-3 py-2 text-right">
                           <div className="flex flex-wrap justify-end gap-1.5">
                             {/* A real, dedicated follow-up step (2026-10-01, the
-                                user's own ask) — subcontractor hours are no
+                                user's own ask) subcontractor hours are no
                                 longer required at creation, so this surfaces the
                                 one real thing still missing on this entry
                                 without making a coordinator hunt for it inside
@@ -1032,7 +1032,7 @@ export default function DeploymentDetailPage() {
         )}
       </Modal>
 
-      {/* "Enter subcontractor hours" — a single-field quick action (2026-10-01),
+      {/* "Enter subcontractor hours" a single-field quick action (2026-10-01),
           not the full Edit form, for the one thing a two-step entry leaves
           missing on a fresh month. */}
       <Modal
@@ -1085,7 +1085,7 @@ export default function DeploymentDetailPage() {
 
       {/* Send Invoice / Record Payment / Approve-Reject Payment moved to the
           Financial section's own Ready to Invoice / Payments Due pages
-          (2026-09-27, the user's own ask) — only a read-only Billing status
+          (2026-09-27, the user's own ask) only a read-only Billing status
           readout and an invoice-file download stay here. */}
 
       <Modal

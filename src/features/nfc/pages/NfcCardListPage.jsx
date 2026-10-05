@@ -54,9 +54,9 @@ export default function NfcCardListPage() {
         </Badge>
       ),
     },
-    { key: 'holder', header: 'Holder', render: (c) => c.employee?.name || '—' },
-    { key: 'company', header: 'Company', render: (c) => c.company?.companyName || '—', hideOnMobile: true },
-    { key: 'batch', header: 'Batch', render: (c) => c.batch?.label || '—', hideOnMobile: true },
+    { key: 'holder', header: 'Holder', render: (c) => c.employee?.name || '' },
+    { key: 'company', header: 'Company', render: (c) => c.company?.companyName || '', hideOnMobile: true },
+    { key: 'batch', header: 'Batch', render: (c) => c.batch?.label || '', hideOnMobile: true },
     {
       key: 'actions',
       header: '',

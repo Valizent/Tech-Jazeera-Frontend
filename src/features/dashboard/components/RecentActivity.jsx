@@ -27,7 +27,7 @@ export default function RecentActivity({ items, className }) {
     <Card className={className}>
       <div className="mb-4 flex items-center justify-between gap-3">
         <h2 className="text-sm font-semibold uppercase tracking-wide text-muted">{t('staffDashboard.recentActivity.title')}</h2>
-        {/* FIX (2026-09-22): this used to be `user.role === 'Admin'` — the widget's own
+        {/* FIX (2026-09-22): this used to be `user.role === 'Admin'` the widget's own
             doc comment above already promises real `auditLog` Section Access, not a
             hardcoded role list, but this one link inside it never followed that: an
             Admin could grant auditLog read to anyone (the /security-log route already

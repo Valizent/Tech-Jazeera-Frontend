@@ -70,7 +70,7 @@ export default function CoordinatorActivityPage() {
         </Link>
       ),
     },
-    { key: 'createdBy', header: 'Added by', render: (c) => c.createdBy?.name ?? '—' },
+    { key: 'createdBy', header: 'Added by', render: (c) => c.createdBy?.name ?? '' },
     { key: 'createdAt', header: 'Added', render: (c) => formatDate(c.createdAt) },
     {
       key: 'approvalStatus',
@@ -102,7 +102,7 @@ export default function CoordinatorActivityPage() {
       ),
     },
     { key: 'designation', header: 'Designation', render: (e) => e.designation },
-    { key: 'createdBy', header: 'Added by', render: (e) => e.createdBy?.name ?? '—' },
+    { key: 'createdBy', header: 'Added by', render: (e) => e.createdBy?.name ?? '' },
     { key: 'createdAt', header: 'Added', render: (e) => formatDate(e.createdAt) },
   ];
 

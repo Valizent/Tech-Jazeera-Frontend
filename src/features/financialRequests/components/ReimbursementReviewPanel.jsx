@@ -66,7 +66,7 @@ export function SubmitReimbursementPanel() {
     const file = e.target.files?.[0];
     if (!file) return;
     if (file.size > RECEIPT_MAX_MB * 1024 * 1024) {
-      toast.error(`File is too large — max ${RECEIPT_MAX_MB}MB.`);
+      toast.error(`File is too large max ${RECEIPT_MAX_MB}MB.`);
       e.target.value = '';
       return;
     }
@@ -253,14 +253,14 @@ export default function ReimbursementReviewPanel() {
                 {/* Fixed 2026-09-29, a real audit finding: without this,
                     ApprovalTrailView defaulted to Leave's own pending
                     literal ('PendingReview') instead of ReimbursementClaim's
-                    real one ('Pending' — see reimbursement.model.js), so the
+                    real one ('Pending' see reimbursement.model.js), so the
                     current step never got its in-progress highlight. */}
                 <ApprovalTrailView request={c} pendingStatus="Pending" />
               </div>
               <div className="flex shrink-0 flex-col items-end gap-2">
                 <Badge variant={REIMBURSEMENT_STATUS_VARIANT[c.status]}>{c.status}</Badge>
                 {/* Gated the same as the server's receipt route (no per-claim
-                    ownership check exists there — see financialRequests.routes.js) */}
+                    ownership check exists there see financialRequests.routes.js) */}
                 {canPay && (
                   <Button size="sm" variant="ghost" isLoading={downloadingId === c._id} onClick={() => handleDownload(c)}>
                     Receipt

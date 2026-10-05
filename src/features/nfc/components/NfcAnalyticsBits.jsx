@@ -40,7 +40,7 @@ export function countryName(code) {
   try {
     return REGION_NAMES.of(code) ?? code;
   } catch {
-    return code; // not a valid region code — show it raw rather than crash
+    return code; // not a valid region code show it raw rather than crash
   }
 }
 
@@ -126,7 +126,7 @@ export function TrendBars({ series = [] }) {
               key={d.date}
               className="group relative flex-1 rounded-t bg-primary/20 transition-colors hover:bg-primary/40"
               style={{ height: `${Math.max((d.views / max) * 100, d.views > 0 ? 6 : 2)}%` }}
-              title={`${d.date} — ${d.views} tap${d.views === 1 ? '' : 's'}, ${d.saves} saved, ${d.clicks} link tap${d.clicks === 1 ? '' : 's'}`}
+              title={`${d.date} ${d.views} tap${d.views === 1 ? '' : 's'}, ${d.saves} saved, ${d.clicks} link tap${d.clicks === 1 ? '' : 's'}`}
             >
               {saved > 0 && (
                 <span

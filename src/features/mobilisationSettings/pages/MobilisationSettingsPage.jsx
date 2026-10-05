@@ -60,7 +60,7 @@ export default function MobilisationSettingsPage() {
             <h2 className="text-sm font-semibold uppercase tracking-wide text-muted">Stale mobilisation warning</h2>
             <p className="mt-1 mb-2 text-xs text-muted">
               If a mobilisation sits pending review with no decision for this many days, every Manager login gets
-              notified — a nudge for one that&apos;s been waiting on a client&apos;s paperwork too long.
+              notified a nudge for one that&apos;s been waiting on a client&apos;s paperwork too long.
             </p>
             <Input
               type="number"

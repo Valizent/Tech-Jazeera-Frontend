@@ -24,7 +24,7 @@ function DetailRow({ label, value, valueClass = '', hint }) {
       <span className="text-xs text-muted" title={hint || undefined}>
         {label}
       </span>
-      {/* `text-text` only as a fallback, never alongside valueClass — Tailwind
+      {/* `text-text` only as a fallback, never alongside valueClass Tailwind
           gives both utility classes equal specificity, so whichever is
           registered later in the generated stylesheet wins regardless of
           which appears later in this string; mixing them silently dropped
@@ -59,11 +59,11 @@ export default function MonthlyEntryBreakdownPanel({ row, formatMoney, children 
       <div>
         <p className="text-xs font-black uppercase tracking-wider text-muted mb-2">Client</p>
         <div className="space-y-0">
-          <DetailRow label="Client Rate / hr" value={row.clientRate != null ? formatMoney(row.clientRate) : '—'} />
-          <DetailRow label="Client Commission / hr" value={row.clientCommission != null ? formatMoney(row.clientCommission) : '—'} />
+          <DetailRow label="Client Rate / hr" value={row.clientRate != null ? formatMoney(row.clientRate) : ''} />
+          <DetailRow label="Client Commission / hr" value={row.clientCommission != null ? formatMoney(row.clientCommission) : ''} />
           <DetailRow label="Invoice Amount" value={formatMoney(revenue)} valueClass={revenue > 0 ? 'text-success' : ''} />
           <DetailRow label="Invoice Commission Expense" value={formatMoney(clientCommissionExpense)} valueClass={clientCommissionExpense > 0 ? 'text-danger' : ''} />
-          {/* Only Paid Invoices' rows carry amountAllocated — Ready to
+          {/* Only Paid Invoices' rows carry amountAllocated Ready to
               Invoice's rows are pre-invoice and simply don't have it, so
               this line only ever appears there (2026-10-01, the user's own
               ask to move it here from the Summary column). */}
@@ -78,10 +78,10 @@ export default function MonthlyEntryBreakdownPanel({ row, formatMoney, children 
         <div>
           <p className="text-xs font-black uppercase tracking-wider text-muted mb-2">Subcontractor</p>
           <div className="space-y-0">
-            <DetailRow label="Sub Rate / hr" value={row.subcontractorRate != null ? formatMoney(row.subcontractorRate) : '—'} />
-            <DetailRow label="Sub Commission / hr" value={row.subcontractorCommission != null ? formatMoney(row.subcontractorCommission) : '—'} />
+            <DetailRow label="Sub Rate / hr" value={row.subcontractorRate != null ? formatMoney(row.subcontractorRate) : ''} />
+            <DetailRow label="Sub Commission / hr" value={row.subcontractorCommission != null ? formatMoney(row.subcontractorCommission) : ''} />
             {/* Subcontractor hours are now a real, optional follow-up step
-                (2026-10-01) — a plain "Not entered yet" here, same spirit as
+                (2026-10-01) a plain "Not entered yet" here, same spirit as
                 `supplierHours == null` everywhere else in this app, rather
                 than a silent 0 that could read as "confirmed zero hours". */}
             <DetailRow
@@ -104,7 +104,7 @@ export default function MonthlyEntryBreakdownPanel({ row, formatMoney, children 
         </div>
       )}
 
-      {/* Expenses — every component of row.expenses, itemized */}
+      {/* Expenses every component of row.expenses, itemized */}
       <div>
         <p className="text-xs font-black uppercase tracking-wider text-muted mb-2">Expenses</p>
         <div className="space-y-0">
@@ -112,7 +112,7 @@ export default function MonthlyEntryBreakdownPanel({ row, formatMoney, children 
           {(row.allowance ?? 0) > 0 && <DetailRow label="Allowance" value={formatMoney(row.allowance)} />}
           {(row.deductionAmount ?? 0) > 0 && <DetailRow label="Client Deduction" value={formatMoney(row.deductionAmount)} />}
           {(row.mobilisationCost ?? 0) > 0 && <DetailRow label="Mob. Cost" value={formatMoney(row.mobilisationCost)} />}
-          {(b.otCalculations ?? 0) > 0 && <DetailRow label="Worker OT Pay" value={formatMoney(b.otCalculations)} hint={isSupplier ? "Paid directly to the worker — not part of the supplier invoice" : "OT premium paid to the worker, on top of fixed salary/rate"} valueClass="text-danger" />}
+          {(b.otCalculations ?? 0) > 0 && <DetailRow label="Worker OT Pay" value={formatMoney(b.otCalculations)} hint={isSupplier ? "Paid directly to the worker not part of the supplier invoice" : "OT premium paid to the worker, on top of fixed salary/rate"} valueClass="text-danger" />}
           {clientCommissionExpense > 0 && <DetailRow label="Client Commission" value={formatMoney(clientCommissionExpense)} valueClass="text-danger" />}
           {isSupplier && subInvoice !== 0 && <DetailRow label="Sub Invoice" value={formatMoney(subInvoice)} valueClass={costColor(subInvoice)} />}
           {isSupplier && subCommissionExpense > 0 && <DetailRow label="Sub Commission" value={formatMoney(subCommissionExpense)} valueClass="text-danger" />}
@@ -126,7 +126,7 @@ export default function MonthlyEntryBreakdownPanel({ row, formatMoney, children 
       <div>
         <p className="text-xs font-black uppercase tracking-wider text-muted mb-2">Summary</p>
         <div className="space-y-0">
-          <DetailRow label="Actual Hours" value={row.actualHours ?? '—'} />
+          <DetailRow label="Actual Hours" value={row.actualHours ?? ''} />
           {(row.otHours ?? 0) > 0 && <DetailRow label="OT Hours" value={row.otHours} />}
           <DetailRow label="Client Invoice Amount" value={formatMoney(revenue)} valueClass={revenue > 0 ? 'text-success' : ''} />
           <DetailRow label="Expenses" value={formatMoney(expensesTotal)} valueClass={costColor(expensesTotal)} />

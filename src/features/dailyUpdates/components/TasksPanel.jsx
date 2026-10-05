@@ -96,7 +96,7 @@ export default function TasksPanel({ access, currentUserId, coordinators }) {
             <div className="flex flex-wrap gap-1.5">
               {task.overdue && <Badge variant="danger">{t('staffDailyUpdates.tasks.overdue')}</Badge>}
               {task.assignedByOther && (
-                <Badge>{t('staffDailyUpdates.tasks.assignedBy', { name: task.createdBy?.name ?? '—' })}</Badge>
+                <Badge>{t('staffDailyUpdates.tasks.assignedBy', { name: task.createdBy?.name ?? '' })}</Badge>
               )}
             </div>
           )}
@@ -104,9 +104,9 @@ export default function TasksPanel({ access, currentUserId, coordinators }) {
       ),
     },
     ...(canSeeAll
-      ? [{ key: 'coordinator', header: t('staffDailyUpdates.tasks.columns.assignedTo'), render: (task) => task.coordinator?.name ?? '—' }]
+      ? [{ key: 'coordinator', header: t('staffDailyUpdates.tasks.columns.assignedTo'), render: (task) => task.coordinator?.name ?? '' }]
       : []),
-    { key: 'due', header: t('staffDailyUpdates.tasks.columns.due'), render: (task) => (task.dueDate ? formatDate(task.dueDate) : '—') },
+    { key: 'due', header: t('staffDailyUpdates.tasks.columns.due'), render: (task) => (task.dueDate ? formatDate(task.dueDate) : '') },
     {
       key: 'status',
       header: t('staffDailyUpdates.tasks.columns.status'),

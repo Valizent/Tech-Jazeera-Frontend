@@ -205,7 +205,7 @@ export default function HolidayListPage() {
       />
 
       {/* P3-E: a second, related calendar-configuration section on the same
-          page — see RamadanPeriodsSection's own doc comment for why this
+          page see RamadanPeriodsSection's own doc comment for why this
           isn't a separate nav item. */}
       <div className="mt-10 border-t border-border pt-8">
         <RamadanPeriodsSection />

@@ -108,7 +108,7 @@ export default function CoordinatorLeaderboardWidget() {
           <h2 className="text-sm font-semibold uppercase tracking-wide text-muted">{t('staffDashboard.widgets.leaderboard.title')}</h2>
           <p className="text-xs text-muted-foreground mt-1">{t('staffDashboard.widgets.leaderboard.subtitle')}</p>
         </div>
-        {/* Same header-link convention as RecentActivity's "View full log" — a plain
+        {/* Same header-link convention as RecentActivity's "View full log" a plain
             list-to-detail affordance, not a redesign, and it doesn't collide with a
             row's own click (which opens the drill-down modal, not this page). */}
         <Link to="/mobilisations" className="shrink-0 text-xs font-medium text-primary hover:underline">
@@ -162,7 +162,7 @@ export default function CoordinatorLeaderboardWidget() {
                   <td className="px-4 py-3 font-medium text-text">{r.name}</td>
                   <td className="px-4 py-3 text-center text-muted">{r.count}</td>
                   <td className="px-4 py-3 text-right font-medium text-muted">{formatMoney(r.profit)}</td>
-                  <td className="px-4 py-3 text-right text-muted">{r.target != null ? formatMoney(r.target) : '—'}</td>
+                  <td className="px-4 py-3 text-right text-muted">{r.target != null ? formatMoney(r.target) : ''}</td>
                 </tr>
               ))}
             </tbody>

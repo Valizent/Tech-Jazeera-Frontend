@@ -58,7 +58,7 @@ export default function RequirementsBoardPage() {
   const canManageStages = write.includes('requirementStages');
 
   const [coordinator, setCoordinator] = useState('');
-  const [client, setClient] = useState(''); // a company name — a requirement can come from a company that isn't a Client record
+  const [client, setClient] = useState(''); // a company name a requirement can come from a company that isn't a Client record
   const [subcontractor, setSubcontractor] = useState(''); // a subcontractor id
   const [showOlderClosed, setShowOlderClosed] = useState(false);
   const [formState, setFormState] = useState(null); // null = closed, { requirement: null } = add, { requirement } = edit

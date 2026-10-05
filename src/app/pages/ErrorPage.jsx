@@ -39,7 +39,7 @@ export default function ErrorPage() {
         <p className="mt-2 text-sm text-muted">
           {is404
             ? "The link you followed may be out of date, or the page may have moved."
-            : "An unexpected error occurred. Reloading usually fixes it — if it keeps happening, let your Admin know."}
+            : "An unexpected error occurred. Reloading usually fixes it if it keeps happening, let your Admin know."}
         </p>
         <div className="mt-6 flex justify-center gap-2">
           <Button variant="secondary" onClick={() => window.location.reload()}>

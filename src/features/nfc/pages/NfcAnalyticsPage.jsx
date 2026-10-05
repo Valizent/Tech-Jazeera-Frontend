@@ -89,7 +89,7 @@ export default function NfcAnalyticsPage() {
       header: 'Person',
       render: (c) => <span className="font-medium">{c.employeeName ?? 'Unassigned'}</span>,
     },
-    { key: 'companyName', header: 'Company', render: (c) => c.companyName ?? '—', hideOnMobile: true },
+    { key: 'companyName', header: 'Company', render: (c) => c.companyName ?? '', hideOnMobile: true },
     {
       key: 'token',
       header: 'Card',

@@ -112,7 +112,7 @@ export default function SubcontractorPaymentsDuePage() {
       render: (row) => (
         <Badge variant={urgencyVariant(row.daysRemaining)}>
           {row.daysRemaining == null
-            ? '—'
+            ? ''
             : row.daysRemaining < 0
               ? t('staffDeployments.subPaymentsDue.overdueBy', { days: Math.abs(row.daysRemaining) })
               : t('staffDeployments.subPaymentsDue.dueInDays', { days: row.daysRemaining })}
@@ -230,7 +230,7 @@ export default function SubcontractorPaymentsDuePage() {
                         <td className="px-3 py-2">
                           <div className="flex items-center gap-2">
                             <div>
-                              {inv.invoiceNumber ?? '—'}
+                              {inv.invoiceNumber ?? ''}
                               {inv.invoiceDate && <span className="block text-xs text-muted">{formatDate(inv.invoiceDate)}</span>}
                             </div>
                             {inv.invoiceFile && (

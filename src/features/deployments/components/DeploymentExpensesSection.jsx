@@ -37,7 +37,7 @@ export default function DeploymentExpensesSection({ deployment }) {
   const lockedDeployment = {
     _id: deployment._id,
     client: deployment.client,
-    label: `${deployment.workerName} — ${deployment.clientName}${deployment.site ? ` (${deployment.site})` : ''}`,
+    label: `${deployment.workerName} ${deployment.clientName}${deployment.site ? ` (${deployment.site})` : ''}`,
   };
 
   return (

@@ -74,7 +74,7 @@ export const stageFormSchema = z.object({
   staleAfterDays: z
     .string()
     .trim()
-    .refine((v) => v === '' || (/^\d+$/.test(v) && Number(v) >= 1 && Number(v) <= 365), 'Whole days, between 1 and 365 — or leave empty.'),
+    .refine((v) => v === '' || (/^\d+$/.test(v) && Number(v) >= 1 && Number(v) <= 365), 'Whole days, between 1 and 365 or leave empty.'),
   isTerminal: z.boolean(),
   notifyOnEnter: z.boolean(),
   isMobilisedStage: z.boolean(),
@@ -109,9 +109,9 @@ export const candidateFormSchema = z
     workerType: z.enum(CANDIDATE_WORKER_TYPES),
     subcontractor: z.string(),
     workerName: z.string().trim().min(2, 'Enter the worker name.').max(150),
-    iqamaNumber: z.string().trim().regex(/^(\d{10})?$/, 'An Iqama number is exactly 10 digits — or leave it empty.'),
+    iqamaNumber: z.string().trim().regex(/^(\d{10})?$/, 'An Iqama number is exactly 10 digits or leave it empty.'),
     nationality: z.string().trim().max(80),
-    phone: z.string().trim().regex(/^(\+?[0-9][0-9 -]{5,18})?$/, 'Enter a valid phone number — or leave it empty.'),
+    phone: z.string().trim().regex(/^(\+?[0-9][0-9 -]{5,18})?$/, 'Enter a valid phone number or leave it empty.'),
     status: z.enum(CANDIDATE_MANUAL_STATUSES),
     docsNote: z.string().trim().max(300, 'Keep the note under 300 characters.'),
   })

@@ -199,22 +199,22 @@ export default function EmployeeProfilePage() {
           </dl>
         </Card>
 
-        {/* Login (any role) — Admin/HR only. Create/inspect this
+        {/* Login (any role) Admin/HR only. Create/inspect this
             employee's account. Own-type only (Milestone 4): the ESS portal
             no longer accepts an Outsourced/Subcontracted login at all, so
             provisioning one is never offered from here in the first place. */}
         {canProvisionAccount && employee.type === 'Own' && <EmployeeLoginPanel employee={employee} />}
 
-        {/* Current deployment, actions (transfer/end/assign) and history —
+        {/* Current deployment, actions (transfer/end/assign) and history 
             owns its own data; populates from the M6 deployment workflow.
-            Workforce types only (Outsourced or Subcontracted) — an internal
+            Workforce types only (Outsourced or Subcontracted) an internal
             Own-type employee is never deployed. */}
         {employee.type !== 'Own' && <WorkerDeploymentPanel employee={employee} />}
 
         <AssignedAssetsPanel employeeId={id} />
 
         <Card>
-          {/* Identity metadata (numbers + expiry) — distinct from uploaded
+          {/* Identity metadata (numbers + expiry) distinct from uploaded
               files, which live in the Documents panel below. */}
           <h2 className="mb-4 text-sm font-semibold uppercase tracking-wide text-muted">
             {t('staffEmployees.profile.identityDocuments')}

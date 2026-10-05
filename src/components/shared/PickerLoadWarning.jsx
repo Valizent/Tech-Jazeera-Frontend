@@ -19,7 +19,7 @@ export default function PickerLoadWarning({ failed }) {
   if (names.length === 0) return null;
   return (
     <p role="alert" className="rounded-lg bg-danger/10 p-3 text-sm text-danger">
-      Couldn&apos;t load {names.join(', ')} — you may be missing read access to it. Ask an admin to check Section
+      Couldn&apos;t load {names.join(', ')} you may be missing read access to it. Ask an admin to check Section
       Access.
     </p>
   );

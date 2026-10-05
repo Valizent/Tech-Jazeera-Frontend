@@ -156,7 +156,7 @@ export default function ExpenseListPage() {
       ),
     },
     { key: 'vendor', header: 'Vendor', render: (e) => e.vendor },
-    { key: 'client', header: 'Client', hideOnMobile: true, render: (e) => e.clientName ?? '—' },
+    { key: 'client', header: 'Client', hideOnMobile: true, render: (e) => e.clientName ?? '' },
     { key: 'amount', header: 'Amount', className: 'text-right', render: (e) => <span className="tabular-nums">{formatMoney(e.amount)}</span> },
     {
       key: 'receipt',
@@ -168,7 +168,7 @@ export default function ExpenseListPage() {
             Download
           </Button>
         ) : (
-          <span className="text-muted">—</span>
+          <span className="text-muted"></span>
         ),
     },
     {
@@ -301,7 +301,7 @@ export default function ExpenseListPage() {
     <div className="mx-auto max-w-[1600px]">
       <PageHeader
         title="Expenses"
-        description="Company costs — rent, fuel, purchases, utilities — the other half of profit alongside invoices."
+        description="Company costs rent, fuel, purchases, utilities the other half of profit alongside invoices."
         onBack={() => navigate(-1)}
         actions={
           tab === 'ledger' &&

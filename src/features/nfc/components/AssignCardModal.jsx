@@ -55,7 +55,7 @@ export default function AssignCardModal({ open, onClose, employee, companyId }) 
             {isPending
               ? 'Loading available cards…'
               : isError
-                ? "Couldn't load available cards — you may be missing read access, or this is a network issue. Try again."
+                ? "Couldn't load available cards you may be missing read access, or this is a network issue. Try again."
                 : 'No blank cards available. Generate a batch on the Cards page first.'}
           </p>
         ) : (

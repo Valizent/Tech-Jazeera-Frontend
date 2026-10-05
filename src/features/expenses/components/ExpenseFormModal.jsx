@@ -179,7 +179,7 @@ export default function ExpenseFormModal({ open, editing, onClose, onSaved, lock
                 <option value="">{selectedClient ? 'No deployment link' : 'Select a client first'}</option>
                 {deployments.map((d) => (
                   <option key={d._id} value={d._id}>
-                    {d.site} — {d.worker?.fullName} ({d.status})
+                    {d.site} {d.worker?.fullName} ({d.status})
                   </option>
                 ))}
               </Select>
@@ -190,7 +190,7 @@ export default function ExpenseFormModal({ open, editing, onClose, onSaved, lock
 
         {editing?._id ? (
           editing.receipt && (
-            <p className="text-sm text-muted">Receipt: {editing.receipt.originalName} — attached at entry, cannot be changed here.</p>
+            <p className="text-sm text-muted">Receipt: {editing.receipt.originalName} attached at entry, cannot be changed here.</p>
           )
         ) : (
           <div>
@@ -202,7 +202,7 @@ export default function ExpenseFormModal({ open, editing, onClose, onSaved, lock
               </Button>
               {pendingFile && <span className="truncate text-sm text-muted">{pendingFile.name}</span>}
             </div>
-            <p className="mt-1 text-xs text-muted">PDF, JPG, PNG, or WEBP — up to {RECEIPT_MAX_MB} MB.</p>
+            <p className="mt-1 text-xs text-muted">PDF, JPG, PNG, or WEBP up to {RECEIPT_MAX_MB} MB.</p>
           </div>
         )}
 

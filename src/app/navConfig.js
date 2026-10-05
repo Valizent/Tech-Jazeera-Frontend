@@ -83,7 +83,7 @@ export const EXECUTIVE_NAV_ITEMS = [
   // grouped nav below) purely so a COO/Financial-Manager-titled Executive an
   // Admin DID grant Section Access to has somewhere to click through to; an
   // ungranted Executive just gets that page's own explained 403.
-  { to: '/expenses', sectionKey: 'expenses', label: 'Expenses', icon: ICON.expense, description: 'Company spending — if you\'ve been granted access.', labelKey: 'staffNav.executive.expenses.label', descriptionKey: 'staffNav.executive.expenses.description' },
+  { to: '/expenses', sectionKey: 'expenses', label: 'Expenses', icon: ICON.expense, description: 'Company spending if you\'ve been granted access.', labelKey: 'staffNav.executive.expenses.label', descriptionKey: 'staffNav.executive.expenses.description' },
 ];
 
 // Office Secretary used to get her own short, explicit flat nav here (same
@@ -156,10 +156,10 @@ export const NAV_GROUPS = [
       // above already uses.
       { to: '/financial/ready-to-invoice', label: 'Ready to Invoice', icon: ICON.invoice, description: 'Approved months waiting on a client invoice.', labelKey: 'staffNav.financial.readyToInvoice.label', descriptionKey: 'staffNav.financial.readyToInvoice.description' },
       { to: '/financial/payments-due', label: 'Payments Due', icon: ICON.list, description: 'Invoiced client payments awaiting collection.', labelKey: 'staffNav.financial.paymentsDue.label', descriptionKey: 'staffNav.financial.paymentsDue.description' },
-      { to: '/financial/paid-invoices', label: 'Received invoices', icon: ICON.check, description: 'Invoice payment history — full and partial.', labelKey: 'staffNav.financial.paidInvoices.label', descriptionKey: 'staffNav.financial.paidInvoices.description' },
+      { to: '/financial/paid-invoices', label: 'Received invoices', icon: ICON.check, description: 'Invoice payment history full and partial.', labelKey: 'staffNav.financial.paidInvoices.label', descriptionKey: 'staffNav.financial.paidInvoices.description' },
       { to: '/financial/ready-for-sub-invoice', label: 'Sub invoices received', icon: ICON.invoice, description: 'Approved months waiting on a subcontractor invoice.', labelKey: 'staffNav.financial.readyForSubInvoice.label', descriptionKey: 'staffNav.financial.readyForSubInvoice.description' },
       { to: '/financial/sub-payments-due', label: 'Sub Payments Due', icon: ICON.list, description: 'Invoiced subcontractor payments awaiting clearance.', labelKey: 'staffNav.financial.subPaymentsDue.label', descriptionKey: 'staffNav.financial.subPaymentsDue.description' },
-      { to: '/financial/paid-sub-invoices', label: 'Paid Sub Invoices', icon: ICON.check, description: 'Subcontractor payment history — full and partial.', labelKey: 'staffNav.financial.paidSubInvoices.label', descriptionKey: 'staffNav.financial.paidSubInvoices.description' },
+      { to: '/financial/paid-sub-invoices', label: 'Paid Sub Invoices', icon: ICON.check, description: 'Subcontractor payment history full and partial.', labelKey: 'staffNav.financial.paidSubInvoices.label', descriptionKey: 'staffNav.financial.paidSubInvoices.description' },
       // No static roles gate — access is the admin-configurable Section
       // Access mechanism (see docs/SECTION-ACCESS-notes.md); visible to
       // every staff role that reaches this hub, page 403s if not granted —
@@ -178,7 +178,7 @@ export const NAV_GROUPS = [
     description: 'Company-wide configuration, records and internal tools.',
     descriptionKey: 'staffNav.admin.description',
     items: [
-      { to: '/company-settings', label: 'Company Settings', icon: ICON.building, description: 'Legal identity, contact, bank and signatory details — printed on every generated document.', labelKey: 'staffNav.admin.companySettings.label', descriptionKey: 'staffNav.admin.companySettings.description' },
+      { to: '/company-settings', label: 'Company Settings', icon: ICON.building, description: 'Legal identity, contact, bank and signatory details printed on every generated document.', labelKey: 'staffNav.admin.companySettings.label', descriptionKey: 'staffNav.admin.companySettings.description' },
       { to: '/section-access', label: 'Section Access', icon: ICON.cog, roles: ['Admin'], description: 'Which roles or approval roles can open Payroll, Expenses, and other governed sections.', labelKey: 'staffNav.admin.sectionAccess.label', descriptionKey: 'staffNav.admin.sectionAccess.description' },
       { to: '/documents', label: 'Documents', icon: ICON.document, sectionKey: 'documentsManage', description: 'Company & employee document store.', labelKey: 'staffNav.admin.documents.label', descriptionKey: 'staffNav.admin.documents.description' },
       { to: '/assets', label: 'Assets', icon: ICON.asset, sectionKey: 'assetsManage', description: 'Equipment issued to employees.', labelKey: 'staffNav.admin.assets.label', descriptionKey: 'staffNav.admin.assets.description' },
@@ -189,7 +189,7 @@ export const NAV_GROUPS = [
       // depend on being ABLE to read role/workflow names, so an Admin will
       // likely want to grant this broadly again from Section Access.
       { to: '/approvals', label: 'Approval Hierarchy', icon: ICON.hierarchy, sectionKey: 'approvalHierarchy', description: 'Approval roles and multi-step workflow chains.', labelKey: 'staffNav.admin.approvals.label', descriptionKey: 'staffNav.admin.approvals.description' },
-      { to: '/mobilisation-settings', label: 'Mobilisation Settings', icon: ICON.cog, roles: MOBILISATION_SETTINGS_MANAGE_ROLES, description: 'The stale mobilisation warning threshold — viewer/self-mobilise access is on Section Access now.', labelKey: 'staffNav.admin.mobilisationSettings.label', descriptionKey: 'staffNav.admin.mobilisationSettings.description' },
+      { to: '/mobilisation-settings', label: 'Mobilisation Settings', icon: ICON.cog, roles: MOBILISATION_SETTINGS_MANAGE_ROLES, description: 'The stale mobilisation warning threshold viewer/self-mobilise access is on Section Access now.', labelKey: 'staffNav.admin.mobilisationSettings.label', descriptionKey: 'staffNav.admin.mobilisationSettings.description' },
       { to: '/locations', label: 'Locations', icon: ICON.map, roles: ['Admin'], description: 'Remove a site/location from the shared Mobilisation & Requirement picklist. Adding a new one is done inline from either form.', labelKey: 'staffNav.admin.locations.label', descriptionKey: 'staffNav.admin.locations.description' },
       { to: '/approvals/log', label: 'Approval Log', icon: ICON.activity, description: 'Every request decided through a workflow, in order. Visible if you sit in the hierarchy.', labelKey: 'staffNav.admin.approvalsLog.label', descriptionKey: 'staffNav.admin.approvalsLog.description' },
       { to: '/timesheet-processor', label: 'Timesheet Processor', icon: ICON.clock, sectionKey: 'timesheetProcessor', description: 'Bulk-import device attendance exports.', labelKey: 'staffNav.admin.timesheetProcessor.label', descriptionKey: 'staffNav.admin.timesheetProcessor.description' },

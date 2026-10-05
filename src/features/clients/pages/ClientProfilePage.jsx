@@ -142,7 +142,7 @@ function WorkersTab({ clientId }) {
       ),
     },
     { key: 'designation', header: t('staffClients.profile.workersColumns.designation'), render: (e) => e.designation },
-    { key: 'currentSite', header: t('staffClients.profile.workersColumns.site'), render: (e) => e.currentSite || '—' },
+    { key: 'currentSite', header: t('staffClients.profile.workersColumns.site'), render: (e) => e.currentSite || '' },
     { key: 'status', header: t('staffClients.profile.workersColumns.status'), render: (e) => <Badge>{t(`common.status.${e.status}`, e.status)}</Badge> },
   ];
 

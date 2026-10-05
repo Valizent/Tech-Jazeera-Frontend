@@ -182,7 +182,7 @@ export default function SignInOutTab() {
         r.status ? (
           <Badge variant={ATTENDANCE_STATUS_META[r.status]?.variant ?? 'default'}>{t(`common.status.${r.status}`, r.status)}</Badge>
         ) : (
-          <span className="text-muted">—</span>
+          <span className="text-muted"></span>
         ),
     },
     { key: 'checkIn', header: t('staffAttendance.signInOut.columns.signIn'), className: 'tabular-nums', render: (r) => formatTime(r.checkInTime) },

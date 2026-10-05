@@ -261,7 +261,7 @@ export default function StandbyListPage() {
       key: 'subcontractor',
       header: t('staffDeployments.standby.columns.subcontractor'),
       hideOnMobile: true,
-      render: (w) => w.subcontractorName ?? '—',
+      render: (w) => w.subcontractorName ?? '',
     },
     {
       key: 'last',

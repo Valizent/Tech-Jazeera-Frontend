@@ -108,9 +108,9 @@ export default function SubcontractorListPage() {
 
   const columns = [
     { key: 'name', header: t('staffSubcontractors.columns.name'), render: (s) => s.name },
-    { key: 'contactPerson', header: t('staffSubcontractors.columns.contact'), hideOnMobile: true, render: (s) => s.contactPerson || '—' },
-    { key: 'phone', header: t('staffSubcontractors.columns.phone'), hideOnMobile: true, render: (s) => s.phone || '—' },
-    { key: 'email', header: t('staffSubcontractors.columns.email'), hideOnMobile: true, render: (s) => s.email || '—' },
+    { key: 'contactPerson', header: t('staffSubcontractors.columns.contact'), hideOnMobile: true, render: (s) => s.contactPerson || '' },
+    { key: 'phone', header: t('staffSubcontractors.columns.phone'), hideOnMobile: true, render: (s) => s.phone || '' },
+    { key: 'email', header: t('staffSubcontractors.columns.email'), hideOnMobile: true, render: (s) => s.email || '' },
     {
       key: 'status',
       header: t('staffSubcontractors.columns.status'),

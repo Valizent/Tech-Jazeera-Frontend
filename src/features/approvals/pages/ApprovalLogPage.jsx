@@ -104,7 +104,7 @@ export default function ApprovalLogPage() {
     <div className="mx-auto max-w-[1600px] space-y-6">
       <PageHeader
         title="Approval Log"
-        description="Every request decided through a configured approval workflow, in order — for anyone in the hierarchy to see."
+        description="Every request decided through a configured approval workflow, in order for anyone in the hierarchy to see."
         onBack={() => navigate(-1)}
       />
 

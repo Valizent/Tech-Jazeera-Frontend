@@ -135,7 +135,7 @@ export default function AdvanceReviewPanel() {
     mutationFn: ({ id, values }) => addAdvanceRepayment(id, values),
     onSuccess: (advance) => {
       toast.success(
-        advance.status === 'Closed' ? 'Repayment recorded — advance fully repaid.' : 'Repayment recorded.'
+        advance.status === 'Closed' ? 'Repayment recorded advance fully repaid.' : 'Repayment recorded.'
       );
       setRepaying(null);
       invalidate();
@@ -192,14 +192,14 @@ export default function AdvanceReviewPanel() {
                 {a.reason && <p className="mt-1 text-xs text-muted">{a.reason}</p>}
                 {(a.status === 'Approved' || a.status === 'Closed') && (
                   <p className="mt-1 text-xs">
-                    Repaid {formatMoney(a.amountRepaid)} of {formatMoney(a.amount)} — outstanding{' '}
+                    Repaid {formatMoney(a.amountRepaid)} of {formatMoney(a.amount)} outstanding{' '}
                     <span className="font-semibold">{formatMoney(a.outstandingBalance)}</span>
                   </p>
                 )}
                 {/* Fixed 2026-09-29, a real audit finding: without this,
                     ApprovalTrailView defaulted to Leave's own pending
                     literal ('PendingReview') instead of SalaryAdvance's real
-                    one ('Pending' — see advance.model.js), so the current
+                    one ('Pending' see advance.model.js), so the current
                     step never got its in-progress highlight. */}
                 <ApprovalTrailView request={a} pendingStatus="Pending" />
               </div>
@@ -234,7 +234,7 @@ export default function AdvanceReviewPanel() {
             className="space-y-4"
           >
             <p className="text-sm text-muted">
-              {repaying.employee?.fullName} — outstanding <span className="font-semibold text-text">{formatMoney(repaying.outstandingBalance)}</span>
+              {repaying.employee?.fullName} outstanding <span className="font-semibold text-text">{formatMoney(repaying.outstandingBalance)}</span>
             </p>
             <Input label="Amount *" type="number" step="0.01" min="0.01" error={errors.amount?.message} {...register('amount')} />
             <Input label="Date *" type="date" error={errors.date?.message} {...register('date')} />

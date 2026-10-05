@@ -96,7 +96,7 @@ function ApprovalRolesPanel() {
         <div>
           <h2 className="text-sm font-semibold uppercase tracking-wide text-muted">Approval roles</h2>
           <p className="mt-1 text-xs text-muted">
-            Named roles in your hierarchy (GM, COO, HR, BDM…) — each holds one or more staff accounts.
+            Named roles in your hierarchy (GM, COO, HR, BDM…) each holds one or more staff accounts.
           </p>
         </div>
         {canManage && (
@@ -133,7 +133,7 @@ function ApprovalRolesPanel() {
       <Modal open={!!editing} onClose={() => setEditing(null)} title={editing?._id ? 'Edit approval role' : 'New approval role'}>
         <form onSubmit={handleSubmit((values) => saveMutation.mutate(values))} noValidate className="space-y-4">
           <PickerLoadWarning failed={[{ label: 'staff members', isError: staffUsersError }]} />
-          {/* Read (opening this modal at all) is open to any staff member — see
+          {/* Read (opening this modal at all) is open to any staff member see
               the page's own top-level comment. Write ('approvalHierarchy')
               disables every field below, not just the Save button (2026-09-14
               fix, a real QA-audit-found gap: a read-only viewer previously got
@@ -334,7 +334,7 @@ function ApprovalWorkflowsPanel() {
         <div>
           <h2 className="text-sm font-semibold uppercase tracking-wide text-muted">Approval workflows</h2>
           <p className="mt-1 text-xs text-muted">
-            Ordered chains built from your approval roles — any one member of a step&apos;s role(s) can decide it.
+            Ordered chains built from your approval roles any one member of a step&apos;s role(s) can decide it.
           </p>
         </div>
         {canManage && (
@@ -383,7 +383,7 @@ function ApprovalWorkflowsPanel() {
       >
         <form onSubmit={handleSubmit((values) => saveMutation.mutate(values))} noValidate className="space-y-4">
           <PickerLoadWarning failed={[{ label: 'approval roles', isError: rolesError }]} />
-          {/* Read (opening this modal at all) is open to any staff member — see
+          {/* Read (opening this modal at all) is open to any staff member see
               the page's own top-level comment. Write ('approvalHierarchy')
               disables every field below, not just the Save button (2026-09-14
               fix, a real QA-audit-found gap: a read-only viewer could
@@ -434,7 +434,7 @@ function ApprovalWorkflowsPanel() {
                 getLabel={(t) => APPROVAL_REQUEST_TYPE_LABELS[t]}
               />
               <p className="mt-1 text-xs text-muted">
-                Only one active workflow may default to a given request type — an individual employee&apos;s profile can
+                Only one active workflow may default to a given request type an individual employee&apos;s profile can
                 still override this.
               </p>
             </div>

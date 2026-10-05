@@ -93,7 +93,7 @@ export const i18nReady = i18n
     fallbackLng: DEFAULT_LANGUAGE,
     ns: ['translation'],
     defaultNS: 'translation',
-    interpolation: { escapeValue: false }, // React already escapes — double-escaping would show literal "&amp;" etc.
+    interpolation: { escapeValue: false }, // React already escapes double-escaping would show literal "&amp;" etc.
     returnEmptyString: false,
   });
 

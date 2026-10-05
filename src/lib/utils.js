@@ -51,7 +51,7 @@ export function collectFormErrorMessages(errors) {
 
 /** Display format: "23 Jul 2026". Em-dash for missing values. */
 export function formatDate(value) {
-  if (!value) return '—';
+  if (!value) return '';
   return new Date(value).toLocaleDateString('en-GB', {
     day: 'numeric',
     month: 'short',
@@ -61,7 +61,7 @@ export function formatDate(value) {
 
 /** Display format: "YYYY-MM" to "Month YYYY", e.g. "September 2026". Em-dash for missing values. */
 export function formatMonthYear(yyyyMm) {
-  if (!yyyyMm) return '—';
+  if (!yyyyMm) return '';
   const [y, m] = yyyyMm.split('-');
   const date = new Date(y, m - 1);
   return date.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
@@ -70,7 +70,7 @@ export function formatMonthYear(yyyyMm) {
 /** Display format with time: "23 Jul 2026, 14:05". For logs where the exact
  *  moment matters, not just the day. Em-dash for missing values. */
 export function formatDateTime(value) {
-  if (!value) return '—';
+  if (!value) return '';
   return new Date(value).toLocaleString('en-GB', {
     day: 'numeric',
     month: 'short',
@@ -82,13 +82,13 @@ export function formatDateTime(value) {
 
 /** Display format: time only, "14:05". Em-dash for missing values. */
 export function formatTime(value) {
-  if (!value) return '—';
+  if (!value) return '';
   return new Date(value).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
 }
 
 /** Worked hours to 1 decimal for display: 8.4667 → "8.5". Em-dash for missing values. */
 export function formatHours(value) {
-  if (value == null) return '—';
+  if (value == null) return '';
   return Number(value).toFixed(1);
 }
 

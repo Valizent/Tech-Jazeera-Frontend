@@ -93,7 +93,7 @@ export default function CompanySettingsPage() {
     <div className="mx-auto max-w-[1600px] space-y-6">
       <PageHeader
         title="Company Settings"
-        description="Your company's own identity — printed as the letterhead on every generated document."
+        description="Your company's own identity printed as the letterhead on every generated document."
         onBack={() => navigate(-1)}
       />
 
@@ -116,8 +116,8 @@ export default function CompanySettingsPage() {
               <Field name="vatNumber" label="VAT registration number" register={register} errors={errors} />
             </div>
             {/* ZATCA e-invoicing Phase 1 needs a QR code on every invoice PDF,
-                which needs this VAT number — see invoice.pdf.js/zatcaQr.js.
-                Reflects the currently SAVED value, not an unsaved edit —
+                which needs this VAT number see invoice.pdf.js/zatcaQr.js.
+                Reflects the currently SAVED value, not an unsaved edit 
                 this describes what today's invoices actually do right now. */}
             {settings.vatNumber ? (
               <p className="mt-3 flex items-center gap-1.5 text-xs text-success">
@@ -125,7 +125,7 @@ export default function CompanySettingsPage() {
               </p>
             ) : (
               <p className="mt-3 flex items-center gap-1.5 text-xs text-warning">
-                <span aria-hidden="true">⚠</span> No VAT registration number on file — invoices are being issued without the required ZATCA QR
+                <span aria-hidden="true">⚠</span> No VAT registration number on file invoices are being issued without the required ZATCA QR
                 code. Add it above to enable it.
               </p>
             )}

@@ -48,7 +48,7 @@ export default function AttendancePage() {
         onBack={() => navigate(-1)}
       />
 
-      {/* overflow-y-hidden is load-bearing, not decorative — see Tabs.jsx's
+      {/* overflow-y-hidden is load-bearing, not decorative see Tabs.jsx's
           doc comment: overflow-x-auto alone forces the y-axis to 'auto' too,
           growing a real native scrollbar the moment this row is a sub-pixel
           taller than its own shrink-wrapped height. */}

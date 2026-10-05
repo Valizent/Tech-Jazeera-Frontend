@@ -17,9 +17,9 @@ export const EMPLOYEE_STATUSES = ['Active', 'On Leave', 'Exited'];
  *  compliance/attendance record, but never this company's own Payroll. */
 export const EMPLOYEE_TYPES = ['Own', 'Outsourced', 'Subcontracted'];
 export const EMPLOYEE_TYPE_LABELS = {
-  Own: 'Own — internal staff',
-  Outsourced: 'Outsourced — supplied workforce',
-  Subcontracted: 'Subcontracted — sourced from a subcontractor',
+  Own: 'Own internal staff',
+  Outsourced: 'Outsourced supplied workforce',
+  Subcontracted: 'Subcontracted sourced from a subcontractor',
 };
 /** Mirror of the server's route guards — used only to hide UI the API would
  *  reject anyway. The server is the real enforcement. */

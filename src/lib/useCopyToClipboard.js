@@ -13,7 +13,7 @@ export function useCopyToClipboard() {
 
   return async function copyToClipboard(
     text,
-    { successMessage = 'Copied.', failureMessage = 'Could not copy — select and copy it manually.' } = {}
+    { successMessage = 'Copied.', failureMessage = 'Could not copy select and copy it manually.' } = {}
   ) {
     try {
       await navigator.clipboard.writeText(text);

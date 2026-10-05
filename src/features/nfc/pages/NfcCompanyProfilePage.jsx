@@ -136,7 +136,7 @@ export default function NfcCompanyProfilePage() {
 
   const columns = [
     { key: 'name', header: 'Name', render: (p) => <span className="font-medium">{p.name}</span> },
-    { key: 'jobTitle', header: 'Job title', render: (p) => p.jobTitle || '—', hideOnMobile: true },
+    { key: 'jobTitle', header: 'Job title', render: (p) => p.jobTitle || '', hideOnMobile: true },
     {
       key: 'card',
       header: 'Card',
@@ -160,7 +160,7 @@ export default function NfcCompanyProfilePage() {
       hideOnMobile: true,
       render: (p) => {
         const t = tapsByPerson.get(p._id);
-        if (!t) return <span className="text-muted">—</span>;
+        if (!t) return <span className="text-muted"></span>;
         return (
           <span className="tabular-nums" title={`${t.views} taps · ${t.saves} saved · ${t.clicks} link taps · ${t.images ?? 0} card downloads`}>
             {t.views}

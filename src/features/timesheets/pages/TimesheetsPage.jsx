@@ -39,7 +39,7 @@ import EmptyState from '../../../components/ui/EmptyState.jsx';
  *  time at all (Off/Holiday/No Attendance) renders as an em dash instead of
  *  "0:00", same convention formatHours() uses for a null hours figure. */
 function minutesToHHMM(minutes) {
-  if (!minutes) return '—';
+  if (!minutes) return '';
   const h = Math.floor(minutes / 60);
   const m = minutes % 60;
   return `${h}:${String(m).padStart(2, '0')}`;
@@ -155,8 +155,8 @@ function MonthlyTimesheetDetail({ employee, onBack }) {
   const columns = [
     { key: 'date', header: t('staffTimesheets.detail.columns.date'), render: (r) => r.date },
     { key: 'day', header: t('staffTimesheets.detail.columns.day'), render: (r) => r.day },
-    { key: 'login', header: t('staffTimesheets.detail.columns.login'), className: 'tabular-nums', render: (r) => r.login ?? '—' },
-    { key: 'logout', header: t('staffTimesheets.detail.columns.logout'), className: 'tabular-nums', render: (r) => r.logout ?? '—' },
+    { key: 'login', header: t('staffTimesheets.detail.columns.login'), className: 'tabular-nums', render: (r) => r.login ?? '' },
+    { key: 'logout', header: t('staffTimesheets.detail.columns.logout'), className: 'tabular-nums', render: (r) => r.logout ?? '' },
     { key: 'worked', header: t('staffTimesheets.detail.columns.worked'), className: 'tabular-nums', render: (r) => minutesToHHMM(r.workedMinutes) },
     { key: 'required', header: t('staffTimesheets.detail.columns.required'), className: 'tabular-nums', hideOnMobile: true, render: (r) => minutesToHHMM(r.requiredMinutes) },
     { key: 'deficiency', header: t('staffTimesheets.detail.columns.deficiency'), className: 'tabular-nums', hideOnMobile: true, render: (r) => minutesToHHMM(r.deficiencyMinutes) },

@@ -164,7 +164,7 @@ export default function AssetListPage() {
     {
       key: 'holder',
       header: 'Assigned to',
-      render: (a) => (a.currentEmployee ? `${a.currentEmployee.fullName} (${a.currentEmployee.employeeId})` : '—'),
+      render: (a) => (a.currentEmployee ? `${a.currentEmployee.fullName} (${a.currentEmployee.employeeId})` : ''),
     },
     { key: 'status', header: 'Status', render: (a) => <Badge variant={ASSET_STATUS_VARIANT[a.status]}>{a.status}</Badge> },
     {
@@ -220,7 +220,7 @@ export default function AssetListPage() {
     <div className="mx-auto max-w-[1600px]">
       <PageHeader
         title="Assets"
-        description="Vehicles, laptops, phones, and tools — who has what."
+        description="Vehicles, laptops, phones, and tools who has what."
         onBack={() => navigate(-1)}
         actions={canWrite && <Button onClick={openNew}>Add asset</Button>}
       />

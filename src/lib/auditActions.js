@@ -13,7 +13,7 @@ export const ACTION_LABELS = {
   'auth.login.success': 'signed in',
   'auth.login.failed': 'failed to sign in',
   'auth.logout': 'signed out',
-  'auth.refresh.reuse_detected': 'refresh token reuse detected — sessions revoked',
+  'auth.refresh.reuse_detected': 'refresh token reuse detected sessions revoked',
 
   'employee.create': 'added an employee',
   'employee.update': 'updated an employee',

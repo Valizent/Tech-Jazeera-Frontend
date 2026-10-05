@@ -157,7 +157,7 @@ function PreviousWorkerPicker({ workerType, subcontractorId, label, onSelect }) 
       <option value="">{t('staffMobilisations.form.selectPreviousWorker')}</option>
       {previousWorkers.map((w) => (
         <option key={w.iqamaNumber} value={w.iqamaNumber}>
-          {w.workerName} — {w.iqamaNumber}
+          {w.workerName} {w.iqamaNumber}
         </option>
       ))}
     </Select>
@@ -325,7 +325,7 @@ export default function MobilisationForm({
   return (
     <>
     <form onSubmit={handleSubmit(onSubmit, onInvalid)} noValidate className="space-y-6">
-      {/* Office Secretary only — creating this on behalf of a Coordinator
+      {/* Office Secretary only creating this on behalf of a Coordinator
           who's busy. Every other creator never sees this (coordinatorCandidates
           is only passed by MobilisationNewPage when the logged-in user is
           Office Secretary) and becomes the primary coordinator themselves,
@@ -400,10 +400,10 @@ export default function MobilisationForm({
               </p>
             )}
             {/* Hidden once a specific worker is already resolved (Iqama typed
-                directly, or already picked from this very list) — 2026-09-19,
+                directly, or already picked from this very list) 2026-09-19,
                 the user's own ask: "we already selected him, so why show rest
                 people?" Still shown when only a subcontractor is picked with
-                no worker identified yet — the actual discovery step. */}
+                no worker identified yet the actual discovery step. */}
             {!previousWorker && (
               <PreviousWorkerPicker
                 workerType="SupplierEmployee"

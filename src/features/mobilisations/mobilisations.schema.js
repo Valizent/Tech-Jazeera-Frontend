@@ -23,21 +23,21 @@ const optionalRateNumberString = z
   .or(z.literal(''))
   .refine((v) => !v || !Number.isNaN(Number(v)), 'Enter a valid number.')
   .refine((v) => !v || Number(v) >= 0, 'Cannot be negative.')
-  .refine((v) => !v || Number(v) <= 100_000, 'That looks too high — check the figure.');
+  .refine((v) => !v || Number(v) <= 100_000, 'That looks too high check the figure.');
 const optionalMoneyNumberString = z
   .string()
   .optional()
   .or(z.literal(''))
   .refine((v) => !v || !Number.isNaN(Number(v)), 'Enter a valid number.')
   .refine((v) => !v || Number(v) >= 0, 'Cannot be negative.')
-  .refine((v) => !v || Number(v) <= 1_000_000, 'That looks too high — check the figure.');
+  .refine((v) => !v || Number(v) <= 1_000_000, 'That looks too high check the figure.');
 const requiredRateNumberString = (message) =>
   z
     .string()
     .min(1, message)
     .refine((v) => !Number.isNaN(Number(v)), message)
     .refine((v) => Number(v) >= 0, 'Cannot be negative.')
-    .refine((v) => Number(v) <= 100_000, 'That looks too high — check the figure.');
+    .refine((v) => Number(v) <= 100_000, 'That looks too high check the figure.');
 
 // Saudi Iqama numbers are exactly 10 digits. Mirrors the server's own regex
 // in mobilisation.validation.js — only meaningful for a SupplierEmployee/

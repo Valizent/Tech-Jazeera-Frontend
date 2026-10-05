@@ -206,7 +206,7 @@ function CommercialDetailsCard({ m, canEdit, canDecide, isFinalStep, onSave, sav
         />
         {canDecide && (
           <div className="mt-4 flex flex-wrap justify-end gap-2">
-            {/* Called with no arguments (not the raw click event) — this
+            {/* Called with no arguments (not the raw click event) this
                 branch has no form to save, unlike CommercialDetailsForm's
                 own DecideButtons below. */}
             <DecideButtons canDecide={canDecide} isFinalStep={isFinalStep} saving={saving} onApprove={() => onApprove()} onReject={() => onReject()} />
@@ -244,7 +244,7 @@ function CommercialDetailsForm({ m, canDecide, isFinalStep, onSave, saving, onAp
           <Input label={t('staffMobilisations.detail.clientPO')} error={errors.clientPO?.message} {...register('clientPO')} />
           <Input label={t('staffMobilisations.detail.clientPODate')} type="date" error={errors.clientPODate?.message} {...register('clientPODate')} />
           {/* Sub quotation/PO only apply when there's actually a subcontractor
-              to get one from (2026-09-30, the user's own ask) — same
+              to get one from (2026-09-30, the user's own ask) same
               `hasSubcontractor` reasoning the read-only DetailTable above
               already uses, just extended to this editable form, which
               previously showed these fields unconditionally even for an own-
@@ -264,13 +264,13 @@ function CommercialDetailsForm({ m, canDecide, isFinalStep, onSave, saving, onAp
             {t('staffMobilisations.detail.saveDetails')}
           </Button>
           {/* Approve/Reject ('Submit to next step') used to bypass this form
-              entirely — DecideButtons' buttons are type="button", so clicking
+              entirely DecideButtons' buttons are type="button", so clicking
               one skipped handleSubmit(onSave) and went straight to the
               approval modal, silently discarding anything just typed here
               (real bug found 2026-09-14: Office Secretary filled in every
               field, clicked Submit, and the record moved to Marketing
               Manager's step with every field still null). Routing both
-              through handleSubmit — the same validator "Save details" uses —
+              through handleSubmit the same validator "Save details" uses 
               means the current field values are always saved (and the step
               never advances) before the decide flow opens, whichever button
               is clicked first. */}
@@ -956,7 +956,7 @@ export default function MobilisationDetailPage() {
             </Select>
           )}
           {/* A comment is required to reject, but welcome on an approval
-              too — the reviewer may want to leave a note either way. */}
+              too the reviewer may want to leave a note either way. */}
           <Textarea
             label={pendingDecision === 'Rejected' ? t('staffMobilisations.detail.noteRequired') : t('staffMobilisations.detail.noteOptional')}
             value={decideNote}

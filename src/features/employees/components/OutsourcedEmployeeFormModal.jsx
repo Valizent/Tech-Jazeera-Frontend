@@ -95,7 +95,7 @@ function useIqamaAutofill({ control, setValue, toast }) {
     setValue('phone', foundWorker.phone || '', { shouldDirty: true });
     if (foundWorker.workerType) setValue('workerType', foundWorker.workerType, { shouldDirty: true });
     if (foundWorker.subcontractor) setValue('subcontractor', foundWorker.subcontractor, { shouldDirty: true });
-    toast.success(`Found ${foundWorker.workerName} in past mobilisations — filled in their known details.`);
+    toast.success(`Found ${foundWorker.workerName} in past mobilisations filled in their known details.`);
   }, [foundWorker, iqamaDigits, setValue, toast]);
 
   return { previousWorker: enabled ? foundWorker : null };

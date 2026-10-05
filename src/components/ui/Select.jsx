@@ -36,7 +36,7 @@ const Select = forwardRef(function Select({ label, error, className, children, .
         >
           {children}
         </select>
-        {/* Custom chevron — positioned closer to text than the native arrow */}
+        {/* Custom chevron positioned closer to text than the native arrow */}
         <svg
           className="pointer-events-none absolute end-2 top-1/2 -translate-y-1/2 text-muted"
           width="12" height="12" viewBox="0 0 12 12" fill="none"

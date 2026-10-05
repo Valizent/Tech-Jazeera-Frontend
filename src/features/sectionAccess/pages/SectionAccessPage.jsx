@@ -83,8 +83,8 @@ function TierChecklist({ title, hint, approvalRoleIds, onToggleApprovalRole, app
           onToggle={onToggleApprovalRole}
           emptyMessage={
             approvalRolesError
-              ? "Couldn't load approval roles — try refreshing the page."
-              : 'No approval roles configured yet — add one on the Approval Hierarchy page first.'
+              ? "Couldn't load approval roles try refreshing the page."
+              : 'No approval roles configured yet add one on the Approval Hierarchy page first.'
           }
         />
       )}
@@ -263,7 +263,7 @@ export default function SectionAccessPage() {
     } else {
       const names = failures.map((f) => sections.find((s) => s.sectionKey === f.key)?.label ?? f.key).join(', ');
       toast.error(
-        `${results.length - failures.length} saved, ${failures.length} failed (${names}) — ${apiMessage(failures[0].reason)}`
+        `${results.length - failures.length} saved, ${failures.length} failed (${names}) ${apiMessage(failures[0].reason)}`
       );
     }
     queryClient.invalidateQueries({ queryKey: ['section-access'] });
@@ -308,7 +308,7 @@ export default function SectionAccessPage() {
   const headerDescription = activeModule
     ? activeModule.description
     : activeGroup
-      ? 'Choose a module below to control who can read or write its data — click one to see its Read/Write editor.'
+      ? 'Choose a module below to control who can read or write its data click one to see its Read/Write editor.'
       : "Section Access is your security control center. It lets you strictly govern who can see or change sensitive data across the system. It exists to ensure privacy and prevent unauthorized edits. Admins always have full access. Pick a category below, then choose a module to grant Read or Write permissions to your custom Approval Roles.";
   const handleBack = activeModule ? closeModule : activeGroup ? closeGroup : () => navigate(-1);
 

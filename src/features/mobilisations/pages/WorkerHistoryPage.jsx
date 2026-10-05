@@ -194,11 +194,11 @@ export default function WorkerHistoryPage() {
                             {t(`staffDeployments.status.${r.deployment.status}`, r.deployment.status)}
                           </Badge>
                         ) : (
-                          '—'
+                          ''
                         )}
                       </td>
                       <td className="px-3 py-2 text-text">
-                        {r.archived ? <Badge variant="default">{t('staffMobilisations.workerHistory.archivedBadge')}</Badge> : '—'}
+                        {r.archived ? <Badge variant="default">{t('staffMobilisations.workerHistory.archivedBadge')}</Badge> : ''}
                       </td>
                     </tr>
                   ))}

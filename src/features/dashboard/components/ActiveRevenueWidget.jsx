@@ -179,7 +179,7 @@ export default function ActiveRevenueWidget({ revenue, trend }) {
         {/* `end-4`, not `right-4` (2026-09-24, found live while checking this in
             Arabic): this app's RTL relies on native flow (flexbox/text reversal),
             which does NOT extend to an absolutely-positioned element's physical
-            left/right offset — `right-4` would sit in the same physical corner
+            left/right offset `right-4` would sit in the same physical corner
             in both languages, landing on top of the card's own (RTL-mirrored)
             number/label instead of its empty corner. `end-4` is a logical
             property (`inset-inline-end`), so it follows `dir` automatically. */}

@@ -55,7 +55,7 @@ function ReadyToInvoiceRow({ row, isOpen, onToggle, onSendInvoice, t, navigate }
           <span className="text-sm font-semibold text-primary">{formatMoney(row.breakdown?.subContractorInvoiceAmount ?? 0)}</span>
         </td>
         <td className="px-4 py-3 align-middle bg-surface border-y border-border/40 group-hover:border-primary/30 transition-colors">
-          <span className="text-sm text-muted">{row.hoursApprovedAt ? formatDate(row.hoursApprovedAt) : '—'}</span>
+          <span className="text-sm text-muted">{row.hoursApprovedAt ? formatDate(row.hoursApprovedAt) : ''}</span>
         </td>
         <td className="px-4 py-3 align-middle text-right bg-surface border-y border-r border-border/40 rounded-r-xl group-hover:border-primary/30 transition-colors">
           <div className="flex items-center justify-end gap-3">

@@ -25,7 +25,7 @@ import EmptyState from '../../../components/ui/EmptyState.jsx';
 /** Compact, safe rendering of an audit row's free-form meta — never secrets
  *  (logAudit()'s callers are trusted not to put any in there; see audit.model.js). */
 function MetaSummary({ meta }) {
-  if (!meta || Object.keys(meta).length === 0) return <span className="text-muted">—</span>;
+  if (!meta || Object.keys(meta).length === 0) return <span className="text-muted"></span>;
   const text = Object.entries(meta)
     .map(([k, v]) => `${k}: ${Array.isArray(v) ? v.join(', ') : v}`)
     .join(' · ');
@@ -101,9 +101,9 @@ export default function AuditLogPage() {
       key: 'target',
       header: 'Target',
       hideOnMobile: true,
-      render: (a) => (a.targetType ? <span className="text-xs text-muted">{a.targetType}</span> : '—'),
+      render: (a) => (a.targetType ? <span className="text-xs text-muted">{a.targetType}</span> : ''),
     },
-    { key: 'ip', header: 'IP', hideOnMobile: true, render: (a) => a.ip ?? '—' },
+    { key: 'ip', header: 'IP', hideOnMobile: true, render: (a) => a.ip ?? '' },
     { key: 'meta', header: 'Details', hideOnMobile: true, render: (a) => <MetaSummary meta={a.meta} /> },
   ];
 
@@ -111,7 +111,7 @@ export default function AuditLogPage() {
     <div className="mx-auto max-w-[1600px]">
       <PageHeader
         title="Security Log"
-        description="Complete, unfiltered record of authentication and CRUD activity across the company — never edited or deleted."
+        description="Complete, unfiltered record of authentication and CRUD activity across the company never edited or deleted."
         onBack={() => navigate(-1)}
       />
 

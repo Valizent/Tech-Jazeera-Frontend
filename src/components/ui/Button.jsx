@@ -17,7 +17,7 @@ const variants = {
 
 const sizes = {
   lg: 'h-11 px-5 text-sm',
-  md: 'h-10 px-4 text-sm', // 40px tall — comfortably touch-friendly
+  md: 'h-10 px-4 text-sm', // 40px tall comfortably touch-friendly
   sm: 'h-9 px-3 text-sm',
 };
 

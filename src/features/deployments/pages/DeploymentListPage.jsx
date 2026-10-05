@@ -228,7 +228,7 @@ export default function DeploymentListPage() {
       key: 'site',
       header: t('staffDeployments.list.columns.site', 'Site'),
       hideOnMobile: true,
-      render: (d) => <span className="text-muted">{d.site || '—'}</span>,
+      render: (d) => <span className="text-muted">{d.site || ''}</span>,
     },
     {
       key: 'startDate',
@@ -409,7 +409,7 @@ export default function DeploymentListPage() {
                 className="h-9 w-full rounded-lg border border-border bg-bg px-3 text-sm text-text placeholder:text-muted focus:border-primary focus:outline-none"
               />
 
-              {/* Reset button — only shown when something is non-default */}
+              {/* Reset button only shown when something is non-default */}
               {sortPanelActive && (
                 <button
                   type="button"

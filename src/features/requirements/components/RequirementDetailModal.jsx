@@ -38,7 +38,7 @@ export default function RequirementDetailModal({ id, stages, onClose, onEdit }) 
     enabled: Boolean(id),
   });
 
-  const stageName = (stageId) => stages.find((s) => s._id === stageId)?.name ?? '—';
+  const stageName = (stageId) => stages.find((s) => s._id === stageId)?.name ?? '';
   const invalidate = () => queryClient.invalidateQueries({ queryKey: ['requirements'] });
   const onError = (what) => (error) => {
     console.error(`[requirements] ${what} failed`, error);

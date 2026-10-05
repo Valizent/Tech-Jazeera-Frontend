@@ -121,7 +121,7 @@ export default function EmployeeLoginPanel({ employee }) {
                 <Input
                   label="Email"
                   type="email"
-                  placeholder="No email on file — required"
+                  placeholder="No email on file required"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   className="sm:max-w-[220px]"
@@ -143,13 +143,13 @@ export default function EmployeeLoginPanel({ employee }) {
               {created.reset ? (
                 <>
                   Their old password no longer works. Hand this new one to{' '}
-                  <span className="font-medium text-text">{employee.fullName}</span> — it&apos;s shown{' '}
+                  <span className="font-medium text-text">{employee.fullName}</span> it&apos;s shown{' '}
                   <span className="font-medium text-text">once</span>, copy it now.
                 </>
               ) : (
                 <>
                   Hand these to <span className="font-medium text-text">{employee.fullName}</span>.
-                  The temporary password is shown <span className="font-medium text-text">once</span> —
+                  The temporary password is shown <span className="font-medium text-text">once</span> 
                   copy it now.
                 </>
               )}
@@ -172,14 +172,14 @@ export default function EmployeeLoginPanel({ employee }) {
         )}
       </Modal>
 
-      {/* Change role — the role picked at provisioning time (e.g. Worker vs
+      {/* Change role the role picked at provisioning time (e.g. Worker vs
           Staff for an internal employee) isn't always the right one. */}
       <Modal open={editingRole !== null} onClose={() => setEditingRole(null)} title="Change role">
         {login && (
           <div className="flex flex-col gap-4">
             <p className="text-sm text-muted">
               Changing <span className="font-medium text-text">{employee.fullName}</span>&apos;s role signs them
-              out everywhere — they&apos;ll need to log in again for the new role to take effect.
+              out everywhere they&apos;ll need to log in again for the new role to take effect.
             </p>
             <Select label="Role" value={editingRole ?? ''} onChange={(e) => setEditingRole(e.target.value)}>
               {EMPLOYEE_LOGIN_ROLES.map((r) => (

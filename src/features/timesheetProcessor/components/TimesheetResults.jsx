@@ -26,8 +26,8 @@ const STATUS_DISPLAY_LABEL = { 'No Attendance': 'Absent' };
 const COLUMNS = [
   { key: 'date', header: 'Date', render: (r) => formatDate(r.date) },
   { key: 'day', header: 'Day', render: (r) => r.day, hideOnMobile: true },
-  { key: 'login', header: 'Login', render: (r) => r.login ?? <span className="text-muted">—</span> },
-  { key: 'logout', header: 'Logout', render: (r) => r.logout ?? <span className="text-muted">—</span> },
+  { key: 'login', header: 'Login', render: (r) => r.login ?? <span className="text-muted"></span> },
+  { key: 'logout', header: 'Logout', render: (r) => r.logout ?? <span className="text-muted"></span> },
   { key: 'worked', header: 'Worked', render: (r) => <Duration minutes={r.workedMinutes} /> },
   { key: 'required', header: 'Required', render: (r) => <Duration minutes={r.requiredMinutes} />, hideOnMobile: true },
   { key: 'deficiency', header: 'Deficiency', render: (r) => <Duration minutes={r.deficiencyMinutes} /> },

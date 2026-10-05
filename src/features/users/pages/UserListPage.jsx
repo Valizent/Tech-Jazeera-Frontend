@@ -148,7 +148,7 @@ export default function UserListPage() {
           <div className="flex flex-col gap-4">
             <p className="text-sm text-muted">
               Their old password no longer works. Hand this new one to{' '}
-              <span className="font-medium text-text">{created.user.name}</span> — it&apos;s shown{' '}
+              <span className="font-medium text-text">{created.user.name}</span> it&apos;s shown{' '}
               <span className="font-medium text-text">once</span>, copy it now.
             </p>
             <div className="rounded-lg border border-border bg-bg p-3">
@@ -170,7 +170,7 @@ export default function UserListPage() {
       <ConfirmDialog
         open={Boolean(toDelete)}
         title="Delete login?"
-        message={`${toDelete?.name} (${toDelete?.email}) will be permanently removed — this cannot be undone. To just remove access while keeping the account, use Deactivate instead.`}
+        message={`${toDelete?.name} (${toDelete?.email}) will be permanently removed this cannot be undone. To just remove access while keeping the account, use Deactivate instead.`}
         loading={deleteMutation.isPending}
         onConfirm={() => deleteMutation.mutate(toDelete._id)}
         onCancel={() => setToDelete(null)}

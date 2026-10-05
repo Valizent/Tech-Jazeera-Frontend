@@ -126,7 +126,7 @@ function SubmitCertificatePanel() {
             </option>
           ))}
         </Select>
-        <Textarea label="Purpose" placeholder="Optional — what it's for (bank account, visa, new employer…)" error={errors.purpose?.message} {...register('purpose')} />
+        <Textarea label="Purpose" placeholder="Optional what it's for (bank account, visa, new employer…)" error={errors.purpose?.message} {...register('purpose')} />
         <div className="flex justify-end">
           <Button type="submit" isLoading={submitMutation.isPending}>
             Submit request

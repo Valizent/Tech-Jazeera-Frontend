@@ -186,7 +186,7 @@ export default function PaymentsReviewPage() {
             <div className="rounded-xl bg-bg p-4">
               <p className="text-sm text-text">
                 <span className="font-semibold">{decidingRow.client?.companyName}</span>
-                <span className="mx-2 text-muted">—</span>
+                <span className="mx-2 text-muted"></span>
                 <span className="tabular-nums">{formatMoney(decidingRow.amount)}</span>
               </p>
             </div>

@@ -182,7 +182,7 @@ export default function DashboardPage() {
         }
       />
 
-      {/* Only ever non-zero for Admin/Manager/HR — a Coordinator's own
+      {/* Only ever non-zero for Admin/Manager/HR a Coordinator's own
           submissions aren't counted here (see dashboard.service.js). Hidden
           entirely at zero so it never sits around as dead chrome. */}
       {stats.pendingClientApprovals > 0 && (
@@ -199,7 +199,7 @@ export default function DashboardPage() {
 
       <MyPendingActions items={myPendingActions} />
 
-      {/* Full-width, swapped with HrComplianceWidget 2026-09-24 (the user's own ask) —
+      {/* Full-width, swapped with HrComplianceWidget 2026-09-24 (the user's own ask) 
           Active Mobilisation Revenue now leads the page instead of sitting in a half-width
           slot near the bottom; HrComplianceWidget took its old paired-grid spot below. */}
       {finance.activeMobilisationRevenue != null && (
@@ -207,15 +207,15 @@ export default function DashboardPage() {
       )}
 
       {/* Real, closed-book companion to the estimate above (2026-09-24, a real user
-          ask) — see ActualPerformanceWidget's own doc comment. */}
+          ask) see ActualPerformanceWidget's own doc comment. */}
       {finance.actualPerformance != null && <ActualPerformanceWidget performance={finance.actualPerformance} />}
 
       {/* Row pairing is role-aware (2026-09-24, a real user report): every row below used
           to pair one Coordinator-visible widget with one Admin/Manager-only widget
           (DailyAttendanceSummary needs attendanceRecords, StandbyAnalysisWidget needs
-          payroll, the Leaderboard/Global Pipeline need mobilisationsViewer — a Coordinator
+          payroll, the Leaderboard/Global Pipeline need mobilisationsViewer a Coordinator
           has none of these by default), so for every Coordinator login the "other half" of
-          nearly every row was silently empty — not a CSS bug, a content-pairing one. A
+          nearly every row was silently empty not a CSS bug, a content-pairing one. A
           Coordinator now gets rows built entirely from widgets that are actually theirs;
           everyone else keeps the original pairing untouched. Any of these grants CAN be
           extended to a Coordinator via Section Access, so the plain fallbacks below still
@@ -271,7 +271,7 @@ export default function DashboardPage() {
               )}
             </div>
           )}
-          {/* Mobilisation Leaderboard + Global Pipeline — mobilisationsViewer-gated,
+          {/* Mobilisation Leaderboard + Global Pipeline mobilisationsViewer-gated,
               never rendered for a Coordinator (their own pipeline is the
               isCoordinator-only StatusBreakdown further down). */}
           {mobilisationsByStatus != null && (
@@ -289,13 +289,13 @@ export default function DashboardPage() {
 
       {/* The coordinator's own pipeline breakdown is now rendered inside the grid above */}
 
-      {/* Alerts + activity — ExpiringDocuments always renders (it's a list
+      {/* Alerts + activity ExpiringDocuments always renders (it's a list
           built from independently-gated sources, naturally empty rather
           than absent when neither is readable, and shows its own empty
           state); RecentActivity only when the server actually sent it.
           Side-by-side only when both show. FIX (2026-09-22): this used to also
           require `user.role === 'Admin'`, hardcoded on top of the server's own
-          `auditLog` Section Access grant — so granting auditLog read to anyone
+          `auditLog` Section Access grant so granting auditLog read to anyone
           else still never showed them this widget, contradicting this file's
           own rule above it. `recentActivity != null` alone already reflects
           the real grant; no separate role check belongs here. */}
@@ -308,7 +308,7 @@ export default function DashboardPage() {
         <ExpiringDocuments items={expiringDocuments} thresholdDays={thresholdDays} onThresholdChange={changeThreshold} scopedToTeam={isCoordinator} />
       )}
 
-      {/* Manage Targets modal — management only */}
+      {/* Manage Targets modal management only */}
       <ManageTargetsModal
         open={targetsOpen}
         onClose={() => setTargetsOpen(false)}

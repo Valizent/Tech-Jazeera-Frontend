@@ -50,9 +50,9 @@ export default function NfcCompanyListPage() {
         </span>
       ),
     },
-    { key: 'contactPerson', header: 'Contact', render: (c) => c.contactPerson || '—' },
-    { key: 'phone', header: 'Phone', render: (c) => c.phone || '—', hideOnMobile: true },
-    { key: 'city', header: 'City', render: (c) => c.city || '—', hideOnMobile: true },
+    { key: 'contactPerson', header: 'Contact', render: (c) => c.contactPerson || '' },
+    { key: 'phone', header: 'Phone', render: (c) => c.phone || '', hideOnMobile: true },
+    { key: 'city', header: 'City', render: (c) => c.city || '', hideOnMobile: true },
     {
       key: 'employeeCount',
       header: 'People',

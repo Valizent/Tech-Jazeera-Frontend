@@ -52,7 +52,7 @@ export default function SectionHubPage({ title, titleKey, description, descripti
               <p className="flex items-center gap-2 font-semibold text-text group-hover:text-primary">
                 {item.labelKey ? t(item.labelKey, item.label) : item.label}
                 {/* Optional, filled in by the calling hub page (e.g.
-                    FinancialHubPage's overdue-invoice count) — this
+                    FinancialHubPage's overdue-invoice count) this
                     component stays generic and knows nothing about what a
                     badge count actually means for any given item. */}
                 {badgeCount > 0 && (

@@ -151,7 +151,7 @@ export default function RequirementFormModal({ open, requirement, canAssign, coo
                 />
               )}
             />
-            {/* A failed lookup is said out loud, not left looking like "no clients exist" —
+            {/* A failed lookup is said out loud, not left looking like "no clients exist" 
                 the field still works as plain text either way. */}
             <p className="mt-1 text-xs text-muted">{t(clientsError ? 'staffRequirements.form.clientHintNoSuggestions' : 'staffRequirements.form.clientHint')}</p>
           </div>

@@ -177,7 +177,7 @@ export default function EmployeeListPage() {
             )}
           </span>
         ) : (
-          <span className="text-muted">—</span>
+          <span className="text-muted"></span>
         ),
     },
     {

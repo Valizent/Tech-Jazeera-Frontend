@@ -105,10 +105,10 @@ export default function StandbyAnalysisWidget() {
                     </span>
                   </td>
                   <td className="px-4 py-3 text-right font-medium text-muted">
-                    {/* null for a Supplier/Freelancer worker — this company owes them
+                    {/* null for a Supplier/Freelancer worker this company owes them
                         nothing while unplaced, so there's no honest cost to show (see
                         dashboard.service.js's own getStandbyAnalysis doc comment). */}
-                    {w.moneyLost == null ? <span className="text-muted/50">—</span> : formatMoney(w.moneyLost)}
+                    {w.moneyLost == null ? <span className="text-muted/50"></span> : formatMoney(w.moneyLost)}
                   </td>
                 </tr>
               ))}

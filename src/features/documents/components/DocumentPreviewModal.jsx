@@ -50,7 +50,7 @@ export default function DocumentPreviewModal({ doc, open, onClose }) {
   return (
     <Modal open={open} onClose={onClose} title={doc.title} size="xl">
       <div className="flex flex-col gap-5 lg:flex-row lg:items-start">
-        {/* Preview — the star of the dialog */}
+        {/* Preview the star of the dialog */}
         <div className="grid h-[52vh] min-w-0 place-items-center overflow-hidden rounded-xl border border-border bg-bg lg:h-[70vh] lg:flex-1">
           {error ? (
             <p className="p-6 text-sm text-danger">{error}</p>

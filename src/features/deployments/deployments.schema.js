@@ -59,7 +59,7 @@ const hoursField = (message) =>
     .min(1, message)
     .refine((v) => !Number.isNaN(Number(v)), message)
     .refine((v) => Number(v) >= 0, 'Cannot be negative.')
-    .refine((v) => Number(v) <= 1000, 'That looks too high for one month — check the figure.');
+    .refine((v) => Number(v) <= 1000, 'That looks too high for one month check the figure.');
 
 // Optional counterpart of hoursField — same bounds when a value IS given,
 // but never required (2026-10-01, the user's own ask: subcontractor hours
@@ -71,7 +71,7 @@ const optionalHoursField = z
   .or(z.literal(''))
   .refine((v) => !v || !Number.isNaN(Number(v)), 'Enter a number.')
   .refine((v) => !v || Number(v) >= 0, 'Cannot be negative.')
-  .refine((v) => !v || Number(v) <= 1000, 'That looks too high for one month — check the figure.');
+  .refine((v) => !v || Number(v) <= 1000, 'That looks too high for one month check the figure.');
 
 // Optional non-negative amount capped at 1,000,000 — shared by deductionAmount/
 // supplierDeductionAmount/employeeAdditionalAmount below (2026-10-03, a real
@@ -82,7 +82,7 @@ const optionalMoneyField = z
   .optional()
   .or(z.literal(''))
   .refine((v) => !v || (!Number.isNaN(Number(v)) && Number(v) >= 0), 'Cannot be negative.')
-  .refine((v) => !v || Number(v) <= 1_000_000, 'That looks too high — check the figure.');
+  .refine((v) => !v || Number(v) <= 1_000_000, 'That looks too high check the figure.');
 
 export function buildMonthlyHoursFormSchema() {
   return z.object({

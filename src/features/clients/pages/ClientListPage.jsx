@@ -116,12 +116,12 @@ export default function ClientListPage() {
         </Link>
       ),
     },
-    { key: 'industry', header: t('staffClients.list.columns.industry'), render: (c) => c.industry || '—' },
-    { key: 'phone', header: t('staffClients.list.columns.phone'), hideOnMobile: true, render: (c) => c.phone || '—' },
+    { key: 'industry', header: t('staffClients.list.columns.industry'), render: (c) => c.industry || '' },
+    { key: 'phone', header: t('staffClients.list.columns.phone'), hideOnMobile: true, render: (c) => c.phone || '' },
     {
       key: 'sites',
       header: t('staffClients.list.columns.sites'),
-      render: (c) => (c.sites?.length ? <Badge variant="primary">{c.sites.length}</Badge> : '—'),
+      render: (c) => (c.sites?.length ? <Badge variant="primary">{c.sites.length}</Badge> : ''),
     },
     {
       key: 'status',
@@ -148,7 +148,7 @@ export default function ClientListPage() {
             )}
           </span>
         ) : (
-          <span className="text-muted">—</span>
+          <span className="text-muted"></span>
         ),
     },
     {

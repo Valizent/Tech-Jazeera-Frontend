@@ -33,7 +33,7 @@ function Field({ label, value }) {
   return (
     <div>
       <p className="text-xs font-medium uppercase tracking-wide text-muted">{label}</p>
-      <p className="mt-0.5 text-sm font-medium">{value || '—'}</p>
+      <p className="mt-0.5 text-sm font-medium">{value || ''}</p>
     </div>
   );
 }

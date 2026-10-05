@@ -87,7 +87,7 @@ export const MODULE_GROUPS = [
       // the grouped nav (see navConfig.js's own DASHBOARD_ITEM), so its
       // label/icon are borrowed directly rather than looked up via navItem().
       {
-        label: `${DASHBOARD_ITEM.label} — profit`,
+        label: `${DASHBOARD_ITEM.label} profit`,
         description: 'The dashboard\'s real monthly profit figure, without granting Expenses themselves.',
         icon: DASHBOARD_ITEM.icon,
         sectionKeys: ['dashboardProfit'],

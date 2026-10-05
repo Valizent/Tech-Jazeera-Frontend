@@ -131,7 +131,7 @@ export default function NfcEmployeeFormModal({ open, onClose, companyId, employe
           <Input label="Phone" error={errors.phone?.message} {...register('phone')} />
           <Input label="WhatsApp" placeholder="9665… (digits)" error={errors.whatsapp?.message} {...register('whatsapp')} />
           <Input label="Email" type="email" error={errors.email?.message} {...register('email')} />
-          <Input label="Alternate email" type="email" placeholder="Optional — e.g. a work address" error={errors.altEmail?.message} {...register('altEmail')} />
+          <Input label="Alternate email" type="email" placeholder="Optional e.g. a work address" error={errors.altEmail?.message} {...register('altEmail')} />
           <Input label="LinkedIn" placeholder="linkedin.com/in/…" error={errors.linkedin?.message} {...register('linkedin')} />
         </div>
         <Textarea label="Short bio" rows={2} error={errors.bio?.message} {...register('bio')} />

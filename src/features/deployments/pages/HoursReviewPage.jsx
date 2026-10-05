@@ -35,7 +35,7 @@ import EmptyState from '../../../components/ui/EmptyState.jsx';
  *  decide-modal's client/supplier hours tiles (2026-10-03, a real
  *  code-review finding: this was copy-pasted 4 times across the two). */
 function formatHoursWithRate(hours, rate) {
-  if (hours == null) return '—';
+  if (hours == null) return '';
   if (rate == null) return hours;
   return `${hours} @ ${formatMoney(rate)}/hr`;
 }
@@ -45,7 +45,7 @@ function StatTile({ label, value, valueClass = '' }) {
   return (
     <div className="flex flex-col gap-0.5 rounded-xl bg-bg p-3">
       <span className="text-xs font-medium text-muted">{label}</span>
-      <span className={`text-base font-semibold tabular-nums ${valueClass}`}>{value ?? '—'}</span>
+      <span className={`text-base font-semibold tabular-nums ${valueClass}`}>{value ?? ''}</span>
     </div>
   );
 }
@@ -405,7 +405,7 @@ export default function HoursReviewPage() {
                 <div className="flex justify-between">
                   <span className="text-muted">{t('staffDeployments.hoursReview.breakdown.subContractorInvoiceAmount')}</span>
                   {/* Can go negative (2026-09-30, the user's own ask) when a
-                      supplier deduction exceeds the raw rate×hours amount —
+                      supplier deduction exceeds the raw rate×hours amount 
                       that's money we KEEP, not spend, so it flips to a "+"
                       green line here instead of the usual "-" red one. */}
                   <span className={`font-medium tabular-nums ${breakdownRow.profitBreakdown.subContractorInvoiceAmount > 0 ? 'text-danger' : 'text-success'}`}>

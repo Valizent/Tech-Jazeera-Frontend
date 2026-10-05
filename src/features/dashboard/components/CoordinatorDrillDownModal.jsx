@@ -78,7 +78,7 @@ export default function CoordinatorDrillDownModal({ open, onClose, coordinator, 
 
           <div>
             <h3 className="text-sm font-semibold mb-3 border-b border-border pb-2">{t('staffDashboard.drillDown.recentLogEntries')}</h3>
-            {/* A Log entry is one plain `text` field, not an array of sub-entries — matches
+            {/* A Log entry is one plain `text` field, not an array of sub-entries matches
                 dailyUpdate.model.js's real shape (see the coordinator-drill-down crash fix). */}
             {data.recentLogs?.length === 0 ? (
               <p className="text-xs text-muted italic">{t('staffDashboard.drillDown.noRecentLogs')}</p>

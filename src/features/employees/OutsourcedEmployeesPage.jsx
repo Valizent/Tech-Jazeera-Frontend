@@ -71,7 +71,7 @@ export default function OutsourcedEmployeesPage() {
       header: t('employees.outsourced.iqamaNumber', 'Iqama Number'),
       render: (row) => (
         <div>
-          <div className="text-sm tabular-nums text-text">{row.iqamaNumber || '—'}</div>
+          <div className="text-sm tabular-nums text-text">{row.iqamaNumber || ''}</div>
           {row.nationality && <div className="text-xs text-muted mt-0.5">{row.nationality}</div>}
         </div>
       ),

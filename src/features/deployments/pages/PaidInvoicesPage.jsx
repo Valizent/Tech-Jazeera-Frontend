@@ -35,17 +35,17 @@ function InvoiceRow({ row, isOpen, onToggle, t }) {
         </td>
         {/* Contract Hours */}
         <td className="px-4 py-3 align-middle text-right bg-surface border-y border-border/40 group-hover:border-primary/30 transition-colors">
-          <span className="text-sm text-text">{row.contractHours ?? '—'}</span>
+          <span className="text-sm text-text">{row.contractHours ?? ''}</span>
         </td>
         {/* Timesheet Hours (the client's own actual hours for this month) */}
         <td className="px-4 py-3 align-middle text-right bg-surface border-y border-border/40 group-hover:border-primary/30 transition-colors">
-          <span className="text-sm text-text">{row.actualHours ?? '—'}</span>
+          <span className="text-sm text-text">{row.actualHours ?? ''}</span>
         </td>
         {/* Invoice # */}
         <td className="px-4 py-3 align-middle bg-surface border-y border-border/40 group-hover:border-primary/30 transition-colors">
           <div className="flex items-center gap-3">
             <div>
-              <div className="text-sm font-medium text-text">{row.invoiceNumber || '—'}</div>
+              <div className="text-sm font-medium text-text">{row.invoiceNumber || ''}</div>
               {row.invoiceDate && <div className="text-xs text-muted mt-0.5">{formatDate(row.invoiceDate)}</div>}
             </div>
             {row.invoiceFile && (
@@ -69,7 +69,7 @@ function InvoiceRow({ row, isOpen, onToggle, t }) {
         <td className="px-4 py-3 align-middle text-right bg-surface border-y border-border/40 group-hover:border-primary/30 transition-colors">
           <span className="text-sm font-semibold text-text">{formatMoney(row.revenue)}</span>
         </td>
-        {/* Amount Paid — this ONE payment's own amount, not the invoice's
+        {/* Amount Paid this ONE payment's own amount, not the invoice's
             cumulative total (2026-10-01, the user's own ask: a $3,000-then-
             $2,000 invoice shows as two rows here, not one $5,000 lump). */}
         <td className="px-4 py-3 align-middle text-right bg-surface border-y border-border/40 group-hover:border-primary/30 transition-colors">
@@ -106,7 +106,7 @@ function InvoiceRow({ row, isOpen, onToggle, t }) {
         <tr>
           <td colSpan={9} className="px-4 pb-3">
             <MonthlyEntryBreakdownPanel row={row} formatMoney={formatMoney}>
-              {/* "Paid" itself now lives in the Client column (2026-10-01) —
+              {/* "Paid" itself now lives in the Client column (2026-10-01) 
                   only Balance Due (when still outstanding) stays here. */}
               {!row.fullyPaid && (
                 <>
@@ -158,7 +158,7 @@ export default function PaidInvoicesPage() {
     <div className="space-y-6">
       <PageHeader
         title={t('staffDeployments.paidInvoices.title', 'Received invoices')}
-        description={t('staffDeployments.paidInvoices.subtitle', 'Every payment received toward an invoice, across all clients — an invoice paid in installments appears as one row per payment. Click a row to expand financial details.')}
+        description={t('staffDeployments.paidInvoices.subtitle', 'Every payment received toward an invoice, across all clients an invoice paid in installments appears as one row per payment. Click a row to expand financial details.')}
         onBack={() => navigate(-1)}
       />
 

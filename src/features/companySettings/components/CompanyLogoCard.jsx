@@ -80,7 +80,7 @@ export default function CompanyLogoCard({ canWrite }) {
         <div>
           <h2 className="text-sm font-semibold uppercase tracking-wide text-muted">Company logo</h2>
           <p className="mt-1 text-xs text-muted">
-            Shown on every generated document — invoices, quotations, settlements, certificates, payslips, and
+            Shown on every generated document invoices, quotations, settlements, certificates, payslips, and
             exported timesheets. PNG, JPG, or WEBP up to {MAX_MB} MB.
           </p>
         </div>
@@ -96,7 +96,7 @@ export default function CompanyLogoCard({ canWrite }) {
                 className="h-16 max-w-[200px] rounded-lg border border-border bg-surface object-contain p-1"
               />
             ) : (
-              <span className="text-sm text-muted">No logo set — exports skip the logo band.</span>
+              <span className="text-sm text-muted">No logo set exports skip the logo band.</span>
             )}
             {canWrite && (
               <>
@@ -137,7 +137,7 @@ export default function CompanyLogoCard({ canWrite }) {
 
       {/* Fixed 2026-09-29, a real audit finding: this used to fire on click
           with no confirmation, unlike every other destructive action in the
-          app — removing the logo affects every future generated PDF/export
+          app removing the logo affects every future generated PDF/export
           letterhead immediately. */}
       <ConfirmDialog
         open={confirmingRemove}

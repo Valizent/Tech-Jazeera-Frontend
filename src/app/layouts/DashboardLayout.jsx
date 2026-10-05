@@ -141,12 +141,12 @@ export default function DashboardLayout() {
 
   return (
     <div className="min-h-screen bg-bg">
-      {/* Static sidebar — desktop only */}
+      {/* Static sidebar desktop only */}
       <aside className="fixed inset-y-0 left-0 z-30 hidden w-64 lg:block">
         <Sidebar />
       </aside>
 
-      {/* Drawer sidebar — mobile only */}
+      {/* Drawer sidebar mobile only */}
       {drawerOpen && (
         <div className="fixed inset-0 z-40 lg:hidden">
           <div

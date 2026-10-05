@@ -142,7 +142,7 @@ export default function LostRequirementsPage() {
       key: 'neededBy',
       header: t('staffRequirements.lost.columns.neededBy'),
       width: 10,
-      render: (r) => (r.neededBy ? formatDate(r.neededBy) : '—'),
+      render: (r) => (r.neededBy ? formatDate(r.neededBy) : ''),
     },
     {
       key: 'stageEnteredAt',
