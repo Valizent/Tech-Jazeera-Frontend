@@ -141,9 +141,11 @@ function WorkersTab({ clientId }) {
       render: (d) => (
         <Link to={d.workerType === 'Employee' ? `/employees/${d.worker?._id}` : `/deployments/${d._id}`} className="font-medium text-text hover:text-primary">
           {d.workerName}
-          <span className="block text-xs font-normal text-muted">
-            {d.workerType === 'Employee' ? d.worker?.employeeId : d.subcontractorName || 'Freelancer'}
-          </span>
+          {d.workerType === 'Employee' && d.worker?.employeeId && (
+            <span className="block text-xs font-normal text-muted">
+              {d.worker.employeeId}
+            </span>
+          )}
         </Link>
       ),
     },
@@ -152,9 +154,18 @@ function WorkersTab({ clientId }) {
       header: t('staffDeployments.list.columns.type', 'Type'), 
       render: (d) => {
         let label = d.workerType;
-        if (d.workerType === 'SupplierEmployee') label = 'Supplier Employee';
+        if (d.workerType === 'SupplierEmployee') label = 'Subcontractor Employee';
         else if (d.workerType === 'Employee') label = 'Own Employee';
         return <Badge variant="secondary">{label}</Badge>;
+      }
+    },
+    {
+      key: 'supplierName',
+      header: t('staffDeployments.list.columns.subcontractor', 'Subcontractor'),
+      render: (d) => {
+        if (d.workerType === 'SupplierEmployee') return d.subcontractorName || '';
+        if (d.workerType === 'Freelancer') return 'Freelancer';
+        return '';
       }
     },
     { key: 'designation', header: t('staffClients.profile.workersColumns.designation', 'Designation'), render: (d) => d.mobilisation?.jobTitle || '' },
@@ -175,7 +186,7 @@ function WorkersTab({ clientId }) {
         >
           <option value="">All Types</option>
           <option value="Employee">Own Employee</option>
-          <option value="SupplierEmployee">Supplier Employee</option>
+          <option value="SupplierEmployee">Subcontractor Employee</option>
           <option value="Freelancer">Freelancer</option>
         </select>
       </div>
