@@ -21,7 +21,7 @@
 import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
-import { useMutation, useQuery, useQuerySubcontractor } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { getSubPaymentsDue, getSubcontractorPaymentDetail, recordSubcontractorPayment, downloadInvoiceFile, getPendingPaymentsQueue } from '../deployments.api.js';
 import { formatDate, formatMoney, apiMessage } from '../../../lib/utils.js';
 import { useAuth } from '../../auth/AuthContext.jsx';
@@ -49,7 +49,7 @@ export default function SubcontractorPaymentsDuePage() {
   const navigate = useNavigate();
   const { user } = useAuth();
   const toast = useToast();
-  const querySubcontractor = useQuerySubcontractor();
+  const queryClient = useQueryClient();
 
   const canRecordPayment = user.role === 'Office Secretary' || Boolean(user.sectionAccessWrite?.includes('deploymentsHours'));
   const canDecidePayment = Boolean(user.sectionAccessWrite?.includes('deploymentsPaymentDecide'));
@@ -86,7 +86,7 @@ export default function SubcontractorPaymentsDuePage() {
 
   const filteredRows = supplierFilter ? rows.filter((row) => row.subcontractorNames?.includes(supplierFilter)) : rows;
 
-  const invalidateList = () => querySubcontractor.invalidateQueries({ queryKey: ['deployments', 'payments-due'] });
+  const invalidateList = () => queryClient.invalidateQueries({ queryKey: ['deployments', 'payments-due'] });
 
   const recordMutation = useMutation({
     mutationFn: ({ subcontractorId, values }) => recordSubcontractorPayment(subcontractorId, values),
@@ -97,7 +97,7 @@ export default function SubcontractorPaymentsDuePage() {
       setPaymentReference('');
       setPaymentDate(new Date().toISOString().split('T')[0]);
       invalidateList();
-      if (openSubcontractorId) querySubcontractor.invalidateQueries({ queryKey: ['deployments', 'payments-due', openSubcontractorId] });
+      if (openSubcontractorId) queryClient.invalidateQueries({ queryKey: ['deployments', 'payments-due', openSubcontractorId] });
     },
     onError: (error) => toast.error(apiMessage(error)),
   });

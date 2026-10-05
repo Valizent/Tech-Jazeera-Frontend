@@ -207,11 +207,3 @@ export async function downloadMyPayslipPdf(runId, filename) {
   a.remove();
   URL.revokeObjectURL(url);
 }
-
-export async function submitAnnualVacation(data) {
-  return fetchJson('/api/financial-requests/annual-vacation', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(data),
-  });
-}

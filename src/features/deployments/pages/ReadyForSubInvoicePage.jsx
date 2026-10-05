@@ -1,7 +1,7 @@
 import { useRef, useState, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
-import { useMutation, useQuery, useQuerySubcontractor } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { getReadyForSubInvoice, recordSubInvoice } from '../deployments.api.js';
 import { RECEIPT_ACCEPT, RECEIPT_MAX_MB } from '../../../lib/constants.js';
 import { apiMessage, formatDate, formatMoney } from '../../../lib/utils.js';
@@ -110,7 +110,7 @@ export default function ReadyForSubInvoicePage() {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const toast = useToast();
-  const querySubcontractor = useQuerySubcontractor();
+  const queryClient = useQueryClient();
 
   const [invoicingEntry, setInvoicingEntry] = useState(null);
   const [subcontractorInvoiceNumberInput, setInvoiceNumberInput] = useState('AJSCO-');
@@ -159,7 +159,7 @@ export default function ReadyForSubInvoicePage() {
       toast.success(t('staffDeployments.detail.invoiceSentToast'));
       setInvoicingEntry(null);
       resetInvoiceForm();
-      querySubcontractor.invalidateQueries({ queryKey: ['deployments', 'ready-to-invoice'] });
+      queryClient.invalidateQueries({ queryKey: ['deployments', 'ready-to-invoice'] });
     },
     onError: (error) => toast.error(apiMessage(error)),
   });

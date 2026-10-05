@@ -150,48 +150,50 @@ export async function demobiliseDeployment(id, payload) {
   return data.data;
 }
 
+/** Every Approved-but-not-yet-invoiced month on a SupplierEmployee/Freelancer
+ *  deployment — the subcontractor-side mirror of getReadyToInvoice. */
 export async function getReadyForSubInvoice() {
-  const res = await fetchJson('/api/deployments/ready-for-sub-invoice');
-  return res.items || res;
+  const { data } = await api.get('/deployments/ready-for-sub-invoice');
+  return data.data;
 }
 
+/** `data` must include invoiceNumber, invoiceDate, and optionally a `file`
+ *  (the subcontractor's invoice copy) — subcontractor-side mirror of sendInvoice. */
 export async function recordSubInvoice(deploymentId, entryId, data) {
   const formData = new FormData();
   if (data.invoiceNumber) formData.append('invoiceNumber', data.invoiceNumber);
   if (data.invoiceDate) formData.append('invoiceDate', data.invoiceDate);
   if (data.file) formData.append('file', data.file);
-  return fetchJson('/api/deployments/' + deploymentId + '/monthly-hours/' + entryId + '/sub-invoice', {
-    method: 'POST',
-    body: formData,
-  });
+  const res = await api.post(`/deployments/${deploymentId}/monthly-hours/${entryId}/sub-invoice`, formData);
+  return res.data.data;
 }
 
+/** Every subcontractor with at least one outstanding invoice. */
 export async function getSubPaymentsDue() {
-  const res = await fetchJson('/api/deployments/sub-payments-due');
-  return res.items;
+  const { data } = await api.get('/deployments/sub-payments-due');
+  return data.data;
 }
 
 export async function getPaidSubInvoices() {
-  const res = await fetchJson('/api/deployments/paid-sub-invoices');
-  return res.items;
+  const { data } = await api.get('/deployments/paid-sub-invoices');
+  return data.data;
 }
 
+/** One subcontractor's full billing picture — every invoice (paid or not)
+ *  plus their real payment history — for the drill-down. */
 export async function getSubcontractorPaymentDetail(subcontractorId) {
-  return fetchJson('/api/deployments/sub-payments-due/' + subcontractorId);
+  const { data } = await api.get(`/deployments/sub-payments-due/${subcontractorId}`);
+  return data.data;
 }
 
+/** Record one bulk payment this subcontractor received. `data: { amount, paymentReference?, paymentDate? }`. */
 export async function recordSubcontractorPayment(subcontractorId, data) {
-  return fetchJson('/api/deployments/sub-payments-due/' + subcontractorId + '/payments', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(data),
-  });
+  const res = await api.post(`/deployments/sub-payments-due/${subcontractorId}/payments`, data);
+  return res.data.data;
 }
 
+/** Approve/Reject a Pending recorded subcontractor payment. `data: { decision, note }`. */
 export async function decideSubcontractorPayment(paymentId, data) {
-  return fetchJson('/api/deployments/sub-payments/' + paymentId + '/decide', {
-    method: 'PATCH',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(data),
-  });
+  const res = await api.patch(`/deployments/sub-payments/${paymentId}/decide`, data);
+  return res.data.data;
 }
