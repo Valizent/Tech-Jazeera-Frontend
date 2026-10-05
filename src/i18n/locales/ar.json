@@ -87,9 +87,18 @@
       "Subcontracted": "مقاول باطن"
     },
     "months": {
-      "1": "يناير", "2": "فبراير", "3": "مارس", "4": "أبريل",
-      "5": "مايو", "6": "يونيو", "7": "يوليو", "8": "أغسطس",
-      "9": "سبتمبر", "10": "أكتوبر", "11": "نوفمبر", "12": "ديسمبر"
+      "1": "يناير",
+      "2": "فبراير",
+      "3": "مارس",
+      "4": "أبريل",
+      "5": "مايو",
+      "6": "يونيو",
+      "7": "يوليو",
+      "8": "أغسطس",
+      "9": "سبتمبر",
+      "10": "أكتوبر",
+      "11": "نوفمبر",
+      "12": "ديسمبر"
     }
   },
   "auth": {
@@ -428,61 +437,178 @@
   "staffNav": {
     "dashboard": "لوحة التحكم",
     "executive": {
-      "leave": { "label": "الإجازات", "description": "طلبات بانتظار مراجعتك." },
-      "timesheets": { "label": "سجلات الدوام", "description": "ساعات العمل الأسبوعية بانتظار مراجعتك." },
-      "financialRequests": { "label": "الطلبات المالية", "description": "السلف والمصاريف المستردة." },
-      "exitDocuments": { "label": "الخروج والمستندات", "description": "تأشيرات الخروج والعودة والشهادات بانتظار مراجعتك." },
-      "approvalLog": { "label": "سجل الموافقات", "description": "كل طلب تم البت فيه عبر مسار اعتماد، بالترتيب." },
-      "payroll": { "label": "الرواتب", "description": "دورات الرواتب وقسائمها إن مُنحت صلاحية الوصول." },
-      "expenses": { "label": "المصروفات", "description": "مصروفات الشركة إن مُنحت صلاحية الوصول." }
+      "leave": {
+        "label": "الإجازات",
+        "description": "طلبات بانتظار مراجعتك."
+      },
+      "timesheets": {
+        "label": "سجلات الدوام",
+        "description": "ساعات العمل الأسبوعية بانتظار مراجعتك."
+      },
+      "financialRequests": {
+        "label": "الطلبات المالية",
+        "description": "السلف والمصاريف المستردة."
+      },
+      "exitDocuments": {
+        "label": "الخروج والمستندات",
+        "description": "تأشيرات الخروج والعودة والشهادات بانتظار مراجعتك."
+      },
+      "approvalLog": {
+        "label": "سجل الموافقات",
+        "description": "كل طلب تم البت فيه عبر مسار اعتماد، بالترتيب."
+      },
+      "payroll": {
+        "label": "الرواتب",
+        "description": "دورات الرواتب وقسائمها إن مُنحت صلاحية الوصول."
+      },
+      "expenses": {
+        "label": "المصروفات",
+        "description": "مصروفات الشركة إن مُنحت صلاحية الوصول."
+      }
     },
     "workforce": {
       "label": "القوى العاملة",
       "description": "الموظفون والحضور والإجازات وكل ما يتعلق بدورة عملهم.",
-      "employees": { "label": "الموظفون", "description": "السجلات والملفات والمستندات." },
-      "attendance": { "label": "الحضور", "description": "تسجيل الدخول والخروج اليومي والسجلات." },
-      "leave": { "label": "الإجازات", "description": "الأنواع والطلبات والموافقات." },
-      "holidays": { "label": "العطلات", "description": "التقويم الرسمي لعطلات الشركة." },
-      "timesheets": { "label": "سجلات الدوام", "description": "ساعات العمل الأسبوعية، بانتظار الاعتماد." },
-      "eosb": { "label": "مكافأة نهاية الخدمة", "description": "تسويات نهاية الخدمة عند الخروج." },
-      "exitDocuments": { "label": "الخروج والمستندات", "description": "تأشيرات الخروج والعودة، والشهادات." }
+      "employees": {
+        "label": "الموظفون",
+        "description": "السجلات والملفات والمستندات."
+      },
+      "attendance": {
+        "label": "الحضور",
+        "description": "تسجيل الدخول والخروج اليومي والسجلات."
+      },
+      "leave": {
+        "label": "الإجازات",
+        "description": "الأنواع والطلبات والموافقات."
+      },
+      "holidays": {
+        "label": "العطلات",
+        "description": "التقويم الرسمي لعطلات الشركة."
+      },
+      "timesheets": {
+        "label": "سجلات الدوام",
+        "description": "ساعات العمل الأسبوعية، بانتظار الاعتماد."
+      },
+      "eosb": {
+        "label": "مكافأة نهاية الخدمة",
+        "description": "تسويات نهاية الخدمة عند الخروج."
+      },
+      "exitDocuments": {
+        "label": "الخروج والمستندات",
+        "description": "تأشيرات الخروج والعودة، والشهادات."
+      }
     },
     "sales": {
       "label": "المبيعات والعملاء",
       "description": "علاقات العملاء وتنسيب العمالة.",
-      "clients": { "label": "العملاء", "description": "الشركات التي يعمل لديها موظفوك." },
-      "deployments": { "label": "التنسيبات", "description": "أين يعمل كل موظف حاليًا." },
-      "mobilisations": { "label": "التعبئة والتنسيب", "description": "تنسيب العمالة مع شروط الفوترة للعميل." },
-      "subcontractors": { "label": "الباطن", "description": "الشركات التي يُوجَّه إليها التنسيب أحيانًا عبر مقاول باطن." },
-      "dailyUpdates": { "label": "التحديثات اليومية", "description": "مهام المنسقين اليومية وسجل عملهم." },
-      "requirements": { "label": "الطلبات", "description": "طلبات العملاء من أول طلب حتى التنسيب." }
+      "clients": {
+        "label": "العملاء",
+        "description": "الشركات التي يعمل لديها موظفوك."
+      },
+      "deployments": {
+        "label": "التنسيبات",
+        "description": "أين يعمل كل موظف حاليًا."
+      },
+      "mobilisations": {
+        "label": "التعبئة والتنسيب",
+        "description": "تنسيب العمالة مع شروط الفوترة للعميل."
+      },
+      "subcontractors": {
+        "label": "الباطن",
+        "description": "الشركات التي يُوجَّه إليها التنسيب أحيانًا عبر مقاول باطن."
+      },
+      "dailyUpdates": {
+        "label": "التحديثات اليومية",
+        "description": "مهام المنسقين اليومية وسجل عملهم."
+      },
+      "requirements": {
+        "label": "الطلبات",
+        "description": "طلبات العملاء من أول طلب حتى التنسيب."
+      }
     },
     "financial": {
       "label": "الشؤون المالية",
       "description": "الرواتب والمصروفات والطلبات المالية الداخلية.",
-      "readyToInvoice": { "label": "جاهز للفوترة", "description": "أشهر مُعتمدة بانتظار فاتورة للعميل." },
-      "paymentsDue": { "label": "المدفوعات المستحقة", "description": "مدفوعات العملاء المفوترة بانتظار التحصيل." },
-      "payroll": { "label": "الرواتب", "description": "دورات الرواتب الشهرية وقسائمها." },
-      "expenses": { "label": "المصروفات", "description": "مصروفات الشركة، للاستخدام الداخلي فقط." },
-      "financialRequests": { "label": "الطلبات المالية", "description": "السلف والمصاريف المستردة." }
+      "readyToInvoice": {
+        "label": "جاهز للفوترة",
+        "description": "أشهر مُعتمدة بانتظار فاتورة للعميل."
+      },
+      "paymentsDue": {
+        "label": "المدفوعات المستحقة",
+        "description": "مدفوعات العملاء المفوترة بانتظار التحصيل."
+      },
+      "payroll": {
+        "label": "الرواتب",
+        "description": "دورات الرواتب الشهرية وقسائمها."
+      },
+      "expenses": {
+        "label": "المصروفات",
+        "description": "مصروفات الشركة، للاستخدام الداخلي فقط."
+      },
+      "financialRequests": {
+        "label": "الطلبات المالية",
+        "description": "السلف والمصاريف المستردة."
+      }
     },
     "admin": {
       "label": "الإدارة والأدوات",
       "description": "إعدادات الشركة العامة والسجلات والأدوات الداخلية.",
-      "companySettings": { "label": "إعدادات الشركة", "description": "الهوية القانونية وبيانات التواصل والبنك والمخوّل بالتوقيع تُطبع على كل مستند يُنشأ." },
-      "sectionAccess": { "label": "صلاحيات الأقسام", "description": "الأدوار أو أدوار الاعتماد التي يمكنها فتح الرواتب والمصروفات وغيرها من الأقسام المقيدة." },
-      "documents": { "label": "المستندات", "description": "مركز مستندات الشركة والموظفين." },
-      "assets": { "label": "العهدة", "description": "المعدات المُسندة للموظفين." },
-      "team": { "label": "الفريق", "description": "حسابات دخول الموظفين وأدوارهم." },
-      "approvals": { "label": "التسلسل الاعتماد", "description": "أدوار الاعتماد وسلاسل مسارات الموافقة متعددة الخطوات." },
-      "mobilisationSettings": { "label": "إعدادات التعبئة والتنسيب", "description": "الحد الزمني للتنبيه عند تأخر عملية التنسيب أما صلاحية العرض أو التنسيب الذاتي فتُدار الآن من صفحة صلاحيات الأقسام." },
-      "locations": { "label": "المواقع", "description": "إزالة موقع من القائمة المشتركة المستخدمة في نموذجي التعبئة والمتطلبات. تتم إضافة موقع جديد مباشرة من أي من النموذجين." },
-      "approvalsLog": { "label": "سجل الموافقات", "description": "كل طلب تم البت فيه عبر مسار اعتماد، بالترتيب. يظهر لمن هو ضمن التسلسل." },
-      "timesheetProcessor": { "label": "معالج سجلات الدوام", "description": "استيراد جماعي لملفات الحضور من الأجهزة." },
-      "nfc": { "label": "عملاء NFC", "description": "برنامج بطاقات الأعمال بتقنية NFC." },
-      "securityLog": { "label": "سجل الأمان", "description": "سجل تدقيق تسجيل الدخول والعمليات." },
-      "reconciliation": { "label": "تسوية البيانات", "description": "فحص سلامة دائم عبر السجلات المالية والرواتب والتعيينات." },
-      "coordinatorActivity": { "label": "نشاط المنسقين", "description": "ما أضافه المنسقون بأنفسهم." }
+      "companySettings": {
+        "label": "إعدادات الشركة",
+        "description": "الهوية القانونية وبيانات التواصل والبنك والمخوّل بالتوقيع تُطبع على كل مستند يُنشأ."
+      },
+      "sectionAccess": {
+        "label": "صلاحيات الأقسام",
+        "description": "الأدوار أو أدوار الاعتماد التي يمكنها فتح الرواتب والمصروفات وغيرها من الأقسام المقيدة."
+      },
+      "documents": {
+        "label": "المستندات",
+        "description": "مركز مستندات الشركة والموظفين."
+      },
+      "assets": {
+        "label": "العهدة",
+        "description": "المعدات المُسندة للموظفين."
+      },
+      "team": {
+        "label": "الفريق",
+        "description": "حسابات دخول الموظفين وأدوارهم."
+      },
+      "approvals": {
+        "label": "التسلسل الاعتماد",
+        "description": "أدوار الاعتماد وسلاسل مسارات الموافقة متعددة الخطوات."
+      },
+      "mobilisationSettings": {
+        "label": "إعدادات التعبئة والتنسيب",
+        "description": "الحد الزمني للتنبيه عند تأخر عملية التنسيب أما صلاحية العرض أو التنسيب الذاتي فتُدار الآن من صفحة صلاحيات الأقسام."
+      },
+      "locations": {
+        "label": "المواقع",
+        "description": "إزالة موقع من القائمة المشتركة المستخدمة في نموذجي التعبئة والمتطلبات. تتم إضافة موقع جديد مباشرة من أي من النموذجين."
+      },
+      "approvalsLog": {
+        "label": "سجل الموافقات",
+        "description": "كل طلب تم البت فيه عبر مسار اعتماد، بالترتيب. يظهر لمن هو ضمن التسلسل."
+      },
+      "timesheetProcessor": {
+        "label": "معالج سجلات الدوام",
+        "description": "استيراد جماعي لملفات الحضور من الأجهزة."
+      },
+      "nfc": {
+        "label": "عملاء NFC",
+        "description": "برنامج بطاقات الأعمال بتقنية NFC."
+      },
+      "securityLog": {
+        "label": "سجل الأمان",
+        "description": "سجل تدقيق تسجيل الدخول والعمليات."
+      },
+      "reconciliation": {
+        "label": "تسوية البيانات",
+        "description": "فحص سلامة دائم عبر السجلات المالية والرواتب والتعيينات."
+      },
+      "coordinatorActivity": {
+        "label": "نشاط المنسقين",
+        "description": "ما أضافه المنسقون بأنفسهم."
+      }
     }
   },
   "staffDashboard": {
@@ -1710,12 +1836,12 @@
       "invoiceNumberLabel": "رقم الفاتورة *",
       "invoiceDateLabel": "تاريخ الفاتورة *",
       "invoiceDateTooEarly": "شهر {{month}} لم ينتهِ بعد اختر تاريخًا بعد انتهائه.",
-      "invoiceFileLabel": "نسخة الفاتورة (PDF) *",
-      "chooseFile": "اختر ملفًا",
-      "changeFile": "تغيير الملف",
-      "invoiceFileTooLarge": "الملف كبير جدًا (الحد الأقصى {{maxMb}} ميجابايت).",
-      "downloadInvoiceButton": "تنزيل الفاتورة",
-      "invoiceSentToast": "تم وضع علامة على الفاتورة كمُرسَلة.",
+      "invoiceFileLabel": "Invoice File",
+      "chooseFile": "Choose file",
+      "changeFile": "Change file",
+      "invoiceFileTooLarge": "Invoice file is too large",
+      "downloadInvoiceButton": "Download invoice",
+      "invoiceSentToast": "Sub Invoice recorded.",
       "totalProfit": "إجمالي الربح",
       "sectionExpenses": "المصاريف",
       "expensesHint": "التكاليف التشغيلية الفعلية لهذه التعبئة الوقود والسكن وما شابه بالإضافة إلى الإيراد والمصاريف وصافي الربح الفعلي (من جداول الدوام المعتمدة) أدناه.",
@@ -1768,7 +1894,13 @@
       "addedToast": "تم تسجيل الساعات.",
       "updatedToast": "تم تحديث الساعات.",
       "noMonthlyHours": "لم تُدخل أي ساعات بعد.",
-      "endedNote": "انتهت عملية النشر هذه تم إدخال جميع الأشهر التي كان فيها العامل مُعيّنًا بالفعل."
+      "endedNote": "انتهت عملية النشر هذه تم إدخال جميع الأشهر التي كان فيها العامل مُعيّنًا بالفعل.",
+      "recordSubInvoiceButton": "Record Sub Invoice",
+      "recordSubInvoiceModalTitle": "Record Sub Invoice",
+      "recordSubInvoiceModalMessage": "Upload the subcontractor's invoice for this month.",
+      "subcontractorInvoiceNumberLabel": "Sub Invoice Number",
+      "subcontractorInvoiceDateLabel": "Sub Invoice Date",
+      "subcontractorInvoiceDateTooEarly": "Invoice date cannot be earlier than the month it covers"
     },
     "panel": {
       "title": "النشر",
@@ -1777,6 +1909,60 @@
       "notDeployed": "غير منشور حاليًا.",
       "viewDeployment": "عرض النشر",
       "historyTitle": "سجل عمليات النشر"
+    },
+    "subPaymentsDue": {
+      "paymentRecordedToast": "Payment recorded.",
+      "columns": {
+        "subcontractor": "Subcontractor",
+        "invoiceCount": "Invoices",
+        "totalOutstanding": "Total Outstanding",
+        "due": "Due",
+        "worker": "Worker",
+        "month": "Month",
+        "invoice": "Invoice",
+        "invoiceAmount": "Invoice Amount",
+        "allocated": "Allocated",
+        "balance": "Balance"
+      },
+      "overdueBy": "Overdue by {{days}} days",
+      "dueInDays": "Due in {{days}} days",
+      "recordPaymentButton": "Record Payment",
+      "pageTitle": "Subcontractor Payments Due",
+      "pageDescription": "Invoiced subcontractor payments awaiting clearance.",
+      "reviewPendingButton": "Review Pending Payments",
+      "filterBySupplier": "Filter by supplier",
+      "allSuppliers": "All suppliers",
+      "couldNotLoad": "Could not load payments due",
+      "emptyTitle": "No payments due",
+      "emptyDescription": "All subcontractor invoices have been fully paid.",
+      "creditBalance": "Credit balance: {{amount}}",
+      "invoicesTitle": "Invoices",
+      "fullyPaid": "Fully Paid",
+      "paymentHistoryTitle": "Payment History",
+      "noPaymentsYet": "No payments yet.",
+      "statusPending": "Pending",
+      "statusApproved": "Approved",
+      "statusRejected": "Rejected",
+      "recordPaymentModalTitle": "Record Payment for {{subcontractor}}",
+      "recordPaymentModalMessage": "Record a bulk payment received from this subcontractor.",
+      "amountLabel": "Amount received *",
+      "paymentReferenceLabel": "Invoice / Reference #",
+      "paymentDateLabel": "Payment Date"
+    },
+    "paidSubInvoices": {
+      "statusPaid": "Paid",
+      "statusPartial": "Partial",
+      "title": "Paid Sub Invoices",
+      "subtitle": "Every payment received toward an invoice, across all subcontractors an invoice paid in installments appears as one row per payment. Click a row to expand financial details.",
+      "emptyTitle": "No paid sub invoices",
+      "emptyDescription": "No subcontractor payments have been recorded yet."
+    },
+    "readyForSubInvoice": {
+      "pageTitle": "Ready for Sub Invoice",
+      "pageDescription": "Approved months waiting on a subcontractor invoice.",
+      "couldNotLoad": "Could not load ready for sub invoice",
+      "emptyTitle": "No pending sub invoices",
+      "emptyDescription": "There are no approved months waiting for a subcontractor invoice."
     }
   },
   "staffMobilisations": {
@@ -2154,7 +2340,10 @@
   "staffDailyUpdates": {
     "pageTitle": "التحديثات اليومية",
     "pageDescription": "عمل المنسق اليومي: المهام المطلوبة وسجل ما تم إنجازه.",
-    "tabs": { "tasks": "المهام", "log": "السجل اليومي" },
+    "tabs": {
+      "tasks": "المهام",
+      "log": "السجل اليومي"
+    },
     "coordinatorFilterAll": "جميع المنسقين",
     "coordinatorFilterAria": "تصفية حسب المنسق",
     "couldNotLoad": "تعذّر تحميل هذه القائمة",
@@ -2165,8 +2354,16 @@
       "assignTask": "إضافة / إسناد مهمة",
       "statusFilterAria": "تصفية حسب الحالة",
       "statusAll": "جميع المهام",
-      "status": { "Open": "مفتوحة", "Done": "منجزة" },
-      "columns": { "task": "المهمة", "assignedTo": "المنسق", "due": "الاستحقاق", "status": "الحالة" },
+      "status": {
+        "Open": "مفتوحة",
+        "Done": "منجزة"
+      },
+      "columns": {
+        "task": "المهمة",
+        "assignedTo": "المنسق",
+        "due": "الاستحقاق",
+        "status": "الحالة"
+      },
       "overdue": "متأخرة",
       "assignedBy": "أسندها {{name}}",
       "markDone": "تحديد كمنجزة",
@@ -2211,7 +2408,11 @@
       "emptyFilteredTitle": "لا توجد إدخالات مطابقة",
       "emptyDescriptionOwn": "دوّن ما عملت عليه اليوم يمكن لمديرك قراءته هنا.",
       "emptyDescriptionTeam": "لم يسجّل المنسقون أي شيء بعد.",
-      "toasts": { "added": "تمت إضافة إدخال السجل.", "updated": "تم تحديث إدخال السجل.", "deleted": "تم حذف إدخال السجل." },
+      "toasts": {
+        "added": "تمت إضافة إدخال السجل.",
+        "updated": "تم تحديث إدخال السجل.",
+        "deleted": "تم حذف إدخال السجل."
+      },
       "modalEditTitle": "تعديل إدخال السجل",
       "deleteConfirmTitle": "حذف إدخال السجل؟",
       "deleteConfirmMessage": "سيتم حذف هذا الإدخال نهائيًا."
@@ -2349,8 +2550,15 @@
       "statusAria": "حالة {{name}}",
       "removeConfirmTitle": "إزالة المرشح؟",
       "removeConfirmMessage": "ستتم إزالة {{name}} من هذا الطلب.",
-      "toasts": { "added": "تمت إضافة المرشح.", "updated": "تم تحديث المرشح.", "removed": "تمت إزالة المرشح." },
-      "workerType": { "SupplierEmployee": "عامل مقاول باطن", "Freelancer": "عامل مستقل" },
+      "toasts": {
+        "added": "تمت إضافة المرشح.",
+        "updated": "تم تحديث المرشح.",
+        "removed": "تمت إزالة المرشح."
+      },
+      "workerType": {
+        "SupplierEmployee": "عامل مقاول باطن",
+        "Freelancer": "عامل مستقل"
+      },
       "status": {
         "Identified": "تم تحديده",
         "DocsInProgress": "الأوراق قيد الإعداد",

@@ -87,9 +87,18 @@
       "Subcontracted": "Subcontracted"
     },
     "months": {
-      "1": "January", "2": "February", "3": "March", "4": "April",
-      "5": "May", "6": "June", "7": "July", "8": "August",
-      "9": "September", "10": "October", "11": "November", "12": "December"
+      "1": "January",
+      "2": "February",
+      "3": "March",
+      "4": "April",
+      "5": "May",
+      "6": "June",
+      "7": "July",
+      "8": "August",
+      "9": "September",
+      "10": "October",
+      "11": "November",
+      "12": "December"
     }
   },
   "auth": {
@@ -428,61 +437,178 @@
   "staffNav": {
     "dashboard": "Dashboard",
     "executive": {
-      "leave": { "label": "Leave", "description": "Requests awaiting your review." },
-      "timesheets": { "label": "Timesheets", "description": "Weekly hours awaiting your review." },
-      "financialRequests": { "label": "Financial Requests", "description": "Salary advances and reimbursements." },
-      "exitDocuments": { "label": "Exit & Documents", "description": "Re-entry visas and certificates awaiting your review." },
-      "approvalLog": { "label": "Approval Log", "description": "Every request decided through a workflow, in order." },
-      "payroll": { "label": "Payroll", "description": "Monthly runs and payslips if you've been granted access." },
-      "expenses": { "label": "Expenses", "description": "Company spending if you've been granted access." }
+      "leave": {
+        "label": "Leave",
+        "description": "Requests awaiting your review."
+      },
+      "timesheets": {
+        "label": "Timesheets",
+        "description": "Weekly hours awaiting your review."
+      },
+      "financialRequests": {
+        "label": "Financial Requests",
+        "description": "Salary advances and reimbursements."
+      },
+      "exitDocuments": {
+        "label": "Exit & Documents",
+        "description": "Re-entry visas and certificates awaiting your review."
+      },
+      "approvalLog": {
+        "label": "Approval Log",
+        "description": "Every request decided through a workflow, in order."
+      },
+      "payroll": {
+        "label": "Payroll",
+        "description": "Monthly runs and payslips if you've been granted access."
+      },
+      "expenses": {
+        "label": "Expenses",
+        "description": "Company spending if you've been granted access."
+      }
     },
     "workforce": {
       "label": "Workforce",
       "description": "Employees, attendance, leave and everything tied to their employment lifecycle.",
-      "employees": { "label": "Employees", "description": "Records, profiles, documents." },
-      "attendance": { "label": "Attendance", "description": "Daily sign-in/out and records." },
-      "leave": { "label": "Leave", "description": "Types, requests and approvals." },
-      "holidays": { "label": "Holidays", "description": "The company holiday calendar." },
-      "timesheets": { "label": "Timesheets", "description": "Weekly hours, submitted for approval." },
-      "eosb": { "label": "End of Service", "description": "EOSB settlements on exit." },
-      "exitDocuments": { "label": "Exit & Documents", "description": "Re-entry visas, certificates." }
+      "employees": {
+        "label": "Employees",
+        "description": "Records, profiles, documents."
+      },
+      "attendance": {
+        "label": "Attendance",
+        "description": "Daily sign-in/out and records."
+      },
+      "leave": {
+        "label": "Leave",
+        "description": "Types, requests and approvals."
+      },
+      "holidays": {
+        "label": "Holidays",
+        "description": "The company holiday calendar."
+      },
+      "timesheets": {
+        "label": "Timesheets",
+        "description": "Weekly hours, submitted for approval."
+      },
+      "eosb": {
+        "label": "End of Service",
+        "description": "EOSB settlements on exit."
+      },
+      "exitDocuments": {
+        "label": "Exit & Documents",
+        "description": "Re-entry visas, certificates."
+      }
     },
     "sales": {
       "label": "Sales & Clients",
       "description": "Client relationships and worker placements.",
-      "clients": { "label": "Clients", "description": "Companies your workers are placed with." },
-      "deployments": { "label": "Deployments", "description": "Which worker is placed where." },
-      "mobilisations": { "label": "Mobilisations", "description": "Worker placements with client billing terms." },
-      "subcontractors": { "label": "Subcontractors", "description": "Companies a mobilisation is sometimes routed through." },
-      "dailyUpdates": { "label": "Daily Updates", "description": "Coordinators' day-to-day tasks and work log." },
-      "requirements": { "label": "Requirements", "description": "Client requirements moving from first request to mobilised." }
+      "clients": {
+        "label": "Clients",
+        "description": "Companies your workers are placed with."
+      },
+      "deployments": {
+        "label": "Deployments",
+        "description": "Which worker is placed where."
+      },
+      "mobilisations": {
+        "label": "Mobilisations",
+        "description": "Worker placements with client billing terms."
+      },
+      "subcontractors": {
+        "label": "Subcontractors",
+        "description": "Companies a mobilisation is sometimes routed through."
+      },
+      "dailyUpdates": {
+        "label": "Daily Updates",
+        "description": "Coordinators' day-to-day tasks and work log."
+      },
+      "requirements": {
+        "label": "Requirements",
+        "description": "Client requirements moving from first request to mobilised."
+      }
     },
     "financial": {
       "label": "Financial",
       "description": "Payroll, expenses, and internal financial requests.",
-      "readyToInvoice": { "label": "Ready to Invoice", "description": "Approved months waiting on a client invoice." },
-      "paymentsDue": { "label": "Payments Due", "description": "Invoiced client payments awaiting collection." },
-      "payroll": { "label": "Payroll", "description": "Monthly runs and payslips." },
-      "expenses": { "label": "Expenses", "description": "Company spending, internal only." },
-      "financialRequests": { "label": "Financial Requests", "description": "Salary advances and reimbursements." }
+      "readyToInvoice": {
+        "label": "Ready to Invoice",
+        "description": "Approved months waiting on a client invoice."
+      },
+      "paymentsDue": {
+        "label": "Payments Due",
+        "description": "Invoiced client payments awaiting collection."
+      },
+      "payroll": {
+        "label": "Payroll",
+        "description": "Monthly runs and payslips."
+      },
+      "expenses": {
+        "label": "Expenses",
+        "description": "Company spending, internal only."
+      },
+      "financialRequests": {
+        "label": "Financial Requests",
+        "description": "Salary advances and reimbursements."
+      }
     },
     "admin": {
       "label": "Admin & Tools",
       "description": "Company-wide configuration, records and internal tools.",
-      "companySettings": { "label": "Company Settings", "description": "Legal identity, contact, bank and signatory details printed on every generated document." },
-      "sectionAccess": { "label": "Section Access", "description": "Which roles or approval roles can open Payroll, Expenses, and other governed sections." },
-      "documents": { "label": "Documents", "description": "Company & employee document store." },
-      "assets": { "label": "Assets", "description": "Equipment issued to employees." },
-      "team": { "label": "Team", "description": "Staff logins and roles." },
-      "approvals": { "label": "Approval Hierarchy", "description": "Approval roles and multi-step workflow chains." },
-      "mobilisationSettings": { "label": "Mobilisation Settings", "description": "The stale mobilisation warning threshold viewer/self-mobilise access is on Section Access now." },
-      "locations": { "label": "Locations", "description": "Remove a site/location from the shared Mobilisation & Requirement picklist. Adding a new one is done inline from either form." },
-      "approvalsLog": { "label": "Approval Log", "description": "Every request decided through a workflow, in order. Visible if you sit in the hierarchy." },
-      "timesheetProcessor": { "label": "Timesheet Processor", "description": "Bulk-import device attendance exports." },
-      "nfc": { "label": "NFC Customers", "description": "NFC business-card program." },
-      "securityLog": { "label": "Security Log", "description": "Auth & CRUD audit trail." },
-      "reconciliation": { "label": "Data Reconciliation", "description": "A standing integrity check across ledgers, payroll, and deployments." },
-      "coordinatorActivity": { "label": "Coordinator Activity", "description": "What Coordinators added themselves." }
+      "companySettings": {
+        "label": "Company Settings",
+        "description": "Legal identity, contact, bank and signatory details printed on every generated document."
+      },
+      "sectionAccess": {
+        "label": "Section Access",
+        "description": "Which roles or approval roles can open Payroll, Expenses, and other governed sections."
+      },
+      "documents": {
+        "label": "Documents",
+        "description": "Company & employee document store."
+      },
+      "assets": {
+        "label": "Assets",
+        "description": "Equipment issued to employees."
+      },
+      "team": {
+        "label": "Team",
+        "description": "Staff logins and roles."
+      },
+      "approvals": {
+        "label": "Approval Hierarchy",
+        "description": "Approval roles and multi-step workflow chains."
+      },
+      "mobilisationSettings": {
+        "label": "Mobilisation Settings",
+        "description": "The stale mobilisation warning threshold viewer/self-mobilise access is on Section Access now."
+      },
+      "locations": {
+        "label": "Locations",
+        "description": "Remove a site/location from the shared Mobilisation & Requirement picklist. Adding a new one is done inline from either form."
+      },
+      "approvalsLog": {
+        "label": "Approval Log",
+        "description": "Every request decided through a workflow, in order. Visible if you sit in the hierarchy."
+      },
+      "timesheetProcessor": {
+        "label": "Timesheet Processor",
+        "description": "Bulk-import device attendance exports."
+      },
+      "nfc": {
+        "label": "NFC Customers",
+        "description": "NFC business-card program."
+      },
+      "securityLog": {
+        "label": "Security Log",
+        "description": "Auth & CRUD audit trail."
+      },
+      "reconciliation": {
+        "label": "Data Reconciliation",
+        "description": "A standing integrity check across ledgers, payroll, and deployments."
+      },
+      "coordinatorActivity": {
+        "label": "Coordinator Activity",
+        "description": "What Coordinators added themselves."
+      }
     }
   },
   "staffDashboard": {
@@ -1710,12 +1836,12 @@
       "invoiceNumberLabel": "Invoice number *",
       "invoiceDateLabel": "Invoice date *",
       "invoiceDateTooEarly": "{{month}} hasn't finished yet pick a date after it ends.",
-      "invoiceFileLabel": "Invoice copy (PDF) *",
+      "invoiceFileLabel": "Invoice File",
       "chooseFile": "Choose file",
       "changeFile": "Change file",
-      "invoiceFileTooLarge": "File is too large (maximum {{maxMb}} MB).",
+      "invoiceFileTooLarge": "Invoice file is too large",
       "downloadInvoiceButton": "Download invoice",
-      "invoiceSentToast": "Invoice marked as sent.",
+      "invoiceSentToast": "Sub Invoice recorded.",
       "totalProfit": "Total profit",
       "sectionExpenses": "Expenses",
       "expensesHint": "Real operational costs against this deployment fuel, accommodation, and the like plus its own Approved-timesheet Revenue/Expenses/Net Profit below.",
@@ -1768,7 +1894,13 @@
       "addedToast": "Hours recorded.",
       "updatedToast": "Hours updated.",
       "noMonthlyHours": "No hours entered yet.",
-      "endedNote": "This deployment has ended every month it was actually placed for has already been entered."
+      "endedNote": "This deployment has ended every month it was actually placed for has already been entered.",
+      "recordSubInvoiceButton": "Record Sub Invoice",
+      "recordSubInvoiceModalTitle": "Record Sub Invoice",
+      "recordSubInvoiceModalMessage": "Upload the subcontractor's invoice for this month.",
+      "subcontractorInvoiceNumberLabel": "Sub Invoice Number",
+      "subcontractorInvoiceDateLabel": "Sub Invoice Date",
+      "subcontractorInvoiceDateTooEarly": "Invoice date cannot be earlier than the month it covers"
     },
     "panel": {
       "title": "Deployment",
@@ -1777,6 +1909,60 @@
       "notDeployed": "Not currently deployed.",
       "viewDeployment": "View deployment",
       "historyTitle": "Deployment history"
+    },
+    "subPaymentsDue": {
+      "paymentRecordedToast": "Payment recorded.",
+      "columns": {
+        "subcontractor": "Subcontractor",
+        "invoiceCount": "Invoices",
+        "totalOutstanding": "Total Outstanding",
+        "due": "Due",
+        "worker": "Worker",
+        "month": "Month",
+        "invoice": "Invoice",
+        "invoiceAmount": "Invoice Amount",
+        "allocated": "Allocated",
+        "balance": "Balance"
+      },
+      "overdueBy": "Overdue by {{days}} days",
+      "dueInDays": "Due in {{days}} days",
+      "recordPaymentButton": "Record Payment",
+      "pageTitle": "Subcontractor Payments Due",
+      "pageDescription": "Invoiced subcontractor payments awaiting clearance.",
+      "reviewPendingButton": "Review Pending Payments",
+      "filterBySupplier": "Filter by supplier",
+      "allSuppliers": "All suppliers",
+      "couldNotLoad": "Could not load payments due",
+      "emptyTitle": "No payments due",
+      "emptyDescription": "All subcontractor invoices have been fully paid.",
+      "creditBalance": "Credit balance: {{amount}}",
+      "invoicesTitle": "Invoices",
+      "fullyPaid": "Fully Paid",
+      "paymentHistoryTitle": "Payment History",
+      "noPaymentsYet": "No payments yet.",
+      "statusPending": "Pending",
+      "statusApproved": "Approved",
+      "statusRejected": "Rejected",
+      "recordPaymentModalTitle": "Record Payment for {{subcontractor}}",
+      "recordPaymentModalMessage": "Record a bulk payment received from this subcontractor.",
+      "amountLabel": "Amount received *",
+      "paymentReferenceLabel": "Invoice / Reference #",
+      "paymentDateLabel": "Payment Date"
+    },
+    "paidSubInvoices": {
+      "statusPaid": "Paid",
+      "statusPartial": "Partial",
+      "title": "Paid Sub Invoices",
+      "subtitle": "Every payment received toward an invoice, across all subcontractors an invoice paid in installments appears as one row per payment. Click a row to expand financial details.",
+      "emptyTitle": "No paid sub invoices",
+      "emptyDescription": "No subcontractor payments have been recorded yet."
+    },
+    "readyForSubInvoice": {
+      "pageTitle": "Ready for Sub Invoice",
+      "pageDescription": "Approved months waiting on a subcontractor invoice.",
+      "couldNotLoad": "Could not load ready for sub invoice",
+      "emptyTitle": "No pending sub invoices",
+      "emptyDescription": "There are no approved months waiting for a subcontractor invoice."
     }
   },
   "staffMobilisations": {
@@ -2154,7 +2340,10 @@
   "staffDailyUpdates": {
     "pageTitle": "Daily Updates",
     "pageDescription": "A coordinator's day-to-day work: tasks to do, and a log of what got done.",
-    "tabs": { "tasks": "Tasks", "log": "Daily log" },
+    "tabs": {
+      "tasks": "Tasks",
+      "log": "Daily log"
+    },
     "coordinatorFilterAll": "All coordinators",
     "coordinatorFilterAria": "Filter by coordinator",
     "couldNotLoad": "Could not load this list",
@@ -2165,8 +2354,16 @@
       "assignTask": "Add / assign task",
       "statusFilterAria": "Filter by status",
       "statusAll": "All tasks",
-      "status": { "Open": "Open", "Done": "Done" },
-      "columns": { "task": "Task", "assignedTo": "Coordinator", "due": "Due", "status": "Status" },
+      "status": {
+        "Open": "Open",
+        "Done": "Done"
+      },
+      "columns": {
+        "task": "Task",
+        "assignedTo": "Coordinator",
+        "due": "Due",
+        "status": "Status"
+      },
       "overdue": "Overdue",
       "assignedBy": "Assigned by {{name}}",
       "markDone": "Mark done",
@@ -2211,7 +2408,11 @@
       "emptyFilteredTitle": "No log entries match",
       "emptyDescriptionOwn": "Write down what you worked on today your manager can read it here.",
       "emptyDescriptionTeam": "Coordinators haven't logged anything yet.",
-      "toasts": { "added": "Log entry added.", "updated": "Log entry updated.", "deleted": "Log entry deleted." },
+      "toasts": {
+        "added": "Log entry added.",
+        "updated": "Log entry updated.",
+        "deleted": "Log entry deleted."
+      },
       "modalEditTitle": "Edit log entry",
       "deleteConfirmTitle": "Delete log entry?",
       "deleteConfirmMessage": "This entry will be permanently removed."
@@ -2349,8 +2550,15 @@
       "statusAria": "Status of {{name}}",
       "removeConfirmTitle": "Remove candidate?",
       "removeConfirmMessage": "{{name}} will be removed from this requirement.",
-      "toasts": { "added": "Candidate added.", "updated": "Candidate updated.", "removed": "Candidate removed." },
-      "workerType": { "SupplierEmployee": "Subcontractor's worker", "Freelancer": "Freelancer" },
+      "toasts": {
+        "added": "Candidate added.",
+        "updated": "Candidate updated.",
+        "removed": "Candidate removed."
+      },
+      "workerType": {
+        "SupplierEmployee": "Subcontractor's worker",
+        "Freelancer": "Freelancer"
+      },
       "status": {
         "Identified": "Identified",
         "DocsInProgress": "Documents in progress",
