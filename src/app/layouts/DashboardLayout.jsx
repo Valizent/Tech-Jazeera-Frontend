@@ -66,10 +66,10 @@ function Sidebar({ onNavigate }) {
   }
 
   return (
-    <div className="flex h-full flex-col border-r border-slate-800/50 bg-slate-900 text-slate-300">
-      <div className="flex h-16 items-center gap-2.5 border-b border-slate-800/50 bg-transparent px-5">
+    <div className="flex h-full flex-col border-r border-border bg-surface text-text">
+      <div className="flex h-16 items-center gap-2.5 border-b border-border bg-transparent px-5">
         <BrandLogo className="h-9 w-9 shrink-0" />
-        <span className="min-w-0 flex-1 truncate font-semibold tracking-tight text-white" title={brandName}>
+        <span className="min-w-0 flex-1 truncate font-semibold tracking-tight text-text" title={brandName}>
           {brandName}
         </span>
       </div>
@@ -84,8 +84,8 @@ function Sidebar({ onNavigate }) {
               cn(
                 'group flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm transition-all duration-200 ease-out-expo',
                 isActive
-                  ? 'bg-primary/20 font-semibold text-white shadow-xs ring-1 ring-inset ring-primary/30'
-                  : 'font-medium text-slate-400 hover:bg-slate-800/50 hover:text-white'
+                  ? 'bg-primary font-semibold text-white dark:bg-white dark:text-primary shadow-xs ring-1 ring-inset ring-primary/30'
+                  : 'font-medium text-muted hover:bg-border/50 hover:text-text'
               )
             }
           >
@@ -109,8 +109,8 @@ function Sidebar({ onNavigate }) {
           </NavLink>
         ))}
       </nav>
-      <div className="border-t border-slate-800/50 p-4">
-        <p className="text-[11px] leading-relaxed text-slate-500">
+      <div className="border-t border-border p-4">
+        <p className="text-[11px] leading-relaxed text-muted">
           Manpower supply &amp; trading
           <br />
           Operating system
