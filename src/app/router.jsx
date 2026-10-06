@@ -112,7 +112,6 @@ const MyProfilePage = lazy(() => import('../features/ess/pages/MyProfilePage.jsx
 const MyDocumentsPage = lazy(() => import('../features/ess/pages/MyDocumentsPage.jsx'));
 const MyLeavePage = lazy(() => import('../features/ess/pages/MyLeavePage.jsx'));
 const MyRequestsPage = lazy(() => import('../features/ess/pages/MyRequestsPage.jsx'));
-const MyPayslipsPage = lazy(() => import('../features/ess/pages/MyPayslipsPage.jsx'));
 const MyExitDocumentsPage = lazy(() => import('../features/ess/pages/MyExitDocumentsPage.jsx'));
 const MyAttendancePage = lazy(() => import('../features/ess/pages/MyAttendancePage.jsx'));
 // Kept eager — see the doc comment above.
@@ -357,7 +356,6 @@ export const router = createBrowserRouter([
               { path: '/me/attendance', element: <MyAttendancePage /> },
               { path: '/me/leave', element: <MyLeavePage /> },
               { path: '/me/requests', element: <MyRequestsPage /> },
-              { path: '/me/payslips', element: <MyPayslipsPage /> },
               { path: '/me/exit-documents', element: <MyExitDocumentsPage /> },
             ],
           },

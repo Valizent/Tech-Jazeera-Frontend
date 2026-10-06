@@ -29,16 +29,6 @@ import('./lib/sentry.js');
 // — just no more flash of untranslated keys.
 await i18nReady;
 
-// Awaited (2026-09-22, a real QA-audit finding — P6, alongside i18n/index.js's
-// own doc comment) so the app never paints with an empty translation table —
-// i18n now loads only the CURRENT language's dictionary via a real dynamic
-// import rather than bundling both eagerly, and this is the one await that
-// makes that safe. In practice this resolves well before anything else on
-// the page would be ready to render (a same-bundle chunk fetched in
-// parallel with every other initial asset), so there's no perceptible delay
-// — just no more flash of untranslated keys.
-await i18nReady;
-
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <AppProviders />

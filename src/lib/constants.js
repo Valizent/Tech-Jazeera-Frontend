@@ -165,10 +165,6 @@ export const ASSET_DELETE_ROLES = ['Admin', 'HR'];
  *  2026-09-13 — see docs/TIMESHEETS-MONTHLY-REPORT-notes.md. */
 export const TIMESHEET_STATUS_VARIANT = { Submitted: 'warning', Approved: 'success', Rejected: 'danger' };
 
-/** Mirrors payrollRun.model.js. Access itself is no longer a static role
- *  list — see SectionAccess ('payroll') — Admin plus whoever is granted
- *  gets full read/write/finalize/delete, no separate tiers. */
-export const PAYROLL_STATUS_VARIANT = { Draft: 'warning', Finalized: 'success' };
 export const MONTH_NAMES = [
   'January', 'February', 'March', 'April', 'May', 'June',
   'July', 'August', 'September', 'October', 'November', 'December',

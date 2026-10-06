@@ -50,6 +50,15 @@ export const api = axios.create({
   // Sends/receives the httpOnly refresh cookie. Works only because the
   // server's CORS names our exact origin — a `*` origin would break this.
   withCredentials: true,
+  // Fixed 2026-10-06, a real QA-audit finding (P03): axios' own default is
+  // `timeout: 0` — no timeout at all. A connection that opens but never
+  // responds (a real infrastructure failure, not a 4xx/5xx) left the caller
+  // awaiting forever, including the boot-time session refresh, so the whole
+  // app could get stuck on a loading screen with no way out. 30s is well
+  // past any normal request on this app's own API, including the largest
+  // upload it allows (DOCUMENT_MAX_MB/RECEIPT_MAX_MB = 10MB) on an ordinary
+  // office connection, while still being a finite, real ceiling.
+  timeout: 30000,
 });
 
 api.interceptors.request.use((config) => {

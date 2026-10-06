@@ -119,17 +119,6 @@ export function formatMoney(value) {
   })}`;
 }
 
-/** Amount one line item (quotation/invoice) contributes to the grand total
- *  (net + its tax) — display-only; the authoritative stored total is always
- *  server-computed (see server/src/utils/moneyMath.js's own lineAmount,
- *  the same formula, kept separately since client/server can't share a
- *  file across repos). */
-export function lineAmount(li) {
-  const gross = li.quantity * li.unitPrice;
-  const net = gross - gross * ((li.discount ?? 0) / 100);
-  return net + net * ((li.taxRate ?? 0) / 100);
-}
-
 /** Bytes → "1.2 MB" / "340 KB". */
 export function formatFileSize(bytes) {
   if (bytes >= 1024 * 1024) return `${(bytes / 1024 / 1024).toFixed(1)} MB`;

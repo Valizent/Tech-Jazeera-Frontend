@@ -120,7 +120,6 @@
     "myLeave": "My Leave",
     "myRequests": "My Requests",
     "visasAndDocuments": "Visas & Documents",
-    "myPayslips": "My Payslips",
     "workspaceTitle": "My Workspace",
     "footerLine2": "Employee self-service"
   },
@@ -424,16 +423,6 @@
       "returnedOn": "Returned {{date}}"
     }
   },
-  "payslips": {
-    "title": "My payslips",
-    "description": "Your finalized monthly pay.",
-    "loadError": "Could not load your payslips",
-    "empty": "No payslips yet",
-    "emptyDescription": "Your finalized monthly payslips will appear here.",
-    "netPay": "Net pay {{amount}}",
-    "download": "Download",
-    "downloadError": "Could not generate the payslip."
-  },
   "staffNav": {
     "dashboard": "Dashboard",
     "executive": {
@@ -718,7 +707,10 @@
       },
       "systemLogs": {
         "title": "System & software health",
-        "body": "All critical system services are running normally. No active software alerts detected.",
+        "checking": "Checking API...",
+        "up": "API is reachable.",
+        "down": "API is not responding.",
+        "lastChecked": "Last checked {{time}}",
         "viewLogs": "View error logs (Sentry)"
       },
       "leaderboard": {

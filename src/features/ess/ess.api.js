@@ -190,20 +190,9 @@ export async function submitMyTimesheet(payload) {
   return data.data;
 }
 
-export async function listMyPayslips() {
-  const { data } = await api.get('/me/payslips');
-  return data.data;
-}
-
-/** Download own payslip PDF as an authenticated Blob. */
-export async function downloadMyPayslipPdf(runId, filename) {
-  const res = await api.get(`/me/payslips/${runId}/pdf`, { responseType: 'blob' });
-  const url = URL.createObjectURL(res.data);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = filename;
-  document.body.appendChild(a);
-  a.click();
-  a.remove();
-  URL.revokeObjectURL(url);
-}
+// Fixed 2026-10-06, a real QA-audit finding (F07): this called an
+// /api/me/payslips route that no longer exists — Payroll was deleted from
+// this app entirely (see server/docs/CHANGELOG.md), but nobody removed the
+// matching ESS self-service page/API calls when that happened. Removed
+// rather than rebuilt: the feature's own backend is gone by design, not by
+// accident.

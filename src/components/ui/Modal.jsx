@@ -19,9 +19,12 @@
  * The backdrop is the app's one intentional use of glass: a frosted scrim that
  * pushes the page back without hiding it.
  */
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { cn } from '../../lib/utils.js';
+
+const FOCUSABLE_SELECTOR =
+  'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])';
 
 const sizeClasses = {
   sm: 'max-w-sm',
@@ -40,9 +43,43 @@ const heightClasses = {
 };
 
 export default function Modal({ open, onClose, title, size = 'md', closable = true, children }) {
+  const dialogRef = useRef(null);
+  const previouslyFocusedRef = useRef(null);
+
+  // Fixed 2026-10-06, a real QA-audit finding (U01): opening a modal never
+  // moved focus into it, trapped Tab inside it, or restored focus on close —
+  // a keyboard/screen-reader user could Tab straight past the dialog into
+  // the (visually obscured, but not actually inert) page behind it.
   useEffect(() => {
     if (!open) return undefined;
-    const onKey = (e) => closable && e.key === 'Escape' && onClose();
+
+    previouslyFocusedRef.current = document.activeElement;
+    const focusables = () =>
+      dialogRef.current ? Array.from(dialogRef.current.querySelectorAll(FOCUSABLE_SELECTOR)) : [];
+    (focusables()[0] ?? dialogRef.current)?.focus();
+
+    function onKey(e) {
+      if (e.key === 'Escape') {
+        if (closable) onClose();
+        return;
+      }
+      if (e.key !== 'Tab') return;
+      const items = focusables();
+      if (items.length === 0) {
+        e.preventDefault(); // nothing to tab to — keep focus pinned on the dialog itself
+        return;
+      }
+      const first = items[0];
+      const last = items[items.length - 1];
+      if (e.shiftKey && document.activeElement === first) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault();
+        first.focus();
+      }
+    }
+
     window.addEventListener('keydown', onKey);
     // Lock background scroll while the dialog is up.
     const prevOverflow = document.body.style.overflow;
@@ -50,6 +87,9 @@ export default function Modal({ open, onClose, title, size = 'md', closable = tr
     return () => {
       window.removeEventListener('keydown', onKey);
       document.body.style.overflow = prevOverflow;
+      // Give focus back to whatever opened the dialog — a keyboard user
+      // shouldn't land back at the top of the page.
+      previouslyFocusedRef.current?.focus?.();
     };
   }, [open, onClose, closable]);
 
@@ -68,9 +108,11 @@ export default function Modal({ open, onClose, title, size = 'md', closable = tr
         aria-hidden="true"
       />
       <div
+        ref={dialogRef}
         role="dialog"
         aria-modal="true"
         aria-label={title}
+        tabIndex={-1}
         className={cn(
           'relative flex w-full flex-col overflow-hidden',
           size === 'screen' ? '' : 'my-auto',
