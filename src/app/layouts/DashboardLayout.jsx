@@ -84,8 +84,8 @@ function Sidebar({ onNavigate }) {
               cn(
                 'group flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm transition-all duration-200 ease-out-expo',
                 isActive
-                  ? 'bg-primary font-semibold text-white dark:bg-white dark:text-primary shadow-xs ring-1 ring-inset ring-primary/30'
-                  : 'font-medium text-muted hover:bg-border/50 hover:text-text'
+                  ? 'bg-primary font-semibold text-white dark:bg-white dark:text-indigo-900 shadow-xs ring-1 ring-inset ring-primary/30'
+                  : 'font-medium text-muted dark:text-white hover:bg-border/50 hover:text-text'
               )
             }
           >
