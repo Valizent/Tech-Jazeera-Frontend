@@ -100,7 +100,7 @@ export default function RequirementsBoardPage() {
   }, [stages, requirements]);
   const staleTotal = (requirements ?? []).filter((r) => r.stale).length;
   const hasClosedStage = stages.some((s) => s.isTerminal);
-  const activeStages = stages.filter((s) => !(s.isTerminal && !s.isMobilisedStage));
+  const activeStages = stages;
   const clientChoices = data?.filterOptions?.clients ?? [];
   const subcontractorChoices = data?.filterOptions?.subcontractors ?? [];
 
