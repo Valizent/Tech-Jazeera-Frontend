@@ -57,15 +57,17 @@ const NAV_ITEMS = [
   },
 ];
 
-function Sidebar({ onNavigate }) {
+function Sidebar({ onNavigate, showBrand }) {
   const { t } = useTranslation();
   const { name: brandName } = useBranding();
   return (
     <div className="flex h-full flex-col border-r border-border/50 bg-surface/60 backdrop-blur-2xl">
-      <div className="flex h-16 items-center gap-2.5 border-b border-border/50 bg-transparent px-5">
-        <BrandLogo className="h-9 w-9 shrink-0" />
-        <span className="font-semibold tracking-tight">{t('nav.workspaceTitle')}</span>
-      </div>
+      {showBrand && (
+        <div className="flex h-16 shrink-0 items-center gap-2.5 border-b border-border/50 bg-transparent px-5">
+          <BrandLogo className="h-9 w-9 shrink-0" />
+          <span className="font-semibold tracking-tight">{t('nav.workspaceTitle')}</span>
+        </div>
+      )}
       <nav className="flex-1 space-y-1 p-3">
         {NAV_ITEMS.map((item) => (
           <NavLink
@@ -100,6 +102,7 @@ function Sidebar({ onNavigate }) {
 export default function EssLayout() {
   const { t } = useTranslation();
   const { user, logout } = useAuth();
+  const { name: brandName } = useBranding();
   const navigate = useNavigate();
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [changePasswordOpen, setChangePasswordOpen] = useState(false);
@@ -114,36 +117,23 @@ export default function EssLayout() {
 
   return (
     <div className="min-h-screen bg-bg">
-      <aside className="fixed inset-y-0 left-0 z-30 hidden w-64 lg:block">
-        <Sidebar />
-      </aside>
+      <header className="fixed top-0 inset-x-0 z-30 flex h-16 items-center gap-3 border-b border-border/50 bg-surface/60 px-4 backdrop-blur-2xl sm:px-6">
+        <button
+          onClick={() => setDrawerOpen(true)}
+          aria-label="Open menu"
+          className="rounded-lg p-2 text-muted hover:bg-border/40 hover:text-text lg:hidden"
+        >
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="h-6 w-6">
+            <path strokeLinecap="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
+          </svg>
+        </button>
 
-      {drawerOpen && (
-        <div className="fixed inset-0 z-40 lg:hidden">
-          <div
-            className="absolute inset-0 bg-black/40 animate-overlay-in"
-            onClick={() => setDrawerOpen(false)}
-            aria-hidden="true"
-          />
-          <aside className="absolute inset-y-0 left-0 w-64 shadow-xl animate-slide-in-left">
-            <Sidebar onNavigate={() => setDrawerOpen(false)} />
-          </aside>
+        <div className="hidden lg:flex items-center gap-2.5">
+          <BrandLogo className="h-9 w-9 shrink-0" />
+          <span className="font-semibold tracking-tight text-text">{t('nav.workspaceTitle')}</span>
         </div>
-      )}
 
-      <div className="lg:pl-64">
-        <header className="sticky top-0 z-20 flex h-16 items-center gap-3 border-b border-border/50 bg-surface/60 px-4 backdrop-blur-2xl sm:px-6">
-          <button
-            onClick={() => setDrawerOpen(true)}
-            aria-label="Open menu"
-            className="rounded-lg p-2 text-muted hover:bg-border/40 hover:text-text lg:hidden"
-          >
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="h-6 w-6">
-              <path strokeLinecap="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
-            </svg>
-          </button>
-
-          <div className="ml-auto flex items-center gap-3">
+        <div className="ml-auto flex items-center gap-3">
             <div className="hidden text-right sm:block">
               <p className="text-sm font-medium leading-tight">{user.name}</p>
               <p className="text-xs text-muted">{t('header.employee')}</p>
@@ -207,13 +197,32 @@ export default function EssLayout() {
           </div>
         </header>
 
-        <main className="p-4 sm:p-6">
-          <ErrorBoundary>
-            <Suspense fallback={<RouteFallback />}>
-              <Outlet />
-            </Suspense>
-          </ErrorBoundary>
-        </main>
+        <aside className="fixed top-16 bottom-0 left-0 z-20 hidden w-64 lg:block">
+          <Sidebar showBrand={false} />
+        </aside>
+
+        {drawerOpen && (
+          <div className="fixed inset-0 z-40 lg:hidden">
+            <div
+              className="absolute inset-0 bg-black/40 animate-overlay-in"
+              onClick={() => setDrawerOpen(false)}
+              aria-hidden="true"
+            />
+            <aside className="absolute inset-y-0 left-0 w-64 shadow-xl animate-slide-in-left">
+              <Sidebar onNavigate={() => setDrawerOpen(false)} showBrand={true} />
+            </aside>
+          </div>
+        )}
+
+        <div className="pt-16 lg:pl-64">
+          <main className="p-4 sm:p-6">
+            <ErrorBoundary>
+              <Suspense fallback={<RouteFallback />}>
+                <Outlet />
+              </Suspense>
+            </ErrorBoundary>
+          </main>
+        </div>
       </div>
 
       <ChangePasswordModal open={changePasswordOpen || user?.forcePasswordChange} onClose={() => setChangePasswordOpen(false)} force={user?.forcePasswordChange} />
