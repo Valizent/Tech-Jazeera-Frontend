@@ -36,6 +36,7 @@ function Sidebar({ onNavigate, showBrand }) {
   const { user } = useAuth();
   const { t } = useTranslation();
   const { name: brandName } = useBranding();
+  const badgeCounts = useNavCounts();
   // Executive still gets its own short, explicit nav — see
   // EXECUTIVE_NAV_ITEMS's doc comment for why this can't just be another
   // `roles`-filtered slice of the grouped nav below (every unguarded group
@@ -264,7 +265,6 @@ export default function DashboardLayout() {
             </ErrorBoundary>
           </main>
         </div>
-      </div>
 
       <ChangePasswordModal open={changePasswordOpen || user?.forcePasswordChange} onClose={() => setChangePasswordOpen(false)} force={user?.forcePasswordChange} />
       <AvatarUploadModal open={avatarModalOpen} onClose={() => setAvatarModalOpen(false)} />

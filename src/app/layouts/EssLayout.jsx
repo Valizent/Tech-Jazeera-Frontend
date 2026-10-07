@@ -102,7 +102,6 @@ function Sidebar({ onNavigate, showBrand }) {
 export default function EssLayout() {
   const { t } = useTranslation();
   const { user, logout } = useAuth();
-  const { name: brandName } = useBranding();
   const navigate = useNavigate();
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [changePasswordOpen, setChangePasswordOpen] = useState(false);
@@ -223,7 +222,6 @@ export default function EssLayout() {
             </ErrorBoundary>
           </main>
         </div>
-      </div>
 
       <ChangePasswordModal open={changePasswordOpen || user?.forcePasswordChange} onClose={() => setChangePasswordOpen(false)} force={user?.forcePasswordChange} />
       <AvatarUploadModal open={avatarModalOpen} onClose={() => setAvatarModalOpen(false)} />
