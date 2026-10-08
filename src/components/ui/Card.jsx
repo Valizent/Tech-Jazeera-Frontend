@@ -13,7 +13,7 @@ export default function Card({ className, children, gradientAccent = false }) {
       )}
     >
       {gradientAccent && (
-        <div className="absolute inset-x-0 top-0 h-1.5 bg-gradient-to-r from-primary via-purple-500 to-success opacity-90" />
+        <div className="absolute inset-x-0 top-0 h-1.5 rounded-t-2xl bg-gradient-to-r from-primary via-purple-500 to-success opacity-90" />
       )}
       {children}
     </div>

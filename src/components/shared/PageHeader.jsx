@@ -12,7 +12,7 @@ import BackButton from './BackButton.jsx';
 export default function PageHeader({ title, description, onBack, actions }) {
   return (
     <div className="relative mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between overflow-hidden rounded-2xl bg-gradient-to-r from-surface to-bg/50 p-6 border border-border shadow-sm">
-      <div className="absolute top-0 left-0 w-2 h-full bg-primary" />
+      <div className="absolute top-0 left-0 w-2 h-full bg-primary rounded-r-full" />
       <div className="flex items-center gap-4">
         {onBack && (
           <BackButton onClick={onBack} />
