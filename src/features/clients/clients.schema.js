@@ -27,6 +27,8 @@ export const clientFormSchema = z.object({
   vatNumber: z.union([z.literal(''), z.string().regex(/^\d{15}$/, 'Saudi VAT number is 15 digits.')]),
   crNumber: z.union([z.literal(''), z.string().regex(/^\d{10}$/, 'Commercial Registration is 10 digits.')]),
   industry: optional,
+  // Whole days only; blank lets the server keep its own default.
+  creditLimitDays: z.string().trim().regex(/^\d*$/, 'Enter a whole number of days.'),
   status: z.enum(CLIENT_STATUSES),
   // Site name is optional at the form layer so an empty trailing row doesn't
   // block submit; empty rows are stripped in formToPayload.

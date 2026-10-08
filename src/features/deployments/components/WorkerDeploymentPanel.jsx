@@ -25,14 +25,19 @@ export default function WorkerDeploymentPanel({ employee }) {
   const { t } = useTranslation();
   const workerId = employee._id;
 
-  const { data, isPending } = useQuery({
+  const { data, isPending, isError } = useQuery({
     queryKey: ['deployments', { worker: workerId }],
     queryFn: () => listDeployments({ worker: workerId, limit: 100 }),
   });
 
   if (isPending) return <Skeleton className="h-40 w-full" />;
+  // A viewer without Read on Deployments is refused the list — say nothing
+  // rather than a false "not deployed".
+  if (isError) return null;
 
-  const items = data?.items ?? [];
+  const items = data.items;
+  // Internal staff are normally never deployed; show the panel only once they have been.
+  if (employee.type === 'Own' && items.length === 0) return null;
   const active = items.find((d) => d.status === 'Active') ?? null;
   const history = items.filter((d) => d.status !== 'Active');
 

@@ -337,9 +337,9 @@ export default function EmployeeForm({ defaultValues, onSubmit, submitLabel, sub
         {/* Additional Documents section */}
         <div className="mt-8">
           <div className="mb-4 flex items-center justify-between">
-            <h3 className="text-sm font-semibold uppercase tracking-wide text-muted">Additional Documents</h3>
+            <h3 className="text-sm font-semibold uppercase tracking-wide text-muted">{t('staffEmployees.form.additionalDocuments')}</h3>
             <Button variant="secondary" size="sm" onClick={() => appendDocument({ name: '', number: '', expiry: '' })}>
-              Add Document
+              {t('staffEmployees.form.addDocument')}
             </Button>
           </div>
           <div className="space-y-4">
@@ -349,24 +349,24 @@ export default function EmployeeForm({ defaultValues, onSubmit, submitLabel, sub
                   type="button"
                   onClick={() => removeDocument(index)}
                   className="absolute right-2 top-2 text-muted hover:text-red-500"
-                  aria-label="Remove Document"
+                  aria-label={t('staffEmployees.form.removeDocument')}
                 >
                   &times;
                 </button>
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
                   <Input
-                    label="Document Name *"
-                    placeholder="e.g. Health Insurance"
+                    label={`${t('staffEmployees.form.additionalDocumentName')} *`}
+                    placeholder={t('staffEmployees.form.additionalDocumentNamePlaceholder')}
                     error={errors.additionalDocuments?.[index]?.name?.message}
                     {...register(`additionalDocuments.${index}.name`)}
                   />
                   <Input
-                    label="Document Number"
+                    label={t('staffEmployees.form.additionalDocumentNumber')}
                     error={errors.additionalDocuments?.[index]?.number?.message}
                     {...register(`additionalDocuments.${index}.number`)}
                   />
                   <Input
-                    label="Expiry Date"
+                    label={t('staffEmployees.form.additionalDocumentExpiry')}
                     type="date"
                     error={errors.additionalDocuments?.[index]?.expiry?.message}
                     {...register(`additionalDocuments.${index}.expiry`)}
@@ -375,7 +375,7 @@ export default function EmployeeForm({ defaultValues, onSubmit, submitLabel, sub
               </div>
             ))}
             {additionalDocumentFields.length === 0 && (
-              <p className="text-sm text-muted">No additional documents added.</p>
+              <p className="text-sm text-muted">{t('staffEmployees.form.noAdditionalDocuments')}</p>
             )}
           </div>
         </div>
@@ -384,7 +384,7 @@ export default function EmployeeForm({ defaultValues, onSubmit, submitLabel, sub
       <Section title={t('staffEmployees.form.sections.emergencyContact')}>
         <Input label={t('staffEmployees.form.emergencyName')} error={errors.emergencyContact?.name?.message} {...register('emergencyContact.name')} />
         <Input label={t('staffEmployees.form.emergencyPhone')} error={errors.emergencyContact?.phone?.message} {...register('emergencyContact.phone')} />
-        <Input label={t('staffEmployees.form.emergencyRelation')} placeholder="Wife, brother…" error={errors.emergencyContact?.relation?.message} {...register('emergencyContact.relation')} />
+        <Input label={t('staffEmployees.form.emergencyRelation')} placeholder={t('staffEmployees.form.emergencyRelationPlaceholder')} error={errors.emergencyContact?.relation?.message} {...register('emergencyContact.relation')} />
       </Section>
 
       <Card>

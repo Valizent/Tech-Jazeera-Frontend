@@ -9,6 +9,7 @@
  * assumes the viewer may provision.
  */
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { createEmployeeLogin, resetEmployeeLoginPassword, updateEmployeeLoginRole } from '../employees.api.js';
 import { EMPLOYEE_LOGIN_ROLES } from '../../../lib/constants.js';
@@ -23,6 +24,7 @@ import Select from '../../../components/ui/Select.jsx';
 import Modal from '../../../components/ui/Modal.jsx';
 
 export default function EmployeeLoginPanel({ employee }) {
+  const { t } = useTranslation();
   const toast = useToast();
   const copyToClipboard = useCopyToClipboard();
   const queryClient = useQueryClient();
@@ -57,27 +59,27 @@ export default function EmployeeLoginPanel({ employee }) {
   const changeRoleMutation = useMutation({
     mutationFn: () => updateEmployeeLoginRole(employee._id, editingRole),
     onSuccess: () => {
-      toast.success('Role updated. They will need to sign in again.');
+      toast.success(t('staffEmployees.login.roleUpdated'));
       setEditingRole(null);
       queryClient.invalidateQueries({ queryKey: ['employee', employee._id] });
     },
     onError: (error) => toast.error(apiMessage(error)),
   });
 
-  const copyPassword = () => copyToClipboard(created.tempPassword, { successMessage: 'Temporary password copied.' });
+  const copyPassword = () => copyToClipboard(created.tempPassword, { successMessage: t('staffEmployees.login.passwordCopied') });
 
   const login = employee.login;
 
   return (
     <Card>
       <div className="mb-4 flex items-center justify-between gap-3">
-        <h2 className="text-sm font-semibold uppercase tracking-wide text-muted">Account</h2>
+        <h2 className="text-sm font-semibold uppercase tracking-wide text-muted">{t('staffEmployees.login.title')}</h2>
         {login ? (
           <Badge variant={login.isActive ? 'success' : 'default'}>
-            {login.isActive ? 'Login active' : 'Login disabled'}
+            {t(login.isActive ? 'staffEmployees.login.active' : 'staffEmployees.login.disabled')}
           </Badge>
         ) : (
-          <Badge variant="default">No login</Badge>
+          <Badge variant="default">{t('staffEmployees.login.none')}</Badge>
         )}
       </div>
 
@@ -85,20 +87,20 @@ export default function EmployeeLoginPanel({ employee }) {
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div className="flex flex-wrap items-center gap-x-6 gap-y-1 text-sm">
             <div>
-              <span className="text-muted">Sign-in email: </span>
+              <span className="text-muted">{t('staffEmployees.login.signInEmail')} </span>
               <span className="font-medium">{login.email}</span>
             </div>
             <div className="flex items-center gap-2">
-              <span className="text-muted">Role:</span>
+              <span className="text-muted">{t('staffEmployees.login.role')}:</span>
               <Badge variant="primary">{login.role}</Badge>
             </div>
           </div>
           <div className="flex items-center gap-2">
             <Button size="sm" variant="secondary" onClick={() => setEditingRole(login.role)}>
-              Change role
+              {t('staffEmployees.login.changeRole')}
             </Button>
             <Button size="sm" variant="secondary" onClick={() => resetMutation.mutate()} isLoading={resetMutation.isPending}>
-              Reset password
+              {t('staffEmployees.login.resetPassword')}
             </Button>
           </div>
         </div>
@@ -106,11 +108,11 @@ export default function EmployeeLoginPanel({ employee }) {
         <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
           <div className="flex-1 space-y-3">
             <p className="text-sm text-muted">
-              This employee has no login. Pick a role and create one so they can sign in with their own credentials.
+              {t('staffEmployees.login.noneHint')}
             </p>
             <div className="flex flex-col gap-3 sm:flex-row">
-              <Select label="Role" value={role} onChange={(e) => setRole(e.target.value)} className="sm:max-w-[200px]">
-                <option value="">Choose a role…</option>
+              <Select label={t('staffEmployees.login.role')} value={role} onChange={(e) => setRole(e.target.value)} className="sm:max-w-[200px]">
+                <option value="">{t('staffEmployees.login.chooseRole')}</option>
                 {EMPLOYEE_LOGIN_ROLES.map((r) => (
                   <option key={r} value={r}>
                     {r}
@@ -119,9 +121,9 @@ export default function EmployeeLoginPanel({ employee }) {
               </Select>
               {!employee.email && (
                 <Input
-                  label="Email"
+                  label={t('staffEmployees.login.email')}
                   type="email"
-                  placeholder="No email on file required"
+                  placeholder={t('staffEmployees.login.emailRequired')}
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   className="sm:max-w-[220px]"
@@ -130,43 +132,31 @@ export default function EmployeeLoginPanel({ employee }) {
             </div>
           </div>
           <Button onClick={() => mutation.mutate()} isLoading={mutation.isPending} disabled={!role || (!employee.email && !email)}>
-            Create login
+            {t('staffEmployees.login.create')}
           </Button>
         </div>
       )}
 
       {/* One-time credential reveal. `created` is cleared on close. */}
-      <Modal open={!!created} onClose={() => setCreated(null)} title={created?.reset ? 'Password reset' : 'Login created'}>
+      <Modal open={!!created} onClose={() => setCreated(null)} title={t(created?.reset ? 'staffEmployees.login.resetDone' : 'staffEmployees.login.created')}>
         {created && (
           <div className="flex flex-col gap-4">
             <p className="text-sm text-muted">
-              {created.reset ? (
-                <>
-                  Their old password no longer works. Hand this new one to{' '}
-                  <span className="font-medium text-text">{employee.fullName}</span> it&apos;s shown{' '}
-                  <span className="font-medium text-text">once</span>, copy it now.
-                </>
-              ) : (
-                <>
-                  Hand these to <span className="font-medium text-text">{employee.fullName}</span>.
-                  The temporary password is shown <span className="font-medium text-text">once</span> 
-                  copy it now.
-                </>
-              )}
+              {t(created.reset ? 'staffEmployees.login.resetHandOver' : 'staffEmployees.login.handOver', { name: employee.fullName })}
             </p>
             <div className="rounded-lg border border-border bg-bg p-3">
-              <p className="text-xs uppercase tracking-wide text-muted">Email</p>
+              <p className="text-xs uppercase tracking-wide text-muted">{t('staffEmployees.login.email')}</p>
               <p className="mt-0.5 font-medium">{created.user.email}</p>
-              <p className="mt-3 text-xs uppercase tracking-wide text-muted">Temporary password</p>
+              <p className="mt-3 text-xs uppercase tracking-wide text-muted">{t('staffEmployees.login.tempPassword')}</p>
               <p className="mt-0.5 select-all break-all font-mono text-base font-semibold">
                 {created.tempPassword}
               </p>
             </div>
             <div className="flex justify-end gap-2">
               <Button variant="secondary" onClick={copyPassword}>
-                Copy password
+                {t('staffEmployees.login.copyPassword')}
               </Button>
-              <Button onClick={() => setCreated(null)}>Done</Button>
+              <Button onClick={() => setCreated(null)}>{t('staffEmployees.login.done')}</Button>
             </div>
           </div>
         )}
@@ -174,14 +164,13 @@ export default function EmployeeLoginPanel({ employee }) {
 
       {/* Change role the role picked at provisioning time (e.g. Worker vs
           Staff for an internal employee) isn't always the right one. */}
-      <Modal open={editingRole !== null} onClose={() => setEditingRole(null)} title="Change role">
+      <Modal open={editingRole !== null} onClose={() => setEditingRole(null)} title={t('staffEmployees.login.changeRole')}>
         {login && (
           <div className="flex flex-col gap-4">
             <p className="text-sm text-muted">
-              Changing <span className="font-medium text-text">{employee.fullName}</span>&apos;s role signs them
-              out everywhere they&apos;ll need to log in again for the new role to take effect.
+              {t('staffEmployees.login.changeRoleHint', { name: employee.fullName })}
             </p>
-            <Select label="Role" value={editingRole ?? ''} onChange={(e) => setEditingRole(e.target.value)}>
+            <Select label={t('staffEmployees.login.role')} value={editingRole ?? ''} onChange={(e) => setEditingRole(e.target.value)}>
               {EMPLOYEE_LOGIN_ROLES.map((r) => (
                 <option key={r} value={r}>
                   {r}
@@ -190,14 +179,14 @@ export default function EmployeeLoginPanel({ employee }) {
             </Select>
             <div className="flex justify-end gap-2">
               <Button variant="secondary" onClick={() => setEditingRole(null)}>
-                Cancel
+                {t('common.cancel')}
               </Button>
               <Button
                 onClick={() => changeRoleMutation.mutate()}
                 isLoading={changeRoleMutation.isPending}
                 disabled={!editingRole || editingRole === login.role}
               >
-                Save
+                {t('common.save')}
               </Button>
             </div>
           </div>

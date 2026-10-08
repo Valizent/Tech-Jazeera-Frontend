@@ -14,6 +14,7 @@ import {
 } from '../outsourcedEmployees.api.js';
 import { listSubcontractors } from '../../subcontractors/subcontractors.api.js';
 import { lookupMobilisationWorkerByIqama } from '../../mobilisations/mobilisations.api.js';
+import { SAUDI_PHONE_REGEX } from '../../mobilisations/mobilisations.schema.js';
 import { COUNTRIES } from '../../../lib/countries.js';
 import { useToast } from '../../../components/ui/Toast.jsx';
 import { apiMessage, collectFormErrorMessages, formatMoney, formatFileSize, formatDate } from '../../../lib/utils.js';
@@ -34,7 +35,10 @@ const schema = z.object({
     message: 'Iqama number must be exactly 10 digits.',
   }),
   nationality: z.string().max(80).nullable().optional(),
-  phone: z.string().max(30).nullable().optional(),
+  // Same Saudi-mobile rule the server enforces — caught here instead of after a round trip.
+  phone: z.string().trim().max(30).nullable().optional().refine((v) => !v || SAUDI_PHONE_REGEX.test(v), {
+    message: 'Enter a valid Saudi mobile number (e.g. 05XXXXXXXX or +9665XXXXXXXX).',
+  }),
   email: z.string().email('Invalid email').max(100).nullable().optional().or(z.literal('')),
   // Left blank, register('agreedRate', { valueAsNumber: true, setValueAs })
   // below actually produces NaN, not '' — RHF applies valueAsNumber's own

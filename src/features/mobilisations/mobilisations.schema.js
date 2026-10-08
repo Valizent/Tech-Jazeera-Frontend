@@ -56,7 +56,7 @@ const optionalIqama = z
 // 05XXXXXXXX (10 digits) or international +9665XXXXXXXX/9665XXXXXXXX (966 +
 // 9 digits starting with 5). Mirrors the server's own regex in
 // mobilisation.validation.js — scoped to Mobilisation's phone field only.
-const SAUDI_PHONE_REGEX = /^(?:\+?9665\d{8}|05\d{8})$/;
+export const SAUDI_PHONE_REGEX = /^(?:\+?9665\d{8}|05\d{8})$/;
 // '+966' alone is the form's own pre-filled placeholder (see
 // emptyMobilisationForm below), not a value the coordinator actually typed
 // — treat it the same as empty, or every Own Employee mobilisation (whose

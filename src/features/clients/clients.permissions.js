@@ -17,10 +17,11 @@ export function canDecideClient(user, client) {
   return client.createdBy?.employee?.manager === user.id;
 }
 
-/** Can this viewer edit THIS specific client? Anyone in the 'clientsManage'
- *  circle always; a Coordinator only their own, not-yet-approved
- *  submission (even without the grant — self-service submission). */
+/** Can this viewer edit THIS specific client? Needs Write on 'clientsManage'
+ *  (the PATCH route's own gate); a Coordinator holding it may still only edit
+ *  a client they added that isn't approved yet — the service's rule. */
 export function canEditClient(user, client) {
-  if (user.sectionAccessWrite?.includes('clientsManage')) return true;
-  return user.role === 'Coordinator' && client.createdBy?._id === user.id && client.approvalStatus !== 'Approved';
+  if (!user.sectionAccessWrite?.includes('clientsManage')) return false;
+  if (user.role !== 'Coordinator') return true;
+  return client.createdBy?._id === user.id && client.approvalStatus !== 'Approved';
 }

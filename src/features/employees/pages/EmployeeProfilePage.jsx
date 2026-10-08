@@ -45,12 +45,16 @@ const DOCUMENTS = [
  *  on the dedicated Assets page (P3-D); this is a discoverability panel. */
 function AssignedAssetsPanel({ employeeId }) {
   const { t } = useTranslation();
+  const { user } = useAuth();
+  const canRead = Boolean(user.sectionAccess?.includes('assetsManage'));
   const { data } = useQuery({
     queryKey: ['assets', 'by-employee', employeeId],
     queryFn: () => listAssetsByEmployee(employeeId),
+    enabled: canRead,
   });
-  const current = (data ?? []).filter((a) => a.status === 'Active');
-  if (data && data.length === 0) return null;
+  // Without Read on Assets the list is refused — show nothing, not "Loading…".
+  if (!canRead || !data || data.length === 0) return null;
+  const current = data.filter((a) => a.status === 'Active');
 
   return (
     <Card>
@@ -60,9 +64,7 @@ function AssignedAssetsPanel({ employeeId }) {
           {t('staffEmployees.profile.manageAssets')}
         </Link>
       </div>
-      {!data ? (
-        <p className="text-sm text-muted">{t('staffEmployees.profile.loading')}</p>
-      ) : current.length === 0 ? (
+      {current.length === 0 ? (
         <p className="text-sm text-muted">{t('staffEmployees.profile.nothingAssigned')}</p>
       ) : (
         <div className="divide-y divide-border">
@@ -168,16 +170,10 @@ export default function EmployeeProfilePage() {
             <ProfileField label={t('staffEmployees.profile.fields.email')}>{employee.email}</ProfileField>
             <ProfileField label={t('staffEmployees.profile.fields.joiningDate')}>{formatDate(employee.joiningDate)}</ProfileField>
             {employee.contractStartDate && (
-              <ProfileField label="Contract Start Date">{formatDate(employee.contractStartDate)}</ProfileField>
+              <ProfileField label={t('staffEmployees.form.contractStartDate')}>{formatDate(employee.contractStartDate)}</ProfileField>
             )}
-            {employee.contractStartDate && (
-                <div>
-                  <dt className="text-xs text-muted">Contract Start Date</dt>
-                  <dd className="text-sm font-medium text-text">{formatDate(employee.contractStartDate)}</dd>
-                </div>
-              )}
-              {employee.contractEndDate && (
-              <ProfileField label="Contract End Date">{formatDate(employee.contractEndDate)}</ProfileField>
+            {employee.contractEndDate && (
+              <ProfileField label={t('staffEmployees.form.contractEndDate')}>{formatDate(employee.contractEndDate)}</ProfileField>
             )}
             <ProfileField label={t('staffEmployees.profile.fields.department')}>{employee.department}</ProfileField>
             <ProfileField label={t('staffEmployees.profile.fields.salary')}>{employee.salary != null ? formatMoney(employee.salary) : null}</ProfileField>
@@ -205,11 +201,10 @@ export default function EmployeeProfilePage() {
             provisioning one is never offered from here in the first place. */}
         {canProvisionAccount && employee.type === 'Own' && <EmployeeLoginPanel employee={employee} />}
 
-        {/* Current deployment, actions (transfer/end/assign) and history 
-            owns its own data; populates from the M6 deployment workflow.
-            Workforce types only (Outsourced or Subcontracted) an internal
-            Own-type employee is never deployed. */}
-        {employee.type !== 'Own' && <WorkerDeploymentPanel employee={employee} />}
+        {/* Current deployment and history. An internal 'Own' employee shows
+            it only once actually placed (one with a Worker login is
+            mobilised like anyone else); the panel decides that itself. */}
+        <WorkerDeploymentPanel employee={employee} />
 
         <AssignedAssetsPanel employeeId={id} />
 
