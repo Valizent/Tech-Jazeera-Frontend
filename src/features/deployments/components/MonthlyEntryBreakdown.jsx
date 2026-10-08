@@ -18,6 +18,8 @@
  * Paid/Balance Due lines, Ready to Invoice's "View Deployment Details"
  * button) without this shared panel knowing about either page.
  */
+import { useTranslation } from 'react-i18next';
+
 function DetailRow({ label, value, valueClass = '', hint }) {
   return (
     <div className="flex items-center justify-between py-1.5 border-b border-border/40 last:border-0">
@@ -44,6 +46,8 @@ function costColor(value) {
 }
 
 export default function MonthlyEntryBreakdownPanel({ row, formatMoney, children }) {
+  const { t } = useTranslation();
+  const k = (key) => t(`staffDeployments.breakdown.${key}`);
   const isSupplier = row.workerType === 'SupplierEmployee';
   const b = row.breakdown ?? {};
   const subInvoice = b.subContractorInvoiceAmount ?? 0;
@@ -57,18 +61,18 @@ export default function MonthlyEntryBreakdownPanel({ row, formatMoney, children 
     <div className="rounded-xl border border-border/60 bg-surface/70 p-4 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-6 text-sm">
       {/* Client */}
       <div>
-        <p className="text-xs font-black uppercase tracking-wider text-muted mb-2">Client</p>
+        <p className="text-xs font-black uppercase tracking-wider text-muted mb-2">{k('client')}</p>
         <div className="space-y-0">
-          <DetailRow label="Client Rate / hr" value={row.clientRate != null ? formatMoney(row.clientRate) : ''} />
-          <DetailRow label="Client Commission / hr" value={row.clientCommission != null ? formatMoney(row.clientCommission) : ''} />
-          <DetailRow label="Invoice Amount" value={formatMoney(revenue)} valueClass={revenue > 0 ? 'text-success' : ''} />
-          <DetailRow label="Invoice Commission Expense" value={formatMoney(clientCommissionExpense)} valueClass={clientCommissionExpense > 0 ? 'text-danger' : ''} />
+          <DetailRow label={k('clientRate')} value={row.clientRate != null ? formatMoney(row.clientRate) : ''} />
+          <DetailRow label={k('clientCommissionRate')} value={row.clientCommission != null ? formatMoney(row.clientCommission) : ''} />
+          <DetailRow label={k('invoiceAmount')} value={formatMoney(revenue)} valueClass={revenue > 0 ? 'text-success' : ''} />
+          <DetailRow label={k('invoiceCommissionExpense')} value={formatMoney(clientCommissionExpense)} valueClass={clientCommissionExpense > 0 ? 'text-danger' : ''} />
           {/* Only Paid Invoices' rows carry amountAllocated Ready to
               Invoice's rows are pre-invoice and simply don't have it, so
               this line only ever appears there (2026-10-01, the user's own
               ask to move it here from the Summary column). */}
           {row.amountAllocated != null && (
-            <DetailRow label="Paid" value={formatMoney(row.amountAllocated)} valueClass="text-success" />
+            <DetailRow label={k('paid')} value={formatMoney(row.amountAllocated)} valueClass="text-success" />
           )}
         </div>
       </div>
@@ -76,25 +80,25 @@ export default function MonthlyEntryBreakdownPanel({ row, formatMoney, children 
       {/* Subcontractor */}
       {isSupplier && (
         <div>
-          <p className="text-xs font-black uppercase tracking-wider text-muted mb-2">Subcontractor</p>
+          <p className="text-xs font-black uppercase tracking-wider text-muted mb-2">{k('subcontractor')}</p>
           <div className="space-y-0">
-            <DetailRow label="Sub Rate / hr" value={row.subcontractorRate != null ? formatMoney(row.subcontractorRate) : ''} />
-            <DetailRow label="Sub Commission / hr" value={row.subcontractorCommission != null ? formatMoney(row.subcontractorCommission) : ''} />
+            <DetailRow label={k('subRate')} value={row.subcontractorRate != null ? formatMoney(row.subcontractorRate) : ''} />
+            <DetailRow label={k('subCommissionRate')} value={row.subcontractorCommission != null ? formatMoney(row.subcontractorCommission) : ''} />
             {/* Subcontractor hours are now a real, optional follow-up step
                 (2026-10-01) a plain "Not entered yet" here, same spirit as
                 `supplierHours == null` everywhere else in this app, rather
                 than a silent 0 that could read as "confirmed zero hours". */}
             <DetailRow
-              label="Sub Timesheet Hours"
-              value={row.supplierHours != null ? row.supplierHours : 'Not entered yet'}
+              label={k('subHours')}
+              value={row.supplierHours != null ? row.supplierHours : k('notEnteredYet')}
               valueClass={row.supplierHours == null ? 'text-muted' : ''}
             />
-            {b.supplierOtHours > 0 && <DetailRow label="Sub OT Hours" value={b.supplierOtHours} />}
-            <DetailRow label="Sub Invoice" value={formatMoney(subInvoice)} valueClass={costColor(subInvoice)} />
-            <DetailRow label="Sub Commission Expense" value={formatMoney(subCommissionExpense)} valueClass={subCommissionExpense > 0 ? 'text-danger' : ''} />
+            {b.supplierOtHours > 0 && <DetailRow label={k('subOtHours')} value={b.supplierOtHours} />}
+            <DetailRow label={k('subInvoice')} value={formatMoney(subInvoice)} valueClass={costColor(subInvoice)} />
+            <DetailRow label={k('subCommissionExpense')} value={formatMoney(subCommissionExpense)} valueClass={subCommissionExpense > 0 ? 'text-danger' : ''} />
             {supplierDeduction > 0 && (
               <DetailRow
-                label="Supplier Deduction"
+                label={k('supplierDeduction')}
                 value={formatMoney(supplierDeduction)}
                 valueClass="text-success"
                 hint={row.supplierDeductionNote || undefined}
@@ -106,32 +110,32 @@ export default function MonthlyEntryBreakdownPanel({ row, formatMoney, children 
 
       {/* Expenses every component of row.expenses, itemized */}
       <div>
-        <p className="text-xs font-black uppercase tracking-wider text-muted mb-2">Expenses</p>
+        <p className="text-xs font-black uppercase tracking-wider text-muted mb-2">{k('expenses')}</p>
         <div className="space-y-0">
-          {(row.fta ?? 0) > 0 && <DetailRow label="FTA" value={formatMoney(row.fta)} />}
-          {(row.allowance ?? 0) > 0 && <DetailRow label="Allowance" value={formatMoney(row.allowance)} />}
-          {(row.deductionAmount ?? 0) > 0 && <DetailRow label="Client Deduction" value={formatMoney(row.deductionAmount)} />}
-          {(row.mobilisationCost ?? 0) > 0 && <DetailRow label="Mob. Cost" value={formatMoney(row.mobilisationCost)} />}
-          {(b.otCalculations ?? 0) > 0 && <DetailRow label="Worker OT Pay" value={formatMoney(b.otCalculations)} hint={isSupplier ? "Paid directly to the worker not part of the supplier invoice" : "OT premium paid to the worker, on top of fixed salary/rate"} valueClass="text-danger" />}
-          {clientCommissionExpense > 0 && <DetailRow label="Client Commission" value={formatMoney(clientCommissionExpense)} valueClass="text-danger" />}
-          {isSupplier && subInvoice !== 0 && <DetailRow label="Sub Invoice" value={formatMoney(subInvoice)} valueClass={costColor(subInvoice)} />}
-          {isSupplier && subCommissionExpense > 0 && <DetailRow label="Sub Commission" value={formatMoney(subCommissionExpense)} valueClass="text-danger" />}
-          {(b.expenseEmployeeSalary ?? 0) > 0 && <DetailRow label="Employee Salary" value={formatMoney(b.expenseEmployeeSalary)} />}
-          {(b.expenseEmployeeAdditional ?? 0) > 0 && <DetailRow label="Additional Amount" value={formatMoney(b.expenseEmployeeAdditional)} />}
-          <DetailRow label="Total Expenses" value={formatMoney(expensesTotal)} valueClass={costColor(expensesTotal)} />
+          {(row.fta ?? 0) > 0 && <DetailRow label={k('fta')} value={formatMoney(row.fta)} />}
+          {(row.allowance ?? 0) > 0 && <DetailRow label={k('allowance')} value={formatMoney(row.allowance)} />}
+          {(row.deductionAmount ?? 0) > 0 && <DetailRow label={k('clientDeduction')} value={formatMoney(row.deductionAmount)} />}
+          {(row.mobilisationCost ?? 0) > 0 && <DetailRow label={k('mobilisationCost')} value={formatMoney(row.mobilisationCost)} />}
+          {(b.otCalculations ?? 0) > 0 && <DetailRow label={k('workerOtPay')} value={formatMoney(b.otCalculations)} hint={isSupplier ? k('workerOtPayHintSupplier') : k('workerOtPayHint')} valueClass="text-danger" />}
+          {clientCommissionExpense > 0 && <DetailRow label={k('clientCommission')} value={formatMoney(clientCommissionExpense)} valueClass="text-danger" />}
+          {isSupplier && subInvoice !== 0 && <DetailRow label={k('subInvoice')} value={formatMoney(subInvoice)} valueClass={costColor(subInvoice)} />}
+          {isSupplier && subCommissionExpense > 0 && <DetailRow label={k('subCommission')} value={formatMoney(subCommissionExpense)} valueClass="text-danger" />}
+          {(b.expenseEmployeeSalary ?? 0) > 0 && <DetailRow label={k('employeeSalary')} value={formatMoney(b.expenseEmployeeSalary)} />}
+          {(b.expenseEmployeeAdditional ?? 0) > 0 && <DetailRow label={k('additionalAmount')} value={formatMoney(b.expenseEmployeeAdditional)} />}
+          <DetailRow label={k('totalExpenses')} value={formatMoney(expensesTotal)} valueClass={costColor(expensesTotal)} />
         </div>
       </div>
 
       {/* Summary */}
       <div>
-        <p className="text-xs font-black uppercase tracking-wider text-muted mb-2">Summary</p>
+        <p className="text-xs font-black uppercase tracking-wider text-muted mb-2">{k('summary')}</p>
         <div className="space-y-0">
-          <DetailRow label="Actual Hours" value={row.actualHours ?? ''} />
-          {(row.otHours ?? 0) > 0 && <DetailRow label="OT Hours" value={row.otHours} />}
-          <DetailRow label="Client Invoice Amount" value={formatMoney(revenue)} valueClass={revenue > 0 ? 'text-success' : ''} />
-          <DetailRow label="Expenses" value={formatMoney(expensesTotal)} valueClass={costColor(expensesTotal)} />
+          <DetailRow label={k('actualHours')} value={row.actualHours ?? ''} />
+          {(row.otHours ?? 0) > 0 && <DetailRow label={k('otHours')} value={row.otHours} />}
+          <DetailRow label={k('clientInvoiceAmount')} value={formatMoney(revenue)} valueClass={revenue > 0 ? 'text-success' : ''} />
+          <DetailRow label={k('expenses')} value={formatMoney(expensesTotal)} valueClass={costColor(expensesTotal)} />
           <DetailRow
-            label="Net Profit"
+            label={k('netProfit')}
             value={formatMoney(row.profit ?? 0)}
             valueClass={(row.profit ?? 0) >= 0 ? 'text-success' : 'text-danger'}
           />

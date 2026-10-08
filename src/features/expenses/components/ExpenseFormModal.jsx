@@ -21,6 +21,7 @@
  * money should be created unattended.
  */
 import { useEffect, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useForm, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
@@ -42,6 +43,8 @@ const RECEIPT_ACCEPT = '.pdf,.jpg,.jpeg,.png,.webp';
 const RECEIPT_MAX_MB = 10;
 
 export default function ExpenseFormModal({ open, editing, onClose, onSaved, lockedDeployment, duplicateFrom }) {
+  const { t } = useTranslation();
+  const L = (key, options) => t(`staffExpenses.list.${key}`, options);
   const toast = useToast();
   const queryClient = useQueryClient();
   const fileInputRef = useRef(null);
@@ -93,7 +96,7 @@ export default function ExpenseFormModal({ open, editing, onClose, onSaved, lock
     const file = e.target.files?.[0];
     if (!file) return;
     if (file.size > RECEIPT_MAX_MB * 1024 * 1024) {
-      toast.error(`File is too large (maximum ${RECEIPT_MAX_MB} MB).`);
+      toast.error(L('fileTooLargeError', { maxMb: RECEIPT_MAX_MB }));
       e.target.value = '';
       return;
     }
@@ -115,12 +118,15 @@ export default function ExpenseFormModal({ open, editing, onClose, onSaved, lock
       return createExpense(fd);
     },
     onSuccess: () => {
-      toast.success(editing?._id ? 'Expense updated.' : 'Expense recorded.');
+      toast.success(editing?._id ? L('updatedToast') : L('recordedToast'));
       queryClient.invalidateQueries({ queryKey: ['expenses'] });
       onSaved?.();
       onClose();
     },
-    onError: (error) => toast.error(apiMessage(error)),
+    onError: (error) => {
+      console.error('[ExpenseFormModal] save failed', error);
+      toast.error(apiMessage(error));
+    },
   });
 
   // A client-side validation failure previously failed silently for every form
@@ -132,86 +138,86 @@ export default function ExpenseFormModal({ open, editing, onClose, onSaved, lock
       .map((err) => err?.message)
       .filter(Boolean);
     console.error('[ExpenseFormModal] validation failed:', formErrors);
-    toast.error(messages.length ? messages.join(' · ') : 'Check the highlighted fields.');
+    toast.error(messages.length ? messages.join(' · ') : L('form.checkFields'));
   }
 
   return (
-    <Modal open={open} onClose={onClose} title={editing?._id ? 'Edit expense' : 'Add expense'} size="lg">
+    <Modal open={open} onClose={onClose} title={editing?._id ? L('modalEditTitle') : L('modalAddTitle')} size="lg">
       <form onSubmit={handleSubmit((values) => saveMutation.mutate(values), onInvalid)} noValidate className="space-y-4">
         {!lockedDeployment && (
           <PickerLoadWarning
             failed={[
-              { label: 'clients', isError: clientsError },
-              { label: 'deployments', isError: Boolean(selectedClient) && deploymentsError },
+              { label: L('form.clientsPicker'), isError: clientsError },
+              { label: L('form.deploymentsPicker'), isError: Boolean(selectedClient) && deploymentsError },
             ]}
           />
         )}
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-          <Input label="Date *" type="date" error={errors.date?.message} {...register('date')} />
-          <Select label="Category *" error={errors.category?.message} {...register('category')}>
-            <option value="">Choose a category…</option>
+          <Input label={L('form.date')} type="date" error={errors.date?.message} {...register('date')} />
+          <Select label={L('form.category')} error={errors.category?.message} {...register('category')}>
+            <option value="">{L('form.chooseCategory')}</option>
             {EXPENSE_CATEGORIES.map((c) => (
               <option key={c} value={c}>
-                {c}
+                {t(`staffExpenses.categoryLabels.${c}`)}
               </option>
             ))}
           </Select>
-          <Input label="Vendor *" placeholder="e.g. ACME Trading Est." error={errors.vendor?.message} {...register('vendor')} />
-          <Input label="Amount (⃁) *" type="number" step="0.01" min="0.01" error={errors.amount?.message} {...register('amount')} />
+          <Input label={L('form.vendor')} placeholder={L('form.vendorPlaceholder')} error={errors.vendor?.message} {...register('vendor')} />
+          <Input label={L('form.amount')} type="number" step="0.01" min="0.01" error={errors.amount?.message} {...register('amount')} />
           {lockedDeployment ? (
             <div className="sm:col-span-2">
-              <p className="mb-1.5 text-sm font-medium">Deployment</p>
+              <p className="mb-1.5 text-sm font-medium">{L('form.deployment')}</p>
               <p className="rounded-lg border border-border bg-bg/50 px-3 py-2 text-sm text-muted">{lockedDeployment.label}</p>
               <input type="hidden" {...register('client')} />
               <input type="hidden" {...register('deployment')} />
             </div>
           ) : (
             <>
-              <Select label="Client (optional)" error={errors.client?.message} {...register('client')}>
-                <option value="">No client link</option>
+              <Select label={L('form.clientOptional')} error={errors.client?.message} {...register('client')}>
+                <option value="">{L('form.noClientLink')}</option>
                 {clients.map((c) => (
                   <option key={c._id} value={c._id}>
                     {c.companyName}
                   </option>
                 ))}
               </Select>
-              <Select label="Deployment (optional)" disabled={!selectedClient} error={errors.deployment?.message} {...register('deployment')}>
-                <option value="">{selectedClient ? 'No deployment link' : 'Select a client first'}</option>
+              <Select label={L('form.deploymentOptional')} disabled={!selectedClient} error={errors.deployment?.message} {...register('deployment')}>
+                <option value="">{selectedClient ? L('form.noDeploymentLink') : L('form.selectClientFirst')}</option>
                 {deployments.map((d) => (
                   <option key={d._id} value={d._id}>
-                    {d.site} {d.worker?.fullName} ({d.status})
+                    {d.site} {d.worker?.fullName ?? d.workerName} ({t(`staffDeployments.status.${d.status}`)})
                   </option>
                 ))}
               </Select>
             </>
           )}
         </div>
-        <Textarea label="Notes" placeholder="Optional" error={errors.notes?.message} {...register('notes')} />
+        <Textarea label={L('form.notes')} placeholder={t('common.optional')} error={errors.notes?.message} {...register('notes')} />
 
         {editing?._id ? (
           editing.receipt && (
-            <p className="text-sm text-muted">Receipt: {editing.receipt.originalName} attached at entry, cannot be changed here.</p>
+            <p className="text-sm text-muted">{L('form.receiptAttachedNote', { name: editing.receipt.originalName })}</p>
           )
         ) : (
           <div>
-            <label className="mb-1.5 block text-sm font-medium">Receipt (optional)</label>
+            <label className="mb-1.5 block text-sm font-medium">{L('form.receiptOptional')}</label>
             <input ref={fileInputRef} type="file" accept={RECEIPT_ACCEPT} className="hidden" onChange={handleFileChange} />
             <div className="flex items-center gap-3">
               <Button type="button" variant="secondary" onClick={() => fileInputRef.current?.click()}>
-                {pendingFile ? 'Change file' : 'Choose file'}
+                {pendingFile ? L('form.changeFile') : L('form.chooseFile')}
               </Button>
               {pendingFile && <span className="truncate text-sm text-muted">{pendingFile.name}</span>}
             </div>
-            <p className="mt-1 text-xs text-muted">PDF, JPG, PNG, or WEBP up to {RECEIPT_MAX_MB} MB.</p>
+            <p className="mt-1 text-xs text-muted">{L('form.receiptHint', { maxMb: RECEIPT_MAX_MB })}</p>
           </div>
         )}
 
         <div className="flex justify-end gap-2 pt-2">
           <Button type="button" variant="secondary" onClick={onClose} disabled={saveMutation.isPending}>
-            Cancel
+            {t('common.cancel')}
           </Button>
           <Button type="submit" isLoading={saveMutation.isPending}>
-            Save
+            {t('common.save')}
           </Button>
         </div>
       </form>

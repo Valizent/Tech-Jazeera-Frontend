@@ -288,7 +288,7 @@
     "empty": "لا توجد طلبات إجازة بعد",
     "emptyDescription": "أرسل طلبك الأول أعلاه.",
     "days": "{{count}} يوم",
-    "days_other": "{{count}} أيام",
+    "days_other": "{{count}} يوم",
     "cancelButton": "إلغاء",
     "cancelDialog": {
       "title": "إلغاء طلب الإجازة؟",
@@ -296,7 +296,12 @@
     },
     "autoApprovedToast": "تمت الموافقة على طلب الإجازة.",
     "submittedToast": "تم إرسال طلب الإجازة للمراجعة.",
-    "cancelledToast": "تم إلغاء طلب الإجازة."
+    "cancelledToast": "تم إلغاء طلب الإجازة.",
+    "days_zero": "{{count}} يوم",
+    "days_one": "يوم واحد",
+    "days_two": "يومان",
+    "days_few": "{{count}} أيام",
+    "days_many": "{{count}} يومًا"
   },
   "requests": {
     "title": "طلباتي",
@@ -312,7 +317,7 @@
       "empty": "لا توجد طلبات سلف بعد",
       "emptyDescription": "أرسل طلبك الأول أعلاه.",
       "overMonths": "على مدى {{count}} شهر",
-      "overMonths_other": "على مدى {{count}} أشهر",
+      "overMonths_other": "على مدى {{count}} شهر",
       "requestedOn": " · طُلب في {{date}}",
       "outstanding": "المبلغ المتبقي: {{amount}}",
       "submittedToast": "تم إرسال طلب السلفة.",
@@ -320,7 +325,12 @@
       "cancelDialog": {
         "title": "إلغاء طلب السلفة؟",
         "message": "سيتم إلغاء طلبك بمبلغ {{amount}}."
-      }
+      },
+      "overMonths_zero": "على مدى {{count}} شهر",
+      "overMonths_one": "على مدى شهر واحد",
+      "overMonths_two": "على مدى شهرين",
+      "overMonths_few": "على مدى {{count}} أشهر",
+      "overMonths_many": "على مدى {{count}} شهرًا"
     },
     "reimbursements": {
       "sectionTitle": "المطالبة بمصروف",
@@ -513,11 +523,15 @@
       "requirements": {
         "label": "الطلبات",
         "description": "طلبات العملاء من أول طلب حتى التنسيب."
+      },
+      "standby": {
+        "label": "قائمة الاحتياط",
+        "description": "عمال بانتظار تعيين."
       }
     },
     "financial": {
       "label": "الشؤون المالية",
-      "description": "الرواتب والمصروفات والطلبات المالية الداخلية.",
+      "description": "فوترة العملاء والمقاولين، والمصروفات، والطلبات المالية الداخلية.",
       "readyToInvoice": {
         "label": "جاهز للفوترة",
         "description": "أشهر مُعتمدة بانتظار فاتورة للعميل."
@@ -537,6 +551,22 @@
       "financialRequests": {
         "label": "الطلبات المالية",
         "description": "السلف والمصاريف المستردة."
+      },
+      "paidInvoices": {
+        "label": "الفواتير المحصّلة",
+        "description": "سجل دفعات الفواتير، الكاملة والجزئية."
+      },
+      "readyForSubInvoice": {
+        "label": "فواتير المقاولين المستلمة",
+        "description": "أشهر معتمدة بانتظار فاتورة المقاول."
+      },
+      "subPaymentsDue": {
+        "label": "مستحقات المقاولين",
+        "description": "دفعات المقاولين المفوترة بانتظار السداد."
+      },
+      "paidSubInvoices": {
+        "label": "فواتير المقاولين المدفوعة",
+        "description": "سجل دفعات المقاولين، الكاملة والجزئية."
       }
     },
     "admin": {
@@ -548,7 +578,7 @@
       },
       "sectionAccess": {
         "label": "صلاحيات الأقسام",
-        "description": "الأدوار أو أدوار الاعتماد التي يمكنها فتح الرواتب والمصروفات وغيرها من الأقسام المقيدة."
+        "description": "أدوار الاعتماد التي يمكنها فتح المصروفات ومكافأة نهاية الخدمة وغيرها من الأقسام المقيدة."
       },
       "documents": {
         "label": "المستندات",
@@ -592,7 +622,7 @@
       },
       "reconciliation": {
         "label": "تسوية البيانات",
-        "description": "فحص سلامة دائم عبر السجلات المالية والرواتب والتعيينات."
+        "description": "فحص سلامة دائم عبر السجلات المالية والتعيينات."
       },
       "coordinatorActivity": {
         "label": "نشاط المنسقين",
@@ -605,7 +635,7 @@
     "subtitleCompany": "إليك آخر مستجدات الشركة.",
     "subtitleTeam": "إليك آخر مستجدات فريقك.",
     "clientsWaitingApproval": "عميل واحد بانتظار الموافقة",
-    "clientsWaitingApproval_other": "{{count}} عملاء بانتظار الموافقة",
+    "clientsWaitingApproval_other": "{{count}} عميل بانتظار الموافقة",
     "review": "مراجعة ←",
     "stats": {
       "deployedNow": "المنسَّبون حاليًا",
@@ -743,8 +773,8 @@
       "incentiveSuffix": "· حافز {{percent}}%",
       "hitBadge": "تم تحقيقه!",
       "remainingBadge": "متبقٍ {{amount}}",
-      "ownEmployeeCount_one": "{{count}} تعبئة لموظف داخلي (غير محتسبة)",
-      "ownEmployeeCount_other": "{{count}} تعبئات لموظفين داخليين (غير محتسبة)",
+      "ownEmployeeCount_one": "تعبئة واحدة لموظف داخلي (غير محتسبة)",
+      "ownEmployeeCount_other": "{{count}} تعبئة لموظفين داخليين (غير محتسبة)",
       "coordinatorLabel": "المنسق *",
       "coordinatorPlaceholder": "اختر منسقًا…",
       "monthFieldLabel": "الشهر *",
@@ -770,9 +800,17 @@
         "notHitZero": "حقق ربحًا معتمَدًا قدره {{target}} لفتح حافزك.",
         "notHitSome": "تم إنجاز {{achieved}} من {{target}} واصل التقدم!",
         "notHitIncentiveSuffix": "عند تحقيق ذلك، تكسب {{percent}}% من الربح لكل تعبئة تتجاوزه.",
-        "ownEmployeeCount_one": "بالإضافة إلى {{count}} تعبئة لموظف داخلي هذا الشهر (غير محتسبة ضمن هدفك)",
-        "ownEmployeeCount_other": "بالإضافة إلى {{count}} تعبئات لموظفين داخليين هذا الشهر (غير محتسبة ضمن هدفك)"
-      }
+        "ownEmployeeCount_one": "بالإضافة إلى تعبئة واحدة لموظف داخلي هذا الشهر (غير محتسبة ضمن هدفك)",
+        "ownEmployeeCount_other": "بالإضافة إلى {{count}} تعبئة لموظفين داخليين هذا الشهر (غير محتسبة ضمن هدفك)",
+        "ownEmployeeCount_zero": "بالإضافة إلى {{count}} تعبئة لموظفين داخليين هذا الشهر (غير محتسبة ضمن هدفك)",
+        "ownEmployeeCount_two": "بالإضافة إلى تعبئتين لموظفين داخليين هذا الشهر (غير محتسبة ضمن هدفك)",
+        "ownEmployeeCount_few": "بالإضافة إلى {{count}} تعبئات لموظفين داخليين هذا الشهر (غير محتسبة ضمن هدفك)",
+        "ownEmployeeCount_many": "بالإضافة إلى {{count}} تعبئة لموظفين داخليين هذا الشهر (غير محتسبة ضمن هدفك)"
+      },
+      "ownEmployeeCount_zero": "{{count}} تعبئة لموظفين داخليين (غير محتسبة)",
+      "ownEmployeeCount_two": "تعبئتان لموظفين داخليين (غير محتسبة)",
+      "ownEmployeeCount_few": "{{count}} تعبئات لموظفين داخليين (غير محتسبة)",
+      "ownEmployeeCount_many": "{{count}} تعبئة لموظفين داخليين (غير محتسبة)"
     },
     "drillDown": {
       "title": "الأداء: {{name}}",
@@ -786,7 +824,12 @@
       "title": "إيراد 6 أشهر ({{start}} – {{end}})",
       "hitBadge": "تم تحقيق الهدف",
       "incentiveEarned": "حافز مكتسب: {{amount}} ({{percent}}% من صافي الربح على الفائض)"
-    }
+    },
+    "clientsWaitingApproval_zero": "{{count}} عميل بانتظار الموافقة",
+    "clientsWaitingApproval_one": "عميل واحد بانتظار الموافقة",
+    "clientsWaitingApproval_two": "عميلان بانتظار الموافقة",
+    "clientsWaitingApproval_few": "{{count}} عملاء بانتظار الموافقة",
+    "clientsWaitingApproval_many": "{{count}} عميلًا بانتظار الموافقة"
   },
   "staffEmployees": {
     "list": {
@@ -1033,7 +1076,7 @@
       "length": "المدة"
     },
     "dayCount_one": "يوم واحد",
-    "dayCount_other": "{{count}} أيام",
+    "dayCount_other": "{{count}} يوم",
     "couldNotLoad": "تعذر تحميل العطلات",
     "couldNotLoadDescription": "تحقق من اتصالك وحاول مرة أخرى.",
     "emptyTitle": "لا توجد عطلات بعد",
@@ -1085,7 +1128,11 @@
       "removedSuccess": "تمت إزالة {{label}}.",
       "deleteConfirmTitle": "حذف فترة رمضان؟",
       "deleteConfirmMessage": "سيتم إزالة \"{{label}}\". الجداول التي تم البت فيها بالفعل لأسابيع ضمن هذه الفترة تحتفظ بالوقت الإضافي المحسوب لها؛ يتأثر فقط ما يُقدَّم لاحقًا."
-    }
+    },
+    "dayCount_zero": "{{count}} يوم",
+    "dayCount_two": "يومان",
+    "dayCount_few": "{{count}} أيام",
+    "dayCount_many": "{{count}} يومًا"
   },
   "staffLeave": {
     "page": {
@@ -1177,8 +1224,8 @@
       "couldNotLoad": "تعذر تحميل طلبات الإجازة",
       "emptyTitle": "لا توجد طلبات إجازة",
       "emptyDescription": "لا يوجد ما يطابق هذا الفلتر.",
-      "dayCount_one": "{{count}} يوم",
-      "dayCount_other": "{{count}} أيام",
+      "dayCount_one": "يوم واحد",
+      "dayCount_other": "{{count}} يوم",
       "markSeen": "تمييز كمشاهد",
       "seenToast": "تم التمييز كمشاهد.",
       "viewAttachment": "عرض المرفق",
@@ -1189,7 +1236,11 @@
       "rejectTitle": "رفض طلب الإجازة؟",
       "confirmMessage": "{{action}} طلب {{name}} لـ {{type}} ({{start}} – {{end}})؟ لا يمكن التراجع عن هذا.",
       "approvedDecidedToast": "تمت الموافقة على طلب الإجازة.",
-      "rejectedDecidedToast": "تم رفض طلب الإجازة."
+      "rejectedDecidedToast": "تم رفض طلب الإجازة.",
+      "dayCount_zero": "{{count}} يوم",
+      "dayCount_two": "يومان",
+      "dayCount_few": "{{count}} أيام",
+      "dayCount_many": "{{count}} يومًا"
     }
   },
   "staffTimesheets": {
@@ -1260,7 +1311,8 @@
       "Resignation": "استقالة",
       "TerminationByEmployer": "إنهاء من قبل الشركة",
       "EndOfContract": "انتهاء العقد",
-      "SponsorshipTransfer": "تنازل الكفالة إلى شركة أخرى"
+      "SponsorshipTransfer": "تنازل الكفالة إلى شركة أخرى",
+      "CurrentEmployee": "موظف حالي (محاكاة)"
     },
     "list": {
       "pageTitle": "تسويات نهاية الخدمة",
@@ -1294,7 +1346,8 @@
         "Resignation": "الموظف يغادر بمحض إرادته تُطبَّق شرائح المادة 85 حسب مدة الخدمة.",
         "TerminationByEmployer": "الشركة تنهي العقد المكافأة كاملة دون خصم.",
         "EndOfContract": "انتهت مدة العقد ولم يُجدَّد المكافأة كاملة دون خصم.",
-        "SponsorshipTransfer": "كفالة الموظف تنتقل إلى صاحب عمل آخر المكافأة كاملة دون خصم. يُفضَّل تأكيد هذه المعاملة مع المستشار القانوني/الموارد البشرية إن لم تكن متأكدًا."
+        "SponsorshipTransfer": "كفالة الموظف تنتقل إلى صاحب عمل آخر المكافأة كاملة دون خصم. يُفضَّل تأكيد هذه المعاملة مع المستشار القانوني/الموارد البشرية إن لم تكن متأكدًا.",
+        "CurrentEmployee": "حساب افتراضي لموظف ما زال على رأس العمل؛ لا ينهي خدمته."
       }
     },
     "view": {
@@ -1316,8 +1369,8 @@
       "netAward": "صافي مكافأة نهاية الخدمة",
       "vacationSectionTitle": "تسوية بدل الإجازات",
       "unusedLeave": "رصيد الإجازة السنوية غير المستخدم",
-      "unusedLeaveDays_one": "{{count}} يوم",
-      "unusedLeaveDays_other": "{{count}} أيام",
+      "unusedLeaveDays_one": "يوم واحد",
+      "unusedLeaveDays_other": "{{count}} يوم",
       "leaveEncashment": "بدل الإجازة النقدي",
       "totalSettlement": "إجمالي التسوية",
       "notes": "ملاحظات",
@@ -1328,7 +1381,11 @@
         "full": "المكافأة كاملة",
         "forfeited": "محرومة (أقل من سنتين)",
         "percent": "{{percent}}% من المكافأة"
-      }
+      },
+      "unusedLeaveDays_zero": "{{count}} يوم",
+      "unusedLeaveDays_two": "يومان",
+      "unusedLeaveDays_few": "{{count}} أيام",
+      "unusedLeaveDays_many": "{{count}} يومًا"
     },
     "pdfButton": {
       "label": "PDF",
@@ -1613,7 +1670,8 @@
         "hoursThisMonth": "ساعات العمل هذا الشهر",
         "otAmountThisMonth": "مبلغ الوقت الإضافي هذا الشهر",
         "totalAmountThisMonth": "إجمالي المبلغ هذا الشهر",
-        "totalProfitPerMonth": "إجمالي الربح الشهري"
+        "totalProfitPerMonth": "إجمالي الربح الشهري",
+        "recordedExpenses": "المصروفات"
       }
     },
     "standby": {
@@ -1656,7 +1714,8 @@
         "month": "الشهر",
         "invoice": "الفاتورة",
         "allocated": "المخصّص",
-        "balance": "الرصيد"
+        "balance": "الرصيد",
+        "invoiceAmount": "مبلغ الفاتورة"
       },
       "overdueBy": "متأخر {{days}} يومًا",
       "dueInDays": "يستحق خلال {{days}} يومًا",
@@ -1676,7 +1735,9 @@
       "recordPaymentModalTitle": "تسجيل دفعة {{client}}",
       "recordPaymentModalMessage": "أدخل إجمالي المبلغ الذي دفعه هذا العميل فعليًا، مغطيًا جميع من تم تعيينهم لديه. سيحتاج ذلك إلى موافقة المدير المالي، ثم يُسدَّد تلقائيًا على أقدم الفواتير المستحقة أولًا.",
       "amountLabel": "المبلغ المستلم *",
-      "paymentRecordedToast": "تم تسجيل الدفعة بانتظار الموافقة."
+      "paymentRecordedToast": "تم تسجيل الدفعة بانتظار الموافقة.",
+      "paymentReferenceLabel": "رقم الفاتورة / المرجع",
+      "paymentDateLabel": "تاريخ الدفع"
     },
     "readyToInvoice": {
       "pageTitle": "جاهز للفوترة",
@@ -1828,12 +1889,12 @@
       "invoiceNumberLabel": "رقم الفاتورة *",
       "invoiceDateLabel": "تاريخ الفاتورة *",
       "invoiceDateTooEarly": "شهر {{month}} لم ينتهِ بعد اختر تاريخًا بعد انتهائه.",
-      "invoiceFileLabel": "Invoice File",
-      "chooseFile": "Choose file",
-      "changeFile": "Change file",
-      "invoiceFileTooLarge": "Invoice file is too large",
-      "downloadInvoiceButton": "Download invoice",
-      "invoiceSentToast": "Sub Invoice recorded.",
+      "invoiceFileLabel": "ملف الفاتورة",
+      "chooseFile": "اختر ملفًا",
+      "changeFile": "تغيير الملف",
+      "invoiceFileTooLarge": "ملف الفاتورة كبير جدًا (الحد الأقصى {{maxMb}} ميغابايت).",
+      "downloadInvoiceButton": "تنزيل الفاتورة",
+      "invoiceSentToast": "تم تسجيل الفاتورة.",
       "totalProfit": "إجمالي الربح",
       "sectionExpenses": "المصاريف",
       "expensesHint": "التكاليف التشغيلية الفعلية لهذه التعبئة الوقود والسكن وما شابه بالإضافة إلى الإيراد والمصاريف وصافي الربح الفعلي (من جداول الدوام المعتمدة) أدناه.",
@@ -1887,12 +1948,13 @@
       "updatedToast": "تم تحديث الساعات.",
       "noMonthlyHours": "لم تُدخل أي ساعات بعد.",
       "endedNote": "انتهت عملية النشر هذه تم إدخال جميع الأشهر التي كان فيها العامل مُعيّنًا بالفعل.",
-      "recordSubInvoiceButton": "Record Sub Invoice",
-      "recordSubInvoiceModalTitle": "Record Sub Invoice",
-      "recordSubInvoiceModalMessage": "Upload the subcontractor's invoice for this month.",
-      "subcontractorInvoiceNumberLabel": "Sub Invoice Number",
-      "subcontractorInvoiceDateLabel": "Sub Invoice Date",
-      "subcontractorInvoiceDateTooEarly": "Invoice date cannot be earlier than the month it covers"
+      "recordSubInvoiceButton": "تسجيل فاتورة المقاول",
+      "recordSubInvoiceModalTitle": "تسجيل فاتورة المقاول {{month}}",
+      "recordSubInvoiceModalMessage": "أدخل رقم وتاريخ الفاتورة التي أرسلها المقاول عن هذا الشهر، وأرفق نسخة منها للمرجعية.",
+      "subcontractorInvoiceNumberLabel": "رقم فاتورة المقاول *",
+      "subcontractorInvoiceDateLabel": "تاريخ فاتورة المقاول *",
+      "subcontractorInvoiceDateTooEarly": "شهر {{month}} لم ينتهِ بعد اختر تاريخًا بعد انتهائه.",
+      "subInvoiceRecordedToast": "تم تسجيل فاتورة المقاول."
     },
     "panel": {
       "title": "النشر",
@@ -1903,58 +1965,106 @@
       "historyTitle": "سجل عمليات النشر"
     },
     "subPaymentsDue": {
-      "paymentRecordedToast": "Payment recorded.",
+      "paymentRecordedToast": "تم تسجيل الدفعة بانتظار الموافقة.",
       "columns": {
-        "subcontractor": "Subcontractor",
-        "invoiceCount": "Invoices",
-        "totalOutstanding": "Total Outstanding",
-        "due": "Due",
-        "worker": "Worker",
-        "month": "Month",
-        "invoice": "Invoice",
-        "invoiceAmount": "Invoice Amount",
-        "allocated": "Allocated",
-        "balance": "Balance"
+        "subcontractor": "المقاول",
+        "invoiceCount": "الفواتير المستحقة",
+        "totalOutstanding": "إجمالي المستحق",
+        "due": "الاستحقاق",
+        "worker": "العامل",
+        "month": "الشهر",
+        "invoice": "الفاتورة",
+        "invoiceAmount": "مبلغ الفاتورة",
+        "allocated": "المخصّص",
+        "balance": "الرصيد"
       },
-      "overdueBy": "Overdue by {{days}} days",
-      "dueInDays": "Due in {{days}} days",
-      "recordPaymentButton": "Record Payment",
-      "pageTitle": "Subcontractor Payments Due",
-      "pageDescription": "Invoiced subcontractor payments awaiting clearance.",
-      "reviewPendingButton": "Review Pending Payments",
-      "filterBySupplier": "Filter by supplier",
-      "allSuppliers": "All suppliers",
-      "couldNotLoad": "Could not load payments due",
-      "emptyTitle": "No payments due",
-      "emptyDescription": "All subcontractor invoices have been fully paid.",
-      "creditBalance": "Credit balance: {{amount}}",
-      "invoicesTitle": "Invoices",
-      "fullyPaid": "Fully Paid",
-      "paymentHistoryTitle": "Payment History",
-      "noPaymentsYet": "No payments yet.",
-      "statusPending": "Pending",
-      "statusApproved": "Approved",
-      "statusRejected": "Rejected",
-      "recordPaymentModalTitle": "Record Payment for {{subcontractor}}",
-      "recordPaymentModalMessage": "Record a bulk payment received from this subcontractor.",
-      "amountLabel": "Amount received *",
-      "paymentReferenceLabel": "Invoice / Reference #",
-      "paymentDateLabel": "Payment Date"
+      "overdueBy": "متأخر {{days}} يومًا",
+      "dueInDays": "يستحق خلال {{days}} يومًا",
+      "recordPaymentButton": "تسجيل دفعة",
+      "pageTitle": "مستحقات المقاولين",
+      "pageDescription": "كل مقاول لديه فاتورة مستحقة واحدة على الأقل، الأقرب استحقاقًا أولًا. تدفع الشركة للمقاول دفعة واحدة مجمّعة عن كل من يوفّرهم.",
+      "reviewPendingButton": "مراجعة المدفوعات المعلقة",
+      "filterBySupplier": "تصفية حسب المقاول من الباطن",
+      "allSuppliers": "كل المقاولين من الباطن",
+      "couldNotLoad": "تعذر تحميل مستحقات المقاولين",
+      "emptyTitle": "لا شيء مستحق",
+      "emptyDescription": "لا يوجد مقاول لديه فاتورة مستحقة حاليًا.",
+      "creditBalance": "لدى هذا المقاول رصيد دائن قدره {{amount}} سيُطبَّق تلقائيًا على فاتورته التالية.",
+      "invoicesTitle": "الفواتير",
+      "fullyPaid": "مسدّدة بالكامل",
+      "paymentHistoryTitle": "سجل الدفعات",
+      "noPaymentsYet": "لم تُسجَّل أي دفعة بعد.",
+      "statusPending": "بانتظار الاعتماد",
+      "statusApproved": "معتمدة",
+      "statusRejected": "مرفوضة",
+      "recordPaymentModalTitle": "تسجيل دفعة {{subcontractor}}",
+      "recordPaymentModalMessage": "أدخل إجمالي المبلغ المدفوع لهذا المقاول، مغطيًا جميع من يوفّرهم. سيحتاج ذلك إلى موافقة المدير المالي، ثم يُسدَّد تلقائيًا على أقدم الفواتير المستحقة أولًا.",
+      "amountLabel": "المبلغ المدفوع *",
+      "paymentReferenceLabel": "رقم الفاتورة / المرجع",
+      "paymentDateLabel": "تاريخ الدفع"
     },
     "paidSubInvoices": {
-      "statusPaid": "Paid",
-      "statusPartial": "Partial",
-      "title": "Paid Sub Invoices",
-      "subtitle": "Every payment received toward an invoice, across all subcontractors an invoice paid in installments appears as one row per payment. Click a row to expand financial details.",
-      "emptyTitle": "No paid sub invoices",
-      "emptyDescription": "No subcontractor payments have been recorded yet."
+      "statusPaid": "مدفوعة",
+      "statusPartial": "جزئية",
+      "title": "فواتير المقاولين المدفوعة",
+      "subtitle": "كل دفعة سُدّدت مقابل فاتورة مقاول؛ الفاتورة المدفوعة على أقساط تظهر مرة لكل دفعة. انقر على صف لعرض التفاصيل المالية.",
+      "emptyTitle": "لا توجد فواتير مقاولين مدفوعة",
+      "emptyDescription": "لم تُسجَّل أي دفعة لمقاول بعد."
     },
     "readyForSubInvoice": {
-      "pageTitle": "Ready for Sub Invoice",
-      "pageDescription": "Approved months waiting on a subcontractor invoice.",
-      "couldNotLoad": "Could not load ready for sub invoice",
-      "emptyTitle": "No pending sub invoices",
-      "emptyDescription": "There are no approved months waiting for a subcontractor invoice."
+      "pageTitle": "بانتظار فاتورة المقاول",
+      "pageDescription": "أشهر معتمدة بانتظار فاتورة من المقاول.",
+      "couldNotLoad": "تعذر تحميل القائمة",
+      "emptyTitle": "لا توجد فواتير مقاولين معلقة",
+      "emptyDescription": "لا توجد أشهر معتمدة بانتظار فاتورة من المقاول."
+    },
+    "paidInvoices": {
+      "title": "الفواتير المحصّلة",
+      "subtitle": "كل دفعة استُلمت مقابل فاتورة من جميع العملاء؛ الفاتورة المدفوعة على أقساط تظهر مرة لكل دفعة.",
+      "statusPaid": "مدفوعة",
+      "statusPartial": "جزئية",
+      "emptyTitle": "لا توجد فواتير مدفوعة",
+      "emptyDescription": "عندما يدفع العميل أي مبلغ مقابل فاتورة، جزئيًا أو كاملًا، ستظهر هنا."
+    },
+    "subPaymentsReview": {
+      "pageTitle": "قائمة اعتماد دفعات المقاولين",
+      "pageDescription": "الدفعات المسجَّلة للمقاولين بانتظار مراجعتك.",
+      "unknownSubcontractor": "مقاول غير معروف"
+    },
+    "breakdown": {
+      "client": "العميل",
+      "clientRate": "سعر العميل / ساعة",
+      "clientCommissionRate": "عمولة العميل / ساعة",
+      "invoiceAmount": "مبلغ الفاتورة",
+      "invoiceCommissionExpense": "مصروف عمولة الفاتورة",
+      "paid": "المدفوع",
+      "subcontractor": "المقاول من الباطن",
+      "subRate": "سعر المقاول / ساعة",
+      "subCommissionRate": "عمولة المقاول / ساعة",
+      "subHours": "ساعات جدول المقاول",
+      "notEnteredYet": "لم تُدخل بعد",
+      "subOtHours": "ساعات العمل الإضافي للمقاول",
+      "subInvoice": "فاتورة المقاول",
+      "subCommissionExpense": "مصروف عمولة المقاول",
+      "supplierDeduction": "خصم المورّد",
+      "expenses": "المصروفات",
+      "fta": "بدل الطعام والسفر والسكن",
+      "allowance": "البدل",
+      "clientDeduction": "خصم العميل",
+      "mobilisationCost": "تكلفة التعبئة",
+      "workerOtPay": "أجر العمل الإضافي للعامل",
+      "clientCommission": "عمولة العميل",
+      "subCommission": "عمولة المقاول",
+      "employeeSalary": "راتب الموظف",
+      "additionalAmount": "المبلغ الإضافي",
+      "totalExpenses": "إجمالي المصروفات",
+      "summary": "الملخص",
+      "actualHours": "الساعات الفعلية",
+      "otHours": "ساعات العمل الإضافي",
+      "clientInvoiceAmount": "مبلغ فاتورة العميل",
+      "netProfit": "صافي الربح",
+      "workerOtPayHint": "علاوة العمل الإضافي المدفوعة للعامل، فوق راتبه أو أجره الثابت.",
+      "workerOtPayHintSupplier": "تُدفع مباشرة للعامل؛ ليست جزءًا من فاتورة المورد."
     }
   },
   "staffMobilisations": {
@@ -2474,7 +2584,7 @@
       "pageDescription": "كل طلب أُغلق دون أن يتحول إلى نقل عامل محفوظ هنا للمراجعة، خارج اللوحة النشطة.",
       "backToBoard": "العودة إلى اللوحة",
       "totalCount": "طلب خاسر واحد",
-      "totalCount_other": "{{count}} طلبات خاسرة",
+      "totalCount_other": "{{count}} طلب خاسر",
       "searchPlaceholder": "ابحث بالعميل أو المسمى الوظيفي أو الرقم…",
       "couldNotLoad": "تعذر تحميل الطلبات الخاسرة",
       "emptyTitle": "لا توجد طلبات خاسرة",
@@ -2489,7 +2599,12 @@
         "neededBy": "مطلوب بحلول",
         "closedOn": "تاريخ الإغلاق",
         "daysChased": "أيام المتابعة"
-      }
+      },
+      "totalCount_zero": "{{count}} طلب خاسر",
+      "totalCount_one": "طلب خاسر واحد",
+      "totalCount_two": "طلبان خاسران",
+      "totalCount_few": "{{count}} طلبات خاسرة",
+      "totalCount_many": "{{count}} طلبًا خاسرًا"
     },
     "form": {
       "addTitle": "إضافة طلب",
@@ -2621,14 +2736,15 @@
       "Salaries-external": "رواتب خارجية",
       "Purchases": "المشتريات",
       "Utilities": "المرافق",
-      "Other": "أخرى"
+      "Other": "أخرى",
+      "Staff Reimbursement": "تعويض الموظفين"
     },
     "summaryBar": {
       "recordedIn": "المسجَّل في {{month}}"
     },
     "list": {
       "pageTitle": "المصروفات",
-      "pageDescription": "تكاليف الشركة الإيجار، الوقود، المشتريات، المرافق النصف الآخر من الربح إلى جانب الفواتير.",
+      "pageDescription": "تكاليف الشركة (الإيجار والوقود والمشتريات والمرافق)، النصف الآخر من الربح.",
       "addExpense": "إضافة مصروف",
       "searchPlaceholder": "البحث بالمورد أو الملاحظات…",
       "searchAriaLabel": "البحث في المصروفات",
@@ -2672,10 +2788,57 @@
         "receiptOptional": "الإيصال (اختياري)",
         "changeFile": "تغيير الملف",
         "chooseFile": "اختيار ملف",
-        "receiptHint": "PDF أو JPG أو PNG أو WEBP حتى {{maxMb}} ميجابايت."
+        "receiptHint": "PDF أو JPG أو PNG أو WEBP حتى {{maxMb}} ميجابايت.",
+        "deployment": "النشر",
+        "clientsPicker": "العملاء",
+        "deploymentsPicker": "عمليات النشر",
+        "checkFields": "تحقق من الحقول المميزة."
       },
       "deleteConfirmTitle": "حذف المصروف؟",
-      "deleteConfirmMessage": "سيتم حذف مصروف {{category}} من {{vendor}} ({{amount}}) نهائيًا."
+      "deleteConfirmMessage": "سيتم حذف مصروف {{category}} من {{vendor}} ({{amount}}) نهائيًا.",
+      "allCategories": "كل الفئات",
+      "claimLink": "مطالبة",
+      "claimLinkTitle": "عرض مطالبة الاسترداد الأصلية",
+      "duplicate": "تكرار",
+      "tabs": {
+        "ledger": "السجل",
+        "deploymentCosts": "تكاليف النشر"
+      }
+    },
+    "costs": {
+      "searchPlaceholder": "ابحث باسم العامل…",
+      "searchAriaLabel": "البحث في التعيينات باسم العامل",
+      "couldNotLoad": "تعذر تحميل عمليات النشر",
+      "noWorkerMatch": "لا يوجد عامل يطابق «{{search}}».",
+      "changeWorker": "تغيير العامل",
+      "noCostedMonthsTitle": "لا توجد أشهر محتسبة التكاليف بعد",
+      "noCostedMonthsDescription": "تظهر التكاليف هنا بعد أن يكون لهذا النشر شهر معتمد يحق لك الاطلاع عليه."
     }
+  },
+  "staffFinancial": {
+    "hours": "{{hours}} ساعة",
+    "entryCount": "الأشهر: {{count}}",
+    "paymentCount": "الدفعات: {{count}}",
+    "searchClientWorker": "ابحث بالعميل أو العامل…",
+    "searchSubWorker": "ابحث بالمقاول أو العامل…",
+    "searchClientWorkerInvoice": "ابحث بالعميل أو العامل أو الفاتورة…",
+    "searchSubWorkerInvoice": "ابحث بالمقاول أو العامل أو الفاتورة…",
+    "contractHours": "ساعات العقد",
+    "timesheetHours": "ساعات الجدول الزمني",
+    "invoiceAmount": "مبلغ الفاتورة",
+    "balance": "الرصيد",
+    "status": "الحالة",
+    "couldNotLoad": "تعذر التحميل",
+    "clientWorker": "العميل / العامل",
+    "subcontractorWorker": "المقاول / العامل",
+    "hoursHeader": "الساعات",
+    "month": "الشهر",
+    "approvedOn": "تاريخ الاعتماد",
+    "viewDeployment": "عرض تفاصيل التعيين",
+    "entryCountFiltered": "الأشهر: {{count}} (مُصفّاة)",
+    "paymentCountFiltered": "الدفعات: {{count}} (مُصفّاة)",
+    "balanceDue": "الرصيد المستحق",
+    "invoiceNumber": "رقم الفاتورة",
+    "paid": "المدفوع"
   }
 }

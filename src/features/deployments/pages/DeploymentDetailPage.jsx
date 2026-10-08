@@ -64,12 +64,15 @@ const HOURS_CAP_PER_DAY = 18;
 
 /** Mirrors deployment.service.js's own realPlacementDaysInMonth exactly, for
  *  immediate client-side feedback — the server re-checks this for real, this
- *  is purely so the "impossible hours" warning shows before a round trip. */
+ *  is purely so the "impossible hours" warning shows before a round trip.
+ *  Counted in UTC like the server (fixed 2026-10-08): the dates are stored as
+ *  UTC midnights, and building the month in the browser's local time (UTC+3)
+ *  lost a day, e.g. a 15 July start allowed 288h instead of 306h. */
 function realPlacementDaysInMonth(deployment, monthStr) {
   if (!monthStr || !/^\d{4}-\d{2}$/.test(monthStr)) return 31;
   const [year, month] = monthStr.split('-').map(Number);
-  const monthStart = new Date(year, month - 1, 1);
-  const monthEnd = new Date(year, month, 0);
+  const monthStart = new Date(Date.UTC(year, month - 1, 1));
+  const monthEnd = new Date(Date.UTC(year, month, 0));
   const placementStart = new Date(deployment.startDate);
   const placementEnd = deployment.endDate ? new Date(deployment.endDate) : monthEnd;
   const effectiveStart = placementStart > monthStart ? placementStart : monthStart;

@@ -296,7 +296,8 @@
     },
     "autoApprovedToast": "Leave request approved.",
     "submittedToast": "Leave request submitted for review.",
-    "cancelledToast": "Leave request cancelled."
+    "cancelledToast": "Leave request cancelled.",
+    "days_one": "{{count}} day"
   },
   "requests": {
     "title": "My requests",
@@ -320,7 +321,8 @@
       "cancelDialog": {
         "title": "Cancel advance request?",
         "message": "Your request for {{amount}} will be cancelled."
-      }
+      },
+      "overMonths_one": "Over {{count}} month"
     },
     "reimbursements": {
       "sectionTitle": "Claim an expense",
@@ -513,11 +515,15 @@
       "requirements": {
         "label": "Requirements",
         "description": "Client requirements moving from first request to mobilised."
+      },
+      "standby": {
+        "label": "Standby List",
+        "description": "Workers waiting for an assignment."
       }
     },
     "financial": {
       "label": "Financial",
-      "description": "Payroll, expenses, and internal financial requests.",
+      "description": "Client and subcontractor billing, expenses, and internal financial requests.",
       "readyToInvoice": {
         "label": "Ready to Invoice",
         "description": "Approved months waiting on a client invoice."
@@ -537,6 +543,22 @@
       "financialRequests": {
         "label": "Financial Requests",
         "description": "Salary advances and reimbursements."
+      },
+      "paidInvoices": {
+        "label": "Received invoices",
+        "description": "Invoice payment history, full and partial."
+      },
+      "readyForSubInvoice": {
+        "label": "Sub invoices received",
+        "description": "Approved months waiting on a subcontractor invoice."
+      },
+      "subPaymentsDue": {
+        "label": "Sub Payments Due",
+        "description": "Invoiced subcontractor payments awaiting clearance."
+      },
+      "paidSubInvoices": {
+        "label": "Paid Sub Invoices",
+        "description": "Subcontractor payment history, full and partial."
       }
     },
     "admin": {
@@ -548,7 +570,7 @@
       },
       "sectionAccess": {
         "label": "Section Access",
-        "description": "Which roles or approval roles can open Payroll, Expenses, and other governed sections."
+        "description": "Which approval roles can open Expenses, EOSB, and other governed sections."
       },
       "documents": {
         "label": "Documents",
@@ -592,7 +614,7 @@
       },
       "reconciliation": {
         "label": "Data Reconciliation",
-        "description": "A standing integrity check across ledgers, payroll, and deployments."
+        "description": "A standing integrity check across ledgers and deployments."
       },
       "coordinatorActivity": {
         "label": "Coordinator Activity",
@@ -786,7 +808,8 @@
       "title": "6-month revenue ({{start}} – {{end}})",
       "hitBadge": "Target hit",
       "incentiveEarned": "{{amount}} incentive earned ({{percent}}% of net profit on the excess)"
-    }
+    },
+    "clientsWaitingApproval_one": "{{count}} client waiting for approval"
   },
   "staffEmployees": {
     "list": {
@@ -1260,7 +1283,8 @@
       "Resignation": "Resignation",
       "TerminationByEmployer": "Termination by employer",
       "EndOfContract": "End of contract",
-      "SponsorshipTransfer": "Sponsorship transfer (Tanazel)"
+      "SponsorshipTransfer": "Sponsorship transfer (Tanazel)",
+      "CurrentEmployee": "Current employee (simulation)"
     },
     "list": {
       "pageTitle": "End of service settlements",
@@ -1294,7 +1318,8 @@
         "Resignation": "The worker is leaving on their own terms Article 85 tiering by length of service applies.",
         "TerminationByEmployer": "The company is ending the contract full award, no reduction.",
         "EndOfContract": "The contract term ended and wasn't renewed full award, no reduction.",
-        "SponsorshipTransfer": "The worker's sponsorship is transferring to another employer full award, no reduction. Confirm this treatment with your HR/legal advisor if unsure."
+        "SponsorshipTransfer": "The worker's sponsorship is transferring to another employer full award, no reduction. Confirm this treatment with your HR/legal advisor if unsure.",
+        "CurrentEmployee": "A what-if calculation for someone still employed; it doesn’t end their employment."
       }
     },
     "view": {
@@ -1613,7 +1638,8 @@
         "hoursThisMonth": "Hours worked this month",
         "otAmountThisMonth": "OT amount this month",
         "totalAmountThisMonth": "Total amount this month",
-        "totalProfitPerMonth": "Total profit per month"
+        "totalProfitPerMonth": "Total profit per month",
+        "recordedExpenses": "Expenses"
       }
     },
     "standby": {
@@ -1656,7 +1682,8 @@
         "month": "Month",
         "invoice": "Invoice",
         "allocated": "Allocated",
-        "balance": "Balance"
+        "balance": "Balance",
+        "invoiceAmount": "Invoice amount"
       },
       "overdueBy": "{{days}} days overdue",
       "dueInDays": "Due in {{days}} days",
@@ -1676,7 +1703,9 @@
       "recordPaymentModalTitle": "Record payment {{client}}",
       "recordPaymentModalMessage": "Enter the total amount this client has actually paid, covering everyone placed there. It will need Financial Manager approval, then automatically settle their oldest outstanding invoices first.",
       "amountLabel": "Amount received *",
-      "paymentRecordedToast": "Payment recorded awaiting approval."
+      "paymentRecordedToast": "Payment recorded awaiting approval.",
+      "paymentReferenceLabel": "Invoice / reference #",
+      "paymentDateLabel": "Payment date"
     },
     "readyToInvoice": {
       "pageTitle": "Ready to invoice",
@@ -1831,9 +1860,9 @@
       "invoiceFileLabel": "Invoice File",
       "chooseFile": "Choose file",
       "changeFile": "Change file",
-      "invoiceFileTooLarge": "Invoice file is too large",
+      "invoiceFileTooLarge": "Invoice file is too large (maximum {{maxMb}} MB).",
       "downloadInvoiceButton": "Download invoice",
-      "invoiceSentToast": "Sub Invoice recorded.",
+      "invoiceSentToast": "Invoice recorded.",
       "totalProfit": "Total profit",
       "sectionExpenses": "Expenses",
       "expensesHint": "Real operational costs against this deployment fuel, accommodation, and the like plus its own Approved-timesheet Revenue/Expenses/Net Profit below.",
@@ -1888,11 +1917,12 @@
       "noMonthlyHours": "No hours entered yet.",
       "endedNote": "This deployment has ended every month it was actually placed for has already been entered.",
       "recordSubInvoiceButton": "Record Sub Invoice",
-      "recordSubInvoiceModalTitle": "Record Sub Invoice",
-      "recordSubInvoiceModalMessage": "Upload the subcontractor's invoice for this month.",
-      "subcontractorInvoiceNumberLabel": "Sub Invoice Number",
-      "subcontractorInvoiceDateLabel": "Sub Invoice Date",
-      "subcontractorInvoiceDateTooEarly": "Invoice date cannot be earlier than the month it covers"
+      "recordSubInvoiceModalTitle": "Record subcontractor invoice {{month}}",
+      "recordSubInvoiceModalMessage": "Enter the number and date of the invoice the subcontractor sent for this month, and attach a copy for reference.",
+      "subcontractorInvoiceNumberLabel": "Sub invoice number *",
+      "subcontractorInvoiceDateLabel": "Sub invoice date *",
+      "subcontractorInvoiceDateTooEarly": "{{month}} hasn’t finished yet; pick a date after it ends.",
+      "subInvoiceRecordedToast": "Subcontractor invoice recorded."
     },
     "panel": {
       "title": "Deployment",
@@ -1903,7 +1933,7 @@
       "historyTitle": "Deployment history"
     },
     "subPaymentsDue": {
-      "paymentRecordedToast": "Payment recorded.",
+      "paymentRecordedToast": "Payment recorded, awaiting approval.",
       "columns": {
         "subcontractor": "Subcontractor",
         "invoiceCount": "Invoices",
@@ -1920,14 +1950,14 @@
       "dueInDays": "Due in {{days}} days",
       "recordPaymentButton": "Record Payment",
       "pageTitle": "Subcontractor Payments Due",
-      "pageDescription": "Invoiced subcontractor payments awaiting clearance.",
+      "pageDescription": "Every subcontractor with at least one outstanding invoice, soonest-due first. This company pays a subcontractor in bulk for everyone they supply.",
       "reviewPendingButton": "Review Pending Payments",
       "filterBySupplier": "Filter by supplier",
       "allSuppliers": "All suppliers",
       "couldNotLoad": "Could not load payments due",
       "emptyTitle": "No payments due",
-      "emptyDescription": "All subcontractor invoices have been fully paid.",
-      "creditBalance": "Credit balance: {{amount}}",
+      "emptyDescription": "No subcontractor currently has an outstanding invoice.",
+      "creditBalance": "This subcontractor has a {{amount}} credit balance; it applies automatically to their next invoice.",
       "invoicesTitle": "Invoices",
       "fullyPaid": "Fully Paid",
       "paymentHistoryTitle": "Payment History",
@@ -1936,8 +1966,8 @@
       "statusApproved": "Approved",
       "statusRejected": "Rejected",
       "recordPaymentModalTitle": "Record Payment for {{subcontractor}}",
-      "recordPaymentModalMessage": "Record a bulk payment received from this subcontractor.",
-      "amountLabel": "Amount received *",
+      "recordPaymentModalMessage": "Enter the total amount paid to this subcontractor, covering everyone they supply. It needs Financial Manager approval, then settles their oldest outstanding invoices first.",
+      "amountLabel": "Amount paid *",
       "paymentReferenceLabel": "Invoice / Reference #",
       "paymentDateLabel": "Payment Date"
     },
@@ -1945,7 +1975,7 @@
       "statusPaid": "Paid",
       "statusPartial": "Partial",
       "title": "Paid Sub Invoices",
-      "subtitle": "Every payment received toward an invoice, across all subcontractors an invoice paid in installments appears as one row per payment. Click a row to expand financial details.",
+      "subtitle": "Every payment made toward a subcontractor invoice; an invoice paid in instalments appears once per payment. Click a row for the financial details.",
       "emptyTitle": "No paid sub invoices",
       "emptyDescription": "No subcontractor payments have been recorded yet."
     },
@@ -1955,6 +1985,54 @@
       "couldNotLoad": "Could not load ready for sub invoice",
       "emptyTitle": "No pending sub invoices",
       "emptyDescription": "There are no approved months waiting for a subcontractor invoice."
+    },
+    "paidInvoices": {
+      "title": "Received invoices",
+      "subtitle": "Every payment received toward an invoice, across all clients; an invoice paid in instalments appears once per payment.",
+      "statusPaid": "Paid",
+      "statusPartial": "Partial",
+      "emptyTitle": "No paid invoices found",
+      "emptyDescription": "Once a client pays anything toward an invoice, in part or in full, it will appear here."
+    },
+    "subPaymentsReview": {
+      "pageTitle": "Subcontractor Payments Approval Queue",
+      "pageDescription": "Recorded payments to subcontractors awaiting your review.",
+      "unknownSubcontractor": "Unknown subcontractor"
+    },
+    "breakdown": {
+      "client": "Client",
+      "clientRate": "Client rate / hr",
+      "clientCommissionRate": "Client commission / hr",
+      "invoiceAmount": "Invoice amount",
+      "invoiceCommissionExpense": "Invoice commission expense",
+      "paid": "Paid",
+      "subcontractor": "Subcontractor",
+      "subRate": "Sub rate / hr",
+      "subCommissionRate": "Sub commission / hr",
+      "subHours": "Sub timesheet hours",
+      "notEnteredYet": "Not entered yet",
+      "subOtHours": "Sub OT hours",
+      "subInvoice": "Sub invoice",
+      "subCommissionExpense": "Sub commission expense",
+      "supplierDeduction": "Supplier deduction",
+      "expenses": "Expenses",
+      "fta": "FTA",
+      "allowance": "Allowance",
+      "clientDeduction": "Client deduction",
+      "mobilisationCost": "Mobilisation cost",
+      "workerOtPay": "Worker OT pay",
+      "clientCommission": "Client commission",
+      "subCommission": "Sub commission",
+      "employeeSalary": "Employee salary",
+      "additionalAmount": "Additional amount",
+      "totalExpenses": "Total expenses",
+      "summary": "Summary",
+      "actualHours": "Actual hours",
+      "otHours": "OT hours",
+      "clientInvoiceAmount": "Client invoice amount",
+      "netProfit": "Net profit",
+      "workerOtPayHint": "OT premium paid to the worker, on top of their fixed salary or rate.",
+      "workerOtPayHintSupplier": "Paid directly to the worker; not part of the supplier invoice."
     }
   },
   "staffMobilisations": {
@@ -2489,7 +2567,8 @@
         "neededBy": "Needed by",
         "closedOn": "Closed on",
         "daysChased": "Days chased"
-      }
+      },
+      "totalCount_one": "{{count}} lost requirement"
     },
     "form": {
       "addTitle": "Add requirement",
@@ -2618,17 +2697,18 @@
     "categoryLabels": {
       "Rent": "Rent",
       "Fuel": "Fuel",
-      "Salaries-external": "Salaries-external",
+      "Salaries-external": "Salaries (external)",
       "Purchases": "Purchases",
       "Utilities": "Utilities",
-      "Other": "Other"
+      "Other": "Other",
+      "Staff Reimbursement": "Staff reimbursement"
     },
     "summaryBar": {
       "recordedIn": "Recorded in {{month}}"
     },
     "list": {
       "pageTitle": "Expenses",
-      "pageDescription": "Company costs rent, fuel, purchases, utilities the other half of profit alongside invoices.",
+      "pageDescription": "Company costs (rent, fuel, purchases, utilities), the other half of profit.",
       "addExpense": "Add expense",
       "searchPlaceholder": "Search vendor or notes…",
       "searchAriaLabel": "Search expenses",
@@ -2672,10 +2752,57 @@
         "receiptOptional": "Receipt (optional)",
         "changeFile": "Change file",
         "chooseFile": "Choose file",
-        "receiptHint": "PDF, JPG, PNG, or WEBP up to {{maxMb}} MB."
+        "receiptHint": "PDF, JPG, PNG, or WEBP up to {{maxMb}} MB.",
+        "deployment": "Deployment",
+        "clientsPicker": "clients",
+        "deploymentsPicker": "deployments",
+        "checkFields": "Check the highlighted fields."
       },
       "deleteConfirmTitle": "Delete expense?",
-      "deleteConfirmMessage": "The {{category}} expense from {{vendor}} ({{amount}}) will be permanently removed."
+      "deleteConfirmMessage": "The {{category}} expense from {{vendor}} ({{amount}}) will be permanently removed.",
+      "allCategories": "All categories",
+      "claimLink": "Claim",
+      "claimLinkTitle": "View the original reimbursement claim",
+      "duplicate": "Duplicate",
+      "tabs": {
+        "ledger": "Ledger",
+        "deploymentCosts": "Deployment costs"
+      }
+    },
+    "costs": {
+      "searchPlaceholder": "Search by worker name…",
+      "searchAriaLabel": "Search deployments by worker name",
+      "couldNotLoad": "Could not load deployments",
+      "noWorkerMatch": "No worker matches “{{search}}”.",
+      "changeWorker": "Change worker",
+      "noCostedMonthsTitle": "No costed months yet",
+      "noCostedMonthsDescription": "Costs appear here once this deployment has an approved month you have access to view."
     }
+  },
+  "staffFinancial": {
+    "hours": "{{hours}} hrs",
+    "entryCount": "Months: {{count}}",
+    "paymentCount": "Payments: {{count}}",
+    "searchClientWorker": "Search client, worker…",
+    "searchSubWorker": "Search subcontractor, worker…",
+    "searchClientWorkerInvoice": "Search client, worker, invoice…",
+    "searchSubWorkerInvoice": "Search subcontractor, worker, invoice…",
+    "contractHours": "Contract hours",
+    "timesheetHours": "Timesheet hours",
+    "invoiceAmount": "Invoice amount",
+    "balance": "Balance",
+    "status": "Status",
+    "couldNotLoad": "Could not load",
+    "clientWorker": "Client / Worker",
+    "subcontractorWorker": "Subcontractor / Worker",
+    "hoursHeader": "Hours",
+    "month": "Month",
+    "approvedOn": "Approved on",
+    "viewDeployment": "View deployment details",
+    "entryCountFiltered": "Months: {{count}} (filtered)",
+    "paymentCountFiltered": "Payments: {{count}} (filtered)",
+    "balanceDue": "Balance due",
+    "invoiceNumber": "Invoice #",
+    "paid": "Paid"
   }
 }

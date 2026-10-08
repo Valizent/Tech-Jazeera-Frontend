@@ -6,6 +6,7 @@
  * payments/PDF), just records.
  */
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useNavigate, Link } from 'react-router-dom';
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '../../auth/AuthContext.jsx';
@@ -27,6 +28,7 @@ import DeploymentCostsTab from '../components/DeploymentCostsTab.jsx';
 import Tabs, { useTabParam } from '../../../components/ui/Tabs.jsx';
 
 function SummaryBar() {
+  const { t, i18n } = useTranslation();
   const { data, isPending } = useQuery({
     queryKey: ['expenses', 'summary'],
     queryFn: () => getExpenseSummary({}),
@@ -35,19 +37,19 @@ function SummaryBar() {
   if (isPending) return <Skeleton className="h-24 w-full" />;
   if (!data) return null;
 
-  const monthLabel = new Date(data.from).toLocaleDateString('en-GB', { month: 'long', year: 'numeric' });
+  const monthLabel = new Date(data.from).toLocaleDateString(i18n.language, { month: 'long', year: 'numeric' });
 
   return (
     <Card className="mb-6">
       <div className="flex flex-wrap items-baseline justify-between gap-2">
-        <h2 className="text-sm font-semibold uppercase tracking-wide text-muted">Recorded in {monthLabel}</h2>
+        <h2 className="text-sm font-semibold uppercase tracking-wide text-muted">{t('staffExpenses.summaryBar.recordedIn', { month: monthLabel })}</h2>
         <span className="text-2xl font-semibold tabular-nums text-text">{formatMoney(data.total)}</span>
       </div>
       {data.byCategory.length > 0 && (
         <div className="mt-4 flex flex-wrap gap-x-6 gap-y-2 text-sm">
           {data.byCategory.map((c) => (
             <span key={c.category} className="flex items-center gap-1.5 text-muted">
-              <span className="text-text">{c.category}</span>
+              <span className="text-text">{t(`staffExpenses.categoryLabels.${c.category}`)}</span>
               <span className="tabular-nums">{formatMoney(c.total)}</span>
             </span>
           ))}
@@ -58,6 +60,8 @@ function SummaryBar() {
 }
 
 export default function ExpenseListPage() {
+  const { t } = useTranslation();
+  const L = (key, options) => t(`staffExpenses.list.${key}`, options);
   const navigate = useNavigate();
   const toast = useToast();
   const queryClient = useQueryClient();
@@ -73,10 +77,10 @@ export default function ExpenseListPage() {
   const [toDelete, setToDelete] = useState(null);
 
   useEffect(() => {
-    const t = setTimeout(() => {
+    const timer = setTimeout(() => {
       setParams((p) => (p.search === search ? p : { ...p, search, page: 1 }));
     }, 300);
-    return () => clearTimeout(t);
+    return () => clearTimeout(timer);
   }, [search]);
 
   const { data, isPending, isError, error, refetch } = useQuery({
@@ -96,11 +100,14 @@ export default function ExpenseListPage() {
   const deleteMutation = useMutation({
     mutationFn: (id) => deleteExpense(id),
     onSuccess: () => {
-      toast.success(`Expense from ${toDelete.vendor} removed.`);
+      toast.success(L('removedToast', { vendor: toDelete.vendor }));
       setToDelete(null);
       queryClient.invalidateQueries({ queryKey: ['expenses'] });
     },
-    onError: (error) => toast.error(apiMessage(error)),
+    onError: (error) => {
+      console.error('[expenses] delete failed', error);
+      toast.error(apiMessage(error));
+    },
   });
 
   // Recurring expenses (rent, subscriptions, ...) get re-typed every month —
@@ -131,41 +138,41 @@ export default function ExpenseListPage() {
     try {
       await downloadExpenseReceipt(expense._id, expense.receipt.originalName);
     } catch (error) {
-      toast.error(apiMessage(error, 'Could not download the receipt.'));
+      toast.error(apiMessage(error, L('receiptDownloadFailedToast')));
     }
   }
 
   const columns = [
-    { key: 'date', header: 'Date', render: (e) => formatDate(e.date) },
+    { key: 'date', header: L('columns.date'), render: (e) => formatDate(e.date) },
     {
       key: 'category',
-      header: 'Category',
+      header: L('columns.category'),
       render: (e) => (
         <span className="flex items-center gap-1.5">
-          {e.category}
+          {t(`staffExpenses.categoryLabels.${e.category}`)}
           {e.sourceReimbursement && (
             <Link
               to={`/financial-requests?tab=reimbursements&claim=${e.sourceReimbursement}`}
               className="rounded-full bg-primary/10 px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-wide text-primary hover:bg-primary/20"
-              title="View the original reimbursement claim"
+              title={L('claimLinkTitle')}
             >
-              Claim
+              {L('claimLink')}
             </Link>
           )}
         </span>
       ),
     },
-    { key: 'vendor', header: 'Vendor', render: (e) => e.vendor },
-    { key: 'client', header: 'Client', hideOnMobile: true, render: (e) => e.clientName ?? '' },
-    { key: 'amount', header: 'Amount', className: 'text-right', render: (e) => <span className="tabular-nums">{formatMoney(e.amount)}</span> },
+    { key: 'vendor', header: L('columns.vendor'), render: (e) => e.vendor },
+    { key: 'client', header: L('columns.client'), hideOnMobile: true, render: (e) => e.clientName ?? '' },
+    { key: 'amount', header: L('columns.amount'), className: 'text-end', render: (e) => <span className="tabular-nums">{formatMoney(e.amount)}</span> },
     {
       key: 'receipt',
-      header: 'Receipt',
+      header: L('columns.receipt'),
       hideOnMobile: true,
       render: (e) =>
         e.receipt ? (
           <Button size="sm" variant="ghost" onClick={() => handleDownload(e)}>
-            Download
+            {t('common.download')}
           </Button>
         ) : (
           <span className="text-muted"></span>
@@ -174,19 +181,19 @@ export default function ExpenseListPage() {
     {
       key: 'actions',
       header: '',
-      className: 'text-right',
+      className: 'text-end',
       render: (e) =>
         canWrite ? (
           <span className="flex justify-end gap-2">
             <Button size="sm" variant="ghost" onClick={() => openEdit(e)}>
-              Edit
+              {t('common.edit')}
             </Button>
             <Button size="sm" variant="ghost" onClick={() => openDuplicate(e)}>
-              Duplicate
+              {L('duplicate')}
             </Button>
             {!e.sourceReimbursement && (
               <Button size="sm" variant="danger-ghost" onClick={() => setToDelete(e)}>
-                Delete
+                {t('common.delete')}
               </Button>
             )}
           </span>
@@ -199,29 +206,29 @@ export default function ExpenseListPage() {
   const tabs = [
     {
       key: 'ledger',
-      label: 'Ledger',
+      label: L('tabs.ledger'),
       content: (
         <>
           <SummaryBar />
 
       <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-end">
         <Input
-          placeholder="Search vendor or notes…"
+          placeholder={L('searchPlaceholder')}
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           className="sm:max-w-xs"
-          aria-label="Search expenses"
+          aria-label={L('searchAriaLabel')}
         />
         <Select
           value={params.category}
           onChange={(e) => setParams((p) => ({ ...p, category: e.target.value, page: 1 }))}
           className="sm:max-w-[180px]"
-          aria-label="Filter by category"
+          aria-label={L('filterCategoryAriaLabel')}
         >
-          <option value="">All categories</option>
+          <option value="">{L('allCategories')}</option>
           {EXPENSE_CATEGORIES.map((c) => (
             <option key={c} value={c}>
-              {c}
+              {t(`staffExpenses.categoryLabels.${c}`)}
             </option>
           ))}
         </Select>
@@ -230,22 +237,22 @@ export default function ExpenseListPage() {
           value={params.from}
           onChange={(e) => setParams((p) => ({ ...p, from: e.target.value, page: 1 }))}
           className="sm:max-w-[160px]"
-          aria-label="From date"
+          aria-label={L('fromDateAriaLabel')}
         />
         <Input
           type="date"
           value={params.to}
           onChange={(e) => setParams((p) => ({ ...p, to: e.target.value, page: 1 }))}
           className="sm:max-w-[160px]"
-          aria-label="To date"
+          aria-label={L('toDateAriaLabel')}
         />
       </div>
 
       {isError ? (
         <EmptyState
-          title="You don't have access to this page"
-          description={apiMessage(error) || 'Expenses can only be opened by whoever an Admin has granted access.'}
-          action={<Button variant="secondary" onClick={() => refetch()}>Retry</Button>}
+          title={L('noAccessTitle')}
+          description={apiMessage(error) || L('noAccessDefaultDescription')}
+          action={<Button variant="secondary" onClick={() => refetch()}>{t('common.retry')}</Button>}
         />
       ) : (
         <>
@@ -256,9 +263,9 @@ export default function ExpenseListPage() {
             loading={isPending}
             emptyState={
               <EmptyState
-                title={noFilters ? 'No expenses recorded yet' : 'No expenses match'}
-                description={noFilters ? 'Record your first company expense above.' : 'Try clearing the search or filters.'}
-                action={noFilters && canWrite && <Button variant="secondary" onClick={openNew}>Add expense</Button>}
+                title={noFilters ? L('emptyTitleNoFilters') : L('emptyTitleFiltered')}
+                description={noFilters ? L('emptyDescriptionNoFilters') : t('common.tryClearingFilters')}
+                action={noFilters && canWrite && <Button variant="secondary" onClick={openNew}>{L('addExpense')}</Button>}
               />
             }
           />
@@ -266,17 +273,17 @@ export default function ExpenseListPage() {
           {data && data.total > 0 && (
             <div className="mt-4 flex items-center justify-between text-sm text-muted">
               <span>
-                Showing {(data.page - 1) * params.limit + 1}–{Math.min(data.page * params.limit, data.total)} of {data.total}
+                {t('common.showingRange', { from: (data.page - 1) * params.limit + 1, to: Math.min(data.page * params.limit, data.total), total: data.total })}
               </span>
               <span className="flex items-center gap-2">
                 <Button size="sm" variant="secondary" disabled={data.page <= 1} onClick={() => setParams((p) => ({ ...p, page: p.page - 1 }))}>
-                  Previous
+                  {t('common.previous')}
                 </Button>
                 <span className="tabular-nums">
-                  {data.page} / {data.pages}
+                  {t('common.pageOf', { page: data.page, pages: data.pages })}
                 </span>
                 <Button size="sm" variant="secondary" disabled={data.page >= data.pages} onClick={() => setParams((p) => ({ ...p, page: p.page + 1 }))}>
-                  Next
+                  {t('common.next')}
                 </Button>
               </span>
             </div>
@@ -291,7 +298,7 @@ export default function ExpenseListPage() {
       // choice) — never a new Expense record, see DeploymentCostsTab's own
       // doc comment for why.
       key: 'deployment-costs',
-      label: 'Deployment Costs',
+      label: L('tabs.deploymentCosts'),
       content: <DeploymentCostsTab />,
     },
   ];
@@ -300,15 +307,15 @@ export default function ExpenseListPage() {
   return (
     <div className="mx-auto max-w-[1600px]">
       <PageHeader
-        title="Expenses"
-        description="Company costs rent, fuel, purchases, utilities the other half of profit alongside invoices."
+        title={L('pageTitle')}
+        description={L('pageDescription')}
         onBack={() => navigate(-1)}
         actions={
           tab === 'ledger' &&
           !isError &&
           canWrite && (
             <Button size="sm" onClick={openNew}>
-              Add expense
+              {L('addExpense')}
             </Button>
           )
         }
@@ -320,8 +327,8 @@ export default function ExpenseListPage() {
 
       <ConfirmDialog
         open={Boolean(toDelete)}
-        title="Delete expense?"
-        message={`The ${toDelete?.category} expense from ${toDelete?.vendor} (${toDelete ? formatMoney(toDelete.amount) : ''}) will be permanently removed.`}
+        title={L('deleteConfirmTitle')}
+        message={toDelete ? L('deleteConfirmMessage', { category: t(`staffExpenses.categoryLabels.${toDelete.category}`), vendor: toDelete.vendor, amount: formatMoney(toDelete.amount) }) : ''}
         loading={deleteMutation.isPending}
         onConfirm={() => deleteMutation.mutate(toDelete._id)}
         onCancel={() => setToDelete(null)}

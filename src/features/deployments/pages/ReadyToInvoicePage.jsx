@@ -1,8 +1,15 @@
+/**
+ * ReadyToInvoicePage — every Approved month still waiting on an invoice,
+ * oldest first. `side` picks the money flow (see financialSides.js): 'client'
+ * is Ready to Invoice (this company invoices the client), 'subcontractor' is
+ * Sub invoices received (record the invoice a subcontractor sent us). Click a
+ * row for its full financial breakdown.
+ */
 import { useRef, useState, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { getReadyToInvoice, sendInvoice } from '../deployments.api.js';
+import { FINANCIAL_SIDES } from '../financialSides.js';
 import { RECEIPT_ACCEPT, RECEIPT_MAX_MB } from '../../../lib/constants.js';
 import { apiMessage, formatDate, formatMoney } from '../../../lib/utils.js';
 import { useToast } from '../../../components/ui/Toast.jsx';
@@ -17,11 +24,11 @@ import MonthlyEntryBreakdownPanel from '../components/MonthlyEntryBreakdown.jsx'
 
 /** The earliest a real invoice for `monthStr` ('YYYY-MM') could exist: the
  *  1st of the FOLLOWING month — the month has to actually finish, with a
- *  real client timesheet entered and its hours approved, before an invoice
- *  date for it makes sense (2026-10-03, a real user-reported gap: nothing
- *  stopped picking a date before the invoiced month had even started).
- *  Mirrors the server's own check in deployment.service.js's sendInvoice —
- *  this is just the immediate UI feedback, not the real enforcement. */
+ *  real timesheet entered and its hours approved, before an invoice date for
+ *  it makes sense (2026-10-03, a real user-reported gap: nothing stopped
+ *  picking a date before the invoiced month had even started). Mirrors the
+ *  server's own check in sendInvoice/recordSubInvoice — this is just the
+ *  immediate UI feedback, not the real enforcement. */
 function earliestInvoiceDateFor(monthStr) {
   const [year, month] = monthStr.split('-').map(Number);
   // Built as plain string arithmetic, deliberately not via Date/toISOString
@@ -34,39 +41,41 @@ function earliestInvoiceDateFor(monthStr) {
   return `${nextYear}-${String(nextMonth).padStart(2, '0')}-01`;
 }
 
-function ReadyToInvoiceRow({ row, isOpen, onToggle, onSendInvoice, t, navigate }) {
+const today = () => new Date().toISOString().split('T')[0];
+
+function ReadyToInvoiceRow({ row, side, isOpen, onToggle, onInvoice, t, navigate }) {
   return (
     <>
       <tr
         className="group transition-all duration-200 drop-shadow-sm hover:-translate-y-px cursor-pointer"
         onClick={onToggle}
       >
-        <td className="px-4 py-3 align-middle bg-surface border-y border-l border-border/40 rounded-l-xl group-hover:border-primary/30 transition-colors">
-          <div className="font-semibold text-text text-sm">{row.clientName}</div>
+        <td className="px-4 py-3 align-middle bg-surface border-y border-s border-border/40 rounded-s-xl group-hover:border-primary/30 transition-colors">
+          <div className="font-semibold text-text text-sm">{side.partyName(row)}</div>
           <div className="text-xs text-muted mt-0.5">{row.workerName}</div>
         </td>
         <td className="px-4 py-3 align-middle bg-surface border-y border-border/40 group-hover:border-primary/30 transition-colors">
           <span className="text-sm text-text font-medium">{row.month}</span>
         </td>
         <td className="px-4 py-3 align-middle bg-surface border-y border-border/40 group-hover:border-primary/30 transition-colors">
-          <span className="text-sm text-text">{row.actualHours} hrs</span>
+          <span className="text-sm text-text">{t('staffFinancial.hours', { hours: row.actualHours })}</span>
         </td>
         <td className="px-4 py-3 align-middle bg-surface border-y border-border/40 group-hover:border-primary/30 transition-colors">
-          <span className="text-sm font-semibold text-primary">{formatMoney(row.revenue)}</span>
+          <span className="text-sm font-semibold text-primary">{formatMoney(side.readyAmount(row) ?? 0)}</span>
         </td>
         <td className="px-4 py-3 align-middle bg-surface border-y border-border/40 group-hover:border-primary/30 transition-colors">
           <span className="text-sm text-muted">{row.hoursApprovedAt ? formatDate(row.hoursApprovedAt) : ''}</span>
         </td>
-        <td className="px-4 py-3 align-middle text-right bg-surface border-y border-r border-border/40 rounded-r-xl group-hover:border-primary/30 transition-colors">
+        <td className="px-4 py-3 align-middle text-end bg-surface border-y border-e border-border/40 rounded-e-xl group-hover:border-primary/30 transition-colors">
           <div className="flex items-center justify-end gap-3">
             <Button
               size="sm"
               onClick={(e) => {
                 e.stopPropagation();
-                onSendInvoice(row);
+                onInvoice(row);
               }}
             >
-              {t('staffDeployments.detail.sendInvoiceButton', 'Send invoice')}
+              {t(side.invoiceButtonKey)}
             </Button>
             <svg
               viewBox="0 0 24 24"
@@ -95,7 +104,7 @@ function ReadyToInvoiceRow({ row, isOpen, onToggle, onSendInvoice, t, navigate }
                     navigate(`/deployments/${row.deploymentId}`);
                   }}
                 >
-                  View Deployment Details
+                  {t('staffFinancial.viewDeployment')}
                 </Button>
               </div>
             </MonthlyEntryBreakdownPanel>
@@ -106,38 +115,39 @@ function ReadyToInvoiceRow({ row, isOpen, onToggle, onSendInvoice, t, navigate }
   );
 }
 
-export default function ReadyToInvoicePage() {
+export default function ReadyToInvoicePage({ side: sideName }) {
+  const side = FINANCIAL_SIDES[sideName];
   const { t } = useTranslation();
   const navigate = useNavigate();
   const toast = useToast();
   const queryClient = useQueryClient();
 
   const [invoicingEntry, setInvoicingEntry] = useState(null);
-  const [invoiceNumberInput, setInvoiceNumberInput] = useState('AJSCO-');
-  const [invoiceDateInput, setInvoiceDateInput] = useState(() => new Date().toISOString().split('T')[0]);
+  const [invoiceNumberInput, setInvoiceNumberInput] = useState(side.invoiceNumberPrefix);
+  const [invoiceDateInput, setInvoiceDateInput] = useState(today);
   const [invoiceFile, setInvoiceFile] = useState(null);
   const invoiceFileInputRef = useRef(null);
-  
+
   const [search, setSearch] = useState('');
   const [openRowId, setOpenRowId] = useState(null);
 
   const { data = [], isPending, isError } = useQuery({
-    queryKey: ['deployments', 'ready-to-invoice'],
-    queryFn: getReadyToInvoice,
+    queryKey: side.readyKey,
+    queryFn: side.getReady,
   });
 
   const filteredRows = useMemo(() => {
     if (!search.trim()) return data;
     const lower = search.toLowerCase();
     return data.filter((r) =>
-      (r.clientName && r.clientName.toLowerCase().includes(lower)) ||
-      (r.workerName && r.workerName.toLowerCase().includes(lower))
+      side.partyName(r)?.toLowerCase().includes(lower) ||
+      r.workerName?.toLowerCase().includes(lower)
     );
-  }, [data, search]);
+  }, [data, search, side]);
 
   function resetInvoiceForm() {
-    setInvoiceNumberInput('AJSCO-');
-    setInvoiceDateInput(new Date().toISOString().split('T')[0]);
+    setInvoiceNumberInput(side.invoiceNumberPrefix);
+    setInvoiceDateInput(today());
     setInvoiceFile(null);
     if (invoiceFileInputRef.current) invoiceFileInputRef.current.value = '';
   }
@@ -153,15 +163,18 @@ export default function ReadyToInvoicePage() {
     setInvoiceFile(file);
   }
 
-  const sendInvoiceMutation = useMutation({
-    mutationFn: ({ deploymentId, entryId, formData }) => sendInvoice(deploymentId, entryId, formData),
+  const invoiceMutation = useMutation({
+    mutationFn: ({ deploymentId, entryId, formData }) => side.submitInvoice(deploymentId, entryId, formData),
     onSuccess: () => {
-      toast.success(t('staffDeployments.detail.invoiceSentToast'));
+      toast.success(t(side.invoicedToastKey));
       setInvoicingEntry(null);
       resetInvoiceForm();
-      queryClient.invalidateQueries({ queryKey: ['deployments', 'ready-to-invoice'] });
+      queryClient.invalidateQueries({ queryKey: ['deployments'] });
     },
-    onError: (error) => toast.error(apiMessage(error)),
+    onError: (error) => {
+      console.error('[financial] recording an invoice failed', error);
+      toast.error(apiMessage(error));
+    },
   });
 
   const toggleRow = (id) => setOpenRowId((prev) => (prev === id ? null : id));
@@ -169,14 +182,14 @@ export default function ReadyToInvoicePage() {
   return (
     <div className="mx-auto max-w-[1600px] space-y-6">
       <PageHeader
-        title={t('staffDeployments.readyToInvoice.pageTitle', 'Ready to invoice')}
-        description={t('staffDeployments.readyToInvoice.pageDescription', 'Every approved month waiting on a client invoice, oldest first.')}
+        title={t(`${side.readyNs}.pageTitle`)}
+        description={t(`${side.readyNs}.pageDescription`)}
         onBack={() => navigate(-1)}
       />
 
       <div className="flex flex-col sm:flex-row gap-3">
         <Input
-          placeholder={t('common.search', 'Search client, worker...')}
+          placeholder={t(side.searchKey)}
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           className="w-full sm:w-64"
@@ -188,19 +201,19 @@ export default function ReadyToInvoicePage() {
           <Skeleton className="h-40 w-full" />
         </div>
       ) : isError ? (
-        <EmptyState title={t('staffDeployments.readyToInvoice.couldNotLoad')} description={t('common.checkConnection')} />
+        <EmptyState title={t(`${side.readyNs}.couldNotLoad`)} description={t('common.checkConnection')} />
       ) : filteredRows.length === 0 ? (
         <EmptyState
-          title={t('staffDeployments.readyToInvoice.emptyTitle')}
-          description={t('staffDeployments.readyToInvoice.emptyDescription')}
+          title={t(`${side.readyNs}.emptyTitle`)}
+          description={t(`${side.readyNs}.emptyDescription`)}
         />
       ) : (
         <Card className="overflow-x-auto p-0">
           <table className="w-full border-separate border-spacing-y-[6px] text-sm px-4">
-            <thead className="text-left">
+            <thead className="text-start">
               <tr>
-                {['Client / Worker', 'Month', 'Hours', 'Invoice Amount', 'Approved On', ''].map((h) => (
-                  <th key={h} className="px-4 py-3 text-[13px] font-black uppercase tracking-wider text-text bg-border/30 first:rounded-l-xl last:rounded-r-xl whitespace-nowrap">
+                {[t(side.partyLabelKey), t('staffFinancial.month'), t('staffFinancial.hoursHeader'), t('staffFinancial.invoiceAmount'), t('staffFinancial.approvedOn'), ''].map((h, i) => (
+                  <th key={i} className="px-4 py-3 text-start text-[13px] font-black uppercase tracking-wider text-text bg-border/30 first:rounded-s-xl last:rounded-e-xl whitespace-nowrap">
                     {h}
                   </th>
                 ))}
@@ -211,9 +224,10 @@ export default function ReadyToInvoicePage() {
                 <ReadyToInvoiceRow
                   key={`${row.deploymentId}-${row.entryId}`}
                   row={row}
+                  side={side}
                   isOpen={openRowId === `${row.deploymentId}-${row.entryId}`}
                   onToggle={() => toggleRow(`${row.deploymentId}-${row.entryId}`)}
-                  onSendInvoice={setInvoicingEntry}
+                  onInvoice={setInvoicingEntry}
                   t={t}
                   navigate={navigate}
                 />
@@ -221,7 +235,7 @@ export default function ReadyToInvoicePage() {
             </tbody>
           </table>
           <div className="px-4 py-3 text-xs text-muted border-t border-border/40">
-            {filteredRows.length} {filteredRows.length === 1 ? 'entry' : 'entries'} {search ? '(filtered)' : ''}
+            {t(search ? 'staffFinancial.entryCountFiltered' : 'staffFinancial.entryCount', { count: filteredRows.length })}
           </div>
         </Card>
       )}
@@ -229,30 +243,30 @@ export default function ReadyToInvoicePage() {
       <Modal
         open={Boolean(invoicingEntry)}
         onClose={() => {
-          if (sendInvoiceMutation.isPending) return;
+          if (invoiceMutation.isPending) return;
           setInvoicingEntry(null);
           resetInvoiceForm();
         }}
-        title={invoicingEntry ? t('staffDeployments.detail.sendInvoiceModalTitle', { month: invoicingEntry.month }) : ''}
+        title={invoicingEntry ? t(side.invoiceTitleKey, { month: invoicingEntry.month }) : ''}
       >
         {invoicingEntry && (() => {
           const minInvoiceDate = earliestInvoiceDateFor(invoicingEntry.month);
           const invoiceDateTooEarly = Boolean(invoiceDateInput) && invoiceDateInput < minInvoiceDate;
           return (
           <div className="space-y-4">
-            <p className="text-sm text-muted">{t('staffDeployments.detail.sendInvoiceModalMessage')}</p>
+            <p className="text-sm text-muted">{t(side.invoiceMessageKey)}</p>
             <Input
-              label={t('staffDeployments.detail.invoiceNumberLabel')}
+              label={t(side.invoiceNumberLabelKey)}
               value={invoiceNumberInput}
               onChange={(e) => setInvoiceNumberInput(e.target.value)}
             />
             <Input
-              label={t('staffDeployments.detail.invoiceDateLabel')}
+              label={t(side.invoiceDateLabelKey)}
               type="date"
               min={minInvoiceDate}
               value={invoiceDateInput}
               onChange={(e) => setInvoiceDateInput(e.target.value)}
-              error={invoiceDateTooEarly ? t('staffDeployments.detail.invoiceDateTooEarly', { month: invoicingEntry.month }) : undefined}
+              error={invoiceDateTooEarly ? t(side.invoiceDateTooEarlyKey, { month: invoicingEntry.month }) : undefined}
             />
             <div>
               <label className="mb-1.5 block text-sm font-medium">{t('staffDeployments.detail.invoiceFileLabel').replace(' *', '')}</label>
@@ -278,23 +292,23 @@ export default function ReadyToInvoicePage() {
                   setInvoicingEntry(null);
                   resetInvoiceForm();
                 }}
-                disabled={sendInvoiceMutation.isPending}
+                disabled={invoiceMutation.isPending}
               >
                 {t('common.cancel')}
               </Button>
               <Button
                 type="button"
-                isLoading={sendInvoiceMutation.isPending}
+                isLoading={invoiceMutation.isPending}
                 disabled={!invoiceNumberInput.trim() || !invoiceDateInput || invoiceDateTooEarly}
                 onClick={() => {
                   const fd = new FormData();
                   fd.append('invoiceNumber', invoiceNumberInput.trim());
                   fd.append('invoiceDate', invoiceDateInput);
                   if (invoiceFile) fd.append('file', invoiceFile);
-                  sendInvoiceMutation.mutate({ deploymentId: invoicingEntry.deploymentId, entryId: invoicingEntry.entryId, formData: fd });
+                  invoiceMutation.mutate({ deploymentId: invoicingEntry.deploymentId, entryId: invoicingEntry.entryId, formData: fd });
                 }}
               >
-                {t('staffDeployments.detail.sendInvoiceButton')}
+                {t(side.invoiceButtonKey)}
               </Button>
             </div>
           </div>

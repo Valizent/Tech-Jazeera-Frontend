@@ -14,6 +14,7 @@
  * Deployment's own detail page, and reuses that exact breakdown panel.
  */
 import { useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useQuery } from '@tanstack/react-query';
 import { listDeployments, getDeployment } from '../../deployments/deployments.api.js';
 import { formatMoney } from '../../../lib/utils.js';
@@ -51,6 +52,8 @@ function toBreakdownRow(deployment, entry) {
 }
 
 export default function DeploymentCostsTab() {
+  const { t } = useTranslation();
+  const L = (key, options) => t(`staffExpenses.costs.${key}`, options);
   const [search, setSearch] = useState('');
   const [selectedId, setSelectedId] = useState(null);
 
@@ -89,23 +92,23 @@ export default function DeploymentCostsTab() {
     <div className="space-y-4">
       <div className="max-w-sm">
         <Input
-          placeholder="Search by worker name…"
+          placeholder={L('searchPlaceholder')}
           value={search}
           onChange={(e) => {
             setSearch(e.target.value);
             setSelectedId(null);
           }}
-          aria-label="Search deployments by worker name"
+          aria-label={L('searchAriaLabel')}
         />
       </div>
 
       {isPending ? (
         <Skeleton className="h-10 w-full max-w-sm" />
       ) : isError ? (
-        <EmptyState title="Could not load deployments" description="Check your connection and try again." />
+        <EmptyState title={L('couldNotLoad')} description={t('common.checkConnection')} />
       ) : search.trim() && !selectedId ? (
         matches.length === 0 ? (
-          <p className="text-sm text-muted">No worker matches &quot;{search}&quot;.</p>
+          <p className="text-sm text-muted">{L('noWorkerMatch', { search })}</p>
         ) : (
           <Card className="divide-y divide-border p-0">
             {matches.map((d) => (
@@ -113,13 +116,13 @@ export default function DeploymentCostsTab() {
                 key={d._id}
                 type="button"
                 onClick={() => setSelectedId(d._id)}
-                className="flex w-full items-center justify-between gap-3 px-4 py-3 text-left transition-colors hover:bg-bg"
+                className="flex w-full items-center justify-between gap-3 px-4 py-3 text-start transition-colors hover:bg-bg"
               >
                 <span>
                   <span className="block text-sm font-medium text-text">{d.workerName}</span>
                   <span className="block text-xs text-muted">{d.clientName}</span>
                 </span>
-                <Badge variant={d.status === 'Active' ? 'success' : 'default'}>{d.status}</Badge>
+                <Badge variant={d.status === 'Active' ? 'success' : 'default'}>{t(`staffDeployments.status.${d.status}`)}</Badge>
               </button>
             ))}
           </Card>
@@ -134,7 +137,7 @@ export default function DeploymentCostsTab() {
               <p className="text-xs text-muted">{selected?.clientName}</p>
             </div>
             <button type="button" className="text-xs text-primary hover:underline" onClick={() => setSelectedId(null)}>
-              Change worker
+              {L('changeWorker')}
             </button>
           </div>
 
@@ -142,8 +145,8 @@ export default function DeploymentCostsTab() {
             <Skeleton className="h-40 w-full" />
           ) : monthsWithCost.length === 0 ? (
             <EmptyState
-              title="No costed months yet"
-              description="Real costs appear here once this deployment has an Approved monthly-hours entry you have access to view."
+              title={L('noCostedMonthsTitle')}
+              description={L('noCostedMonthsDescription')}
             />
           ) : (
             monthsWithCost.map((entry) => (

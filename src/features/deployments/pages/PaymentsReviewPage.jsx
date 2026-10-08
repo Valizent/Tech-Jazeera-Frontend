@@ -1,6 +1,9 @@
 /**
  * PaymentsReviewPage — the manager's dedicated approval queue for recorded
- * client payments. 2026-09-28: initial implementation. 2026-09-29: given
+ * payments. `side` picks the money flow (see financialSides.js): 'client'
+ * is payments received from clients, 'subcontractor' (2026-10-08, the queue
+ * had no page or route before: subcontractor payments could never be
+ * approved, so never counted) is payments made to subcontractors. 2026-09-28: initial implementation. 2026-09-29: given
  * full i18n (a real audit finding — this shipped 100% hardcoded English,
  * a regression against the app's staff-panel Arabic convention every
  * sibling financial page already follows, including PaymentsDuePage.jsx
@@ -11,7 +14,7 @@ import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '../../auth/AuthContext.jsx';
-import { getPendingPaymentsQueue, decideClientPayment } from '../deployments.api.js';
+import { FINANCIAL_SIDES } from '../financialSides.js';
 import { apiMessage, formatMoney, formatDate } from '../../../lib/utils.js';
 import { useToast } from '../../../components/ui/Toast.jsx';
 import PageHeader from '../../../components/shared/PageHeader.jsx';
@@ -23,7 +26,8 @@ import Textarea from '../../../components/ui/Textarea.jsx';
 import Skeleton from '../../../components/ui/Skeleton.jsx';
 import EmptyState from '../../../components/ui/EmptyState.jsx';
 
-export default function PaymentsReviewPage() {
+export default function PaymentsReviewPage({ side: sideName }) {
+  const side = FINANCIAL_SIDES[sideName];
   const { t } = useTranslation();
   const { user } = useAuth();
   const navigate = useNavigate();
@@ -36,23 +40,25 @@ export default function PaymentsReviewPage() {
   const canDecide = Boolean(user.sectionAccessWrite?.includes('deploymentsPaymentDecide'));
 
   const { data: rows, isPending, isError, refetch } = useQuery({
-    queryKey: ['deployments', 'pending-payments'],
-    queryFn: getPendingPaymentsQueue,
+    queryKey: side.pendingKey,
+    queryFn: side.getPending,
     refetchInterval: 30_000,
     refetchOnWindowFocus: true,
   });
 
   const decideMutation = useMutation({
     mutationFn: ({ paymentId, decision, note: n }) =>
-      decideClientPayment(paymentId, { decision, note: n || undefined }),
+      side.decidePayment(paymentId, { decision, note: n || undefined }),
     onSuccess: (_, vars) => {
       toast.success(vars.decision === 'Approved' ? t('staffDeployments.paymentsReview.approvedToast') : t('staffDeployments.paymentsReview.rejectedToast'));
       setDecidingRow(null);
       setNote('');
-      qc.invalidateQueries({ queryKey: ['deployments', 'pending-payments'] });
       qc.invalidateQueries({ queryKey: ['deployments'] });
     },
-    onError: (err) => toast.error(apiMessage(err)),
+    onError: (err) => {
+      console.error('[financial] deciding a payment failed', err);
+      toast.error(apiMessage(err));
+    },
   });
 
   function openModal(row, action) {
@@ -81,8 +87,8 @@ export default function PaymentsReviewPage() {
   return (
     <div className="mx-auto max-w-5xl space-y-6">
       <PageHeader
-        title={t('staffDeployments.paymentsReview.pageTitle')}
-        description={t('staffDeployments.paymentsReview.pageDescription')}
+        title={t(side.reviewTitleKey)}
+        description={t(side.reviewDescriptionKey)}
         onBack={() => navigate(-1)}
         actions={
           rows?.length > 0 && (
@@ -125,7 +131,7 @@ export default function PaymentsReviewPage() {
               <div className="flex flex-wrap items-start justify-between gap-3 px-5 py-4">
                 <div className="min-w-0">
                   <div className="flex flex-wrap items-center gap-2">
-                    <span className="text-sm font-semibold text-text">{row.client?.companyName || t('staffDeployments.paymentsReview.unknownClient')}</span>
+                    <span className="text-sm font-semibold text-text">{side.pendingPartyName(row) || t(side.unknownPartyKey)}</span>
                     {row.paymentReference && (
                       <>
                         <span className="text-muted">·</span>
@@ -142,7 +148,7 @@ export default function PaymentsReviewPage() {
                 </div>
 
                 <div className="flex shrink-0 items-center gap-2">
-                  <span className="mr-4 text-lg font-semibold text-text">
+                  <span className="me-4 text-lg font-semibold text-text">
                     {formatMoney(row.amount)}
                   </span>
                   <button
@@ -185,8 +191,8 @@ export default function PaymentsReviewPage() {
           <div className="space-y-4">
             <div className="rounded-xl bg-bg p-4">
               <p className="text-sm text-text">
-                <span className="font-semibold">{decidingRow.client?.companyName}</span>
-                <span className="mx-2 text-muted"></span>
+                <span className="font-semibold">{side.pendingPartyName(decidingRow)}</span>
+                <span className="mx-2 text-muted">·</span>
                 <span className="tabular-nums">{formatMoney(decidingRow.amount)}</span>
               </p>
             </div>

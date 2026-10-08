@@ -78,8 +78,17 @@ export async function sendInvoice(id, entryId, formData) {
 /** Download a month's uploaded invoice copy as an authenticated Blob, named
  *  by its original filename — same pattern as reimbursements.api.js's
  *  downloadReceipt. */
-export async function downloadInvoiceFile(id, entryId, filename) {
-  const res = await api.get(`/deployments/${id}/monthly-hours/${entryId}/invoice-file`, { responseType: 'blob' });
+export function downloadInvoiceFile(id, entryId, filename) {
+  return downloadBlob(`/deployments/${id}/monthly-hours/${entryId}/invoice-file`, filename);
+}
+
+/** The subcontractor's own invoice copy, recorded with recordSubInvoice. */
+export function downloadSubInvoiceFile(id, entryId, filename) {
+  return downloadBlob(`/deployments/${id}/monthly-hours/${entryId}/sub-invoice-file`, filename);
+}
+
+async function downloadBlob(path, filename) {
+  const res = await api.get(path, { responseType: 'blob' });
   const url = URL.createObjectURL(res.data);
   const a = document.createElement('a');
   a.href = url;
@@ -143,6 +152,12 @@ export async function getPendingPaymentsQueue() {
   return data.data;
 }
 
+/** All Pending subcontractor payments — same queue, the other side. */
+export async function getSubPendingPaymentsQueue() {
+  const { data } = await api.get('/deployments/sub-pending-payments');
+  return data.data;
+}
+
 /** Demobilise — ends this deployment. `payload.reason` decides whether the
  *  worker goes back to standby or exits the company (see deployments.schema.js). */
 export async function demobiliseDeployment(id, payload) {
@@ -157,13 +172,9 @@ export async function getReadyForSubInvoice() {
   return data.data;
 }
 
-/** `data` must include invoiceNumber, invoiceDate, and optionally a `file`
- *  (the subcontractor's invoice copy) — subcontractor-side mirror of sendInvoice. */
-export async function recordSubInvoice(deploymentId, entryId, data) {
-  const formData = new FormData();
-  if (data.invoiceNumber) formData.append('invoiceNumber', data.invoiceNumber);
-  if (data.invoiceDate) formData.append('invoiceDate', data.invoiceDate);
-  if (data.file) formData.append('file', data.file);
+/** `formData`: invoiceNumber, invoiceDate and optionally a `file` (the
+ *  subcontractor's invoice copy) — subcontractor-side mirror of sendInvoice. */
+export async function recordSubInvoice(deploymentId, entryId, formData) {
   const res = await api.post(`/deployments/${deploymentId}/monthly-hours/${entryId}/sub-invoice`, formData);
   return res.data.data;
 }
