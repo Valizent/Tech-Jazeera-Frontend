@@ -9,6 +9,17 @@ export async function listEmployees(params) {
   return data.data; // { items, total, page, pages }
 }
 
+/**
+ * Every employee matching `params`, fetched a page at a time. The server caps one
+ * page at 100, and a picker must offer everyone — a plain `limit: 100` quietly
+ * left out whoever sorted after the hundredth. Same `{ items, total, page, pages }` shape.
+ */
+export async function listAllEmployees(params = {}) {
+  const first = await listEmployees({ ...params, limit: 100, page: 1 });
+  const rest = await Promise.all(Array.from({ length: Math.max(0, first.pages - 1) }, (_, i) => listEmployees({ ...params, limit: 100, page: i + 2 })));
+  return { ...first, items: [first, ...rest].flatMap((p) => p.items) };
+}
+
 export async function getEmployee(id) {
   const { data } = await api.get(`/employees/${id}`);
   return data.data;

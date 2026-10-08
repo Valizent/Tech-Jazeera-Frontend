@@ -46,7 +46,7 @@ import {
   lookupMobilisationWorkerByIqama,
   listPreviousMobilisedWorkers,
 } from '../mobilisations.api.js';
-import { listEmployees } from '../../employees/employees.api.js';
+import { listAllEmployees } from '../../employees/employees.api.js';
 import { listOutsourcedEmployees } from '../../employees/outsourcedEmployees.api.js';
 import { COUNTRIES } from '../../../lib/countries.js';
 import { formatMoney } from '../../../lib/utils.js';
@@ -233,8 +233,8 @@ function useEmployeeWorkers({ workerType, existingWorkerId }) {
     queryKey: ['employees', { forMobilisation: true, existingWorkerId: existingWorkerId ?? null }],
     queryFn: () =>
       existingWorkerId
-        ? listEmployees({ limit: 100 })
-        : listEmployees({ limit: 100, type: 'Own', loginRole: 'Worker', standby: 'true' }),
+        ? listAllEmployees()
+        : listAllEmployees({ type: 'Own', loginRole: 'Worker', standby: 'true' }),
     enabled,
   });
   const workers = (data?.items ?? []).filter((w) =>

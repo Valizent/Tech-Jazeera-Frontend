@@ -1,7 +1,7 @@
 /**
  * MyRequirementsWidget — a coordinator's own open pre-mobilisation Requirement
  * cards, by stage. Fills the dashboard slot beside HR Compliance Actions that
- * used to sit empty for a Coordinator (StandbyAnalysisWidget needs `payroll`
+ * used to sit empty for a Coordinator (StandbyAnalysisWidget needs `dashboardProfit`
  * read, which a Coordinator never has by default — see DashboardPage.jsx's own
  * doc comment on why every 2-col row there now pairs two Coordinator-visible
  * widgets instead) — 2026-09-24, a real user ask. Unlike HrComplianceWidget,

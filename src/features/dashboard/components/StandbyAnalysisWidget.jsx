@@ -13,7 +13,7 @@ const VISIBLE_ROWS = 2;
 export default function StandbyAnalysisWidget() {
   const { t } = useTranslation();
   const { user } = useAuth();
-  // This widget is gated on `payroll` read; the real Standby List page it
+  // This widget is gated on `dashboardProfit` read; the real Standby List page it
   // links to is gated on `deploymentsRelease` — two independent circles
   // (same "don't link somewhere that just 403s" idiom used elsewhere on
   // this dashboard, e.g. the Coordinator Drill-Down modal's task link).

@@ -88,7 +88,7 @@ export const MODULE_GROUPS = [
       // label/icon are borrowed directly rather than looked up via navItem().
       {
         label: `${DASHBOARD_ITEM.label} profit`,
-        description: 'The dashboard\'s real monthly profit figure, without granting Expenses themselves.',
+        description: 'The dashboard\'s real monthly profit figure and the standby idle-cost widget, without granting Expenses themselves.',
         icon: DASHBOARD_ITEM.icon,
         sectionKeys: ['dashboardProfit'],
       },

@@ -10,7 +10,7 @@
 import { useMemo, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
-import { listEmployees } from '../../employees/employees.api.js';
+import { listAllEmployees } from '../../employees/employees.api.js';
 import { listClients } from '../../clients/clients.api.js';
 import { listStaffUsers } from '../../users/users.api.js';
 import { useAuth } from '../../auth/AuthContext.jsx';
@@ -45,7 +45,7 @@ export default function CoordinatorActivityPage() {
   });
   const { data: employeeData, isPending: employeesPending } = useQuery({
     queryKey: ['employees', { createdByRole: 'Coordinator' }],
-    queryFn: () => listEmployees({ createdByRole: 'Coordinator', limit: 100, sortBy: 'createdAt', sortOrder: 'desc' }),
+    queryFn: () => listAllEmployees({ createdByRole: 'Coordinator', sortBy: 'createdAt', sortOrder: 'desc' }),
     enabled: tab === 'employees',
   });
 

@@ -23,7 +23,7 @@ import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { getMonthlyReport, generateMonthlyReport } from '../timesheets.api.js';
-import { listEmployees } from '../../employees/employees.api.js';
+import { listAllEmployees } from '../../employees/employees.api.js';
 import { apiMessage } from '../../../lib/utils.js';
 import { useToast } from '../../../components/ui/Toast.jsx';
 import PageHeader from '../../../components/shared/PageHeader.jsx';
@@ -70,7 +70,7 @@ function EmployeeList({ onView }) {
   const { t } = useTranslation();
   const { data, isPending, isError, error, refetch } = useQuery({
     queryKey: ['employees', { type: 'Own', forTimesheets: true }],
-    queryFn: () => listEmployees({ type: 'Own', limit: 100, sortBy: 'fullName', sortOrder: 'asc' }),
+    queryFn: () => listAllEmployees({ type: 'Own', sortBy: 'fullName', sortOrder: 'asc' }),
   });
   const employees = data?.items ?? [];
 

@@ -85,10 +85,10 @@ export default function DashboardPage() {
     (user.sectionAccessWrite || []).includes('mobilisationTargets');
   // StandbyAnalysisWidget is its own separately-fetched endpoint, not part of the main
   // /dashboard payload, so it needs its own visibility signal here — reusing the same
-  // `payroll` read grant the server now gates it on (2026-09-22 fix; this used to be a
-  // hardcoded Manager/Admin check, and — separately — was wired to `attendanceSummary`'s
-  // own null-check as an unrelated proxy gate that happened to produce a similar result).
-  const canSeeStandbyAnalysis = Boolean(user.sectionAccess?.includes('payroll'));
+  // `dashboardProfit` read grant the server gates it on (2026-10-08: this still checked
+  // the `payroll` key deleted with the Payroll module, so the widget never showed for
+  // anyone — the server moved to `dashboardProfit` on 2026-09-29, this gate didn't follow).
+  const canSeeStandbyAnalysis = Boolean(user.sectionAccess?.includes('dashboardProfit'));
 
   // Coordinator's own monthly target — always fetched for coordinator logins,
   // never for others (null guard in MobilisationTargetCard hides the widget).
@@ -213,7 +213,7 @@ export default function DashboardPage() {
       {/* Row pairing is role-aware (2026-09-24, a real user report): every row below used
           to pair one Coordinator-visible widget with one Admin/Manager-only widget
           (DailyAttendanceSummary needs attendanceRecords, StandbyAnalysisWidget needs
-          payroll, the Leaderboard/Global Pipeline need mobilisationsViewer a Coordinator
+          dashboardProfit, the Leaderboard/Global Pipeline need mobilisationsViewer a Coordinator
           has none of these by default), so for every Coordinator login the "other half" of
           nearly every row was silently empty not a CSS bug, a content-pairing one. A
           Coordinator now gets rows built entirely from widgets that are actually theirs;

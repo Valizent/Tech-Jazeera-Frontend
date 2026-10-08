@@ -26,7 +26,6 @@ const CATEGORY_LABELS = {
   doubleBookedWorker: 'Worker placed at two clients at once',
   advanceOverRepaid: 'Salary advance over-repaid',
   advanceStatusMismatch: 'Salary advance status mismatch',
-  payrollRunMismatch: 'Payroll run total mismatch',
 };
 
 export default function ReconciliationPage() {

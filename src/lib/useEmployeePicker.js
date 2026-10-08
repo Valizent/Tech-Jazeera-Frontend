@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { listEmployees } from '../features/employees/employees.api.js';
+import { listAllEmployees } from '../features/employees/employees.api.js';
 
 /**
  * Shared "pick an employee" query — the first 100, sorted by name — reused
@@ -13,7 +13,7 @@ import { listEmployees } from '../features/employees/employees.api.js';
 export function useEmployeePicker(options = {}) {
   return useQuery({
     queryKey: ['employees', 'picker'],
-    queryFn: () => listEmployees({ limit: 100, sortBy: 'fullName', sortOrder: 'asc' }),
+    queryFn: () => listAllEmployees({ sortBy: 'fullName', sortOrder: 'asc' }),
     ...options,
   });
 }
