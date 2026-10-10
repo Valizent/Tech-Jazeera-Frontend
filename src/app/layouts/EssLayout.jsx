@@ -22,6 +22,7 @@ import ErrorBoundary from '../../components/shared/ErrorBoundary.jsx';
 import RouteFallback from '../../components/shared/RouteFallback.jsx';
 import Icon from '../../components/ui/Icon.jsx';
 import { cn } from '../../lib/utils.js';
+import { NAV_GROUPS, isGrantedToSelfService } from '../navConfig.js';
 import { useCloseOnOutsideClick } from '../../lib/useCloseOnOutsideClick.js';
 
 const NAV_ITEMS = [
@@ -64,7 +65,10 @@ const NAV_ITEMS = [
 
 function Sidebar({ onNavigate, showBrand }) {
   const { t } = useTranslation();
+  const { user } = useAuth();
   const { name: brandName } = useBranding();
+  // Module groups this login was granted a safe-list section in (see navConfig.js) — opened in the staff shell.
+  const workspaceGroups = NAV_GROUPS.filter((group) => group.items.some((item) => isGrantedToSelfService(item, user)));
   return (
     <div className="flex h-full flex-col border-r border-border/50 bg-surface/60 backdrop-blur-2xl">
       {showBrand && (
@@ -91,6 +95,20 @@ function Sidebar({ onNavigate, showBrand }) {
           >
             <Icon d={item.icon} />
             {t(item.labelKey)}
+          </NavLink>
+        ))}
+        {workspaceGroups.length > 0 && (
+          <p className="px-3 pb-1 pt-4 text-[11px] font-semibold uppercase tracking-wide text-muted/70">{t('nav.workspaceModules')}</p>
+        )}
+        {workspaceGroups.map((group) => (
+          <NavLink
+            key={group.to}
+            to={group.to}
+            onClick={onNavigate}
+            className="group flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-muted transition-all duration-200 ease-out-expo hover:bg-border/40 hover:text-text"
+          >
+            <Icon d={group.icon} />
+            {t(group.labelKey, group.label)}
           </NavLink>
         ))}
       </nav>

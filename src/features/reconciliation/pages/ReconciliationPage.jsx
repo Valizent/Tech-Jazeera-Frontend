@@ -26,6 +26,14 @@ const CATEGORY_LABELS = {
   doubleBookedWorker: 'Worker placed at two clients at once',
   advanceOverRepaid: 'Salary advance over-repaid',
   advanceStatusMismatch: 'Salary advance status mismatch',
+  assetMultipleHolders: 'Asset held by more than one person',
+  assetHolderMismatch: 'Asset status disagrees with its assignment',
+  assetAssignedWithoutHolder: 'Asset marked assigned but nobody holds it',
+  multipleMobilisedStages: 'More than one fully-mobilised requirement stage',
+  requirementMissingStage: 'Requirement in a stage that no longer exists',
+  clientPaymentInvalid: 'Client payment with an invalid amount or client',
+  subcontractorPaymentInvalid: 'Subcontractor payment with an invalid amount or subcontractor',
+  subcontractorInvoiceIncomplete: 'Subcontractor invoice missing its number or date',
 };
 
 export default function ReconciliationPage() {

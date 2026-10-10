@@ -122,7 +122,8 @@
     "visasAndDocuments": "Visas & Documents",
     "workspaceTitle": "My Workspace",
     "footerLine2": "Employee self-service",
-    "myAnnualVacation": "My annual vacation"
+    "myAnnualVacation": "My annual vacation",
+    "workspaceModules": "Workspace"
   },
   "header": {
     "employee": "Employee",
@@ -629,7 +630,8 @@
         "label": "Coordinator Activity",
         "description": "What Coordinators added themselves."
       }
-    }
+    },
+    "myPortal": "My portal"
   },
   "staffDashboard": {
     "welcomeBack": "Welcome back, {{name}}",

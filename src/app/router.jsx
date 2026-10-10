@@ -16,7 +16,7 @@
  * crash inside the signed-in shell doesn't strand a guest, and vice versa.
  */
 import { lazy, Suspense } from 'react';
-import { createBrowserRouter, Navigate, Outlet } from 'react-router-dom';
+import { createBrowserRouter, Navigate, Outlet, useLocation } from 'react-router-dom';
 import { useAuth } from '../features/auth/AuthContext.jsx';
 // AuthLayout stays eager — it's small (41 lines) and every guest needs it
 // immediately, before any auth state is even known. DashboardLayout/
@@ -174,7 +174,14 @@ const SELF_SERVICE_ROLES = ['Worker', 'Staff'];
  */
 function RoleRouter() {
   const { user } = useAuth();
-  if (SELF_SERVICE_ROLES.includes(user.role)) return <Navigate to="/me" replace />;
+  const { pathname } = useLocation();
+  if (SELF_SERVICE_ROLES.includes(user.role)) {
+    // A Worker/Staff login an Admin added to the reserved "Worker"/"Staff" approval role and granted
+    // a safe-list section (2026-10-10) may open that module in the staff shell; the dashboard is
+    // theirs to skip (it is staff-only server-side), and a login with no grant never sees the shell.
+    const hasGrant = (user.sectionAccess?.length ?? 0) > 0;
+    if (!hasGrant || pathname === '/') return <Navigate to="/me" replace />;
+  }
   return <Outlet />;
 }
 

@@ -134,6 +134,21 @@ export const EXIT_REENTRY_STATUS_VARIANT = {
   Cancelled: 'default',
   Issued: 'primary',
 };
+/** Mirrors the server's selfService.constants.js: the only sections the reserved Worker/Staff
+ *  approval roles can be granted (the server enforces it; this keeps the pills honest). */
+export const SELF_SERVICE_GRANTABLE_KEYS = [
+  'holidays',
+  'assetsManage',
+  'documentsManage',
+  'attendanceSignInOut',
+  'leaveRequests',
+  'timesheetRequests',
+  'dailyUpdatesOwn',
+  'dailyUpdatesTeam',
+  'requirementsOwn',
+  'requirementsTeam',
+];
+
 /** Mirrors annualVacation.model.js. */
 export const ANNUAL_VACATION_STATUSES = ['PendingReview', 'Approved', 'Rejected', 'Cancelled'];
 export const ANNUAL_VACATION_STATUS_VARIANT = {

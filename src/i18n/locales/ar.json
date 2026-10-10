@@ -122,7 +122,8 @@
     "visasAndDocuments": "التأشيرات والمستندات",
     "workspaceTitle": "مساحة عملي",
     "footerLine2": "الخدمة الذاتية للموظفين",
-    "myAnnualVacation": "إجازتي السنوية"
+    "myAnnualVacation": "إجازتي السنوية",
+    "workspaceModules": "مساحة العمل"
   },
   "header": {
     "employee": "موظف",
@@ -637,7 +638,8 @@
         "label": "نشاط المنسقين",
         "description": "ما أضافه المنسقون بأنفسهم."
       }
-    }
+    },
+    "myPortal": "بوابتي"
   },
   "staffDashboard": {
     "welcomeBack": "مرحبًا بعودتك، {{name}}",

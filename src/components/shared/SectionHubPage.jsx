@@ -10,6 +10,7 @@ import { useAuth } from '../../features/auth/AuthContext.jsx';
 import PageHeader from './PageHeader.jsx';
 import Icon from '../ui/Icon.jsx';
 import { useNavCounts } from '../../app/useNavCounts.js';
+import { SELF_SERVICE_LOGIN_ROLES, isGrantedToSelfService } from '../../app/navConfig.js';
 
 /** `titleKey`/`descriptionKey` and each item's `labelKey`/`descriptionKey`
  *  are optional translation keys (see navConfig.js) — `t(key, fallback)`
@@ -22,6 +23,7 @@ export default function SectionHubPage({ title, titleKey, description, descripti
   const badgeCounts = useNavCounts();
   const visible = items.filter((item) => {
     if (item.roles && !item.roles.includes(user.role)) return false;
+    if (SELF_SERVICE_LOGIN_ROLES.includes(user.role)) return isGrantedToSelfService(item, user);
     // sectionKey may be an array (e.g. Attendance's split Records/Sign
     // In-Out/Office Location keys) — visible if ANY one is readable, same
     // "any of" semantics as RequireSectionRead's own route guard.

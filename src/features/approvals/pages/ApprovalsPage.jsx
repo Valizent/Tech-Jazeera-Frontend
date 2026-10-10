@@ -56,6 +56,17 @@ function ApprovalRolesPanel() {
 
   const { data: roles, isPending } = useQuery({ queryKey: ['approval-roles'], queryFn: listApprovalRoles });
   const { data: staffUsers, isError: staffUsersError } = useQuery({ queryKey: ['users', {}], queryFn: () => listStaffUsers({}) });
+  // The reserved "Worker" and "Staff" roles hold individual self-service logins; every other
+  // role holds staff accounts only (the server refuses a Worker/Staff login anywhere else).
+  const selfServiceRole = Boolean(editing?.allowsSelfService);
+  const { data: workerUsers, isError: workerUsersError } = useQuery({
+    queryKey: ['users', { role: 'Worker' }],
+    queryFn: () => listStaffUsers({ role: 'Worker' }),
+    enabled: selfServiceRole,
+  });
+  const memberChoices = selfServiceRole
+    ? [...(staffUsers ?? []).filter((u) => u.role === 'Staff'), ...(workerUsers ?? [])]
+    : (staffUsers ?? []).filter((u) => u.role !== 'Staff');
 
   const {
     register,
@@ -132,24 +143,41 @@ function ApprovalRolesPanel() {
 
       <Modal open={!!editing} onClose={() => setEditing(null)} title={editing?._id ? 'Edit approval role' : 'New approval role'}>
         <form onSubmit={handleSubmit((values) => saveMutation.mutate(values))} noValidate className="space-y-4">
-          <PickerLoadWarning failed={[{ label: 'staff members', isError: staffUsersError }]} />
+          <PickerLoadWarning
+            failed={[
+              { label: 'staff members', isError: staffUsersError },
+              { label: 'worker logins', isError: workerUsersError },
+            ]}
+          />
+          {selfServiceRole && (
+            <p className="rounded-lg bg-primary/5 px-3 py-2 text-xs text-muted">
+              This role holds individual Worker/Staff logins. Choose its members here, then grant the role access on the Section
+              Access page. Only a limited list of sections can be granted to it.
+            </p>
+          )}
           {/* Read (opening this modal at all) is open to any staff member see
               the page's own top-level comment. Write ('approvalHierarchy')
               disables every field below, not just the Save button (2026-09-14
               fix, a real QA-audit-found gap: a read-only viewer previously got
               a fully live name/description/members/active editor). */}
           <fieldset disabled={!canManage} className="space-y-4 disabled:opacity-60">
-            <Input label="Name *" placeholder="e.g. HR, BDM, COO" error={errors.name?.message} {...register('name')} />
+            <Input
+              label="Name *"
+              placeholder="e.g. HR, BDM, COO"
+              readOnly={selfServiceRole}
+              error={errors.name?.message}
+              {...register('name')}
+            />
             <Input label="Description" error={errors.description?.message} {...register('description')} />
             <div>
               <label className="mb-2 block text-sm font-medium">Members</label>
               <div className="max-h-48 overflow-y-auto rounded-lg border border-border p-2">
                 <PillChecklist
-                  items={staffUsers ?? []}
+                  items={memberChoices}
                   selected={members}
                   onToggle={toggleMember}
                   getLabel={(u) => `${u.name} (${u.role})`}
-                  emptyMessage="No staff accounts found."
+                  emptyMessage={selfServiceRole ? 'No Worker or Staff logins found.' : 'No staff accounts found.'}
                 />
               </div>
             </div>

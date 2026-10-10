@@ -59,6 +59,19 @@ const ICON = {
   trendingUp: 'M2.25 18L9 11.25l4.306 4.307a11.95 11.95 0 015.814-5.519l2.74-1.22m0 0l-5.94-2.28m5.94 2.28l-2.28 5.941',
 };
 
+/** Logins that are self-service only (see the server's selfService.constants.js). */
+export const SELF_SERVICE_LOGIN_ROLES = ['Worker', 'Staff'];
+
+/** A self-service login only ever sees modules it was explicitly granted: unkeyed entries
+ *  (open to every staff login) are not theirs, and a keyed one needs a grant on any of its keys. */
+export function isGrantedToSelfService(item, user) {
+  if (!item.sectionKey) return false;
+  const keys = Array.isArray(item.sectionKey) ? item.sectionKey : [item.sectionKey];
+  return keys.some((key) => user.sectionAccess?.includes(key));
+}
+
+export const MY_PORTAL_ITEM = { to: '/me', label: 'My portal', labelKey: 'staffNav.myPortal', icon: ICON.users };
+
 export const DASHBOARD_ITEM = { to: '/', label: 'Dashboard', labelKey: 'staffNav.dashboard', icon: ICON.dashboard };
 
 /**

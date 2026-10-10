@@ -29,7 +29,14 @@ import RouteFallback from '../../components/shared/RouteFallback.jsx';
 import Icon from '../../components/ui/Icon.jsx';
 import { cn } from '../../lib/utils.js';
 import { useCloseOnOutsideClick } from '../../lib/useCloseOnOutsideClick.js';
-import { DASHBOARD_ITEM, NAV_GROUPS, EXECUTIVE_NAV_ITEMS } from '../navConfig.js';
+import {
+  DASHBOARD_ITEM,
+  NAV_GROUPS,
+  EXECUTIVE_NAV_ITEMS,
+  MY_PORTAL_ITEM,
+  SELF_SERVICE_LOGIN_ROLES,
+  isGrantedToSelfService,
+} from '../navConfig.js';
 import { useNavCounts } from '../useNavCounts.js';
 
 function Sidebar({ onNavigate, showBrand }) {
@@ -55,14 +62,16 @@ function Sidebar({ onNavigate, showBrand }) {
     // otherwise it'd be a link to an empty hub page. Individual role-gating
     // (e.g. the Admin-only Timesheet Processor) still applies on the hub page
     // itself, same check as before, just applied at two levels now.
+    const selfService = SELF_SERVICE_LOGIN_ROLES.includes(user.role);
     const groups = NAV_GROUPS.filter((group) =>
       group.items.some((item) => {
         if (item.roles && !item.roles.includes(user.role)) return false;
+        if (selfService) return isGrantedToSelfService(item, user);
         if (item.sectionKey && !user.sectionAccess?.includes(item.sectionKey)) return false;
         return true;
       })
     );
-    items = [DASHBOARD_ITEM, ...groups];
+    items = [selfService ? MY_PORTAL_ITEM : DASHBOARD_ITEM, ...groups];
   }
 
   return (

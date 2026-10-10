@@ -44,6 +44,7 @@ import { listApprovalRoles } from '../../approvals/approvals.api.js';
 import { MODULE_GROUPS } from '../sectionAccessModules.js';
 import { useAuth } from '../../auth/AuthContext.jsx';
 import { apiMessage, cn } from '../../../lib/utils.js';
+import { SELF_SERVICE_GRANTABLE_KEYS } from '../../../lib/constants.js';
 import { useToast } from '../../../components/ui/Toast.jsx';
 import PageHeader from '../../../components/shared/PageHeader.jsx';
 import Card from '../../../components/ui/Card.jsx';
@@ -92,7 +93,10 @@ function TierChecklist({ title, hint, approvalRoleIds, onToggleApprovalRole, app
   );
 }
 
-function SectionCard({ section, local, dirty, onToggleRead, onToggleWrite, onSave, saving, approvalRoles, approvalRolesLoading, approvalRolesError }) {
+function SectionCard({ section, local, dirty, onToggleRead, onToggleWrite, onSave, saving, approvalRoles: allRoles, approvalRolesLoading, approvalRolesError }) {
+  // The reserved Worker/Staff roles can only be granted the safe list — elsewhere they are not offered.
+  const safeForSelfService = SELF_SERVICE_GRANTABLE_KEYS.includes(section.sectionKey);
+  const approvalRoles = (allRoles ?? []).filter((r) => !r.allowsSelfService || safeForSelfService);
   return (
     <Card className={cn('space-y-4', dirty && 'ring-2 ring-primary/50')}>
       <div className="flex items-start justify-between gap-2">
