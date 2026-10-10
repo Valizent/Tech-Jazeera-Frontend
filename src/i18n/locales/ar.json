@@ -121,7 +121,8 @@
     "myRequests": "طلباتي",
     "visasAndDocuments": "التأشيرات والمستندات",
     "workspaceTitle": "مساحة عملي",
-    "footerLine2": "الخدمة الذاتية للموظفين"
+    "footerLine2": "الخدمة الذاتية للموظفين",
+    "myAnnualVacation": "إجازتي السنوية"
   },
   "header": {
     "employee": "موظف",
@@ -463,6 +464,10 @@
       "expenses": {
         "label": "المصروفات",
         "description": "مصروفات الشركة إن مُنحت صلاحية الوصول."
+      },
+      "annualVacation": {
+        "label": "الإجازة السنوية",
+        "description": "طلبات الإجازة السنوية بانتظار مراجعتك."
       }
     },
     "workforce": {
@@ -495,6 +500,10 @@
       "exitDocuments": {
         "label": "الخروج والمستندات",
         "description": "تأشيرات الخروج والعودة، والشهادات."
+      },
+      "annualVacation": {
+        "label": "الإجازة السنوية",
+        "description": "الإجازة بعد انتهاء العقد."
       }
     },
     "sales": {
@@ -2946,5 +2955,42 @@
     "condition": "الحالة: {{note}}",
     "deleteTitle": "حذف الأصل؟",
     "deleteMessage": "سيُحذف \"{{tag}}\" نهائيًا. لا يمكن ذلك إلا لأصل بلا سجل تسليم."
+  },
+  "staffAnnualVacation": {
+    "title": "الإجازة السنوية",
+    "description": "الإجازة التي تُؤخذ بعد انتهاء فترة العقد. قدّم طلبًا أو راجع الطلبات المنتظرة للقرار.",
+    "essDescription": "اطلب إجازتك السنوية بعد انتهاء فترة عقدك.",
+    "tabRequests": "الطلبات",
+    "tabFile": "تقديم طلب",
+    "tabMine": "طلباتي",
+    "formTitle": "طلب إجازة سنوية",
+    "formHint": "متاحة بعد انتهاء فترة العقد. تُسجَّل الإجازة كإجازة معتمدة عند الموافقة عليها.",
+    "employee": "الموظف",
+    "myself": "نفسي",
+    "chooseEmployee": "اختر موظفًا…",
+    "startDate": "أول يوم",
+    "days": "عدد الأيام",
+    "lastDay": "آخر يوم: {{date}}",
+    "reason": "السبب",
+    "formInvalid": "يرجى مراجعة النموذج والمحاولة مرة أخرى.",
+    "submittedToast": "تم تقديم طلب الإجازة السنوية.",
+    "cancelledToast": "تم إلغاء الطلب.",
+    "approvedToast": "تمت الموافقة على الطلب.",
+    "rejectedToast": "تم رفض الطلب.",
+    "yourRequests": "طلباتك",
+    "loadError": "تعذّر تحميل الطلبات",
+    "empty": "لا توجد طلبات إجازة سنوية",
+    "emptyDescription": "ستظهر هنا الطلبات التي تقدّمها.",
+    "rangeLabel": "من {{start}} إلى {{end}} ({{days}} يومًا)",
+    "cancelDialogTitle": "إلغاء هذا الطلب؟",
+    "cancelDialogMessage": "سيتم سحب الطلب ولن تتم مراجعته.",
+    "cancelConfirm": "إلغاء الطلب",
+    "queueTitle": "طلبات الإجازة السنوية",
+    "queueEmpty": "لا توجد طلبات",
+    "queueEmptyDescription": "لا شيء يطابق هذا التصفية.",
+    "approveTitle": "الموافقة على الإجازة السنوية؟",
+    "approveMessage": "الموافقة على الإجازة السنوية لـ {{name}}؟ ستُسجَّل كإجازة معتمدة ولا يمكن التراجع.",
+    "rejectTitle": "رفض الإجازة السنوية؟",
+    "rejectMessage": "رفض طلب الإجازة السنوية لـ {{name}}؟ لا يمكن التراجع عن ذلك."
   }
 }

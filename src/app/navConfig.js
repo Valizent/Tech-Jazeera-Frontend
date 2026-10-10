@@ -77,12 +77,11 @@ export const EXECUTIVE_NAV_ITEMS = [
   { to: '/timesheets', label: 'Timesheets', icon: ICON.list, description: 'Weekly hours awaiting your review.', labelKey: 'staffNav.executive.timesheets.label', descriptionKey: 'staffNav.executive.timesheets.description' },
   { to: '/financial-requests', label: 'Financial Requests', icon: ICON.financialRequest, description: 'Salary advances and reimbursements.', labelKey: 'staffNav.executive.financialRequests.label', descriptionKey: 'staffNav.executive.financialRequests.description' },
   { to: '/exit-documents', label: 'Exit & Documents', icon: ICON.exit, description: 'Re-entry visas and certificates awaiting your review.', labelKey: 'staffNav.executive.exitDocuments.label', descriptionKey: 'staffNav.executive.exitDocuments.description' },
+  { to: '/annual-vacation', label: 'Annual Vacation', icon: ICON.calendarOff, description: 'Annual vacation requests awaiting your review.', labelKey: 'staffNav.executive.annualVacation.label', descriptionKey: 'staffNav.executive.annualVacation.description' },
   { to: '/approvals/log', label: 'Approval Log', icon: ICON.activity, description: 'Every request decided through a workflow, in order.', labelKey: 'staffNav.executive.approvalLog.label', descriptionKey: 'staffNav.executive.approvalLog.description' },
-  // Expenses aren't part of Executive's default circle — they show
-  // up here unconditionally (same "visible, page decides" pattern as the
-  // grouped nav below) purely so a COO/Financial-Manager-titled Executive an
-  // Admin DID grant Section Access to has somewhere to click through to; an
-  // ungranted Executive just gets that page's own explained 403.
+  // Expenses aren't part of Executive's default circle. The `sectionKey` lets the
+  // sidebar show this entry only to an Executive an Admin granted Section Access
+  // to (a COO/Financial-Manager-titled one); everyone else never sees it.
   { to: '/expenses', sectionKey: 'expenses', label: 'Expenses', icon: ICON.expense, description: 'Company spending if you\'ve been granted access.', labelKey: 'staffNav.executive.expenses.label', descriptionKey: 'staffNav.executive.expenses.description' },
 ];
 
@@ -110,6 +109,9 @@ export const NAV_GROUPS = [
       { to: '/holidays', label: 'Holidays', icon: ICON.holidays, description: 'The company holiday calendar.', labelKey: 'staffNav.workforce.holidays.label', descriptionKey: 'staffNav.workforce.holidays.description' },
       { to: '/timesheets', label: 'Timesheets', icon: ICON.list, sectionKey: 'timesheetRequests', description: 'Weekly hours, submitted for approval.', labelKey: 'staffNav.workforce.timesheets.label', descriptionKey: 'staffNav.workforce.timesheets.description' },
       { to: '/eosb', label: 'End of Service', icon: ICON.eosb, sectionKey: 'eosb', description: 'EOSB settlements on exit.', labelKey: 'staffNav.workforce.eosb.label', descriptionKey: 'staffNav.workforce.eosb.description' },
+      // No sectionKey: any staff login can file their own request; the page itself shows the
+      // review queue only to whoever holds Read on 'annualVacation'.
+      { to: '/annual-vacation', label: 'Annual Vacation', icon: ICON.calendarOff, description: 'Vacation after a contract ends.', labelKey: 'staffNav.workforce.annualVacation.label', descriptionKey: 'staffNav.workforce.annualVacation.description' },
       { to: '/exit-documents', label: 'Exit & Documents', icon: ICON.exit, sectionKey: 'exitDocuments', description: 'Re-entry visas, certificates.', labelKey: 'staffNav.workforce.exitDocuments.label', descriptionKey: 'staffNav.workforce.exitDocuments.description' },
       { to: '/targets', label: 'Targets', icon: ICON.trendingUp, sectionKey: 'mobilisationTargets', coordinatorBypass: true, description: 'Monthly targets and performance tracking.', labelKey: 'staffNav.workforce.targets.label', descriptionKey: 'staffNav.workforce.targets.description' },
     ],

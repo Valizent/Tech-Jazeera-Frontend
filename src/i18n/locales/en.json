@@ -121,7 +121,8 @@
     "myRequests": "My Requests",
     "visasAndDocuments": "Visas & Documents",
     "workspaceTitle": "My Workspace",
-    "footerLine2": "Employee self-service"
+    "footerLine2": "Employee self-service",
+    "myAnnualVacation": "My annual vacation"
   },
   "header": {
     "employee": "Employee",
@@ -455,6 +456,10 @@
       "expenses": {
         "label": "Expenses",
         "description": "Company spending if you've been granted access."
+      },
+      "annualVacation": {
+        "label": "Annual Vacation",
+        "description": "Annual vacation requests awaiting your review."
       }
     },
     "workforce": {
@@ -487,6 +492,10 @@
       "exitDocuments": {
         "label": "Exit & Documents",
         "description": "Re-entry visas, certificates."
+      },
+      "annualVacation": {
+        "label": "Annual Vacation",
+        "description": "Vacation after a contract ends."
       }
     },
     "sales": {
@@ -2910,5 +2919,42 @@
     "condition": "Condition: {{note}}",
     "deleteTitle": "Delete asset?",
     "deleteMessage": "\"{{tag}}\" will be permanently removed. This is only possible for an asset with no assignment history."
+  },
+  "staffAnnualVacation": {
+    "title": "Annual vacation",
+    "description": "Vacation taken after a contract period ends. File a request, or review the ones waiting for a decision.",
+    "essDescription": "Request your annual vacation once your contract period has ended.",
+    "tabRequests": "Requests",
+    "tabFile": "File a request",
+    "tabMine": "My requests",
+    "formTitle": "Request annual vacation",
+    "formHint": "Available once the contract period has ended. The vacation is recorded as approved leave when it is approved.",
+    "employee": "Employee",
+    "myself": "Myself",
+    "chooseEmployee": "Choose an employee…",
+    "startDate": "First day",
+    "days": "Number of days",
+    "lastDay": "Last day: {{date}}",
+    "reason": "Reason",
+    "formInvalid": "Please check the form and try again.",
+    "submittedToast": "Annual vacation request submitted.",
+    "cancelledToast": "Request cancelled.",
+    "approvedToast": "Request approved.",
+    "rejectedToast": "Request rejected.",
+    "yourRequests": "Your requests",
+    "loadError": "Could not load requests",
+    "empty": "No annual vacation requests",
+    "emptyDescription": "Requests you file will appear here.",
+    "rangeLabel": "{{start}} to {{end}} ({{days}} days)",
+    "cancelDialogTitle": "Cancel this request?",
+    "cancelDialogMessage": "The request will be withdrawn and will not be reviewed.",
+    "cancelConfirm": "Cancel request",
+    "queueTitle": "Annual vacation requests",
+    "queueEmpty": "No requests",
+    "queueEmptyDescription": "Nothing matches this filter.",
+    "approveTitle": "Approve annual vacation?",
+    "approveMessage": "Approve {{name}}'s annual vacation? It will be recorded as approved leave and cannot be undone.",
+    "rejectTitle": "Reject annual vacation?",
+    "rejectMessage": "Reject {{name}}'s annual vacation request? This cannot be undone."
   }
 }

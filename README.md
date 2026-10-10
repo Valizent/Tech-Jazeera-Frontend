@@ -2,8 +2,8 @@
 
 React/Vite client for the Valizent CRM — an internal ERP for a manpower
 supply & trading company: employees, clients, deployments/mobilisations,
-attendance, documents, quotations/invoices, payroll, leave, financial
-requests, and a management dashboard, plus a separate self-service (ESS)
+attendance, documents, leave, client and subcontractor invoicing and
+payments, expenses, financial requests, and a management dashboard, plus a separate self-service (ESS)
 portal for workers. Also wrapped as an installable Android app via Capacitor
 (reuses this same codebase — see `docs/P-MOBILE-notes.md`).
 

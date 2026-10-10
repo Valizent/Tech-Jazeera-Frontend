@@ -134,6 +134,14 @@ export const EXIT_REENTRY_STATUS_VARIANT = {
   Cancelled: 'default',
   Issued: 'primary',
 };
+/** Mirrors annualVacation.model.js. */
+export const ANNUAL_VACATION_STATUSES = ['PendingReview', 'Approved', 'Rejected', 'Cancelled'];
+export const ANNUAL_VACATION_STATUS_VARIANT = {
+  PendingReview: 'warning',
+  Approved: 'success',
+  Rejected: 'danger',
+  Cancelled: 'default',
+};
 export const CERTIFICATE_TYPES = ['SalaryCertificate', 'ServiceCertificate', 'ChamberOfCommerceAttestation'];
 export const CERTIFICATE_TYPE_LABELS = {
   SalaryCertificate: 'Salary Certificate',
@@ -221,6 +229,7 @@ export const APPROVAL_REQUEST_TYPES = [
   'Mobilisation',
   'ExitReentry',
   'Certificate',
+  'AnnualVacation',
 ];
 export const APPROVAL_REQUEST_TYPE_LABELS = {
   Leave: 'Leave',
@@ -230,6 +239,7 @@ export const APPROVAL_REQUEST_TYPE_LABELS = {
   Mobilisation: 'Mobilisation',
   ExitReentry: 'Exit Re-Entry Visa',
   Certificate: 'Certificate Request',
+  AnnualVacation: 'Annual Vacation',
 };
 // Configuring the hierarchy itself (roles/workflows) is the
 // admin-configurable SectionAccess ('approvalHierarchy') mechanism now —

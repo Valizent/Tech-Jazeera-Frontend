@@ -45,6 +45,7 @@ const PENDING_STATUS_BY_TYPE = {
   Reimbursement: 'Pending',
   ExitReentry: 'Pending',
   Certificate: 'Pending',
+  AnnualVacation: 'PendingReview',
 };
 import { apiMessage, formatDate } from '../../../lib/utils.js';
 import PageHeader from '../../../components/shared/PageHeader.jsx';

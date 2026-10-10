@@ -40,6 +40,7 @@ export const MODULE_GROUPS = [
       { ...navItem('workforce', '/holidays'), sectionKeys: ['holidays'] },
       { ...navItem('workforce', '/timesheets'), sectionKeys: ['timesheetRequests'] },
       { ...navItem('workforce', '/eosb'), sectionKeys: ['eosb'] },
+      { ...navItem('workforce', '/annual-vacation'), sectionKeys: ['annualVacation'] },
       { ...navItem('workforce', '/exit-documents'), sectionKeys: ['exitDocuments'] },
       // No nav hub tile of its own — reached from inside the Attendance page.
       {

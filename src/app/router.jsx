@@ -93,6 +93,7 @@ const SettlementViewPage = lazy(() => import('../features/eosb/pages/SettlementV
 const FinancialRequestsPage = lazy(() => import('../features/financialRequests/pages/FinancialRequestsPage.jsx'));
 const AssetListPage = lazy(() => import('../features/assets/pages/AssetListPage.jsx'));
 const ExitDocumentsPage = lazy(() => import('../features/exitDocuments/pages/ExitDocumentsPage.jsx'));
+const AnnualVacationPage = lazy(() => import('../features/annualVacation/pages/AnnualVacationPage.jsx'));
 const TimesheetsPage = lazy(() => import('../features/timesheets/pages/TimesheetsPage.jsx'));
 const TargetsListPage = lazy(() => import('../features/mobilisationTargets/pages/TargetsListPage.jsx'));
 
@@ -110,6 +111,7 @@ const MyDocumentsPage = lazy(() => import('../features/ess/pages/MyDocumentsPage
 const MyLeavePage = lazy(() => import('../features/ess/pages/MyLeavePage.jsx'));
 const MyRequestsPage = lazy(() => import('../features/ess/pages/MyRequestsPage.jsx'));
 const MyExitDocumentsPage = lazy(() => import('../features/ess/pages/MyExitDocumentsPage.jsx'));
+const MyAnnualVacationPage = lazy(() => import('../features/ess/pages/MyAnnualVacationPage.jsx'));
 const MyAttendancePage = lazy(() => import('../features/ess/pages/MyAttendancePage.jsx'));
 // Kept eager — see the doc comment above.
 import NoPortalAccessPage from '../features/ess/pages/NoPortalAccessPage.jsx';
@@ -295,6 +297,8 @@ export const router = createBrowserRouter([
               { path: '/financial-requests', element: <FinancialRequestsPage /> },
               { path: '/assets', element: guarded('assetsManage', <AssetListPage />) },
               { path: '/exit-documents', element: guarded('exitDocuments', <ExitDocumentsPage />) },
+              // Unguarded on purpose: any staff login files their own; the page shows the queue only with Read.
+              { path: '/annual-vacation', element: <AnnualVacationPage /> },
               { path: '/timesheets', element: guarded('timesheetRequests', <TimesheetsPage />) },
               { path: '/targets', element: guarded('mobilisationTargets', <TargetsListPage />, false, true) },
 
@@ -357,6 +361,7 @@ export const router = createBrowserRouter([
               { path: '/me/leave', element: <MyLeavePage /> },
               { path: '/me/requests', element: <MyRequestsPage /> },
               { path: '/me/exit-documents', element: <MyExitDocumentsPage /> },
+              { path: '/me/annual-vacation', element: <MyAnnualVacationPage /> },
             ],
           },
         ],
