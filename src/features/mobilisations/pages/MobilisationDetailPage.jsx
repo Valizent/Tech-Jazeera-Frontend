@@ -527,7 +527,7 @@ export default function MobilisationDetailPage() {
         }
         onBack={() => navigate(-1)}
         actions={
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
             <Badge variant={MOBILISATION_STATUS_VARIANT[m.status]}>{t(`common.status.${m.status}`, m.status)}</Badge>
             <Button size="sm" variant="secondary" isLoading={exportMutation.isPending} onClick={() => exportMutation.mutate()}>
               {t('staffMobilisations.detail.exportExcel')}

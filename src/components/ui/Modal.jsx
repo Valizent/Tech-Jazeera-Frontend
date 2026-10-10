@@ -45,6 +45,17 @@ const heightClasses = {
 export default function Modal({ open, onClose, title, size = 'md', closable = true, children }) {
   const dialogRef = useRef(null);
   const previouslyFocusedRef = useRef(null);
+  // Latest-callback refs: callers pass an inline `onClose={() => set(false)}`, a
+  // brand-new function every render. Listing it as an effect dependency re-ran the
+  // whole focus effect on every keystroke typed in a modal field (the parent
+  // re-renders per keystroke), pulling focus back to the first button each time
+  // — only one letter could be typed. The effect now depends on `open` alone.
+  const onCloseRef = useRef(onClose);
+  const closableRef = useRef(closable);
+  useEffect(() => {
+    onCloseRef.current = onClose;
+    closableRef.current = closable;
+  });
 
   // Fixed 2026-10-06, a real QA-audit finding (U01): opening a modal never
   // moved focus into it, trapped Tab inside it, or restored focus on close —
@@ -56,11 +67,12 @@ export default function Modal({ open, onClose, title, size = 'md', closable = tr
     previouslyFocusedRef.current = document.activeElement;
     const focusables = () =>
       dialogRef.current ? Array.from(dialogRef.current.querySelectorAll(FOCUSABLE_SELECTOR)) : [];
-    (focusables()[0] ?? dialogRef.current)?.focus();
+    // Leave focus where it is when something inside (an autoFocus field) already has it.
+    if (!dialogRef.current?.contains(document.activeElement)) (focusables()[0] ?? dialogRef.current)?.focus();
 
     function onKey(e) {
       if (e.key === 'Escape') {
-        if (closable) onClose();
+        if (closableRef.current) onCloseRef.current();
         return;
       }
       if (e.key !== 'Tab') return;
@@ -91,7 +103,7 @@ export default function Modal({ open, onClose, title, size = 'md', closable = tr
       // shouldn't land back at the top of the page.
       previouslyFocusedRef.current?.focus?.();
     };
-  }, [open, onClose, closable]);
+  }, [open]);
 
   if (!open) return null;
 

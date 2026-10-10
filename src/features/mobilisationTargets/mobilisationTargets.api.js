@@ -15,12 +15,6 @@ export async function getAllProgress(month) {
   return data.data; // [{ coordinator, target, achieved, remaining, hit, incentivePercent }]
 }
 
-/** Coordinator's own rolling 6-month progress, window ending at endMonth (YYYY-MM). */
-export async function getMySemiAnnual(endMonth) {
-  const { data } = await api.get('/mobilisation-targets/semi-annual/my', { params: { endMonth } });
-  return data.data; // null, or { windowMonths, semiAnnualTarget, achieved, netProfit, excess, excessNetProfit, incentivePercent, incentiveAmount, hit }
-}
-
 export async function getMyMonthlyWindow(endMonth) {
   const { data } = await api.get('/mobilisation-targets/monthly-window/my', { params: { endMonth } });
   return data.data;

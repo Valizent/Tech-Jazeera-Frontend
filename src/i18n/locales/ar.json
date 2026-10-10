@@ -820,11 +820,6 @@
       "recentLogEntries": "أحدث إدخالات السجل",
       "noRecentLogs": "لا توجد إدخالات سجل خلال آخر 30 يومًا."
     },
-    "semiAnnual": {
-      "title": "إيراد 6 أشهر ({{start}} – {{end}})",
-      "hitBadge": "تم تحقيق الهدف",
-      "incentiveEarned": "حافز مكتسب: {{amount}} ({{percent}}% من صافي الربح على الفائض)"
-    },
     "clientsWaitingApproval_zero": "{{count}} عميل بانتظار الموافقة",
     "clientsWaitingApproval_one": "عميل واحد بانتظار الموافقة",
     "clientsWaitingApproval_two": "عميلان بانتظار الموافقة",
@@ -2547,6 +2542,7 @@
         "textPlaceholder": "مثال: زرت موقع العميل، واستلمت نسخ جوازات سفر لعاملين…",
         "date": "اليوم"
       },
+      "filterHeading": "تصفية السجلات",
       "filterFrom": "من",
       "filterTo": "إلى",
       "clearDates": "مسح التواريخ",

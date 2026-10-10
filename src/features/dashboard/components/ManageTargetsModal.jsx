@@ -36,7 +36,7 @@ function ProgressBar({ achieved, target }) {
     <div className="mt-1 h-1.5 w-full overflow-hidden rounded-full bg-border">
       <div
         className="h-full rounded-full transition-all duration-500"
-        style={{ width: `${pct}%`, backgroundColor: hit ? '#f59e0b' : 'var(--color-primary)' }}
+        style={{ width: `${pct}%`, backgroundColor: hit ? '#f59e0b' : 'rgb(var(--color-primary))' }}
       />
     </div>
   );

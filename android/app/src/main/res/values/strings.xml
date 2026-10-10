@@ -1,7 +1,0 @@
-<?xml version='1.0' encoding='utf-8'?>
-<resources>
-    <string name="app_name">Al Jazeera ERP</string>
-    <string name="title_activity_main">Al Jazeera ERP</string>
-    <string name="package_name">com.aljazeera.crm</string>
-    <string name="custom_url_scheme">com.aljazeera.crm</string>
-</resources>

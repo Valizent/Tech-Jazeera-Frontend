@@ -70,6 +70,7 @@ function ReadyToInvoiceRow({ row, side, isOpen, onToggle, onInvoice, t, navigate
           <div className="flex items-center justify-end gap-3">
             <Button
               size="sm"
+              className="whitespace-nowrap"
               onClick={(e) => {
                 e.stopPropagation();
                 onInvoice(row);

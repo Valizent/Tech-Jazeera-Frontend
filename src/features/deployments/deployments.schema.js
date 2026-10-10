@@ -18,15 +18,6 @@ export function resolveDemobiliseOutcome(workerType, reason, exitOutcome) {
   return DEMOBILISATION_OUTCOME[reason] ?? 'Standby';
 }
 
-/** Real day count for a 'YYYY-MM' string (28-31) — mirrors the server's own
- *  daysInMonth (deployment.service.js) exactly, so the grid always renders
- *  the right number of day inputs for the selected month. */
-export function daysInMonth(monthStr) {
-  if (!monthStr) return 0;
-  const [y, m] = monthStr.split('-').map(Number);
-  return new Date(y, m, 0).getDate();
-}
-
 // Reverted 2026-09-16 (the user's own ask) from a day-by-day grid (added
 // 2026-09-12, see docs/DEPLOYMENT-notes.md's own follow-up on that) back to
 // two typed totals transcribed straight off the client's own timesheet —

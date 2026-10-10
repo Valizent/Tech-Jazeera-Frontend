@@ -804,11 +804,6 @@
       "recentLogEntries": "Recent log entries",
       "noRecentLogs": "No logs submitted in the last 30 days."
     },
-    "semiAnnual": {
-      "title": "6-month revenue ({{start}} – {{end}})",
-      "hitBadge": "Target hit",
-      "incentiveEarned": "{{amount}} incentive earned ({{percent}}% of net profit on the excess)"
-    },
     "clientsWaitingApproval_one": "{{count}} client waiting for approval"
   },
   "staffEmployees": {
@@ -2515,6 +2510,7 @@
         "textPlaceholder": "e.g. Visited the client site, collected passport copies for two workers…",
         "date": "Day"
       },
+      "filterHeading": "Filter logs",
       "filterFrom": "From",
       "filterTo": "To",
       "clearDates": "Clear dates",

@@ -108,41 +108,44 @@ export default function LogPanel({ access, coordinators }) {
         </div>
       )}
 
-      <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-end">
-        {canSeeAll && (
-          <Select
-            value={filters.coordinator}
-            onChange={(e) => setFilter({ coordinator: e.target.value })}
-            className="sm:min-w-[200px]"
-            aria-label={t('staffDailyUpdates.coordinatorFilterAria')}
-          >
-            <option value="">{t('staffDailyUpdates.coordinatorFilterAll')}</option>
-            {(coordinators ?? []).map((c) => (
-              <option key={c._id} value={c._id}>
-                {c.name}
-              </option>
-            ))}
-          </Select>
-        )}
-        <Input
-          label={t('staffDailyUpdates.log.filterFrom')}
-          type="date"
-          value={filters.from}
-          onChange={(e) => setFilter({ from: e.target.value })}
-          className="sm:max-w-[180px]"
-        />
-        <Input
-          label={t('staffDailyUpdates.log.filterTo')}
-          type="date"
-          value={filters.to}
-          onChange={(e) => setFilter({ to: e.target.value })}
-          className="sm:max-w-[180px]"
-        />
-        {hasDateFilter && (
-          <Button size="sm" variant="ghost" onClick={() => setFilter({ from: '', to: '' })}>
-            {t('staffDailyUpdates.log.clearDates')}
-          </Button>
-        )}
+      <div className="mb-6 rounded-2xl border border-border bg-surface p-4 shadow-sm">
+        <h3 className="mb-3 text-sm font-semibold text-muted">{t('staffDailyUpdates.log.filterHeading')}</h3>
+        <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-end">
+          {canSeeAll && (
+            <Select
+              value={filters.coordinator}
+              onChange={(e) => setFilter({ coordinator: e.target.value })}
+              className="sm:min-w-[200px]"
+              aria-label={t('staffDailyUpdates.coordinatorFilterAria')}
+            >
+              <option value="">{t('staffDailyUpdates.coordinatorFilterAll')}</option>
+              {(coordinators ?? []).map((c) => (
+                <option key={c._id} value={c._id}>
+                  {c.name}
+                </option>
+              ))}
+            </Select>
+          )}
+          <Input
+            label={t('staffDailyUpdates.log.filterFrom')}
+            type="date"
+            value={filters.from}
+            onChange={(e) => setFilter({ from: e.target.value })}
+            className="sm:max-w-[180px]"
+          />
+          <Input
+            label={t('staffDailyUpdates.log.filterTo')}
+            type="date"
+            value={filters.to}
+            onChange={(e) => setFilter({ to: e.target.value })}
+            className="sm:max-w-[180px]"
+          />
+          {hasDateFilter && (
+            <Button size="sm" variant="ghost" onClick={() => setFilter({ from: '', to: '' })}>
+              {t('staffDailyUpdates.log.clearDates')}
+            </Button>
+          )}
+        </div>
       </div>
 
       {isError ? (

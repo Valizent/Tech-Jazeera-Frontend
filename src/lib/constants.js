@@ -165,11 +165,6 @@ export const ASSET_DELETE_ROLES = ['Admin', 'HR'];
  *  2026-09-13 — see docs/TIMESHEETS-MONTHLY-REPORT-notes.md. */
 export const TIMESHEET_STATUS_VARIANT = { Submitted: 'warning', Approved: 'success', Rejected: 'danger' };
 
-export const MONTH_NAMES = [
-  'January', 'February', 'March', 'April', 'May', 'June',
-  'July', 'August', 'September', 'October', 'November', 'December',
-];
-
 /** Mirrors expense.model.js. Internal cost data — access is the same
  *  SectionAccess ('expenses') mechanism as Payroll, not a static role list. */
 export const EXPENSE_CATEGORIES = ['Rent', 'Fuel', 'Salaries-external', 'Purchases', 'Utilities', 'Staff Reimbursement', 'Other'];

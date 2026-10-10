@@ -154,7 +154,7 @@ export default function TargetsListPage() {
                               className="h-full rounded-full transition-all duration-500"
                               style={{ 
                                 width: `${progress * 100}%`,
-                                backgroundColor: m.hit ? '#f59e0b' : 'var(--color-primary)' 
+                                backgroundColor: m.hit ? '#f59e0b' : 'rgb(var(--color-primary))' 
                               }}
                             />
                           </div>

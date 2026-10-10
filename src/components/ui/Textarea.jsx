@@ -45,7 +45,7 @@ const Textarea = forwardRef(function Textarea(
         aria-describedby={error ? errorId : undefined}
         className={cn(
           'w-full rounded-lg border bg-surface px-3 py-2 text-sm text-text shadow-xs',
-          'placeholder:text-muted/70 transition-all outline-none',
+          'placeholder:text-muted transition-all outline-none',
           // A field a viewer isn't allowed to change must look visibly
           // locked, not just silently reject keystrokes — see Input.jsx's
           // identical rule.

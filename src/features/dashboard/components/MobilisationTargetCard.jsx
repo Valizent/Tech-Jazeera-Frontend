@@ -135,7 +135,7 @@ export default function MobilisationTargetCard({ target }) {
             ? {
                 borderColor: 'transparent',
                 backgroundImage:
-                  'linear-gradient(var(--color-surface), var(--color-surface)), linear-gradient(135deg,#16a34a,#4ade80,#16a34a,#166534)',
+                  'linear-gradient(rgb(var(--color-surface)), rgb(var(--color-surface))), linear-gradient(135deg,#16a34a,#4ade80,#16a34a,#166534)',
                 backgroundOrigin: 'border-box',
                 backgroundClip: 'padding-box, border-box',
                 backgroundSize: '200% 200%, 200% 200%',
@@ -146,7 +146,7 @@ export default function MobilisationTargetCard({ target }) {
       >
         {showConfetti && <ConfettiBurst />}
 
-        <div className="flex items-center gap-5">
+        <div className="flex flex-col items-center gap-5 sm:flex-row sm:items-start">
           {/* SVG Progress Ring */}
           <div className="relative shrink-0">
             <svg
@@ -161,7 +161,7 @@ export default function MobilisationTargetCard({ target }) {
                 cy="60"
                 r={RING_R}
                 fill="none"
-                stroke="var(--color-border)"
+                stroke="rgb(var(--color-border))"
                 strokeWidth="10"
               />
               {/* Progress arc */}
@@ -187,7 +187,7 @@ export default function MobilisationTargetCard({ target }) {
                 dominantBaseline="middle"
                 fontSize="18"
                 fontWeight="700"
-                fill={hit ? color : 'var(--color-text)'}
+                fill={hit ? color : 'rgb(var(--color-text))'}
               >
                 {compactMoney(achieved)}
               </text>
@@ -196,7 +196,7 @@ export default function MobilisationTargetCard({ target }) {
                 y="73"
                 textAnchor="middle"
                 fontSize="11"
-                fill="var(--color-muted)"
+                fill="rgb(var(--color-muted))"
               >
                 / {compactMoney(targetCount)}
               </text>
