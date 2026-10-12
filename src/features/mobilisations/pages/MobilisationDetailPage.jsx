@@ -36,7 +36,7 @@ import {
 } from '../mobilisations.schema.js';
 import MobilisationDocumentPreviewModal from '../components/MobilisationDocumentPreviewModal.jsx';
 import { useAuth } from '../../auth/AuthContext.jsx';
-import { apiMessage, cn, formatDate, formatMoney, profitClass } from '../../../lib/utils.js';
+import { apiMessage, cn, formatDate, formatMoney, mobilisationStatusLabel, profitClass } from '../../../lib/utils.js';
 import { MOBILISATION_STATUS_VARIANT, MOBILISATION_DOCUMENT_CATEGORIES, MOBILISATION_DOCUMENT_CATEGORY_LABELS } from '../../../lib/constants.js';
 import { useToast } from '../../../components/ui/Toast.jsx';
 import ApprovalTrailView from '../../../components/shared/ApprovalTrailView.jsx';
@@ -563,7 +563,7 @@ export default function MobilisationDetailPage() {
         onBack={() => navigate(-1)}
         actions={
           <div className="flex flex-wrap items-center gap-2">
-            <Badge variant={MOBILISATION_STATUS_VARIANT[m.status]}>{t(`common.status.${m.status}`, m.status)}</Badge>
+            <Badge variant={MOBILISATION_STATUS_VARIANT[m.status]}>{mobilisationStatusLabel(t, m.status)}</Badge>
             <Button size="sm" variant="secondary" isLoading={exportMutation.isPending} onClick={() => exportMutation.mutate()}>
               {t('staffMobilisations.detail.exportExcel')}
             </Button>

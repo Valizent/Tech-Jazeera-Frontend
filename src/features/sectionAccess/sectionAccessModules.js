@@ -57,10 +57,15 @@ export const MODULE_GROUPS = [
     labelKey: navGroup('sales').labelKey,
     icon: navGroup('sales').icon,
     modules: [
-      { ...navItem('sales', '/mobilisations'), sectionKeys: ['mobilisationsViewer', 'mobilisationsSelfMobilise', 'mobilisationTargets'] },
+      // One module since the Deployments register was folded into the
+      // Mobilisations list (2026-10-12): the deployment permissions sit here
+      // too, as their own cards.
       {
-        ...navItem('sales', '/deployments'),
+        ...navItem('sales', '/mobilisations'),
         sectionKeys: [
+          'mobilisationsViewer',
+          'mobilisationsSelfMobilise',
+          'mobilisationTargets',
           'deploymentsRelease',
           'deploymentsHours',
           'deploymentsHoursDecide',

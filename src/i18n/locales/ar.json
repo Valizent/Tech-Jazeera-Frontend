@@ -514,10 +514,6 @@
         "label": "العملاء",
         "description": "الشركات التي يعمل لديها موظفوك."
       },
-      "deployments": {
-        "label": "التنسيبات",
-        "description": "أين يعمل كل موظف حاليًا."
-      },
       "mobilisations": {
         "label": "التعبئة والتنسيب",
         "description": "تنسيب الموظفين مع شروط الفوترة للعميل."
@@ -1732,25 +1728,9 @@
     },
     "list": {
       "pageTitle": "عمليات النشر",
-      "pageDescription": "كل موظف يعمل فعليًا لدى عميل تُنشأ تلقائيًا فور اعتماد التعبئة.",
-      "filterStatusAriaLabel": "تصفية حسب الحالة",
-      "filterClientAriaLabel": "تصفية حسب العميل",
-      "allClients": "كل العملاء",
-      "searchClientPlaceholder": "ابحث عن عميل…",
-      "standbyList": "قائمة الاحتياط",
-      "exportExcel": "تصدير إلى Excel",
-      "overview": "نظرة عامة",
-      "columns": {
-        "worker": "الموظف",
-        "clientSite": "العميل / الموقع",
-        "period": "الفترة",
-        "status": "الحالة"
-      },
       "couldNotLoad": "تعذر تحميل عمليات النشر",
       "couldNotLoadDescription": "يرجى المحاولة مرة أخرى.",
-      "emptyTitleNoFilters": "لا توجد عمليات نشر بعد",
-      "emptyTitleFiltered": "لا توجد عمليات نشر مطابقة",
-      "emptyDescriptionNoFilters": "تُنشأ عملية النشر تلقائيًا فور اعتماد التعبئة."
+      "emptyTitleFiltered": "لا توجد عمليات نشر مطابقة"
     },
     "overview": {
       "modalTitle": "نظرة عامة على عمليات النشر",
@@ -2192,10 +2172,9 @@
     },
     "list": {
       "pageTitle": "التعبئات",
-      "pageDescription": "تعيينات الموظفين مع شروط الفوترة للعميل.",
+      "pageDescription": "كل تعيين، من أول مسودة حتى التسريح. المعبأون هم الموظفون المتواجدون لدى عميل الآن.",
       "newMobilisation": "تعبئة جديدة",
       "workerDataButton": "بيانات الموظف",
-      "exportExcel": "تصدير إلى إكسل",
       "searchPlaceholderWithSerial": "البحث بالرقم أو الموظف أو العميل أو المسمى الوظيفي…",
       "searchAriaLabel": "البحث في التعبئات",
       "filterStatusAriaLabel": "تصفية حسب الحالة",
@@ -2208,7 +2187,9 @@
         "jobTitle": "المسمى الوظيفي",
         "client": "العميل",
         "mobilisationDate": "تاريخ التعبئة",
-        "status": "الحالة"
+        "status": "الحالة",
+        "site": "الموقع",
+        "period": "الفترة"
       },
       "couldNotLoad": "تعذر تحميل التعبئات",
       "couldNotLoadDescription": "يرجى المحاولة مرة أخرى.",
@@ -2216,7 +2197,17 @@
       "emptyTitleFiltered": "لا توجد تعبئات مطابقة",
       "emptyDescriptionNoFilters": "أنشئ أول تعبئة أعلاه.",
       "filteredToShared": "الموظفون المشتركون فقط",
-      "clearSharedFilterAriaLabel": "إلغاء فلتر الموظفين المشتركين"
+      "clearSharedFilterAriaLabel": "إلغاء فلتر الموظفين المشتركين",
+      "exportMobilisations": "تصدير التعبئات",
+      "exportDeployments": "تصدير عمليات النشر",
+      "overview": "نظرة عامة",
+      "standbyList": "قائمة الاحتياط",
+      "approveTimesheets": "اعتماد الجداول الزمنية",
+      "allClients": "كل العملاء",
+      "searchClientPlaceholder": "ابحث عن عميل…",
+      "filterClientAriaLabel": "تصفية حسب العميل",
+      "clientFilterList": "قائمة تصفية العملاء",
+      "missingMonths": "أشهر الجداول الزمنية المتبقية للإدخال: {{count}}"
     },
     "workerHistory": {
       "pageTitle": "بيانات الموظف",

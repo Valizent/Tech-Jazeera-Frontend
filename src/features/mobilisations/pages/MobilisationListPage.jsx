@@ -1,10 +1,20 @@
 /**
- * MobilisationListPage — every mobilisation this viewer can see (M1: their
- * own, as coordinator; Admin sees all). Row-clickable to edit, same "detail
- * view" until a proper detail page lands in M2/M3.
+ * MobilisationListPage — every placement this viewer can see, from the first
+ * draft to its release. One list since 2026-10-12: the Deployments register was
+ * folded in, because a deployment is the same placement after approval (born
+ * with the approved mobilisation, ended with it). An approved row reads
+ * "Mobilised" and opens its deployment; a released one reads "Demobilised".
  *
- * 2026-09-28: compact sort-and-filter popover (sortBy column, asc/desc)
- * behind a small icon button next to the existing search/status filters.
+ * Who sees a row is the server's call (see mobilisation.service.js's
+ * findVisibleMobilisations): their own as coordinator, everything past Draft for
+ * the viewer circle, and every approved placement for whoever could open the old
+ * Deployments register. Those people also get the register's own controls here
+ * — Overview, Standby list, the deployments export — and the red count of
+ * timesheet months still to enter.
+ *
+ * Arriving with `?status=Approved` (the old `/deployments` link) shows who is
+ * out right now; `?overview=1` opens the Overview straight away (a dashboard
+ * card lands there).
  */
 import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -12,24 +22,49 @@ import { keepPreviousData, useMutation, useQuery } from '@tanstack/react-query';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../../auth/AuthContext.jsx';
 import { listMobilisations, downloadMobilisationsExport } from '../mobilisations.api.js';
-import { apiMessage, formatDate } from '../../../lib/utils.js';
+import { downloadDeploymentsExport, getPendingHoursQueue } from '../../deployments/deployments.api.js';
+import { getMissingMonthsCount } from '../../deployments/deploymentMonths.js';
+import { listClients } from '../../clients/clients.api.js';
+import { apiMessage, formatDate, mobilisationStatusLabel } from '../../../lib/utils.js';
 import { MOBILISATION_STATUSES, MOBILISATION_STATUS_VARIANT } from '../../../lib/constants.js';
 import { useToast } from '../../../components/ui/Toast.jsx';
 import PageHeader from '../../../components/shared/PageHeader.jsx';
+import PickerLoadWarning from '../../../components/shared/PickerLoadWarning.jsx';
 import Table from '../../../components/ui/Table.jsx';
 import Badge from '../../../components/ui/Badge.jsx';
 import Button from '../../../components/ui/Button.jsx';
 import Input from '../../../components/ui/Input.jsx';
 import Select from '../../../components/ui/Select.jsx';
+import SearchableSelect from '../../../components/ui/SearchableSelect.jsx';
 import EmptyState from '../../../components/ui/EmptyState.jsx';
+import DeploymentOverviewModal from '../../deployments/components/DeploymentOverviewModal.jsx';
 
 const SORT_FIELDS = [
   { value: 'createdAt', label: 'Date created' },
   { value: 'mobilisationDate', label: 'Mobilisation date' },
   { value: 'workerName', label: 'Worker' },
   { value: 'clientName', label: 'Client' },
+  { value: 'site', label: 'Site' },
   { value: 'status', label: 'Status' },
 ];
+
+// The deployments export knows the deployment's own statuses and sort fields.
+const DEPLOYMENT_STATUS_OF = { Approved: 'Active', Completed: 'Ended' };
+const DEPLOYMENT_SORT_OF = { mobilisationDate: 'startDate', workerName: 'workerName', clientName: 'clientName', site: 'site', status: 'status' };
+
+// An Ascending choice survives a refresh and moving around the app, but resets
+// to Descending once the tab closes — sessionStorage has exactly that lifetime.
+// try/catch: a private window or blocked site data can make it throw, and this
+// is only a personal preference.
+const SORT_ORDER_STORAGE_KEY = 'mobilisations-sort-order';
+function readStoredSortOrder() {
+  try {
+    const stored = sessionStorage.getItem(SORT_ORDER_STORAGE_KEY);
+    return stored === 'asc' || stored === 'desc' ? stored : 'desc';
+  } catch {
+    return 'desc';
+  }
+}
 
 export default function MobilisationListPage() {
   const { t } = useTranslation();
@@ -37,32 +72,54 @@ export default function MobilisationListPage() {
   const navigate = useNavigate();
   const toast = useToast();
   const [sortPanelOpen, setSortPanelOpen] = useState(false);
+  const [overviewOpen, setOverviewOpen] = useState(false);
   const sortPanelRef = useRef(null);
 
   // Arriving from the Coordinator Drill-Down modal's "Generated profit" tile
   // (?coordinator=<id>&coordinatorName=<name>) — the name rides along in the
   // URL so this page can show a real "Filtered to: X" chip without a second
   // fetch just to resolve an id back to a name.
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const initialCoordinator = searchParams.get('coordinator') ?? '';
   const initialCoordinatorName = searchParams.get('coordinatorName') ?? '';
   // The dashboard's "Shared employees" tile links here with ?status=Approved&shared=true.
   const linkedStatus = searchParams.get('status');
-  const initialStatus = ['Draft', 'PendingReview', 'Approved', 'Rejected', 'Completed'].includes(linkedStatus) ? linkedStatus : '';
+  const initialStatus = MOBILISATION_STATUSES.includes(linkedStatus) ? linkedStatus : '';
   const initialShared = searchParams.get('shared') === 'true' ? 'true' : '';
 
+  const canReadDeployments = user.role === 'Office Secretary' || Boolean(user.sectionAccess?.includes('deploymentsRelease'));
+  const canDecideHours = Boolean(user.sectionAccessWrite?.includes('deploymentsHoursDecide'));
+
   const [search, setSearch] = useState('');
-  const [params, setParams] = useState({
+  const [params, setParams] = useState(() => ({
     page: 1,
     limit: 20,
     search: '',
     status: initialStatus,
+    client: '',
+    site: '',
     coordinator: initialCoordinator,
     shared: initialShared,
     sortBy: 'createdAt',
-    sortOrder: 'desc',
-  });
+    sortOrder: readStoredSortOrder(),
+  }));
   const [coordinatorName, setCoordinatorName] = useState(initialCoordinatorName);
+
+  // Deep link: strip the param as the Overview opens so it cannot force itself
+  // back open on a later back-navigation.
+  useEffect(() => {
+    if (canReadDeployments && searchParams.get('overview') === '1') {
+      setOverviewOpen(true);
+      setSearchParams(
+        (prev) => {
+          prev.delete('overview');
+          return prev;
+        },
+        { replace: true }
+      );
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -70,6 +127,14 @@ export default function MobilisationListPage() {
     }, 300);
     return () => clearTimeout(timer);
   }, [search]);
+
+  useEffect(() => {
+    try {
+      sessionStorage.setItem(SORT_ORDER_STORAGE_KEY, params.sortOrder);
+    } catch {
+      // Blocked storage: a lost preference for this tab only.
+    }
+  }, [params.sortOrder]);
 
   // Close popover on outside click.
   useEffect(() => {
@@ -83,19 +148,37 @@ export default function MobilisationListPage() {
     return () => document.removeEventListener('mousedown', handleClick);
   }, [sortPanelOpen]);
 
+  // The client filter is the old Deployments register's, so it stays with that
+  // audience; a plain mobilisation viewer never had one and must not get a
+  // "could not load" warning for a list they cannot fill.
+  const { data: clientData, isError: clientsError } = useQuery({
+    queryKey: ['clients', 'all-for-filter'],
+    queryFn: () => listClients({ limit: 100 }),
+    staleTime: 60_000,
+    enabled: canReadDeployments,
+  });
+
+  const { data: pendingHours } = useQuery({
+    queryKey: ['deployments', 'pending-hours'],
+    queryFn: getPendingHoursQueue,
+    enabled: canDecideHours,
+    refetchInterval: 30_000,
+  });
+
+  const filters = {
+    sortBy: params.sortBy,
+    sortOrder: params.sortOrder,
+    ...(params.search && { search: params.search }),
+    ...(params.status && { status: params.status }),
+    ...(params.client && { client: params.client }),
+    ...(params.site && { site: params.site }),
+    ...(params.coordinator && { coordinator: params.coordinator }),
+    ...(params.shared && { shared: params.shared }),
+  };
+
   const { data, isPending, isError, refetch } = useQuery({
     queryKey: ['mobilisations', params],
-    queryFn: () =>
-      listMobilisations({
-        page: params.page,
-        limit: params.limit,
-        sortBy: params.sortBy,
-        sortOrder: params.sortOrder,
-        ...(params.search && { search: params.search }),
-        ...(params.status && { status: params.status }),
-        ...(params.coordinator && { coordinator: params.coordinator }),
-        ...(params.shared && { shared: params.shared }),
-      }),
+    queryFn: () => listMobilisations({ page: params.page, limit: params.limit, ...filters }),
     placeholderData: keepPreviousData,
     // Same reasoning as the Leave review queue: a coordinator submitting or
     // a Marketing Manager deciding a mobilisation from another session has
@@ -107,31 +190,69 @@ export default function MobilisationListPage() {
   });
 
   const exportMutation = useMutation({
+    mutationFn: () => downloadMobilisationsExport(filters),
+    onError: (error) => toast.error(apiMessage(error)),
+  });
+
+  // Only a mobilised or demobilised filter (or none) has deployments to export.
+  const canExportDeployments = canReadDeployments && (!params.status || Boolean(DEPLOYMENT_STATUS_OF[params.status]));
+  const deploymentsExportMutation = useMutation({
     mutationFn: () =>
-      downloadMobilisationsExport({
-        sortBy: params.sortBy,
+      downloadDeploymentsExport({
         sortOrder: params.sortOrder,
-        ...(params.search && { search: params.search }),
-        ...(params.status && { status: params.status }),
-        ...(params.coordinator && { coordinator: params.coordinator }),
-        ...(params.shared && { shared: params.shared }),
+        ...(DEPLOYMENT_SORT_OF[params.sortBy] && { sortBy: DEPLOYMENT_SORT_OF[params.sortBy] }),
+        ...(DEPLOYMENT_STATUS_OF[params.status] && { status: DEPLOYMENT_STATUS_OF[params.status] }),
+        ...(params.client && { client: params.client }),
+        ...(params.site && { site: params.site }),
       }),
     onError: (error) => toast.error(apiMessage(error)),
   });
 
-  // Dot indicator — active when sort differs from defaults.
-  const sortPanelActive = params.sortBy !== 'createdAt' || params.sortOrder !== 'desc';
+  // Dot indicator — active when sort or the site filter differ from defaults.
+  const sortPanelActive = params.sortBy !== 'createdAt' || params.sortOrder !== 'desc' || params.site !== '';
+
+  const openPlacement = (m) => navigate(m.deployment ? `/deployments/${m.deployment._id}` : `/mobilisations/${m._id}`);
 
   const columns = [
     { key: 'serialNumber', header: t('staffMobilisations.list.columns.serialNumber'), render: (m) => m.serialNumber },
     { key: 'workerName', header: t('staffMobilisations.list.columns.worker'), render: (m) => m.workerName },
     { key: 'jobTitle', header: t('staffMobilisations.list.columns.jobTitle'), hideOnMobile: true, render: (m) => m.jobTitle },
     { key: 'clientName', header: t('staffMobilisations.list.columns.client'), render: (m) => m.clientName },
-    { key: 'mobilisationDate', header: t('staffMobilisations.list.columns.mobilisationDate'), hideOnMobile: true, render: (m) => formatDate(m.mobilisationDate) },
+    { key: 'site', header: t('staffMobilisations.list.columns.site'), hideOnMobile: true, render: (m) => <span className="text-muted">{m.site || ''}</span> },
+    {
+      key: 'mobilisationDate',
+      header: t('staffMobilisations.list.columns.period'),
+      hideOnMobile: true,
+      render: (m) => (
+        <span className="text-sm">
+          {formatDate(m.mobilisationDate)}
+          {m.deployment?.endDate && <span className="text-muted"> &rarr; {formatDate(m.deployment.endDate)}</span>}
+        </span>
+      ),
+    },
     {
       key: 'status',
       header: t('staffMobilisations.list.columns.status'),
-      render: (m) => <Badge variant={MOBILISATION_STATUS_VARIANT[m.status]}>{t(`common.status.${m.status}`, m.status)}</Badge>,
+      render: (m) => {
+        const missing = m.deployment ? getMissingMonthsCount(m.deployment) : 0;
+        const reason = m.deployment?.endReason;
+        return (
+          <div className="flex items-center gap-2">
+            <Badge variant={MOBILISATION_STATUS_VARIANT[m.status]}>
+              {mobilisationStatusLabel(t, m.status)}
+              {reason ? ` · ${t(`staffDeployments.reasons.${reason}`, reason)}` : ''}
+            </Badge>
+            {missing > 0 && (
+              <span
+                className="flex h-4 min-w-[1rem] items-center justify-center rounded-full bg-danger px-1 text-[9px] font-bold leading-none text-white shadow-sm"
+                title={t('staffMobilisations.list.missingMonths', { count: missing })}
+              >
+                {missing}
+              </span>
+            )}
+          </div>
+        );
+      },
     },
     {
       key: 'actions',
@@ -139,7 +260,7 @@ export default function MobilisationListPage() {
       className: 'text-right',
       render: (m) => (
         <span className="flex justify-end gap-2">
-          <Button size="sm" variant="ghost" onClick={() => navigate(`/mobilisations/${m._id}`)}>
+          <Button size="sm" variant="ghost" onClick={() => openPlacement(m)}>
             {t('common.view')}
           </Button>
         </span>
@@ -147,7 +268,7 @@ export default function MobilisationListPage() {
     },
   ];
 
-  const noFilters = !params.search && !params.status && !params.coordinator && !params.shared;
+  const noFilters = !params.search && !params.status && !params.client && !params.site && !params.coordinator && !params.shared;
 
   function clearSharedFilter() {
     setParams((p) => ({ ...p, shared: '', page: 1 }));
@@ -165,15 +286,39 @@ export default function MobilisationListPage() {
         description={t('staffMobilisations.list.pageDescription')}
         onBack={() => navigate(-1)}
         actions={
-          <div className="flex items-center gap-2">
-            <Button
-              size="sm"
-              variant="secondary"
-              isLoading={exportMutation.isPending}
-              onClick={() => exportMutation.mutate()}
-            >
-              {t('staffMobilisations.list.exportExcel')}
+          <div className="flex flex-wrap items-center gap-2">
+            {canDecideHours && (
+              <Button size="sm" variant="primary" onClick={() => navigate('/deployments/hours-review')} className="relative">
+                {t('staffMobilisations.list.approveTimesheets')}
+                {pendingHours?.length > 0 && (
+                  <span className="absolute -right-1.5 -top-1.5 flex h-4 min-w-[1rem] items-center justify-center rounded-full bg-danger px-1 text-[9px] font-bold leading-none text-white shadow-sm ring-2 ring-surface">
+                    {pendingHours.length}
+                  </span>
+                )}
+              </Button>
+            )}
+            <Button size="sm" variant="secondary" isLoading={exportMutation.isPending} onClick={() => exportMutation.mutate()}>
+              {t('staffMobilisations.list.exportMobilisations')}
             </Button>
+            {canReadDeployments && (
+              <>
+                <Button
+                  size="sm"
+                  variant="secondary"
+                  disabled={!canExportDeployments}
+                  isLoading={deploymentsExportMutation.isPending}
+                  onClick={() => deploymentsExportMutation.mutate()}
+                >
+                  {t('staffMobilisations.list.exportDeployments')}
+                </Button>
+                <Button size="sm" variant="secondary" onClick={() => setOverviewOpen(true)}>
+                  {t('staffMobilisations.list.overview')}
+                </Button>
+                <Button size="sm" variant="secondary" onClick={() => navigate('/deployments/standby')}>
+                  {t('staffMobilisations.list.standbyList')}
+                </Button>
+              </>
+            )}
             {user.role === 'Admin' && (
               <Button size="sm" variant="secondary" onClick={() => navigate('/mobilisations/worker-history')}>
                 {t('staffMobilisations.list.workerDataButton')}
@@ -218,6 +363,7 @@ export default function MobilisationListPage() {
         </div>
       )}
 
+      {canReadDeployments && <PickerLoadWarning failed={[{ label: t('staffMobilisations.list.clientFilterList'), isError: clientsError }]} />}
       <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-end">
         <Input
           placeholder={t('staffMobilisations.list.searchPlaceholderWithSerial')}
@@ -235,18 +381,31 @@ export default function MobilisationListPage() {
           <option value="">{t('common.allStatuses')}</option>
           {MOBILISATION_STATUSES.map((s) => (
             <option key={s} value={s}>
-              {t(`common.status.${s}`, s)}
+              {mobilisationStatusLabel(t, s)}
             </option>
           ))}
         </Select>
+        {canReadDeployments && (
+          <SearchableSelect
+            value={params.client}
+            onChange={(value) => setParams((p) => ({ ...p, client: value, page: 1 }))}
+            placeholder={t('staffMobilisations.list.searchClientPlaceholder')}
+            className="sm:max-w-xs"
+            aria-label={t('staffMobilisations.list.filterClientAriaLabel')}
+            options={[
+              { value: '', label: t('staffMobilisations.list.allClients') },
+              ...(clientData?.items ?? []).map((c) => ({ value: c._id, label: c.companyName })),
+            ]}
+          />
+        )}
 
-        {/* Compact sort popover */}
+        {/* Compact sort & filter popover */}
         <div className="relative" ref={sortPanelRef}>
           <button
             type="button"
             id="mob-sort-filter-btn"
             onClick={() => setSortPanelOpen((o) => !o)}
-            aria-label="Sort"
+            aria-label="Sort and filter"
             aria-expanded={sortPanelOpen}
             className={[
               'relative flex h-10 w-10 items-center justify-center rounded-lg border transition-colors',
@@ -267,11 +426,11 @@ export default function MobilisationListPage() {
           {sortPanelOpen && (
             <div
               id="mob-sort-filter-panel"
-              className="absolute start-0 top-12 z-30 w-56 rounded-xl border border-border bg-surface p-4 shadow-lg"
+              className="absolute start-0 top-12 z-30 w-64 rounded-xl border border-border bg-surface p-4 shadow-lg"
               role="dialog"
-              aria-label="Sort options"
+              aria-label="Sort and filter options"
             >
-              <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-muted">Sort</p>
+              <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-muted">Sort &amp; Filter</p>
 
               <label className="mb-1 block text-xs font-medium text-text">Sort by</label>
               <div className="relative mb-3">
@@ -290,7 +449,7 @@ export default function MobilisationListPage() {
               </div>
 
               <label className="mb-1 block text-xs font-medium text-text">Direction</label>
-              <div className="flex gap-2">
+              <div className="mb-3 flex gap-2">
                 {[
                   { val: 'desc', icon: '↓', label: 'Desc' },
                   { val: 'asc', icon: '↑', label: 'Asc' },
@@ -312,10 +471,20 @@ export default function MobilisationListPage() {
                 ))}
               </div>
 
+              <label htmlFor="mob-site-filter" className="mb-1 block text-xs font-medium text-text">Filter by site</label>
+              <input
+                id="mob-site-filter"
+                type="text"
+                value={params.site}
+                onChange={(e) => setParams((p) => ({ ...p, site: e.target.value, page: 1 }))}
+                placeholder="e.g. Jizan, Abha..."
+                className="h-9 w-full rounded-lg border border-border bg-bg px-3 text-sm text-text placeholder:text-muted focus:border-primary focus:outline-none"
+              />
+
               {sortPanelActive && (
                 <button
                   type="button"
-                  onClick={() => setParams((p) => ({ ...p, sortBy: 'createdAt', sortOrder: 'desc', page: 1 }))}
+                  onClick={() => setParams((p) => ({ ...p, sortBy: 'createdAt', sortOrder: 'desc', site: '', page: 1 }))}
                   className="mt-3 w-full rounded-lg py-1.5 text-xs text-muted transition-colors hover:text-danger"
                 >
                   Reset to defaults
@@ -339,7 +508,7 @@ export default function MobilisationListPage() {
             rows={data?.items ?? []}
             rowKey={(m) => m._id}
             loading={isPending}
-            onRowClick={(m) => navigate(`/mobilisations/${m._id}`)}
+            onRowClick={openPlacement}
             emptyState={
               <EmptyState
                 title={noFilters ? t('staffMobilisations.list.emptyTitleNoFilters') : t('staffMobilisations.list.emptyTitleFiltered')}
@@ -369,6 +538,8 @@ export default function MobilisationListPage() {
           )}
         </>
       )}
+
+      {canReadDeployments && <DeploymentOverviewModal open={overviewOpen} onClose={() => setOverviewOpen(false)} />}
     </div>
   );
 }

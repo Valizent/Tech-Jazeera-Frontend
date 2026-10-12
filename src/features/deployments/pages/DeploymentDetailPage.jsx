@@ -550,6 +550,8 @@ export default function DeploymentDetailPage() {
   const invalidate = () => {
     queryClient.invalidateQueries({ queryKey: ['deployment', id] });
     queryClient.invalidateQueries({ queryKey: ['deployments'] });
+    // The merged Mobilisations list carries each placement's deployment state.
+    queryClient.invalidateQueries({ queryKey: ['mobilisations'] });
   };
 
   const addMutation = useMutation({
@@ -669,7 +671,7 @@ export default function DeploymentDetailPage() {
       <EmptyState
         title={t('staffDeployments.detail.notFoundTitle')}
         description={t('staffDeployments.detail.notFoundDescription')}
-        action={<BackButton onClick={() => navigate('/deployments')} />}
+        action={<BackButton onClick={() => navigate('/mobilisations')} />}
       />
     );
   }

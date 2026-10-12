@@ -182,7 +182,7 @@ export default function DashboardPage() {
       key: 'deployed',
       value: stats.deployedActive,
       label: t('staffDashboard.stats.currentlyDeployed'),
-      to: '/deployments',
+      to: '/mobilisations?status=Approved',
     },
     stats.activeEmployees != null && {
       key: 'employees',

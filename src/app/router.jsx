@@ -57,7 +57,6 @@ const ClientListPage = lazy(() => import('../features/clients/pages/ClientListPa
 const ClientNewPage = lazy(() => import('../features/clients/pages/ClientNewPage.jsx'));
 const ClientProfilePage = lazy(() => import('../features/clients/pages/ClientProfilePage.jsx'));
 const ClientEditPage = lazy(() => import('../features/clients/pages/ClientEditPage.jsx'));
-const DeploymentListPage = lazy(() => import('../features/deployments/pages/DeploymentListPage.jsx'));
 const DeploymentDetailPage = lazy(() => import('../features/deployments/pages/DeploymentDetailPage.jsx'));
 const StandbyListPage = lazy(() => import('../features/deployments/pages/StandbyListPage.jsx'));
 const HoursReviewPage = lazy(() => import('../features/deployments/pages/HoursReviewPage.jsx'));
@@ -229,6 +228,15 @@ const guardedWrite = (sectionKey, element, officeSecretaryBypass) => (
   </RequireSectionWrite>
 );
 
+/** The Deployments register is the Mobilisations list now (2026-10-12): who is
+ *  out right now is its "Mobilised" filter. Kept so a saved link, a bookmark or
+ *  an old notification still lands on the right screen. */
+function DeploymentsRedirect() {
+  const { search } = useLocation();
+  const overview = new URLSearchParams(search).get('overview') === '1';
+  return <Navigate to={`/mobilisations?status=Approved${overview ? '&overview=1' : ''}`} replace />;
+}
+
 export const router = createBrowserRouter([
   {
     element: <AuthLayout />,
@@ -268,10 +276,7 @@ export const router = createBrowserRouter([
               { path: '/clients/new', element: guardedWrite('clientsManage', <ClientNewPage />) },
               { path: '/clients/:id', element: guarded('clientsManage', <ClientProfilePage />) },
               { path: '/clients/:id/edit', element: guardedWrite('clientsManage', <ClientEditPage />) },
-              // officeSecretaryBypass: true — mirrors deployment.routes.js's
-              // own hardcoded canReadDeployments exception (she needs to
-              // find the deployment she's about to enter hours against).
-              { path: '/deployments', element: guarded('deploymentsRelease', <DeploymentListPage />, true) },
+              { path: '/deployments', element: <DeploymentsRedirect /> },
               // Before the /deployments/:id catch-all, or "standby" is read as a deployment id.
               { path: '/deployments/standby', element: guarded('deploymentsRelease', <StandbyListPage />, true) },
               // Before the /deployments/:id catch-all.

@@ -11,7 +11,7 @@
  * Overview modal (2026-09-24, the user's own ask, confirmed before building —
  * this figure IS mobilisation-active-deployment revenue, so "show me the
  * deployments behind this number" is the one genuinely relevant destination),
- * via a `?overview=1` deep link (see DeploymentListPage's own doc comment) —
+ * via a `?overview=1` deep link (see MobilisationListPage's own doc comment) —
  * gated on real `deploymentsRelease` read so this never links somewhere that
  * would just 403. The sparkline itself is hover-interactive: a tooltip shows
  * the exact month + amount for whichever point the pointer is nearest.
@@ -125,8 +125,8 @@ export default function ActiveRevenueWidget({ revenue, trend }) {
   const prev = hasTrend ? trend[trend.length - 2].revenue : null;
   const deltaPct = hasTrend && prev ? Math.round(((revenue - prev) / prev) * 100) : null;
 
-  // Gated on real deploymentsRelease read — the same key DeploymentListPage's
-  // own route requires — so this never links somewhere that would just 403.
+  // Gated on real deploymentsRelease read — the same key MobilisationListPage's Overview button
+  // requires — so this never links somewhere that would just 403.
   const canOpenDeployments = Boolean(user.sectionAccess?.includes('deploymentsRelease'));
 
   const body = (
@@ -171,7 +171,7 @@ export default function ActiveRevenueWidget({ revenue, trend }) {
 
   return (
     <Link
-      to="/deployments?overview=1"
+      to="/mobilisations?status=Approved&overview=1"
       className="group block rounded-2xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
       aria-label={t('staffDashboard.widgets.activeRevenue.viewDeployments')}
     >

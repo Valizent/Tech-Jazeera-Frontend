@@ -188,7 +188,7 @@ export default function ActualPerformanceWidget({ performance }) {
 
   return (
     <Link
-      to="/deployments?overview=1"
+      to="/mobilisations?status=Approved&overview=1"
       className="group block rounded-2xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
       aria-label={t('staffDashboard.widgets.activeRevenue.viewDeployments')}
     >

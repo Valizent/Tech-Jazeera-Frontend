@@ -59,6 +59,18 @@ export function formatDate(value) {
   });
 }
 
+const MOBILISATION_STATUS_LABEL_KEYS = {
+  Approved: 'staffDeployments.status.Active',
+  Completed: 'staffDeployments.status.Ended',
+};
+
+/** What a mobilisation status is called on screen. An approved mobilisation IS
+ *  the placement now (its deployment is born with it), so it reads the way the
+ *  deployment status does: "Mobilised" / "Demobilised". */
+export function mobilisationStatusLabel(t, status) {
+  return t(MOBILISATION_STATUS_LABEL_KEYS[status] ?? `common.status.${status}`, status);
+}
+
 /** Display format: "YYYY-MM" to "Month YYYY", e.g. "September 2026". Em-dash for missing values. */
 export function formatMonthYear(yyyyMm) {
   if (!yyyyMm) return '';

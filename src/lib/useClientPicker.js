@@ -10,7 +10,7 @@ import { listClients } from '../features/clients/clients.api.js';
  * `['ownerPicker','Client']` and `['clients','all-for-expense']` were two
  * separate cache entries for the exact same endpoint/params/shape). Mirrors
  * `useEmployeePicker.js`'s own precedent exactly. Deliberately NOT reused
- * by `DeploymentListPage`'s own client filter — that one calls
+ * by `MobilisationListPage`'s own client filter — that one calls
  * `listClients({ limit: 100 })` with no explicit sort, a genuinely
  * different query shape, so it stays on its own key.
  */

@@ -262,11 +262,6 @@ export const APPROVAL_REQUEST_TYPE_LABELS = {
 // so ApprovalsPage.jsx gates its own Add/Save controls internally rather
 // than a page-level role redirect.
 
-/** Mirrors the Deployment model enum. A Deployment is born automatically
- *  from an Approved Mobilisation — no create/assign form, so no shift enum
- *  to mirror here anymore either. */
-export const DEPLOYMENT_STATUSES = ['Active', 'Ended'];
-
 // Monthly hours entry and Demobilise are the admin-configurable
 // SectionAccess ('deploymentsHours' / 'deploymentsRelease') mechanism now,
 // not a static role list.

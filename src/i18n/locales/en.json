@@ -506,10 +506,6 @@
         "label": "Clients",
         "description": "Companies your employees are placed with."
       },
-      "deployments": {
-        "label": "Deployments",
-        "description": "Which employee is placed where."
-      },
       "mobilisations": {
         "label": "Mobilisations",
         "description": "Employee placements with client billing terms."
@@ -1701,25 +1697,9 @@
     },
     "list": {
       "pageTitle": "Deployments",
-      "pageDescription": "Every employee actually at work with a client born automatically once a mobilisation is approved.",
-      "filterStatusAriaLabel": "Filter by status",
-      "filterClientAriaLabel": "Filter by client",
-      "allClients": "All clients",
-      "searchClientPlaceholder": "Search clients…",
-      "standbyList": "Standby list",
-      "exportExcel": "Export to Excel",
-      "overview": "Overview",
-      "columns": {
-        "worker": "Employee",
-        "clientSite": "Client / Site",
-        "period": "Period",
-        "status": "Status"
-      },
       "couldNotLoad": "Could not load deployments",
       "couldNotLoadDescription": "Please try again.",
-      "emptyTitleNoFilters": "No deployments yet",
-      "emptyTitleFiltered": "No deployments match",
-      "emptyDescriptionNoFilters": "A deployment is created automatically once a mobilisation is approved."
+      "emptyTitleFiltered": "No deployments match"
     },
     "overview": {
       "modalTitle": "Deployments overview",
@@ -2161,10 +2141,9 @@
     },
     "list": {
       "pageTitle": "Mobilisations",
-      "pageDescription": "Employee placements with client billing terms.",
+      "pageDescription": "Every placement, from the first draft to release. Mobilised ones are the employees at a client right now.",
       "newMobilisation": "New mobilisation",
       "workerDataButton": "Employee data",
-      "exportExcel": "Export to Excel",
       "searchPlaceholderWithSerial": "Search #, employee, client, job title…",
       "searchAriaLabel": "Search mobilisations",
       "filterStatusAriaLabel": "Filter by status",
@@ -2177,7 +2156,9 @@
         "jobTitle": "Job title",
         "client": "Client",
         "mobilisationDate": "Mobilisation date",
-        "status": "Status"
+        "status": "Status",
+        "site": "Site",
+        "period": "Period"
       },
       "couldNotLoad": "Could not load mobilisations",
       "couldNotLoadDescription": "Please try again.",
@@ -2185,7 +2166,17 @@
       "emptyTitleFiltered": "No mobilisations match",
       "emptyDescriptionNoFilters": "Create your first mobilisation above.",
       "filteredToShared": "Shared employees only",
-      "clearSharedFilterAriaLabel": "Clear the shared employees filter"
+      "clearSharedFilterAriaLabel": "Clear the shared employees filter",
+      "exportMobilisations": "Export mobilisations",
+      "exportDeployments": "Export deployments",
+      "overview": "Overview",
+      "standbyList": "Standby list",
+      "approveTimesheets": "Approve timesheets",
+      "allClients": "All clients",
+      "searchClientPlaceholder": "Search clients…",
+      "filterClientAriaLabel": "Filter by client",
+      "clientFilterList": "the client filter list",
+      "missingMonths": "Timesheet months still to enter: {{count}}"
     },
     "workerHistory": {
       "pageTitle": "Employee data",

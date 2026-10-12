@@ -79,7 +79,7 @@ export default function MyWorkCard({ work }) {
           </Group>
         )}
         {missingTimesheets.count > 0 && (
-          <Group title={k('missingTimesheets')} count={missingTimesheets.count} to="/deployments">
+          <Group title={k('missingTimesheets')} count={missingTimesheets.count} to="/mobilisations?status=Approved">
             {missingTimesheets.items.map((m) => (
               <li key={`${m.deploymentId}-${m.month}`}>
                 <Link to={`/deployments/${m.deploymentId}`} className="flex items-center justify-between gap-3 py-1.5 text-sm hover:text-primary">
