@@ -5,7 +5,7 @@ import EmptyState from '../../../components/ui/EmptyState.jsx';
 import { useQuery } from '@tanstack/react-query';
 import { useAuth } from '../../auth/AuthContext.jsx';
 import { getStandbyAnalysis } from '../dashboard.api.js';
-import { formatMoney } from '../../../lib/utils.js';
+import { cn, formatMoney } from '../../../lib/utils.js';
 import PickerLoadWarning from '../../../components/shared/PickerLoadWarning.jsx';
 
 const VISIBLE_ROWS = 2;
@@ -14,9 +14,10 @@ export default function StandbyAnalysisWidget() {
   const { t } = useTranslation();
   const { user } = useAuth();
   // This widget is gated on `dashboardProfit` read; the real Standby List page it
-  // links to is gated on `deploymentsRelease` — two independent circles
+  // opens is gated on `deploymentsRelease` — two independent circles
   // (same "don't link somewhere that just 403s" idiom used elsewhere on
   // this dashboard, e.g. the Coordinator Drill-Down modal's task link).
+  // Without that grant the card is shown but is not clickable.
   const canOpenStandbyList = Boolean(user.sectionAccess?.includes('deploymentsRelease'));
   const { data, isLoading, isError } = useQuery({
     queryKey: ['dashboard', 'standby-analysis'],
@@ -55,20 +56,12 @@ export default function StandbyAnalysisWidget() {
   const withCost = workers.filter((w) => w.moneyLost != null);
   const withoutCost = workers.filter((w) => w.moneyLost == null);
   const visibleWorkers = [...withCost, ...withoutCost].slice(0, VISIBLE_ROWS);
-  const hiddenCount = workers.length - visibleWorkers.length;
 
-  return (
-    <Card className="flex flex-col h-full">
-      <div className="mb-4 flex items-start justify-between gap-3">
-        <div>
-          <h2 className="text-sm font-semibold uppercase tracking-wide text-muted">{t('staffDashboard.widgets.standby.title')}</h2>
-          <p className="text-xs text-muted-foreground mt-1">{t('staffDashboard.widgets.standby.subtitle')}</p>
-        </div>
-        {hiddenCount > 0 && canOpenStandbyList && (
-          <Link to="/deployments/standby" className="shrink-0 text-xs font-medium text-primary hover:underline">
-            {t('staffDashboard.widgets.standby.viewAll')}
-          </Link>
-        )}
+  const card = (
+    <Card className={cn('flex flex-col h-full', canOpenStandbyList && 'hover:border-primary/40')}>
+      <div className="mb-4">
+        <h2 className="text-sm font-semibold uppercase tracking-wide text-muted">{t('staffDashboard.widgets.standby.title')}</h2>
+        <p className="text-xs text-muted-foreground mt-1">{t('staffDashboard.widgets.standby.subtitle')}</p>
       </div>
 
       {workers.length === 0 ? (
@@ -117,5 +110,14 @@ export default function StandbyAnalysisWidget() {
         </div>
       )}
     </Card>
+  );
+
+  // The whole card opens the Standby list.
+  return canOpenStandbyList ? (
+    <Link to="/deployments/standby" className="block h-full rounded-2xl">
+      {card}
+    </Link>
+  ) : (
+    card
   );
 }

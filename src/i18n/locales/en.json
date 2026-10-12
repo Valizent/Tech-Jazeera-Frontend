@@ -736,7 +736,6 @@
       "standby": {
         "title": "Standby workforce analysis",
         "subtitle": "Everyone currently free to mobilise, with an idle-cost estimate where the company pays them a salary.",
-        "viewAll": "View all standby →",
         "worker": "Employee",
         "days": "Days",
         "daysCount": "{{count}}d",
@@ -883,9 +882,7 @@
       },
       "floor": {
         "title": "On the floor today",
-        "signedIn": "Signed in today",
-        "idle": "Idle on standby over {{days}} days",
-        "idleDays": "{{days}}d"
+        "signedIn": "Signed in today"
       },
       "decidedThisWeek": "You decided {{count}} this week"
     }

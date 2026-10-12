@@ -345,7 +345,7 @@ export default function DashboardPage() {
           <MyWorkCard work={insights.myWork} />
           <BillingSnapshotCard billing={insights.billing} />
           <HrWatchCard expiring={insights.expiringByType} contracts={insights.contractsEnding} leavePicture={insights.leavePicture} />
-          <FloorTodayCard signedIn={insights.signedInToday} idle={insights.idleStandby} />
+          <FloorTodayCard signedIn={insights.signedInToday} />
         </div>
       )}
 
