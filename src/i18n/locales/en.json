@@ -1899,7 +1899,6 @@
         "demobilisedOn": "Demobilised on",
         "reason": "Reason"
       },
-      "viewMobilisation": "View mobilisation",
       "deploymentNotesLabel": "Notes",
       "editDeploymentModalTitle": "Edit {{name}}",
       "editedToast": "Deployment updated.",
@@ -2437,11 +2436,14 @@
         "downloadToView": "Download it to view."
       },
       "defaultRejectError": "Explain what needs fixing before rejecting.",
-      "viewDeployment": "View deployment",
       "transfer": {
         "pending": "Waiting for the subcontractor transfer approval: {{name}} moves from {{from}} to {{to}}. You can still submit this mobilisation, but its final approval waits for the transfer.",
         "rejected": "Subcontractor transfer rejected: {{note}}",
         "approved": "Subcontractor transfer approved: {{name}} now moves to {{to}}."
+      },
+      "tabs": {
+        "mobilisation": "Mobilisation",
+        "deployment": "Deployment"
       }
     },
     "warnings": {

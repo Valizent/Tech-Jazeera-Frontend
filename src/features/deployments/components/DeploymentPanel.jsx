@@ -1,15 +1,18 @@
 /**
- * DeploymentDetailPage — the workhorse: placement info, the monthly
- * client-hours/OT ledger (add + correct), and Demobilise. This is the ONLY
- * place a deployment is managed — there is no separate create/edit page,
- * a Deployment is born automatically once its source Mobilisation is
- * Approved (see the Mobilisations module).
+ * DeploymentPanel — the "Deployment" tab of a placement (MobilisationDetailPage):
+ * placement info, the monthly client-hours/OT ledger (add + correct), and
+ * Demobilise. This is the ONLY place a deployment is managed — there is no
+ * separate create/edit page, a Deployment is born automatically once its
+ * source Mobilisation is Approved. It used to be its own page
+ * (DeploymentDetailPage); since 2026-10-12 a placement is one page with the
+ * mobilisation's terms on one tab and this on the other, and
+ * /deployments/:id just forwards there (DeploymentRedirectPage).
  */
 import { useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useTranslation } from 'react-i18next';
-import { Link, useNavigate, useParams } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   getDeployment,
@@ -34,8 +37,6 @@ import { DEMOBILISATION_REASONS, EMPLOYEE_ONLY_DEMOBILISATION_REASONS } from '..
 import { useAuth } from '../../auth/AuthContext.jsx';
 import { apiMessage, formatDate, formatMoney, cn } from '../../../lib/utils.js';
 import { useToast } from '../../../components/ui/Toast.jsx';
-import PageHeader from '../../../components/shared/PageHeader.jsx';
-import BackButton from '../../../components/shared/BackButton.jsx';
 import Card from '../../../components/ui/Card.jsx';
 import Badge from '../../../components/ui/Badge.jsx';
 import Button from '../../../components/ui/Button.jsx';
@@ -45,7 +46,7 @@ import Textarea from '../../../components/ui/Textarea.jsx';
 import Modal from '../../../components/ui/Modal.jsx';
 import Skeleton from '../../../components/ui/Skeleton.jsx';
 import EmptyState from '../../../components/ui/EmptyState.jsx';
-import DeploymentExpensesSection from '../components/DeploymentExpensesSection.jsx';
+import DeploymentExpensesSection from './DeploymentExpensesSection.jsx';
 
 function monthStrOf(date) {
   const d = new Date(date);
@@ -504,8 +505,7 @@ function BillingStatus({ entry, t, formatDate, formatMoney }) {
   );
 }
 
-export default function DeploymentDetailPage() {
-  const { id } = useParams();
+export default function DeploymentPanel({ deploymentId: id }) {
   const { t, i18n } = useTranslation();
   const { user } = useAuth();
   const toast = useToast();
@@ -671,7 +671,6 @@ export default function DeploymentDetailPage() {
       <EmptyState
         title={t('staffDeployments.detail.notFoundTitle')}
         description={t('staffDeployments.detail.notFoundDescription')}
-        action={<BackButton onClick={() => navigate('/mobilisations')} />}
       />
     );
   }
@@ -686,40 +685,21 @@ export default function DeploymentDetailPage() {
 
   return (
     <div className="mx-auto max-w-[1600px] space-y-6">
-      <PageHeader
-        title={deployment.workerName}
-        description={
-          <span>
-            <span>{deployment.jobTitle}</span>
-            <span className="mx-2 opacity-50">·</span>
-            <strong className="text-text">{deployment.clientName}</strong>
-            {deployment.site && (
-              <>
-                <span className="mx-2 opacity-50">·</span>
-                <span>{deployment.site}</span>
-              </>
-            )}
-          </span>
-        }
-        onBack={() => navigate(-1)}
-        actions={
-          <div className="flex items-center gap-2">
-            <Badge variant={isActive ? 'success' : 'default'}>
-              {t(`staffDeployments.status.${deployment.status}`, deployment.status)}
-            </Badge>
-            {canEditDeployment && (
-              <Button size="sm" variant="secondary" onClick={openEditDeployment}>
-                {t('common.edit')}
-              </Button>
-            )}
-            {isActive && canDemobilise && (
-              <Button size="sm" variant="danger-ghost" onClick={() => setDemobilising(true)}>
-                {t('staffDeployments.detail.demobilise')}
-              </Button>
-            )}
-          </div>
-        }
-      />
+      <div className="flex flex-wrap items-center justify-end gap-2">
+        <Badge variant={isActive ? 'success' : 'default'}>
+          {t(`staffDeployments.status.${deployment.status}`, deployment.status)}
+        </Badge>
+        {canEditDeployment && (
+          <Button size="sm" variant="secondary" onClick={openEditDeployment}>
+            {t('common.edit')}
+          </Button>
+        )}
+        {isActive && canDemobilise && (
+          <Button size="sm" variant="danger-ghost" onClick={() => setDemobilising(true)}>
+            {t('staffDeployments.detail.demobilise')}
+          </Button>
+        )}
+      </div>
 
       <div className="grid grid-cols-1 items-stretch gap-6 xl:grid-cols-2">
       <Card className="h-full">
@@ -773,13 +753,6 @@ export default function DeploymentDetailPage() {
           <div className="mt-3 border-t border-border pt-3">
             <p className="text-xs uppercase tracking-wide text-muted">{t('staffDeployments.detail.deploymentNotesLabel')}</p>
             <p className="text-sm">{deployment.notes}</p>
-          </div>
-        )}
-        {deployment.mobilisation && (
-          <div className="mt-4">
-            <Link to={`/mobilisations/${deployment.mobilisation._id}`} className="text-sm font-medium text-primary hover:underline">
-              {t('staffDeployments.detail.viewMobilisation')} (#{deployment.mobilisation.serialNumber})
-            </Link>
           </div>
         )}
       </Card>

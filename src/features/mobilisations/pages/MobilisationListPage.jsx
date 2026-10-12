@@ -3,7 +3,8 @@
  * draft to its release. One list since 2026-10-12: the Deployments register was
  * folded in, because a deployment is the same placement after approval (born
  * with the approved mobilisation, ended with it). An approved row reads
- * "Mobilised" and opens its deployment; a released one reads "Demobilised".
+ * "Mobilised" and opens the placement on its Deployment tab; a released one
+ * reads "Demobilised".
  *
  * Who sees a row is the server's call (see mobilisation.service.js's
  * findVisibleMobilisations): their own as coordinator, everything past Draft for
@@ -211,7 +212,8 @@ export default function MobilisationListPage() {
   // Dot indicator — active when sort or the site filter differ from defaults.
   const sortPanelActive = params.sortBy !== 'createdAt' || params.sortOrder !== 'desc' || params.site !== '';
 
-  const openPlacement = (m) => navigate(m.deployment ? `/deployments/${m.deployment._id}` : `/mobilisations/${m._id}`);
+  // A placement is one page; a mobilised or demobilised one opens on its Deployment tab.
+  const openPlacement = (m) => navigate(`/mobilisations/${m._id}${m.deployment ? '?tab=deployment' : ''}`);
 
   const columns = [
     { key: 'serialNumber', header: t('staffMobilisations.list.columns.serialNumber'), render: (m) => m.serialNumber },

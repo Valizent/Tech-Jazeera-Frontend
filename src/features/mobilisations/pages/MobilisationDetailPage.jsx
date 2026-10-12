@@ -35,6 +35,7 @@ import {
   decideMobilisationFormSchema,
 } from '../mobilisations.schema.js';
 import MobilisationDocumentPreviewModal from '../components/MobilisationDocumentPreviewModal.jsx';
+import DeploymentPanel from '../../deployments/components/DeploymentPanel.jsx';
 import { useAuth } from '../../auth/AuthContext.jsx';
 import { apiMessage, cn, formatDate, formatMoney, mobilisationStatusLabel, profitClass } from '../../../lib/utils.js';
 import { MOBILISATION_STATUS_VARIANT, MOBILISATION_DOCUMENT_CATEGORIES, MOBILISATION_DOCUMENT_CATEGORY_LABELS } from '../../../lib/constants.js';
@@ -51,8 +52,14 @@ import Input from '../../../components/ui/Input.jsx';
 import Select from '../../../components/ui/Select.jsx';
 import Textarea from '../../../components/ui/Textarea.jsx';
 import Modal from '../../../components/ui/Modal.jsx';
+import Tabs, { useTabParam } from '../../../components/ui/Tabs.jsx';
 import Skeleton from '../../../components/ui/Skeleton.jsx';
 import EmptyState from '../../../components/ui/EmptyState.jsx';
+
+/** A placement's two tabs (the keys only; labels and content are built once the
+ *  record has loaded). The second one exists only once the mobilisation has a
+ *  deployment its viewer may open. */
+const PLACEMENT_TABS = [{ key: 'mobilisation' }, { key: 'deployment' }];
 
 /** A small inline warning triangle — no icon library in this app (Tailwind
  *  only), so every icon here is a hand-drawn SVG, same as the header's
@@ -321,6 +328,7 @@ export default function MobilisationDetailPage() {
   const [previewDoc, setPreviewDoc] = useState(null);
   const [confirmingUnuploadedFiles, setConfirmingUnuploadedFiles] = useState(false);
   const [confirmingNoDocuments, setConfirmingNoDocuments] = useState(false);
+  const [activeTab, setActiveTab] = useTabParam(PLACEMENT_TABS, 'mobilisation');
 
   const { data: m, isPending, isError } = useQuery({
     queryKey: ['mobilisation', id],
@@ -530,60 +538,12 @@ export default function MobilisationDetailPage() {
 
   const transfer = m.subcontractorTransfer;
 
-  return (
-    <div className="mx-auto max-w-[1600px] space-y-6">
-      {transfer?.status === 'Pending' && (
-        <Card className="border-warning/30 bg-warning/5">
-          <p className="text-sm">
-            {t('staffMobilisations.detail.transfer.pending', { name: m.workerName, from: transfer.fromName, to: transfer.toName })}
-          </p>
-        </Card>
-      )}
-      {transfer?.status === 'Rejected' && (
-        <Card className="border-danger/30 bg-danger/5">
-          <p className="text-sm">{t('staffMobilisations.detail.transfer.rejected', { note: transfer.decisionNote })}</p>
-        </Card>
-      )}
-      {transfer?.status === 'Approved' && (
-        <Card className="border-success/30 bg-success/5">
-          <p className="text-sm">{t('staffMobilisations.detail.transfer.approved', { name: m.workerName, to: transfer.toName })}</p>
-        </Card>
-      )}
-      <PageHeader
-        title={`#${m.serialNumber}`}
-        description={
-          <span>
-            <strong className="text-text">{m.workerName}</strong>
-            <span className="mx-2 opacity-50">·</span>
-            <span>{m.jobTitle}</span>
-            <span className="mx-2 opacity-50">·</span>
-            <strong className="text-text">{m.clientName}</strong>
-          </span>
-        }
-        onBack={() => navigate(-1)}
-        actions={
-          <div className="flex flex-wrap items-center gap-2">
-            <Badge variant={MOBILISATION_STATUS_VARIANT[m.status]}>{mobilisationStatusLabel(t, m.status)}</Badge>
-            <Button size="sm" variant="secondary" isLoading={exportMutation.isPending} onClick={() => exportMutation.mutate()}>
-              {t('staffMobilisations.detail.exportExcel')}
-            </Button>
-            {canEditSection1 && (
-              <Button size="sm" variant="secondary" onClick={() => navigate(`/mobilisations/${id}/edit`)}>
-                {t('common.edit')}
-              </Button>
-            )}
-            {m.deployment && (
-              <Link to={`/deployments/${m.deployment._id}`}>
-                <Button size="sm" variant="secondary">
-                  {t('staffMobilisations.detail.viewDeployment')}
-                </Button>
-              </Link>
-            )}
-          </div>
-        }
-      />
-      <div className="grid grid-cols-1 items-start gap-6 xl:grid-cols-2">
-      <div className="space-y-6">
+  // The mobilisation's own paperwork: shown directly, or as the first tab once
+  // the placement has a deployment.
+  const mobilisationPanels = (
+    <div className="grid grid-cols-1 items-start gap-6 xl:grid-cols-2">
+    <div className="space-y-6">
+    {'documents' in m && (
       <Card>
         <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-muted">{t('staffMobilisations.detail.documentsTitle')}</h2>
         {(m.documents ?? []).length === 0 ? (
@@ -638,314 +598,374 @@ export default function MobilisationDetailPage() {
           </div>
         )}
       </Card>
+    )}
 
+    <Card>
+      <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-muted">
+        {t('staffMobilisations.detail.sectionWorkerPlacement')}
+      </h2>
+      <DetailTable
+        rows={[
+          { label: t('staffMobilisations.detail.fields.workerName'), value: m.workerName },
+          {
+            label: t('staffMobilisations.detail.fields.workerType'),
+            value: t(`staffMobilisations.form.workerType.${m.workerType}`, m.workerType),
+          },
+          {
+            label: t('staffMobilisations.detail.fields.iqamaNumber'),
+            value: m.iqamaNumber,
+            // Only ever typed in for a SupplierEmployee/Freelancer worker
+            // (an Employee-type mobilisation gets this from the linked
+            // Employee's own record) — matches submitMobilisation's own
+            // requirement, so it reads as "Missing" here rather than
+            // silently vanishing the same way an unset optional field
+            // does everywhere else on this page.
+            required: m.workerType !== 'Employee',
+          },
+          { label: t('staffMobilisations.detail.fields.nationality'), value: m.nationality },
+          {
+            label: t('staffMobilisations.detail.fields.phone'),
+            value: m.phone,
+            required: m.workerType !== 'Employee',
+          },
+          { label: t('staffMobilisations.detail.fields.jobTitle'), value: m.jobTitle },
+          { label: t('staffMobilisations.detail.fields.client'), value: m.clientName },
+          {
+            // The Requirements card this was started from, if any. A link only for
+            // someone who can open the board at all — otherwise plain text, never a
+            // dead-end "no access" page.
+            label: t('staffMobilisations.detail.fields.fromRequirement'),
+            value: m.requirement ? (
+              user.sectionAccess?.some((key) => key === 'requirementsOwn' || key === 'requirementsTeam') ? (
+                <Link to={`/requirements?open=${m.requirement._id}`} className="text-primary hover:underline">
+                  {m.requirement.serialNumber} · {m.requirement.clientName}
+                </Link>
+              ) : (
+                `${m.requirement.serialNumber} · ${m.requirement.clientName}`
+              )
+            ) : null,
+          },
+          { label: t('staffMobilisations.detail.fields.site'), value: m.site },
+          ...(m.hasSubcontractor
+            ? [{ label: t('staffMobilisations.detail.fields.subcontractor'), value: m.subcontractorName }]
+            : []),
+          ...(m.clientCoordinators?.length
+            ? [{ label: t('staffMobilisations.detail.fields.clientCoordinators'), value: <ContactList contacts={m.clientCoordinators} /> }]
+            : []),
+          ...(m.subcontractorCoordinators?.length
+            ? [{ label: t('staffMobilisations.detail.fields.subcontractorCoordinators'), value: <ContactList contacts={m.subcontractorCoordinators} /> }]
+            : []),
+          { label: t('staffMobilisations.detail.fields.mobilisationDate'), value: formatDate(m.mobilisationDate) },
+          { label: t('staffMobilisations.detail.fields.checkoutDate'), value: m.checkoutDate && formatDate(m.checkoutDate) },
+        ]}
+      />
+      {m.remark && (
+        <div className="mt-4">
+          <p className="text-xs uppercase tracking-wide text-muted">{t('staffMobilisations.detail.remark')}</p>
+          <p className="text-sm">{m.remark}</p>
+        </div>
+      )}
+    </Card>
+
+    {(canDecide || hasReviewFields) && (
+      <CommercialDetailsCard
+        m={m}
+        canEdit={canEditDetails}
+        canDecide={canDecide}
+        isFinalStep={isFinalStep}
+        saving={commercialMutation.isPending}
+        onSave={(values) => commercialMutation.mutate(values)}
+        onApprove={(values) => saveThenDecide('Approved', values)}
+        onReject={(values) => saveThenDecide('Rejected', values)}
+      />
+    )}
+
+    {'approvalTrail' in m && <ApprovalTrailView request={m} />}
+
+    </div>
+    <div className="space-y-6">
+
+    <Card>
+      <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-muted">{t('staffMobilisations.detail.coordinatorsTitle')}</h2>
+      <ul className="space-y-2">
+        {m.coordinators.map((c) => {
+          const effectiveShare = c.sharePercent ?? 100 / m.coordinators.length;
+          return (
+            <li key={userId(c)} className="flex items-center justify-between gap-3 text-sm">
+              <span>
+                {c.user.name ?? userId(c)} {c.isPrimary && <span className="text-xs text-muted">{t('staffMobilisations.detail.primary')}</span>}
+              </span>
+              <span className="flex items-center gap-2">
+                {m.coordinators.length > 1 && (
+                  <span className="text-xs text-muted">{t('staffMobilisations.detail.sharePercent', { percent: effectiveShare.toFixed(1) })}</span>
+                )}
+                <Badge variant={c.confirmed ? 'success' : 'warning'}>{c.confirmed ? t('staffMobilisations.detail.confirmed') : t('staffMobilisations.detail.pending')}</Badge>
+                {canManage && !c.isPrimary && !c.confirmed && (
+                  <Button size="sm" variant="danger-ghost" onClick={() => setToRemove(c)}>
+                    {t('staffMobilisations.detail.remove')}
+                  </Button>
+                )}
+              </span>
+            </li>
+          );
+        })}
+      </ul>
+
+      {canManage && m.coordinators.length > 1 && (
+        <div className="mt-4 space-y-2 rounded-lg border border-border/50 bg-bg p-3">
+          <p className="text-xs font-semibold uppercase tracking-wide text-muted">{t('staffMobilisations.detail.editSharesTitle')}</p>
+          <div className="flex flex-wrap items-end gap-3">
+            {m.coordinators.map((c) => {
+              const uid = userId(c);
+              const fallback = c.sharePercent ?? 100 / m.coordinators.length;
+              return (
+                <Input
+                  key={uid}
+                  label={c.user.name ?? uid}
+                  type="number"
+                  min="0"
+                  max="100"
+                  step="0.1"
+                  className="w-28"
+                  value={shareEdits[uid] ?? String(Math.round(fallback * 10) / 10)}
+                  onChange={(e) => setShareEdits((prev) => ({ ...prev, [uid]: e.target.value }))}
+                />
+              );
+            })}
+            <Button
+              size="sm"
+              isLoading={sharesMutation.isPending}
+              onClick={() =>
+                sharesMutation.mutate(
+                  m.coordinators.map((c) => {
+                    const uid = userId(c);
+                    const fallback = c.sharePercent ?? 100 / m.coordinators.length;
+                    const raw = shareEdits[uid] ?? String(Math.round(fallback * 10) / 10);
+                    return { userId: uid, sharePercent: Number(raw) };
+                  })
+                )
+              }
+            >
+              {t('staffMobilisations.detail.saveSharesButton')}
+            </Button>
+            <Button size="sm" variant="secondary" isLoading={clearSharesMutation.isPending} onClick={() => clearSharesMutation.mutate()}>
+              {t('staffMobilisations.detail.resetSharesButton')}
+            </Button>
+          </div>
+        </div>
+      )}
+
+      {needsMyConfirmation && (
+        <div className="mt-4 rounded-lg bg-warning/10 p-3 text-sm">
+          <p className="mb-2">{t('staffMobilisations.detail.needsConfirmationHint')}</p>
+          <Button size="sm" isLoading={confirmMutation.isPending} onClick={() => confirmMutation.mutate()}>
+            {t('staffMobilisations.detail.confirmButton')}
+          </Button>
+        </div>
+      )}
+
+      {canManage && (
+        <div className="mt-4 flex flex-wrap items-end gap-2">
+          <PickerLoadWarning failed={[{ label: 'candidate coordinators', isError: candidatesError }]} />
+          <Select
+            label={t('staffMobilisations.detail.addJointCoordinator')}
+            value={inviteId}
+            onChange={(e) => setInviteId(e.target.value)}
+            className="min-w-[200px]"
+          >
+            <option value="">{t('staffMobilisations.detail.selectCoordinator')}</option>
+            {availableCandidates.map((c) => (
+              <option key={c._id} value={c._id}>
+                {c.name}
+              </option>
+            ))}
+          </Select>
+          <Button
+            size="sm"
+            variant="secondary"
+            disabled={!inviteId}
+            isLoading={addMutation.isPending}
+            onClick={() => addMutation.mutate(inviteId)}
+          >
+            {t('staffMobilisations.detail.invite')}
+          </Button>
+        </div>
+      )}
+
+      {canManage && (
+        <div className="mt-4 border-t border-border pt-4">
+          {!canSubmit && unconfirmed.length > 0 && (
+            <p className="mb-2 text-xs text-muted">
+              {t('staffMobilisations.detail.waitingOnConfirmation', { names: unconfirmed.map((c) => c.user.name ?? userId(c)).join(', ') })}
+            </p>
+          )}
+          {!canSubmit && missingWorkerIdentity && (
+            <p className="mb-2 text-xs text-danger">{t('staffMobilisations.detail.missingWorkerIdentity')}</p>
+          )}
+          <Button
+            isLoading={submitMutation.isPending}
+            disabled={!canSubmit}
+            onClick={() => {
+              // Chosen-but-not-yet-uploaded files (see the file input
+              // above) are only local browser state — real QA-reported
+              // gap (2026-09-14): submitting here never warned that they
+              // silently would never reach the server unless "Upload" was
+              // clicked separately first. Takes priority over the
+              // no-documents check below: these files DO exist, just not
+              // where the reviewer will see them yet.
+              if (files.length > 0) {
+                setConfirmingUnuploadedFiles(true);
+              } else if ((m.documents ?? []).length === 0) {
+                // No file ever chosen AND nothing already uploaded — the
+                // user's own ask (2026-09-16): a reviewer often needs a
+                // real attachment (contract, ID copy) to actually decide
+                // this; submitting with none should be a deliberate
+                // choice, not a silent gap discovered only once it's
+                // already in someone's review queue.
+                setConfirmingNoDocuments(true);
+              } else {
+                submitMutation.mutate();
+              }
+            }}
+          >
+            {t('staffMobilisations.detail.submitForReview')}
+          </Button>
+        </div>
+      )}
+    </Card>
+
+    {hasCommercialFields && (
       <Card>
         <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-muted">
-          {t('staffMobilisations.detail.sectionWorkerPlacement')}
+          {t('staffMobilisations.detail.sectionRatesFinancials')}
         </h2>
         <DetailTable
           rows={[
-            { label: t('staffMobilisations.detail.fields.workerName'), value: m.workerName },
+            { label: t('staffMobilisations.detail.fields.clientRate'), value: formatMoney(m.clientRate) },
+            { label: t('staffMobilisations.detail.fields.clientCommission'), value: formatMoney(m.clientCommission) },
+            ...(m.clientCommissionCoordinator
+              ? [{ label: t('staffMobilisations.detail.fields.clientCommissionCoordinator'), value: <ContactList contacts={[m.clientCommissionCoordinator]} /> }]
+              : []),
+            { label: t('staffMobilisations.detail.fields.fta'), value: formatMoney(m.fta) },
             {
-              label: t('staffMobilisations.detail.fields.workerType'),
-              value: t(`staffMobilisations.form.workerType.${m.workerType}`, m.workerType),
+              label: t('staffMobilisations.detail.fields.ftaType'),
+              value: m.ftaType ? t(`staffMobilisations.form.ftaType.${m.ftaType}`) : null,
             },
+            { label: t('staffMobilisations.detail.fields.allowance'), value: formatMoney(m.allowance) },
+            { label: t('staffMobilisations.detail.fields.allowanceRemark'), value: m.allowanceRemark },
+            { label: t('staffMobilisations.detail.fields.mobilisationCost'), value: m.mobilisationCost ? formatMoney(m.mobilisationCost) : null },
             {
-              label: t('staffMobilisations.detail.fields.iqamaNumber'),
-              value: m.iqamaNumber,
-              // Only ever typed in for a SupplierEmployee/Freelancer worker
-              // (an Employee-type mobilisation gets this from the linked
-              // Employee's own record) — matches submitMobilisation's own
-              // requirement, so it reads as "Missing" here rather than
-              // silently vanishing the same way an unset optional field
-              // does everywhere else on this page.
-              required: m.workerType !== 'Employee',
+              label: t('staffMobilisations.detail.fields.requiredTimesheetHours'),
+              value: m.requiredTimesheetHours || t('staffMobilisations.warnings.noRequiredHours'),
+              valueClassName: m.requiredTimesheetHours ? undefined : 'text-warning',
             },
-            { label: t('staffMobilisations.detail.fields.nationality'), value: m.nationality },
-            {
-              label: t('staffMobilisations.detail.fields.phone'),
-              value: m.phone,
-              required: m.workerType !== 'Employee',
-            },
-            { label: t('staffMobilisations.detail.fields.jobTitle'), value: m.jobTitle },
-            { label: t('staffMobilisations.detail.fields.client'), value: m.clientName },
-            {
-              // The Requirements card this was started from, if any. A link only for
-              // someone who can open the board at all — otherwise plain text, never a
-              // dead-end "no access" page.
-              label: t('staffMobilisations.detail.fields.fromRequirement'),
-              value: m.requirement ? (
-                user.sectionAccess?.some((key) => key === 'requirementsOwn' || key === 'requirementsTeam') ? (
-                  <Link to={`/requirements?open=${m.requirement._id}`} className="text-primary hover:underline">
-                    {m.requirement.serialNumber} · {m.requirement.clientName}
-                  </Link>
-                ) : (
-                  `${m.requirement.serialNumber} · ${m.requirement.clientName}`
-                )
-              ) : null,
-            },
-            { label: t('staffMobilisations.detail.fields.site'), value: m.site },
             ...(m.hasSubcontractor
-              ? [{ label: t('staffMobilisations.detail.fields.subcontractor'), value: m.subcontractorName }]
+              ? [
+                  { label: t('staffMobilisations.detail.fields.subcontractorRate'), value: formatMoney(m.subcontractorRate) },
+                  {
+                    label: t('staffMobilisations.detail.fields.subcontractorCommission'),
+                    value: formatMoney(m.subcontractorCommission),
+                  },
+                  ...(m.subcontractorCommissionCoordinator
+                    ? [{
+                        label: t('staffMobilisations.detail.fields.subcontractorCommissionCoordinator'),
+                        value: <ContactList contacts={[m.subcontractorCommissionCoordinator]} />,
+                      }]
+                    : []),
+                ]
               : []),
-            ...(m.clientCoordinators?.length
-              ? [{ label: t('staffMobilisations.detail.fields.clientCoordinators'), value: <ContactList contacts={m.clientCoordinators} /> }]
+            ...(m.workerType === 'Freelancer'
+              ? [{ label: t('staffMobilisations.detail.fields.employeeRate'), value: formatMoney(m.employeeRate) }]
               : []),
-            ...(m.subcontractorCoordinators?.length
-              ? [{ label: t('staffMobilisations.detail.fields.subcontractorCoordinators'), value: <ContactList contacts={m.subcontractorCoordinators} /> }]
-              : []),
-            { label: t('staffMobilisations.detail.fields.mobilisationDate'), value: formatDate(m.mobilisationDate) },
-            { label: t('staffMobilisations.detail.fields.checkoutDate'), value: m.checkoutDate && formatDate(m.checkoutDate) },
+            {
+              label: t('staffMobilisations.detail.fields.profitPerHour'),
+              value: formatMoney(m.profitPerHour),
+              valueClassName: profitClass(m.profitPerHour),
+            },
+            {
+              label: t('staffMobilisations.detail.fields.profitPerMonth'),
+              value: m.profitPerMonth != null ? formatMoney(m.profitPerMonth) : null,
+              valueClassName: profitClass(m.profitPerMonth),
+            },
+            {
+              label: t('staffMobilisations.detail.fields.otClientRate'),
+              value: m.otClientRate != null ? formatMoney(m.otClientRate) : null,
+            },
+            {
+              label: t('staffMobilisations.detail.fields.otEmployeeRate'),
+              value: m.otEmployeeRate != null ? formatMoney(m.otEmployeeRate) : null,
+            },
+            {
+              label: t('staffMobilisations.detail.fields.otProfitPerHour'),
+              value: m.otProfitPerHour != null ? formatMoney(m.otProfitPerHour) : null,
+              valueClassName: profitClass(m.otProfitPerHour),
+            },
           ]}
         />
-        {m.remark && (
-          <div className="mt-4">
-            <p className="text-xs uppercase tracking-wide text-muted">{t('staffMobilisations.detail.remark')}</p>
-            <p className="text-sm">{m.remark}</p>
-          </div>
-        )}
       </Card>
+    )}
 
-      {(canDecide || hasReviewFields) && (
-        <CommercialDetailsCard
-          m={m}
-          canEdit={canEditDetails}
-          canDecide={canDecide}
-          isFinalStep={isFinalStep}
-          saving={commercialMutation.isPending}
-          onSave={(values) => commercialMutation.mutate(values)}
-          onApprove={(values) => saveThenDecide('Approved', values)}
-          onReject={(values) => saveThenDecide('Rejected', values)}
-        />
-      )}
+    </div>
+    </div>
+  );
 
-      <ApprovalTrailView request={m} />
-
-      </div>
-      <div className="space-y-6">
-
-      <Card>
-        <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-muted">{t('staffMobilisations.detail.coordinatorsTitle')}</h2>
-        <ul className="space-y-2">
-          {m.coordinators.map((c) => {
-            const effectiveShare = c.sharePercent ?? 100 / m.coordinators.length;
-            return (
-              <li key={userId(c)} className="flex items-center justify-between gap-3 text-sm">
-                <span>
-                  {c.user.name ?? userId(c)} {c.isPrimary && <span className="text-xs text-muted">{t('staffMobilisations.detail.primary')}</span>}
-                </span>
-                <span className="flex items-center gap-2">
-                  {m.coordinators.length > 1 && (
-                    <span className="text-xs text-muted">{t('staffMobilisations.detail.sharePercent', { percent: effectiveShare.toFixed(1) })}</span>
-                  )}
-                  <Badge variant={c.confirmed ? 'success' : 'warning'}>{c.confirmed ? t('staffMobilisations.detail.confirmed') : t('staffMobilisations.detail.pending')}</Badge>
-                  {canManage && !c.isPrimary && !c.confirmed && (
-                    <Button size="sm" variant="danger-ghost" onClick={() => setToRemove(c)}>
-                      {t('staffMobilisations.detail.remove')}
-                    </Button>
-                  )}
-                </span>
-              </li>
-            );
-          })}
-        </ul>
-
-        {canManage && m.coordinators.length > 1 && (
-          <div className="mt-4 space-y-2 rounded-lg border border-border/50 bg-bg p-3">
-            <p className="text-xs font-semibold uppercase tracking-wide text-muted">{t('staffMobilisations.detail.editSharesTitle')}</p>
-            <div className="flex flex-wrap items-end gap-3">
-              {m.coordinators.map((c) => {
-                const uid = userId(c);
-                const fallback = c.sharePercent ?? 100 / m.coordinators.length;
-                return (
-                  <Input
-                    key={uid}
-                    label={c.user.name ?? uid}
-                    type="number"
-                    min="0"
-                    max="100"
-                    step="0.1"
-                    className="w-28"
-                    value={shareEdits[uid] ?? String(Math.round(fallback * 10) / 10)}
-                    onChange={(e) => setShareEdits((prev) => ({ ...prev, [uid]: e.target.value }))}
-                  />
-                );
-              })}
-              <Button
-                size="sm"
-                isLoading={sharesMutation.isPending}
-                onClick={() =>
-                  sharesMutation.mutate(
-                    m.coordinators.map((c) => {
-                      const uid = userId(c);
-                      const fallback = c.sharePercent ?? 100 / m.coordinators.length;
-                      const raw = shareEdits[uid] ?? String(Math.round(fallback * 10) / 10);
-                      return { userId: uid, sharePercent: Number(raw) };
-                    })
-                  )
-                }
-              >
-                {t('staffMobilisations.detail.saveSharesButton')}
-              </Button>
-              <Button size="sm" variant="secondary" isLoading={clearSharesMutation.isPending} onClick={() => clearSharesMutation.mutate()}>
-                {t('staffMobilisations.detail.resetSharesButton')}
-              </Button>
-            </div>
-          </div>
-        )}
-
-        {needsMyConfirmation && (
-          <div className="mt-4 rounded-lg bg-warning/10 p-3 text-sm">
-            <p className="mb-2">{t('staffMobilisations.detail.needsConfirmationHint')}</p>
-            <Button size="sm" isLoading={confirmMutation.isPending} onClick={() => confirmMutation.mutate()}>
-              {t('staffMobilisations.detail.confirmButton')}
-            </Button>
-          </div>
-        )}
-
-        {canManage && (
-          <div className="mt-4 flex flex-wrap items-end gap-2">
-            <PickerLoadWarning failed={[{ label: 'candidate coordinators', isError: candidatesError }]} />
-            <Select
-              label={t('staffMobilisations.detail.addJointCoordinator')}
-              value={inviteId}
-              onChange={(e) => setInviteId(e.target.value)}
-              className="min-w-[200px]"
-            >
-              <option value="">{t('staffMobilisations.detail.selectCoordinator')}</option>
-              {availableCandidates.map((c) => (
-                <option key={c._id} value={c._id}>
-                  {c.name}
-                </option>
-              ))}
-            </Select>
-            <Button
-              size="sm"
-              variant="secondary"
-              disabled={!inviteId}
-              isLoading={addMutation.isPending}
-              onClick={() => addMutation.mutate(inviteId)}
-            >
-              {t('staffMobilisations.detail.invite')}
-            </Button>
-          </div>
-        )}
-
-        {canManage && (
-          <div className="mt-4 border-t border-border pt-4">
-            {!canSubmit && unconfirmed.length > 0 && (
-              <p className="mb-2 text-xs text-muted">
-                {t('staffMobilisations.detail.waitingOnConfirmation', { names: unconfirmed.map((c) => c.user.name ?? userId(c)).join(', ') })}
-              </p>
-            )}
-            {!canSubmit && missingWorkerIdentity && (
-              <p className="mb-2 text-xs text-danger">{t('staffMobilisations.detail.missingWorkerIdentity')}</p>
-            )}
-            <Button
-              isLoading={submitMutation.isPending}
-              disabled={!canSubmit}
-              onClick={() => {
-                // Chosen-but-not-yet-uploaded files (see the file input
-                // above) are only local browser state — real QA-reported
-                // gap (2026-09-14): submitting here never warned that they
-                // silently would never reach the server unless "Upload" was
-                // clicked separately first. Takes priority over the
-                // no-documents check below: these files DO exist, just not
-                // where the reviewer will see them yet.
-                if (files.length > 0) {
-                  setConfirmingUnuploadedFiles(true);
-                } else if ((m.documents ?? []).length === 0) {
-                  // No file ever chosen AND nothing already uploaded — the
-                  // user's own ask (2026-09-16): a reviewer often needs a
-                  // real attachment (contract, ID copy) to actually decide
-                  // this; submitting with none should be a deliberate
-                  // choice, not a silent gap discovered only once it's
-                  // already in someone's review queue.
-                  setConfirmingNoDocuments(true);
-                } else {
-                  submitMutation.mutate();
-                }
-              }}
-            >
-              {t('staffMobilisations.detail.submitForReview')}
-            </Button>
-          </div>
-        )}
-      </Card>
-
-      {hasCommercialFields && (
-        <Card>
-          <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-muted">
-            {t('staffMobilisations.detail.sectionRatesFinancials')}
-          </h2>
-          <DetailTable
-            rows={[
-              { label: t('staffMobilisations.detail.fields.clientRate'), value: formatMoney(m.clientRate) },
-              { label: t('staffMobilisations.detail.fields.clientCommission'), value: formatMoney(m.clientCommission) },
-              ...(m.clientCommissionCoordinator
-                ? [{ label: t('staffMobilisations.detail.fields.clientCommissionCoordinator'), value: <ContactList contacts={[m.clientCommissionCoordinator]} /> }]
-                : []),
-              { label: t('staffMobilisations.detail.fields.fta'), value: formatMoney(m.fta) },
-              {
-                label: t('staffMobilisations.detail.fields.ftaType'),
-                value: m.ftaType ? t(`staffMobilisations.form.ftaType.${m.ftaType}`) : null,
-              },
-              { label: t('staffMobilisations.detail.fields.allowance'), value: formatMoney(m.allowance) },
-              { label: t('staffMobilisations.detail.fields.allowanceRemark'), value: m.allowanceRemark },
-              { label: t('staffMobilisations.detail.fields.mobilisationCost'), value: m.mobilisationCost ? formatMoney(m.mobilisationCost) : null },
-              {
-                label: t('staffMobilisations.detail.fields.requiredTimesheetHours'),
-                value: m.requiredTimesheetHours || t('staffMobilisations.warnings.noRequiredHours'),
-                valueClassName: m.requiredTimesheetHours ? undefined : 'text-warning',
-              },
-              ...(m.hasSubcontractor
-                ? [
-                    { label: t('staffMobilisations.detail.fields.subcontractorRate'), value: formatMoney(m.subcontractorRate) },
-                    {
-                      label: t('staffMobilisations.detail.fields.subcontractorCommission'),
-                      value: formatMoney(m.subcontractorCommission),
-                    },
-                    ...(m.subcontractorCommissionCoordinator
-                      ? [{
-                          label: t('staffMobilisations.detail.fields.subcontractorCommissionCoordinator'),
-                          value: <ContactList contacts={[m.subcontractorCommissionCoordinator]} />,
-                        }]
-                      : []),
-                  ]
-                : []),
-              ...(m.workerType === 'Freelancer'
-                ? [{ label: t('staffMobilisations.detail.fields.employeeRate'), value: formatMoney(m.employeeRate) }]
-                : []),
-              {
-                label: t('staffMobilisations.detail.fields.profitPerHour'),
-                value: formatMoney(m.profitPerHour),
-                valueClassName: profitClass(m.profitPerHour),
-              },
-              {
-                label: t('staffMobilisations.detail.fields.profitPerMonth'),
-                value: m.profitPerMonth != null ? formatMoney(m.profitPerMonth) : null,
-                valueClassName: profitClass(m.profitPerMonth),
-              },
-              {
-                label: t('staffMobilisations.detail.fields.otClientRate'),
-                value: m.otClientRate != null ? formatMoney(m.otClientRate) : null,
-              },
-              {
-                label: t('staffMobilisations.detail.fields.otEmployeeRate'),
-                value: m.otEmployeeRate != null ? formatMoney(m.otEmployeeRate) : null,
-              },
-              {
-                label: t('staffMobilisations.detail.fields.otProfitPerHour'),
-                value: m.otProfitPerHour != null ? formatMoney(m.otProfitPerHour) : null,
-                valueClassName: profitClass(m.otProfitPerHour),
-              },
-            ]}
-          />
+  return (
+    <div className="mx-auto max-w-[1600px] space-y-6">
+      {transfer?.status === 'Pending' && (
+        <Card className="border-warning/30 bg-warning/5">
+          <p className="text-sm">
+            {t('staffMobilisations.detail.transfer.pending', { name: m.workerName, from: transfer.fromName, to: transfer.toName })}
+          </p>
         </Card>
       )}
-
-      </div>
-      </div>
+      {transfer?.status === 'Rejected' && (
+        <Card className="border-danger/30 bg-danger/5">
+          <p className="text-sm">{t('staffMobilisations.detail.transfer.rejected', { note: transfer.decisionNote })}</p>
+        </Card>
+      )}
+      {transfer?.status === 'Approved' && (
+        <Card className="border-success/30 bg-success/5">
+          <p className="text-sm">{t('staffMobilisations.detail.transfer.approved', { name: m.workerName, to: transfer.toName })}</p>
+        </Card>
+      )}
+      <PageHeader
+        title={`#${m.serialNumber}`}
+        description={
+          <span>
+            <strong className="text-text">{m.workerName}</strong>
+            <span className="mx-2 opacity-50">·</span>
+            <span>{m.jobTitle}</span>
+            <span className="mx-2 opacity-50">·</span>
+            <strong className="text-text">{m.clientName}</strong>
+          </span>
+        }
+        onBack={() => navigate(-1)}
+        actions={
+          <div className="flex flex-wrap items-center gap-2">
+            <Badge variant={MOBILISATION_STATUS_VARIANT[m.status]}>{mobilisationStatusLabel(t, m.status)}</Badge>
+            <Button size="sm" variant="secondary" isLoading={exportMutation.isPending} onClick={() => exportMutation.mutate()}>
+              {t('staffMobilisations.detail.exportExcel')}
+            </Button>
+            {canEditSection1 && (
+              <Button size="sm" variant="secondary" onClick={() => navigate(`/mobilisations/${id}/edit`)}>
+                {t('common.edit')}
+              </Button>
+            )}
+          </div>
+        }
+      />
+      {m.deployment ? (
+        <Tabs
+          tabs={[
+            { key: 'mobilisation', label: t('staffMobilisations.detail.tabs.mobilisation'), content: mobilisationPanels },
+            { key: 'deployment', label: t('staffMobilisations.detail.tabs.deployment'), content: <DeploymentPanel deploymentId={m.deployment._id} /> },
+          ]}
+          value={activeTab}
+          onChange={setActiveTab}
+        />
+      ) : (
+        mobilisationPanels
+      )}
 
       <ConfirmDialog
         open={Boolean(toRemove)}

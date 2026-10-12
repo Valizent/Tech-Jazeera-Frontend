@@ -68,7 +68,7 @@ export async function decideMonthlyHours(id, entryId, payload) {
 }
 
 /** `formData` must include invoiceNumber, invoiceDate, and a `file` (the
- *  invoice PDF copy) — see DeploymentDetailPage.jsx's FormData-building
+ *  invoice PDF copy) — see DeploymentPanel.jsx's FormData-building
  *  pattern (mirrors MyRequestsPage.jsx's reimbursement submit). */
 export async function sendInvoice(id, entryId, formData) {
   const { data } = await api.post(`/deployments/${id}/monthly-hours/${entryId}/send-invoice`, formData);

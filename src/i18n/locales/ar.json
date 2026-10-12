@@ -1930,7 +1930,6 @@
         "demobilisedOn": "تاريخ التسريح",
         "reason": "السبب"
       },
-      "viewMobilisation": "عرض التعبئة",
       "deploymentNotesLabel": "ملاحظات",
       "editDeploymentModalTitle": "تعديل {{name}}",
       "editedToast": "تم تحديث عملية النشر.",
@@ -2468,11 +2467,14 @@
         "downloadToView": "قم بتنزيله لعرضه."
       },
       "defaultRejectError": "اشرح ما الذي يحتاج إلى تصحيح قبل الرفض.",
-      "viewDeployment": "عرض النشر",
       "transfer": {
         "pending": "بانتظار اعتماد نقل المقاول من الباطن: {{name}} من {{from}} إلى {{to}}. يمكنك إرسال هذه التعبئة، لكن اعتمادها النهائي ينتظر النقل.",
         "rejected": "تم رفض نقل المقاول من الباطن: {{note}}",
         "approved": "تم اعتماد النقل: {{name}} أصبح لدى {{to}}."
+      },
+      "tabs": {
+        "mobilisation": "التعبئة",
+        "deployment": "التنسيب"
       }
     },
     "warnings": {

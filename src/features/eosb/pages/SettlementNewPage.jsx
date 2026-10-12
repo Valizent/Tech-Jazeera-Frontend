@@ -6,7 +6,7 @@
  * estimate would risk being read as the real number; see docs/P3-A-notes.md).
  * Accepts `?employee=<id>` to preset from an Employee profile, and
  * additionally `?exitDate=&exitReason=` when arriving from Deployment's
- * demobilise Exit-outcome follow-up prompt (see DeploymentDetailPage.jsx) —
+ * demobilise Exit-outcome follow-up prompt (see DeploymentPanel.jsx) —
  * both optional and independent of `employee`.
  */
 import { useEffect, useMemo } from 'react';

@@ -1,7 +1,7 @@
 /**
  * ExpenseFormModal — the Add/Edit expense form, extracted from
  * ExpenseListPage.jsx (2026-09-24) so the new per-Deployment Expenses
- * section on DeploymentDetailPage.jsx can reuse the exact same form/
+ * section on DeploymentPanel.jsx can reuse the exact same form/
  * mutations instead of a second, duplicate one — same "one formula/one
  * component, reused everywhere" discipline this session's own dashboard
  * work already followed for the Revenue/Expenses math itself.

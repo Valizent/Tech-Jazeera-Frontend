@@ -31,7 +31,7 @@ export function resolveDemobiliseOutcome(workerType, reason, exitOutcome) {
 //
 // `supplierHours` is required only for a SupplierEmployee deployment — this
 // schema is built per-form-instance (via `workerType`) rather than static,
-// since only DeploymentDetailPage knows which deployment it's rendering for.
+// since only DeploymentPanel knows which deployment it's rendering for.
 // Bounds mirror deployment.validation.js's own actualHours/supplierHours/
 // deductionAmount exactly (2026-09-29, a real audit finding: this used to
 // only check non-empty, so a negative or wildly-too-high value passed here
@@ -41,7 +41,7 @@ export function resolveDemobiliseOutcome(workerType, reason, exitOutcome) {
 // placement days in the selected month) depends on the currently-typed
 // month, which would mean rebuilding this schema/resolver on every keystroke
 // — instead enforced as a live warning + submit guard in
-// DeploymentDetailPage's own MonthlyHoursForm (mirroring
+// DeploymentPanel's own MonthlyHoursForm (mirroring
 // deployment.service.js's real, authoritative assertPossibleHours check).
 // This flat 1000 stays as a basic sanity bound underneath that.
 const hoursField = (message) =>
@@ -106,7 +106,7 @@ export const emptyMonthlyHoursForm = {
 const DAILY_STATUS_LETTER = { Off: 'F', Sick: 'S', Absent: 'A' };
 
 /** A saved {status, hours} day → the single display string — read-only use
- *  only now (DeploymentDetailPage's collapsible breakdown for a pre-
+ *  only now (DeploymentPanel's collapsible breakdown for a pre-
  *  2026-09-16 entry that still has real dailyHours; see deployment.model.js's
  *  own doc comment on why that array is never written to again). */
 export function dailyEntryToString(day) {
