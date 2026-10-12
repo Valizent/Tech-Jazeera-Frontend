@@ -1855,7 +1855,7 @@
         "otCalculations": "Employee OT Pay",
         "clientCommission": "Client Commission",
         "fta": "FTA",
-        "allowance": "Allowance",
+        "allowance": "Other allowances",
         "clientDeduction": "Client Deduction",
         "mobilisationCost": "Mobilisation Cost",
         "employeeSalary": "Employee Salary",
@@ -2113,7 +2113,7 @@
       "supplierDeduction": "Subcontractor deduction",
       "expenses": "Expenses",
       "fta": "FTA",
-      "allowance": "Allowance",
+      "allowance": "Other allowances",
       "clientDeduction": "Client deduction",
       "mobilisationCost": "Mobilisation cost",
       "workerOtPay": "Employee OT pay",
@@ -2252,9 +2252,9 @@
         "FTA": "FTA"
       },
       "fta": "FTA (⃁/month)",
-      "allowance": "Allowance (⃁/month)",
-      "allowanceRemark": "Allowance remark",
-      "allowanceRemarkPlaceholder": "What this allowance is for",
+      "allowance": "Other allowances (⃁/month)",
+      "allowanceRemark": "What the other allowances are for",
+      "allowanceRemarkPlaceholder": "What these allowances are for",
       "mobilisationCost": "Mobilisation cost (one-time, ⃁)",
       "requiredTimesheetHours": "Required timesheet hours",
       "otEmployeeRate": "OT payment to employee (⃁/hour)",
@@ -2295,7 +2295,15 @@
         "message": "In our records he is with {{from}}. Moving him needs the Marketing Manager's approval. You can still save and submit this mobilisation, but its final approval waits for the transfer to be approved.",
         "yes": "Yes, request the move",
         "no": "No, only for this mobilisation"
-      }
+      },
+      "addCoordinatorPlaceholder": "Add a coordinator…",
+      "removeCoordinatorAria": "Remove {{name}}",
+      "multipleCoordinators": "Multiple coordinators",
+      "splitHint": "Choose up to {{max}} coordinators and give each a share. The shares must add up to 100%.",
+      "coordinatorN": "Coordinator {{n}}",
+      "sharePercent": "Share (%)",
+      "addAnotherCoordinator": "Add another coordinator",
+      "shareTotal": "Total: {{total}}%"
     },
     "new": {
       "pageTitle": "New mobilisation",
@@ -2345,8 +2353,8 @@
         "clientCommission": "Client commission",
         "fta": "FTA",
         "ftaType": "FTA type",
-        "allowance": "Allowance",
-        "allowanceRemark": "Allowance remark",
+        "allowance": "Other allowances",
+        "allowanceRemark": "What the other allowances are for",
         "mobilisationCost": "Mobilisation cost (one-time)",
         "requiredTimesheetHours": "Required timesheet hours",
         "subcontractor": "Subcontractor",
@@ -2447,7 +2455,9 @@
       }
     },
     "warnings": {
-      "noRequiredHours": "No required timesheet hours set: every hour will be billed as overtime, and with no overtime rate the invoice will show SAR 0."
+      "noRequiredHours": "No required timesheet hours set: every hour will be billed as overtime, and with no overtime rate the invoice will show SAR 0.",
+      "profitBelowCommissions": "Profit per hour ({{profit}}) is lower than the commissions paid out of it ({{commissions}}). Check the rates before submitting.",
+      "profitEqualsCommissions": "Profit per hour ({{profit}}) is exactly the commissions paid ({{commissions}}). Check the rates."
     }
   },
   "staffSubcontractors": {

@@ -86,6 +86,13 @@ function WarningIcon({ className }) {
  *  carries its own scroll per the project's no-horizontal-page-scroll
  *  rule. */
 /** People at the client / subcontractor, as snapshotted on the mobilisation (2026-10-12). */
+/** A side's commission recipients: the list, or the single one an older record has. */
+const commissionRecipients = (m, side) => {
+  const list = m[`${side}CommissionRecipients`];
+  if (list?.length) return list;
+  return m[`${side}CommissionCoordinator`] ? [m[`${side}CommissionCoordinator`]] : [];
+};
+
 function ContactList({ contacts }) {
   return (
     <ul className="space-y-1">
@@ -95,6 +102,7 @@ function ContactList({ contacts }) {
           {[c.designation, c.phone, c.email].filter(Boolean).length > 0 && (
             <span className="block text-xs text-muted">{[c.designation, c.phone, c.email].filter(Boolean).join(' · ')}</span>
           )}
+          {contacts.length > 1 && c.sharePercent != null && <span className="block text-xs text-muted">{c.sharePercent}%</span>}
         </li>
       ))}
     </ul>
@@ -843,8 +851,8 @@ export default function MobilisationDetailPage() {
           rows={[
             { label: t('staffMobilisations.detail.fields.clientRate'), value: formatMoney(m.clientRate) },
             { label: t('staffMobilisations.detail.fields.clientCommission'), value: formatMoney(m.clientCommission) },
-            ...(m.clientCommissionCoordinator
-              ? [{ label: t('staffMobilisations.detail.fields.clientCommissionCoordinator'), value: <ContactList contacts={[m.clientCommissionCoordinator]} /> }]
+            ...(commissionRecipients(m, 'client').length
+              ? [{ label: t('staffMobilisations.detail.fields.clientCommissionCoordinator'), value: <ContactList contacts={commissionRecipients(m, 'client')} /> }]
               : []),
             { label: t('staffMobilisations.detail.fields.fta'), value: formatMoney(m.fta) },
             {
@@ -866,10 +874,10 @@ export default function MobilisationDetailPage() {
                     label: t('staffMobilisations.detail.fields.subcontractorCommission'),
                     value: formatMoney(m.subcontractorCommission),
                   },
-                  ...(m.subcontractorCommissionCoordinator
+                  ...(commissionRecipients(m, 'subcontractor').length
                     ? [{
                         label: t('staffMobilisations.detail.fields.subcontractorCommissionCoordinator'),
-                        value: <ContactList contacts={[m.subcontractorCommissionCoordinator]} />,
+                        value: <ContactList contacts={commissionRecipients(m, 'subcontractor')} />,
                       }]
                     : []),
                 ]

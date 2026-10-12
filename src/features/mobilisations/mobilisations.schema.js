@@ -84,6 +84,8 @@ export const WORKER_TYPES = ['Employee', 'SupplierEmployee', 'Freelancer'];
 // combined; the other three are the individual components.
 export const FTA_TYPES = ['FoodOnly', 'TravelOnly', 'AccommodationOnly', 'FTA'];
 
+const recipientRow = z.object({ coordinatorId: z.string(), sharePercent: z.string() });
+
 const mobilisationFields = {
   workerType: z.enum(WORKER_TYPES),
   // Employee: `worker` picks a real Employee record. SupplierEmployee/
@@ -135,8 +137,13 @@ const mobilisationFields = {
   // The answer to "move him to this subcontractor?" - set by the form's own
   // prompt, never typed (2026-10-12).
   requestSubcontractorTransfer: z.boolean().optional(),
-  clientCommissionCoordinatorId: z.string().optional().or(z.literal('')),
-  subcontractorCommissionCoordinatorId: z.string().optional().or(z.literal('')),
+  // Who each commission goes to (2026-10-13): one to three coordinators, each
+  // with a percentage share. `...Multiple` is whether the form's "Multiple
+  // coordinators" box is open; it is never sent.
+  clientCommissionRecipients: z.array(recipientRow),
+  subcontractorCommissionRecipients: z.array(recipientRow),
+  clientCommissionMultiple: z.boolean(),
+  subcontractorCommissionMultiple: z.boolean(),
 
   mobilisationDate: z.string().min(1, 'Mobilisation date is required.'),
   checkoutDate: z.string().optional().or(z.literal('')),
@@ -158,6 +165,49 @@ const mobilisationFields = {
   requirementCandidate: z.string().optional().or(z.literal('')),
 };
 
+/** One side's commission recipients: a single coordinator, or two to three with shares totalling 100. */
+function checkRecipients(data, side, ctx) {
+  const path = [`${side}CommissionRecipients`];
+  const picked = data[`${side}CommissionRecipients`].filter((r) => r.coordinatorId);
+  const add = (message) => ctx.addIssue({ code: 'custom', path, message });
+  if (picked.length === 0) {
+    add(`Choose which ${side} coordinator the ${side} commission goes to.`);
+  } else if (data[`${side}CommissionMultiple`]) {
+    if (picked.length < 2) {
+      add('Pick at least two coordinators, or choose a single coordinator instead.');
+    } else if (new Set(picked.map((r) => r.coordinatorId)).size !== picked.length) {
+      add('Pick each coordinator only once.');
+    } else if (picked.some((r) => !(Number(r.sharePercent) > 0))) {
+      add('Give every coordinator a share above 0%.');
+    } else {
+      const total = picked.reduce((sum, r) => sum + Number(r.sharePercent), 0);
+      if (Math.abs(total - 100) > 0.01) add(`The shares must add up to 100% (they add up to ${Math.round(total * 100) / 100}%).`);
+    }
+  }
+}
+
+/** The form's commission pickers as the API takes them: only real picks, and
+ *  nothing at all when that side's commission is under 1. */
+export function withCommissionRecipients(values) {
+  const rest = { ...values };
+  delete rest.clientCommissionMultiple;
+  delete rest.subcontractorCommissionMultiple;
+  const clean = (rows, needed) =>
+    needed
+      ? rows
+          .filter((r) => r.coordinatorId)
+          .map((r) => ({ coordinatorId: r.coordinatorId, ...(r.sharePercent !== '' && { sharePercent: Number(r.sharePercent) }) }))
+      : [];
+  return {
+    ...rest,
+    clientCommissionRecipients: clean(values.clientCommissionRecipients, Number(values.clientCommission) >= 1),
+    subcontractorCommissionRecipients: clean(
+      values.subcontractorCommissionRecipients,
+      values.workerType === 'SupplierEmployee' && Number(values.subcontractorCommission) >= 1
+    ),
+  };
+}
+
 export const mobilisationFormSchema = z.object(mobilisationFields).superRefine((data, ctx) => {
   if (data.workerType === 'Employee' && !data.worker) {
     ctx.addIssue({ code: 'custom', path: ['worker'], message: 'Select an employee.' });
@@ -173,19 +223,9 @@ export const mobilisationFormSchema = z.object(mobilisationFields).superRefine((
     ctx.addIssue({ code: 'custom', path: ['employeeRate'], message: 'Employee rate per hour is required for a freelancer.' });
   }
   // A commission of 1 or more has to go to someone at that company.
-  if (Number(data.clientCommission) >= 1 && !data.clientCommissionCoordinatorId) {
-    ctx.addIssue({
-      code: 'custom',
-      path: ['clientCommissionCoordinatorId'],
-      message: 'Choose which client coordinator the client commission goes to.',
-    });
-  }
-  if (data.workerType === 'SupplierEmployee' && Number(data.subcontractorCommission) >= 1 && !data.subcontractorCommissionCoordinatorId) {
-    ctx.addIssue({
-      code: 'custom',
-      path: ['subcontractorCommissionCoordinatorId'],
-      message: 'Choose which subcontractor coordinator the subcontractor commission goes to.',
-    });
+  if (Number(data.clientCommission) >= 1) checkRecipients(data, 'client', ctx);
+  if (data.workerType === 'SupplierEmployee' && Number(data.subcontractorCommission) >= 1) {
+    checkRecipients(data, 'subcontractor', ctx);
   }
   // Mirrors the server's own withFtaTypeRefine — the amount input is also
   // disabled in the form until a type is picked, so this mostly guards
@@ -225,8 +265,10 @@ export const emptyMobilisationForm = {
   subcontractorCommission: '',
   clientCoordinatorIds: [],
   subcontractorCoordinatorIds: [],
-  clientCommissionCoordinatorId: '',
-  subcontractorCommissionCoordinatorId: '',
+  clientCommissionRecipients: [],
+  subcontractorCommissionRecipients: [],
+  clientCommissionMultiple: false,
+  subcontractorCommissionMultiple: false,
   mobilisationDate: new Date().toISOString().slice(0, 10),
   checkoutDate: '',
   remark: '',
@@ -291,6 +333,15 @@ export const decideMobilisationFormSchema = z
     }
   });
 
+/** A saved side's recipients for the form: the list, or - on a record saved
+ *  before shares existed - its single recipient at 100%. */
+function recipientsToForm(m, side) {
+  const list = m[`${side}CommissionRecipients`];
+  if (list?.length) return list.map((r) => ({ coordinatorId: r.coordinatorId, sharePercent: String(r.sharePercent) }));
+  const single = m[`${side}CommissionCoordinator`];
+  return single ? [{ coordinatorId: single.coordinatorId, sharePercent: '100' }] : [];
+}
+
 export function mobilisationToForm(m) {
   return {
     workerType: m.workerType ?? 'Employee',
@@ -317,8 +368,10 @@ export function mobilisationToForm(m) {
     subcontractorCommission: String(m.subcontractorCommission ?? ''),
     clientCoordinatorIds: (m.clientCoordinators ?? []).map((c) => c.coordinatorId),
     subcontractorCoordinatorIds: (m.subcontractorCoordinators ?? []).map((c) => c.coordinatorId),
-    clientCommissionCoordinatorId: m.clientCommissionCoordinator?.coordinatorId ?? '',
-    subcontractorCommissionCoordinatorId: m.subcontractorCommissionCoordinator?.coordinatorId ?? '',
+    clientCommissionRecipients: recipientsToForm(m, 'client'),
+    subcontractorCommissionRecipients: recipientsToForm(m, 'subcontractor'),
+    clientCommissionMultiple: recipientsToForm(m, 'client').length > 1,
+    subcontractorCommissionMultiple: recipientsToForm(m, 'subcontractor').length > 1,
     mobilisationDate: m.mobilisationDate ? m.mobilisationDate.slice(0, 10) : '',
     checkoutDate: m.checkoutDate ? m.checkoutDate.slice(0, 10) : '',
     remark: m.remark ?? '',

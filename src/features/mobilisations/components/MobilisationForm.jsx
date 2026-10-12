@@ -39,7 +39,7 @@ import { useForm, useWatch, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useTranslation } from 'react-i18next';
 import { useQuery } from '@tanstack/react-query';
-import { mobilisationFormSchema, WORKER_TYPES, FTA_TYPES } from '../mobilisations.schema.js';
+import { mobilisationFormSchema, withCommissionRecipients, WORKER_TYPES, FTA_TYPES } from '../mobilisations.schema.js';
 import { useJobTitleQuickCreate } from '../../jobTitles/useJobTitleQuickCreate.js';
 import { useLocationQuickCreate } from '../../locations/useLocationQuickCreate.js';
 import {
@@ -58,7 +58,7 @@ import SuggestInput from '../../../components/ui/SuggestInput.jsx';
 import Textarea from '../../../components/ui/Textarea.jsx';
 import Button from '../../../components/ui/Button.jsx';
 import Modal from '../../../components/ui/Modal.jsx';
-import { CoordinatorMultiPicker, CommissionRecipientSelect } from './CompanyPeoplePickers.jsx';
+import { CoordinatorMultiPicker, CommissionRecipientsField } from './CompanyPeoplePickers.jsx';
 
 /** Once `iqamaNumber` reaches a full 10 digits, looks up whether this worker
  *  has been mobilised before and — if so — fills in name/nationality/phone/
@@ -89,7 +89,7 @@ import { CoordinatorMultiPicker, CommissionRecipientSelect } from './CompanyPeop
  *  worker's own last-known client/subcontractor rate as a read-only
  *  reference label next to this mobilisation's own (independently-editable)
  *  rate inputs. */
-function useIqamaAutofill({ control, workerType, setValue, toast, t }) {
+function useIqamaAutofill({ control, workerType, setValue, getValues, toast, t }) {
   const iqamaRaw = useWatch({ control, name: 'iqamaNumber' });
   const iqamaDigits = (iqamaRaw || '').replace(/\D/g, '');
   const enabled = workerType !== 'Employee' && iqamaDigits.length === 10;
@@ -102,9 +102,30 @@ function useIqamaAutofill({ control, workerType, setValue, toast, t }) {
   });
 
   const appliedRef = useRef(iqamaDigits || null);
+  // What the lookup (or the previous-worker picker) wrote for the current
+  // number, so a different number can take back exactly that (2026-10-13).
+  const filledRef = useRef(null);
+  useEffect(() => {
+    if (!filledRef.current || iqamaDigits === filledRef.current.iqama) return;
+    const filled = filledRef.current;
+    filledRef.current = null;
+    appliedRef.current = null;
+    // Only a field still exactly as the lookup wrote it goes; one edited by
+    // hand since is the user's own and stays.
+    if (getValues('workerName') === filled.workerName) setValue('workerName', '', { shouldDirty: true });
+    if (getValues('nationality') === filled.nationality) setValue('nationality', '', { shouldDirty: true });
+    if (getValues('phone') === filled.phone) setValue('phone', '+966', { shouldDirty: true });
+  }, [iqamaDigits, getValues, setValue]);
+
   useEffect(() => {
     if (!foundWorker || appliedRef.current === iqamaDigits) return;
     appliedRef.current = iqamaDigits;
+    filledRef.current = {
+      iqama: iqamaDigits,
+      workerName: foundWorker.workerName ?? '',
+      nationality: foundWorker.nationality ?? '',
+      phone: foundWorker.phone || '+966',
+    };
     setValue('workerName', foundWorker.workerName ?? '', { shouldValidate: true, shouldDirty: true });
     setValue('nationality', foundWorker.nationality ?? '', { shouldDirty: true });
     setValue('phone', foundWorker.phone || '+966', { shouldDirty: true });
@@ -119,6 +140,10 @@ function useIqamaAutofill({ control, workerType, setValue, toast, t }) {
   return {
     markApplied: (iqamaValue) => {
       appliedRef.current = (iqamaValue || '').replace(/\D/g, '');
+    },
+    // For the previous-worker picker, which writes the same fields itself.
+    rememberFilled: (iqamaValue, fields) => {
+      filledRef.current = { iqama: (iqamaValue || '').replace(/\D/g, ''), ...fields };
     },
     previousWorker: enabled ? foundWorker : null,
   };
@@ -240,6 +265,7 @@ export default function MobilisationForm({
     control,
     handleSubmit,
     setValue,
+    getValues,
     formState: { errors },
   } = useForm({ resolver: zodResolver(mobilisationFormSchema), defaultValues });
 
@@ -253,9 +279,38 @@ export default function MobilisationForm({
   const subcontractorCommissionValue = useWatch({ control, name: 'subcontractorCommission' });
   const clientCoordinatorIds = useWatch({ control, name: 'clientCoordinatorIds' }) ?? [];
   const subcontractorCoordinatorIds = useWatch({ control, name: 'subcontractorCoordinatorIds' }) ?? [];
-  const clientRecipient = useWatch({ control, name: 'clientCommissionCoordinatorId' }) ?? '';
-  const subcontractorRecipient = useWatch({ control, name: 'subcontractorCommissionCoordinatorId' }) ?? '';
-  const { markApplied: markIqamaApplied, previousWorker } = useIqamaAutofill({ control, workerType, setValue, toast, t });
+  const clientRecipients = useWatch({ control, name: 'clientCommissionRecipients' }) ?? [];
+  const subcontractorRecipients = useWatch({ control, name: 'subcontractorCommissionRecipients' }) ?? [];
+  const clientMultiple = useWatch({ control, name: 'clientCommissionMultiple' }) ?? false;
+  const subcontractorMultiple = useWatch({ control, name: 'subcontractorCommissionMultiple' }) ?? false;
+  const clientRateValue = useWatch({ control, name: 'clientRate' });
+  const subcontractorRateValue = useWatch({ control, name: 'subcontractorRate' });
+  const employeeRateValue = useWatch({ control, name: 'employeeRate' });
+  const {
+    markApplied: markIqamaApplied,
+    rememberFilled: rememberIqamaFilled,
+    previousWorker,
+  } = useIqamaAutofill({ control, workerType, setValue, getValues, toast, t });
+
+  // Profit we keep per hour (the same figure the server computes) against the
+  // commissions paid out of it: lower than them is a red flag, equal to them is
+  // worth a second look (2026-10-13; a warning, it never blocks the save).
+  const isSupplierWorker = workerType === 'SupplierEmployee';
+  const commissionsPerHour = (Number(clientCommissionValue) || 0) + (isSupplierWorker ? Number(subcontractorCommissionValue) || 0 : 0);
+  const otherSideCost = isSupplierWorker
+    ? (Number(subcontractorRateValue) || 0) + (Number(subcontractorCommissionValue) || 0)
+    : workerType === 'Freelancer'
+      ? Number(employeeRateValue) || 0
+      : 0;
+  const keptPerHour = (Number(clientRateValue) || 0) - (Number(clientCommissionValue) || 0) - otherSideCost;
+  const profitCheck =
+    commissionsPerHour > 0 && Number(clientRateValue) > 0
+      ? keptPerHour < commissionsPerHour
+        ? 'below'
+        : keptPerHour === commissionsPerHour
+          ? 'equal'
+          : null
+      : null;
 
   // The company's own coordinators, plus anyone added from this form before
   // the lists have refetched.
@@ -273,11 +328,13 @@ export default function MobilisationForm({
   const subcontractorCoordinators = coordinatorsOf(subcontractors, subcontractorValue);
   useResetOnChange(clientValue, () => {
     setValue('clientCoordinatorIds', [], { shouldDirty: true });
-    setValue('clientCommissionCoordinatorId', '', { shouldDirty: true });
+    setValue('clientCommissionRecipients', [], { shouldDirty: true });
+    setValue('clientCommissionMultiple', false, { shouldDirty: true });
   });
   useResetOnChange(subcontractorValue, () => {
     setValue('subcontractorCoordinatorIds', [], { shouldDirty: true });
-    setValue('subcontractorCommissionCoordinatorId', '', { shouldDirty: true });
+    setValue('subcontractorCommissionRecipients', [], { shouldDirty: true });
+    setValue('subcontractorCommissionMultiple', false, { shouldDirty: true });
   });
   const { workers, workersLoading, workersError } = useEmployeeWorkers({ workerType, existingWorkerId });
 
@@ -299,6 +356,11 @@ export default function MobilisationForm({
       setValue('iqamaNumber', picked.iqamaNumber, { shouldValidate: true, shouldDirty: true });
       markIqamaApplied(picked.iqamaNumber);
     }
+    rememberIqamaFilled(picked.iqamaNumber, {
+      workerName: picked.workerName ?? '',
+      nationality: picked.nationality ?? '',
+      phone: picked.phone || '+966',
+    });
     toast.success(t('staffMobilisations.form.previousWorkerAppliedToast', { name: picked.workerName }));
   }
 
@@ -327,15 +389,16 @@ export default function MobilisationForm({
   function submitWithTransferCheck(values) {
     const known = previousWorker?.registeredSubcontractor;
     const differs = values.workerType === 'SupplierEmployee' && known && values.subcontractor && known.id !== values.subcontractor;
+    const payload = withCommissionRecipients(values);
     if (!differs) {
-      onSubmit({ ...values, requestSubcontractorTransfer: false });
+      onSubmit({ ...payload, requestSubcontractorTransfer: false });
       return;
     }
     if (pendingTransferTo && String(pendingTransferTo) === values.subcontractor) {
-      onSubmit({ ...values, requestSubcontractorTransfer: true });
+      onSubmit({ ...payload, requestSubcontractorTransfer: true });
       return;
     }
-    setTransferPrompt({ values, from: known.name });
+    setTransferPrompt({ values: payload, from: known.name });
   }
   function answerTransfer(wanted) {
     const { values } = transferPrompt;
@@ -445,16 +508,20 @@ export default function MobilisationForm({
                 label={t('staffMobilisations.form.subcontractorCoordinators')}
               />
               {Number(subcontractorCommissionValue) >= 1 && (
-                <CommissionRecipientSelect
+                <CommissionRecipientsField
                   ownerType="Subcontractor"
                   companyId={subcontractorValue}
                   companyName={subcontractorObj?.name}
                   coordinators={subcontractorCoordinators}
-                  value={subcontractorRecipient}
-                  onChange={(id) => setValue('subcontractorCommissionCoordinatorId', id, { shouldDirty: true, shouldValidate: true })}
+                  recipients={subcontractorRecipients}
+                  multiple={subcontractorMultiple}
+                  onChange={({ recipients, multiple }) => {
+                    setValue('subcontractorCommissionRecipients', recipients, { shouldDirty: true, shouldValidate: true });
+                    setValue('subcontractorCommissionMultiple', multiple, { shouldDirty: true });
+                  }}
                   onAdded={rememberAdded(subcontractorValue)}
                   label={t('staffMobilisations.form.subcontractorCommissionRecipient')}
-                  error={errors.subcontractorCommissionCoordinatorId?.message}
+                  error={errors.subcontractorCommissionRecipients?.message ?? errors.subcontractorCommissionRecipients?.root?.message}
                 />
               )}
             </div>
@@ -632,17 +699,36 @@ export default function MobilisationForm({
             label={t('staffMobilisations.form.clientCoordinators')}
           />
           {Number(clientCommissionValue) >= 1 && (
-            <CommissionRecipientSelect
+            <CommissionRecipientsField
               ownerType="Client"
               companyId={clientValue}
               companyName={clientObj?.companyName}
               coordinators={clientCoordinators}
-              value={clientRecipient}
-              onChange={(id) => setValue('clientCommissionCoordinatorId', id, { shouldDirty: true, shouldValidate: true })}
+              recipients={clientRecipients}
+              multiple={clientMultiple}
+              onChange={({ recipients, multiple }) => {
+                setValue('clientCommissionRecipients', recipients, { shouldDirty: true, shouldValidate: true });
+                setValue('clientCommissionMultiple', multiple, { shouldDirty: true });
+              }}
               onAdded={rememberAdded(clientValue)}
               label={t('staffMobilisations.form.clientCommissionRecipient')}
-              error={errors.clientCommissionCoordinatorId?.message}
+              error={errors.clientCommissionRecipients?.message ?? errors.clientCommissionRecipients?.root?.message}
             />
+          )}
+          {profitCheck && (
+            <p
+              role="status"
+              className={
+                profitCheck === 'below'
+                  ? 'rounded-lg border border-danger/30 bg-danger/5 px-3 py-2 text-sm text-danger sm:col-span-2'
+                  : 'rounded-lg border border-warning/30 bg-warning/10 px-3 py-2 text-sm text-warning sm:col-span-2'
+              }
+            >
+              {t(profitCheck === 'below' ? 'staffMobilisations.warnings.profitBelowCommissions' : 'staffMobilisations.warnings.profitEqualsCommissions', {
+                profit: formatMoney(keptPerHour),
+                commissions: formatMoney(commissionsPerHour),
+              })}
+            </p>
           )}
           <Select label={t('staffMobilisations.form.ftaTypeLabel')} error={errors.ftaType?.message} {...register('ftaType')}>
             <option value="">{t('staffMobilisations.form.selectFtaType')}</option>

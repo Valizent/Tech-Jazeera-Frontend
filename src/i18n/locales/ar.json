@@ -1886,7 +1886,7 @@
         "otCalculations": "أجر الوقت الإضافي للموظف",
         "clientCommission": "عمولة العميل",
         "fta": "بدل الطعام والسفر",
-        "allowance": "البدل",
+        "allowance": "بدلات أخرى",
         "clientDeduction": "خصم العميل",
         "mobilisationCost": "تكلفة التعبئة",
         "employeeSalary": "راتب الموظف",
@@ -2144,7 +2144,7 @@
       "supplierDeduction": "خصم المقاول من الباطن",
       "expenses": "المصروفات",
       "fta": "بدل الطعام والسفر والسكن",
-      "allowance": "البدل",
+      "allowance": "بدلات أخرى",
       "clientDeduction": "خصم العميل",
       "mobilisationCost": "تكلفة التعبئة",
       "workerOtPay": "أجر العمل الإضافي للموظف",
@@ -2283,9 +2283,9 @@
         "FTA": "الكل (طعام وسفر وسكن)"
       },
       "fta": "بدل الطعام والسفر والسكن (ريال/شهر)",
-      "allowance": "البدل (ريال/شهر)",
-      "allowanceRemark": "ملاحظة البدل",
-      "allowanceRemarkPlaceholder": "الغرض من هذا البدل",
+      "allowance": "بدلات أخرى (ريال/شهر)",
+      "allowanceRemark": "الغرض من البدلات الأخرى",
+      "allowanceRemarkPlaceholder": "الغرض من هذه البدلات",
       "mobilisationCost": "تكلفة التعبئة (مرة واحدة، ريال)",
       "requiredTimesheetHours": "ساعات الجدول الزمني المطلوبة",
       "otEmployeeRate": "معدل أجر الوقت الإضافي للموظف (ريال/ساعة)",
@@ -2326,7 +2326,15 @@
         "message": "حسب سجلاتنا هو لدى {{from}}. نقله يحتاج إلى اعتماد مدير التسويق. يمكنك حفظ هذه التعبئة وإرسالها، لكن اعتمادها النهائي ينتظر اعتماد النقل.",
         "yes": "نعم، اطلب النقل",
         "no": "لا، لهذه التعبئة فقط"
-      }
+      },
+      "addCoordinatorPlaceholder": "أضف منسقًا…",
+      "removeCoordinatorAria": "إزالة {{name}}",
+      "multipleCoordinators": "عدة منسقين",
+      "splitHint": "اختر حتى {{max}} منسقين وحدّد لكل منهم نسبة. يجب أن يكون مجموع النسب 100%.",
+      "coordinatorN": "المنسق {{n}}",
+      "sharePercent": "النسبة (%)",
+      "addAnotherCoordinator": "إضافة منسق آخر",
+      "shareTotal": "المجموع: {{total}}%"
     },
     "new": {
       "pageTitle": "تعبئة جديدة",
@@ -2376,8 +2384,8 @@
         "clientCommission": "عمولة العميل",
         "fta": "بدل الطعام والسفر والسكن",
         "ftaType": "نوع البدل",
-        "allowance": "البدل",
-        "allowanceRemark": "ملاحظة البدل",
+        "allowance": "بدلات أخرى",
+        "allowanceRemark": "الغرض من البدلات الأخرى",
         "mobilisationCost": "تكلفة التعبئة (مرة واحدة)",
         "requiredTimesheetHours": "ساعات الجدول الزمني المطلوبة",
         "subcontractor": "المقاول من الباطن",
@@ -2478,7 +2486,9 @@
       }
     },
     "warnings": {
-      "noRequiredHours": "لم تُحدَّد ساعات الدوام المطلوبة: ستُحتسب كل ساعة كوقت إضافي، ومع عدم تحديد سعر الوقت الإضافي ستظهر الفاتورة بقيمة 0 ريال."
+      "noRequiredHours": "لم تُحدَّد ساعات الدوام المطلوبة: ستُحتسب كل ساعة كوقت إضافي، ومع عدم تحديد سعر الوقت الإضافي ستظهر الفاتورة بقيمة 0 ريال.",
+      "profitBelowCommissions": "ربح الساعة ({{profit}}) أقل من العمولات المدفوعة منه ({{commissions}}). تحقق من الأسعار قبل الإرسال.",
+      "profitEqualsCommissions": "ربح الساعة ({{profit}}) يساوي العمولات المدفوعة ({{commissions}}) تمامًا. تحقق من الأسعار."
     }
   },
   "staffSubcontractors": {
