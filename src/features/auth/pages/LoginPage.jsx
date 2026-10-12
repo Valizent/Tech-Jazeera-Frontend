@@ -1,8 +1,6 @@
 /**
- * Login page. react-hook-form + zodResolver: RHF owns form state with
- * minimal re-renders, Zod owns the rules (same schema family as the server).
- * Field errors render inline; credential rejections from the API render as
- * a form-level message.
+ * LoginPage — sign-in form inside the glassmorphic AuthLayout card.
+ * react-hook-form + zodResolver handles validation; server errors render inline.
  */
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
@@ -27,7 +25,7 @@ export default function LoginPage() {
     formState: { errors, isSubmitting },
   } = useForm({ resolver: zodResolver(loginSchema) });
 
-  // Already logged in (e.g. typed /login by hand)? Straight to the app.
+  // Already logged in? Go straight to the app.
   if (status === 'authed') return <Navigate to="/" replace />;
 
   async function onSubmit(values) {
@@ -36,43 +34,58 @@ export default function LoginPage() {
       await login(values);
       navigate('/', { replace: true });
     } catch (error) {
-      // A client-side block (e.g. the P2-M1 worker web gate) carries a ready
-      // message; otherwise fall back to the server's message.
       setServerError(error.userMessage ?? apiMessage(error, t('auth.couldNotLogIn')));
     }
   }
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} noValidate className="flex flex-col gap-4">
-      <div className="mb-2 text-center">
-        <h1 className="text-xl font-semibold">{t('auth.signIn')}</h1>
-        <p className="mt-1 text-sm text-muted">{t('auth.useCompanyAccount')}</p>
+    <form onSubmit={handleSubmit(onSubmit)} noValidate className="flex flex-col gap-5">
+
+      {/* Heading */}
+      <div className="mb-1 text-center">
+        <h1 className="text-2xl font-extrabold tracking-tight text-text">
+          {t('auth.signIn')}
+        </h1>
+        <p className="mt-1.5 text-sm text-muted">{t('auth.useCompanyAccount')}</p>
       </div>
 
-      <Input
-        label={t('auth.email')}
-        type="email"
-        placeholder="you@company.com"
-        autoComplete="email"
-        error={errors.email?.message}
-        {...register('email')}
-      />
-      <Input
-        label={t('auth.password')}
-        type="password"
-        placeholder="••••••••"
-        autoComplete="current-password"
-        error={errors.password?.message}
-        {...register('password')}
-      />
+      {/* Fields */}
+      <div className="space-y-4">
+        <Input
+          label={t('auth.email')}
+          type="email"
+          placeholder="you@company.com"
+          autoComplete="email"
+          error={errors.email?.message}
+          {...register('email')}
+        />
+        <Input
+          label={t('auth.password')}
+          type="password"
+          placeholder="••••••••"
+          autoComplete="current-password"
+          error={errors.password?.message}
+          {...register('password')}
+        />
+      </div>
 
+      {/* Server error */}
       {serverError && (
-        <p role="alert" className="rounded-lg bg-danger/10 p-3 text-center text-sm text-danger">
-          {serverError}
-        </p>
+        <div role="alert" className="flex items-start gap-2.5 rounded-xl border border-danger/20 bg-danger/10 p-3.5 text-sm text-danger">
+          <svg viewBox="0 0 20 20" fill="currentColor" className="mt-0.5 h-4 w-4 shrink-0">
+            <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-5a.75.75 0 01.75.75v4.5a.75.75 0 01-1.5 0v-4.5A.75.75 0 0110 5zm0 10a1 1 0 100-2 1 1 0 000 2z" clipRule="evenodd" />
+          </svg>
+          <span>{serverError}</span>
+        </div>
       )}
 
-      <Button type="submit" size="lg" isLoading={isSubmitting} className="mt-2 w-full">
+      {/* Submit */}
+      <Button
+        type="submit"
+        size="lg"
+        isLoading={isSubmitting}
+        className="mt-1 w-full shadow-glow"
+      >
         {t('auth.signIn')}
       </Button>
     </form>

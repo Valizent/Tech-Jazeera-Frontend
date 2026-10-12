@@ -62,6 +62,14 @@ export default function EmployeeListPage() {
   // Who may create is admin-configurable (Section Access, 'employeeCreate')
   // rather than a static role list — Admin only by default.
   const canCreate = Boolean(user.sectionAccessWrite?.includes('employeeCreate'));
+  // A Coordinator sees a scoped list, so an empty one is explained rather than
+  // met with an invitation to add the first employee.
+  const isCoordinator = user.role === 'Coordinator';
+  const emptyDescription = isCoordinator
+    ? t('staffEmployees.list.emptyDescriptionCoordinator')
+    : canCreate
+      ? t('staffEmployees.list.emptyDescription')
+      : t('staffEmployees.list.emptyDescriptionView');
 
   // `search` is what the user types; `params.search` is what we query with —
   // debounced 300ms so we don't fire a request per keystroke.
@@ -284,8 +292,14 @@ export default function EmployeeListPage() {
             onRowClick={(e) => navigate(`/employees/${e._id}`)}
             emptyState={
               <EmptyState
-                title={noFilters ? t('staffEmployees.list.emptyTitle') : t('staffEmployees.list.emptyTitleFiltered')}
-                description={noFilters ? t('staffEmployees.list.emptyDescription') : t('common.tryClearingFilters')}
+                title={
+                  !noFilters
+                    ? t('staffEmployees.list.emptyTitleFiltered')
+                    : isCoordinator
+                      ? t('staffEmployees.list.emptyTitleCoordinator')
+                      : t('staffEmployees.list.emptyTitle')
+                }
+                description={noFilters ? emptyDescription : t('common.tryClearingFilters')}
                 action={
                   noFilters && canCreate ? (
                     <Button onClick={() => navigate('/employees/new')}>{t('staffEmployees.list.addEmployee')}</Button>

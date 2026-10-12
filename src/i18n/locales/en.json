@@ -913,7 +913,10 @@
       "emptyTitleFiltered": "No employees match",
       "emptyDescription": "Add your first employee to start building the register.",
       "deleteTitle": "Delete employee?",
-      "deleteMessage": "{{name}} ({{code}}) will be permanently removed, along with their login (if any) and attendance history. For staff who left the company, set status to \"Exited\" instead."
+      "deleteMessage": "{{name}} ({{code}}) will be permanently removed, along with their login (if any) and attendance history. For staff who left the company, set status to \"Exited\" instead.",
+      "emptyTitleCoordinator": "No employees to show yet",
+      "emptyDescriptionCoordinator": "This list shows the employees assigned to you, unassigned standby workers and every labourer with a Worker login. None exist yet.",
+      "emptyDescriptionView": "The register is empty. Employees appear here once HR or an administrator adds them."
     },
     "form": {
       "invalid": "Please check the form and try again.",
