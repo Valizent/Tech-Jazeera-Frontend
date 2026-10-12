@@ -78,6 +78,22 @@ function WarningIcon({ className }) {
  *  never actually needs it, but every wide-ish container in this app
  *  carries its own scroll per the project's no-horizontal-page-scroll
  *  rule. */
+/** People at the client / subcontractor, as snapshotted on the mobilisation (2026-10-12). */
+function ContactList({ contacts }) {
+  return (
+    <ul className="space-y-1">
+      {contacts.map((c) => (
+        <li key={c.coordinatorId}>
+          <span className="font-medium">{c.name}</span>
+          {[c.designation, c.phone, c.email].filter(Boolean).length > 0 && (
+            <span className="block text-xs text-muted">{[c.designation, c.phone, c.email].filter(Boolean).join(' · ')}</span>
+          )}
+        </li>
+      ))}
+    </ul>
+  );
+}
+
 function DetailTable({ rows }) {
   const { t } = useTranslation();
   const isEmpty = (value) => value === undefined || value === null || value === '';
@@ -512,8 +528,27 @@ export default function MobilisationDetailPage() {
   const canAddDocuments = (user.role === 'Admin' || myEntry || canDecide) && documentsEditable;
   const availableCandidates = (candidates ?? []).filter((c) => !m.coordinators.some((mc) => userId(mc) === c._id));
 
+  const transfer = m.subcontractorTransfer;
+
   return (
     <div className="mx-auto max-w-[1600px] space-y-6">
+      {transfer?.status === 'Pending' && (
+        <Card className="border-warning/30 bg-warning/5">
+          <p className="text-sm">
+            {t('staffMobilisations.detail.transfer.pending', { name: m.workerName, from: transfer.fromName, to: transfer.toName })}
+          </p>
+        </Card>
+      )}
+      {transfer?.status === 'Rejected' && (
+        <Card className="border-danger/30 bg-danger/5">
+          <p className="text-sm">{t('staffMobilisations.detail.transfer.rejected', { note: transfer.decisionNote })}</p>
+        </Card>
+      )}
+      {transfer?.status === 'Approved' && (
+        <Card className="border-success/30 bg-success/5">
+          <p className="text-sm">{t('staffMobilisations.detail.transfer.approved', { name: m.workerName, to: transfer.toName })}</p>
+        </Card>
+      )}
       <PageHeader
         title={`#${m.serialNumber}`}
         description={
@@ -652,6 +687,12 @@ export default function MobilisationDetailPage() {
             { label: t('staffMobilisations.detail.fields.site'), value: m.site },
             ...(m.hasSubcontractor
               ? [{ label: t('staffMobilisations.detail.fields.subcontractor'), value: m.subcontractorName }]
+              : []),
+            ...(m.clientCoordinators?.length
+              ? [{ label: t('staffMobilisations.detail.fields.clientCoordinators'), value: <ContactList contacts={m.clientCoordinators} /> }]
+              : []),
+            ...(m.subcontractorCoordinators?.length
+              ? [{ label: t('staffMobilisations.detail.fields.subcontractorCoordinators'), value: <ContactList contacts={m.subcontractorCoordinators} /> }]
               : []),
             { label: t('staffMobilisations.detail.fields.mobilisationDate'), value: formatDate(m.mobilisationDate) },
             { label: t('staffMobilisations.detail.fields.checkoutDate'), value: m.checkoutDate && formatDate(m.checkoutDate) },
@@ -841,6 +882,9 @@ export default function MobilisationDetailPage() {
             rows={[
               { label: t('staffMobilisations.detail.fields.clientRate'), value: formatMoney(m.clientRate) },
               { label: t('staffMobilisations.detail.fields.clientCommission'), value: formatMoney(m.clientCommission) },
+              ...(m.clientCommissionCoordinator
+                ? [{ label: t('staffMobilisations.detail.fields.clientCommissionCoordinator'), value: <ContactList contacts={[m.clientCommissionCoordinator]} /> }]
+                : []),
               { label: t('staffMobilisations.detail.fields.fta'), value: formatMoney(m.fta) },
               {
                 label: t('staffMobilisations.detail.fields.ftaType'),
@@ -861,7 +905,16 @@ export default function MobilisationDetailPage() {
                       label: t('staffMobilisations.detail.fields.subcontractorCommission'),
                       value: formatMoney(m.subcontractorCommission),
                     },
+                    ...(m.subcontractorCommissionCoordinator
+                      ? [{
+                          label: t('staffMobilisations.detail.fields.subcontractorCommissionCoordinator'),
+                          value: <ContactList contacts={[m.subcontractorCommissionCoordinator]} />,
+                        }]
+                      : []),
                   ]
+                : []),
+              ...(m.workerType === 'Freelancer'
+                ? [{ label: t('staffMobilisations.detail.fields.employeeRate'), value: formatMoney(m.employeeRate) }]
                 : []),
               {
                 label: t('staffMobilisations.detail.fields.profitPerHour'),

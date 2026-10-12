@@ -140,6 +140,8 @@ export default function MobilisationNewPage() {
     onSuccess: (mobilisation) => {
       toast.success(t('staffMobilisations.new.createdToast'));
       queryClient.invalidateQueries({ queryKey: ['mobilisations'] });
+      // A "yes, move him" answer raises a transfer request (the Outsourced page's badge).
+      queryClient.invalidateQueries({ queryKey: ['subcontractor-transfers'] });
       // The candidate now has a mobilisation — the card and board must show it.
       if (fromRequirement) queryClient.invalidateQueries({ queryKey: ['requirements'] });
       navigate(`/mobilisations/${mobilisation._id}`);

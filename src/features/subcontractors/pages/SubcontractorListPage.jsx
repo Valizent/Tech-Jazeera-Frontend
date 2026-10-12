@@ -1,34 +1,26 @@
 /**
  * SubcontractorListPage — the managed list of companies a Mobilisation can
- * be routed through. Same "list + modal" shape as ExpenseListPage/
- * HolidayListPage — no sub-workflow here, just records.
+ * be routed through. A row opens the subcontractor's profile; adding and
+ * editing are full pages (the company profile is too large for a modal), the
+ * same shape as the client list.
  */
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import {
-  listSubcontractors,
-  createSubcontractor,
-  updateSubcontractor,
-  deleteSubcontractor,
-} from '../subcontractors.api.js';
-import { subcontractorFormSchema, emptySubcontractorForm, subcontractorToForm } from '../subcontractors.schema.js';
+import { listSubcontractors, deleteSubcontractor } from '../subcontractors.api.js';
 import { useAuth } from '../../auth/AuthContext.jsx';
 import { apiMessage } from '../../../lib/utils.js';
 import { SUBCONTRACTOR_STATUSES } from '../../../lib/constants.js';
 import { useToast } from '../../../components/ui/Toast.jsx';
 import PageHeader from '../../../components/shared/PageHeader.jsx';
 import ConfirmDialog from '../../../components/shared/ConfirmDialog.jsx';
+import { MissingDetailsBadge } from '../../companyProfile/components/MissingDetails.jsx';
 import Table from '../../../components/ui/Table.jsx';
 import Badge from '../../../components/ui/Badge.jsx';
 import Button from '../../../components/ui/Button.jsx';
 import Input from '../../../components/ui/Input.jsx';
 import Select from '../../../components/ui/Select.jsx';
-import Textarea from '../../../components/ui/Textarea.jsx';
-import Modal from '../../../components/ui/Modal.jsx';
 import EmptyState from '../../../components/ui/EmptyState.jsx';
 
 export default function SubcontractorListPage() {
@@ -42,14 +34,13 @@ export default function SubcontractorListPage() {
 
   const [search, setSearch] = useState('');
   const [params, setParams] = useState({ page: 1, limit: 20, search: '', status: '' });
-  const [editing, setEditing] = useState(null); // null = closed, {} = new, {...} = edit
   const [toDelete, setToDelete] = useState(null);
 
   useEffect(() => {
-    const t = setTimeout(() => {
+    const timer = setTimeout(() => {
       setParams((p) => (p.search === search ? p : { ...p, search, page: 1 }));
     }, 300);
-    return () => clearTimeout(t);
+    return () => clearTimeout(timer);
   }, [search]);
 
   const { data, isPending, isError, refetch } = useQuery({
@@ -64,50 +55,27 @@ export default function SubcontractorListPage() {
     placeholderData: keepPreviousData,
   });
 
-  const {
-    register,
-    handleSubmit,
-    reset,
-    formState: { errors },
-  } = useForm({ resolver: zodResolver(subcontractorFormSchema), defaultValues: emptySubcontractorForm });
-
-  const invalidate = () => queryClient.invalidateQueries({ queryKey: ['subcontractors'] });
-
-  const saveMutation = useMutation({
-    mutationFn: (values) =>
-      editing?._id ? updateSubcontractor(editing._id, values) : createSubcontractor(values),
-    onSuccess: () => {
-      toast.success(editing?._id ? t('staffSubcontractors.updatedToast') : t('staffSubcontractors.addedToast'));
-      closeModal();
-      invalidate();
-    },
-    onError: (error) => toast.error(apiMessage(error)),
-  });
-
   const deleteMutation = useMutation({
     mutationFn: (id) => deleteSubcontractor(id),
     onSuccess: () => {
       toast.success(t('staffSubcontractors.removedToast', { name: toDelete.name }));
       setToDelete(null);
-      invalidate();
+      queryClient.invalidateQueries({ queryKey: ['subcontractors'] });
     },
     onError: (error) => toast.error(apiMessage(error)),
   });
 
-  function openNew() {
-    reset(emptySubcontractorForm);
-    setEditing({});
-  }
-  function openEdit(subcontractor) {
-    reset(subcontractorToForm(subcontractor));
-    setEditing(subcontractor);
-  }
-  function closeModal() {
-    setEditing(null);
-  }
-
   const columns = [
-    { key: 'name', header: t('staffSubcontractors.columns.name'), render: (s) => s.name },
+    {
+      key: 'name',
+      header: t('staffSubcontractors.columns.name'),
+      render: (s) => (
+        <div>
+          {s.name}
+          <MissingDetailsBadge missing={s.missingDetails} />
+        </div>
+      ),
+    },
     { key: 'contactPerson', header: t('staffSubcontractors.columns.contact'), hideOnMobile: true, render: (s) => s.contactPerson || '' },
     { key: 'phone', header: t('staffSubcontractors.columns.phone'), hideOnMobile: true, render: (s) => s.phone || '' },
     { key: 'email', header: t('staffSubcontractors.columns.email'), hideOnMobile: true, render: (s) => s.email || '' },
@@ -122,8 +90,11 @@ export default function SubcontractorListPage() {
       className: 'text-right',
       render: (s) => (
         <span className="flex justify-end gap-2">
+          <Button size="sm" variant="secondary" onClick={() => navigate(`/subcontractors/${s._id}`)}>
+            {t('common.view')}
+          </Button>
           {canWrite && (
-            <Button size="sm" variant="ghost" onClick={() => openEdit(s)}>
+            <Button size="sm" variant="ghost" onClick={() => navigate(`/subcontractors/${s._id}/edit`)}>
               {t('common.edit')}
             </Button>
           )}
@@ -147,7 +118,7 @@ export default function SubcontractorListPage() {
         onBack={() => navigate(-1)}
         actions={
           canWrite && (
-            <Button size="sm" onClick={openNew}>
+            <Button size="sm" onClick={() => navigate('/subcontractors/new')}>
               {t('staffSubcontractors.addSubcontractor')}
             </Button>
           )
@@ -190,6 +161,7 @@ export default function SubcontractorListPage() {
             rows={data?.items ?? []}
             rowKey={(s) => s._id}
             loading={isPending}
+            onRowClick={(s) => navigate(`/subcontractors/${s._id}`)}
             emptyState={
               <EmptyState
                 title={noFilters ? t('staffSubcontractors.emptyTitleNoFilters') : t('staffSubcontractors.emptyTitleFiltered')}
@@ -200,7 +172,14 @@ export default function SubcontractorListPage() {
                       : t('staffSubcontractors.emptyDescriptionView')
                     : t('common.tryClearingFilters')
                 }
-                action={canWrite && noFilters && <Button variant="secondary" onClick={openNew}>{t('staffSubcontractors.addSubcontractor')}</Button>}
+                action={
+                  canWrite &&
+                  noFilters && (
+                    <Button variant="secondary" onClick={() => navigate('/subcontractors/new')}>
+                      {t('staffSubcontractors.addSubcontractor')}
+                    </Button>
+                  )
+                }
               />
             }
           />
@@ -214,9 +193,7 @@ export default function SubcontractorListPage() {
                 <Button size="sm" variant="secondary" disabled={data.page <= 1} onClick={() => setParams((p) => ({ ...p, page: p.page - 1 }))}>
                   {t('common.previous')}
                 </Button>
-                <span className="tabular-nums">
-                  {t('common.pageOf', { page: data.page, pages: data.pages })}
-                </span>
+                <span className="tabular-nums">{t('common.pageOf', { page: data.page, pages: data.pages })}</span>
                 <Button size="sm" variant="secondary" disabled={data.page >= data.pages} onClick={() => setParams((p) => ({ ...p, page: p.page + 1 }))}>
                   {t('common.next')}
                 </Button>
@@ -225,52 +202,6 @@ export default function SubcontractorListPage() {
           )}
         </>
       )}
-
-      <Modal open={!!editing} onClose={closeModal} title={editing?._id ? t('staffSubcontractors.modalEditTitle') : t('staffSubcontractors.modalAddTitle')} size="lg">
-        <form onSubmit={handleSubmit((values) => saveMutation.mutate(values))} noValidate className="space-y-6">
-          <div className="space-y-4">
-            <h3 className="text-sm font-semibold uppercase tracking-wide text-muted">{t('staffSubcontractors.form.sectionCompany')}</h3>
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-              <Input label={t('staffSubcontractors.form.name')} error={errors.name?.message} {...register('name')} />
-              <Input label={t('staffSubcontractors.form.industry')} placeholder={t('staffSubcontractors.form.industryPlaceholder')} error={errors.industry?.message} {...register('industry')} />
-              <Input label={t('staffSubcontractors.form.creditLimitDays')} type="number" min="0" error={errors.creditLimitDays?.message} {...register('creditLimitDays')} />
-              <Input label={t('staffSubcontractors.form.contactPerson')} error={errors.contactPerson?.message} {...register('contactPerson')} />
-              <Input label={t('staffSubcontractors.form.phone')} placeholder="+966 1x xxx xxxx" error={errors.phone?.message} {...register('phone')} />
-              <Input label={t('staffSubcontractors.form.email')} type="email" error={errors.email?.message} {...register('email')} />
-              <Select label={t('staffSubcontractors.form.status')} error={errors.status?.message} {...register('status')}>
-                {SUBCONTRACTOR_STATUSES.map((s) => (
-                  <option key={s} value={s}>
-                    {t(`common.status.${s}`, s)}
-                  </option>
-                ))}
-              </Select>
-            </div>
-          </div>
-
-          <div className="space-y-4">
-            <div>
-              <h3 className="text-sm font-semibold uppercase tracking-wide text-muted">{t('staffSubcontractors.form.sectionLegal')}</h3>
-              <p className="mt-1 text-xs text-muted">{t('staffSubcontractors.form.legalHint')}</p>
-            </div>
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-              <Input label={t('staffSubcontractors.form.vatNumber')} placeholder="3xxxxxxxxxxxxxx3" error={errors.vatNumber?.message} {...register('vatNumber')} />
-              <Input label={t('staffSubcontractors.form.crNumber')} placeholder={t('staffSubcontractors.form.crPlaceholder')} error={errors.crNumber?.message} {...register('crNumber')} />
-              <Input label={t('staffSubcontractors.form.address')} className="sm:col-span-2" error={errors.address?.message} {...register('address')} />
-            </div>
-          </div>
-
-          <Textarea label={t('staffSubcontractors.form.notes')} placeholder={t('common.optional')} error={errors.notes?.message} {...register('notes')} />
-
-          <div className="flex justify-end gap-2 pt-2">
-            <Button variant="secondary" onClick={closeModal} disabled={saveMutation.isPending}>
-              {t('common.cancel')}
-            </Button>
-            <Button type="submit" isLoading={saveMutation.isPending}>
-              {t('common.save')}
-            </Button>
-          </div>
-        </form>
-      </Modal>
 
       <ConfirmDialog
         open={Boolean(toDelete)}

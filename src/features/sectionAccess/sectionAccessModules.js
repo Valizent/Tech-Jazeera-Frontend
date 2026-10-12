@@ -69,7 +69,7 @@ export const MODULE_GROUPS = [
           'deploymentsEdit',
         ],
       },
-      { ...navItem('sales', '/clients'), sectionKeys: ['clientsManage'] },
+      { ...navItem('sales', '/clients'), sectionKeys: ['clientsManage', 'companyDetailsBdm', 'companyDetailsManager'] },
       { ...navItem('sales', '/subcontractors'), sectionKeys: ['subcontractorsManage'] },
       { ...navItem('sales', '/daily-updates'), sectionKeys: ['dailyUpdatesOwn', 'dailyUpdatesTeam'] },
       { ...navItem('sales', '/requirements'), sectionKeys: ['requirementsOwn', 'requirementsTeam', 'requirementStages'] },

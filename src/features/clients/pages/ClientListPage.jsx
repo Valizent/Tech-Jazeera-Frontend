@@ -20,6 +20,7 @@ import { apiMessage, createSortToggle } from '../../../lib/utils.js';
 import PageHeader from '../../../components/shared/PageHeader.jsx';
 import ConfirmDialog from '../../../components/shared/ConfirmDialog.jsx';
 import DecideClientModal from '../components/DecideClientModal.jsx';
+import { MissingDetailsBadge } from '../../companyProfile/components/MissingDetails.jsx';
 import { canDecideClient, canEditClient } from '../clients.permissions.js';
 import Table from '../../../components/ui/Table.jsx';
 import Badge from '../../../components/ui/Badge.jsx';
@@ -112,6 +113,7 @@ export default function ClientListPage() {
             {c.contactPerson && (
               <span className="block text-xs font-normal text-muted transition-colors group-hover:text-primary/70">{c.contactPerson}</span>
             )}
+            <MissingDetailsBadge missing={c.missingDetails} />
           </div>
         </Link>
       ),

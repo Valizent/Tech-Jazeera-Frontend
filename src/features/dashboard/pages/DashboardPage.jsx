@@ -33,7 +33,7 @@ import MonthlyProgressWindowCard from '../components/MonthlyProgressWindowCard.j
 import ManageTargetsModal from '../components/ManageTargetsModal.jsx';
 import StandbyAnalysisWidget from '../components/StandbyAnalysisWidget.jsx';
 import DailyAttendanceSummary from '../components/DailyAttendanceSummary.jsx';
-import DirectoryStatsWidget from '../components/DirectoryStatsWidget.jsx';
+import StatTilesRow from '../components/StatTilesRow.jsx';
 import HrComplianceWidget from '../components/HrComplianceWidget.jsx';
 import MyRequirementsWidget from '../components/MyRequirementsWidget.jsx';
 import SystemLogsWidget from '../components/SystemLogsWidget.jsx';
@@ -158,6 +158,53 @@ export default function DashboardPage() {
   const { stats, finance, expiringDocuments, recentActivity, myPendingActions, mobilisationsByStatus, activeSubcontractors, attendanceSummary, pendingLeave, pendingExit, myRequirementsSummary } =
     data;
 
+  // The tile row (2026-10-12): only tiles the server filled in are shown.
+  // "Shared employees" belongs to Coordinator / Office Secretary / Accounts,
+  // who then get no Active employees or Attendance tile; management gets
+  // Active employees + Attendance and no Shared employees.
+  const showsSharedEmployees = stats.sharedEmployees != null;
+  const canOpenMobilisations =
+    isCoordinator || user.role === 'Office Secretary' || Boolean(user.sectionAccess?.includes('mobilisationsViewer'));
+  const statTiles = [
+    stats.activeClients != null && {
+      key: 'clients',
+      value: stats.activeClients,
+      label: t('staffDashboard.stats.activeClients'),
+      to: '/clients',
+    },
+    activeSubcontractors != null && {
+      key: 'subcontractors',
+      value: activeSubcontractors,
+      label: t('staffDashboard.widgets.activeSubcontractors'),
+      to: '/subcontractors',
+    },
+    stats.deployedActive != null && {
+      key: 'deployed',
+      value: stats.deployedActive,
+      label: t('staffDashboard.stats.currentlyDeployed'),
+      to: '/deployments',
+    },
+    stats.activeEmployees != null && {
+      key: 'employees',
+      value: stats.activeEmployees,
+      label: t('staffDashboard.stats.activeEmployees'),
+      to: '/employees',
+    },
+    !showsSharedEmployees &&
+      attendanceSummary != null && {
+        key: 'attendance',
+        value: attendanceSummary.total,
+        label: t('staffDashboard.widgets.dailyAttendance.title'),
+        to: '/attendance/summary',
+      },
+    showsSharedEmployees && {
+      key: 'shared',
+      value: stats.sharedEmployees,
+      label: t('staffDashboard.stats.sharedEmployees'),
+      to: canOpenMobilisations ? '/mobilisations?status=Approved&shared=true' : null,
+    },
+  ].filter(Boolean);
+
   return (
     <div className="mx-auto max-w-[1600px] space-y-6">
       <PageHeader
@@ -239,14 +286,8 @@ export default function DashboardPage() {
           render full-width in that case instead of dropping the data. */}
       {isCoordinator ? (
         <>
-          {(activeSubcontractors != null || myTarget) && (
-            <div className="grid grid-cols-1 gap-6 lg:grid-cols-2 [&>*:last-child:nth-child(odd)]:lg:col-span-2">
-              {activeSubcontractors != null && (
-                <DirectoryStatsWidget activeClients={stats.activeClients} activeSubcontractors={activeSubcontractors} />
-              )}
-              {myTarget && <MobilisationTargetCard target={myTarget} />}
-            </div>
-          )}
+          <StatTilesRow tiles={statTiles} />
+          {myTarget && <MobilisationTargetCard target={myTarget} />}
           {myMonthlyWindow && (
             <div className="mt-6">
               <MonthlyProgressWindowCard data={myMonthlyWindow} />
@@ -270,16 +311,10 @@ export default function DashboardPage() {
         </>
       ) : (
         <>
-          {(attendanceSummary != null || activeSubcontractors != null) && (
-            <div className="grid grid-cols-1 gap-6 lg:grid-cols-2 [&>*:last-child:nth-child(odd)]:lg:col-span-2">
-              {attendanceSummary != null && (
-                <DailyAttendanceSummary summary={attendanceSummary} />
-              )}
-              {activeSubcontractors != null && (
-                <DirectoryStatsWidget activeClients={stats.activeClients} activeSubcontractors={activeSubcontractors} />
-              )}
-            </div>
-          )}
+          <StatTilesRow tiles={statTiles} />
+          {/* Attendance sits in the tile row for management; the roles that get
+              Shared employees instead keep the full card if they can read it. */}
+          {showsSharedEmployees && attendanceSummary != null && <DailyAttendanceSummary summary={attendanceSummary} />}
           {(canSeeStandbyAnalysis || pendingLeave != null || pendingExit != null) && (
             <div className="grid grid-cols-1 gap-6 lg:grid-cols-2 [&>*:last-child:nth-child(odd)]:lg:col-span-2">
               {canSeeStandbyAnalysis && <StandbyAnalysisWidget />}

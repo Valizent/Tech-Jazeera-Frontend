@@ -100,11 +100,12 @@ const mobilisationFields = {
   // waiting on the current-step reviewer's later Section 2 pass (see
   // commercialDetailsFormSchema below, which no longer has them).
   requiredTimesheetHours: optionalRateNumberString,
-  // otClientRate = billed to the client per OT hour; otEmployeeRate = paid
-  // out per OT hour to whoever actually worked it, no matter their worker
-  // type (2026-09-14 correction — see mobilisation.model.js).
-  otClientRate: optionalRateNumberString,
+  // otEmployeeRate = OT paid to the employee per hour (Own and subcontractor
+  // employees). The OT client rate is no longer typed: the server bills OT at
+  // the client rate (2026-10-12). A freelancer is paid by the hour instead,
+  // at employeeRate, which is also their OT rate.
   otEmployeeRate: optionalRateNumberString,
+  employeeRate: optionalRateNumberString,
 
   client: z.string().min(1, 'Select a client.'),
   site: optionalStr(150),
@@ -126,6 +127,16 @@ const mobilisationFields = {
   subcontractorCommission: optionalRateNumberString,
   // No otSubcontractorRate/otSubcontractorCommission here (removed
   // 2026-09-14) — see otEmployeeRate above.
+
+  // The client's / subcontractor's own coordinators involved in this
+  // placement, and who each commission goes to (2026-10-12).
+  clientCoordinatorIds: z.array(z.string()),
+  subcontractorCoordinatorIds: z.array(z.string()),
+  // The answer to "move him to this subcontractor?" - set by the form's own
+  // prompt, never typed (2026-10-12).
+  requestSubcontractorTransfer: z.boolean().optional(),
+  clientCommissionCoordinatorId: z.string().optional().or(z.literal('')),
+  subcontractorCommissionCoordinatorId: z.string().optional().or(z.literal('')),
 
   mobilisationDate: z.string().min(1, 'Mobilisation date is required.'),
   checkoutDate: z.string().optional().or(z.literal('')),
@@ -149,13 +160,32 @@ const mobilisationFields = {
 
 export const mobilisationFormSchema = z.object(mobilisationFields).superRefine((data, ctx) => {
   if (data.workerType === 'Employee' && !data.worker) {
-    ctx.addIssue({ code: 'custom', path: ['worker'], message: 'Select a worker.' });
+    ctx.addIssue({ code: 'custom', path: ['worker'], message: 'Select an employee.' });
   }
   if (data.workerType !== 'Employee' && !data.workerName) {
-    ctx.addIssue({ code: 'custom', path: ['workerName'], message: 'Worker name is required.' });
+    ctx.addIssue({ code: 'custom', path: ['workerName'], message: 'Employee name is required.' });
   }
   if (data.workerType === 'SupplierEmployee' && !data.subcontractor) {
     ctx.addIssue({ code: 'custom', path: ['subcontractor'], message: 'Select a subcontractor.' });
+  }
+  // A freelancer is paid by the hour (2026-10-12); their OT follows it.
+  if (data.workerType === 'Freelancer' && !(Number(data.employeeRate) > 0)) {
+    ctx.addIssue({ code: 'custom', path: ['employeeRate'], message: 'Employee rate per hour is required for a freelancer.' });
+  }
+  // A commission of 1 or more has to go to someone at that company.
+  if (Number(data.clientCommission) >= 1 && !data.clientCommissionCoordinatorId) {
+    ctx.addIssue({
+      code: 'custom',
+      path: ['clientCommissionCoordinatorId'],
+      message: 'Choose which client coordinator the client commission goes to.',
+    });
+  }
+  if (data.workerType === 'SupplierEmployee' && Number(data.subcontractorCommission) >= 1 && !data.subcontractorCommissionCoordinatorId) {
+    ctx.addIssue({
+      code: 'custom',
+      path: ['subcontractorCommissionCoordinatorId'],
+      message: 'Choose which subcontractor coordinator the subcontractor commission goes to.',
+    });
   }
   // Mirrors the server's own withFtaTypeRefine — the amount input is also
   // disabled in the form until a type is picked, so this mostly guards
@@ -179,8 +209,8 @@ export const emptyMobilisationForm = {
   phone: '+966',
   jobTitle: '',
   requiredTimesheetHours: '',
-  otClientRate: '',
   otEmployeeRate: '',
+  employeeRate: '',
   client: '',
   site: '',
   clientRate: '',
@@ -193,6 +223,10 @@ export const emptyMobilisationForm = {
   subcontractor: '',
   subcontractorRate: '',
   subcontractorCommission: '',
+  clientCoordinatorIds: [],
+  subcontractorCoordinatorIds: [],
+  clientCommissionCoordinatorId: '',
+  subcontractorCommissionCoordinatorId: '',
   mobilisationDate: new Date().toISOString().slice(0, 10),
   checkoutDate: '',
   remark: '',
@@ -267,8 +301,8 @@ export function mobilisationToForm(m) {
     phone: m.phone || '+966',
     jobTitle: m.jobTitle,
     requiredTimesheetHours: String(m.requiredTimesheetHours ?? ''),
-    otClientRate: String(m.otClientRate ?? ''),
     otEmployeeRate: String(m.otEmployeeRate ?? ''),
+    employeeRate: m.employeeRate ? String(m.employeeRate) : '',
     client: m.client,
     site: m.site ?? '',
     clientRate: String(m.clientRate ?? ''),
@@ -281,6 +315,10 @@ export function mobilisationToForm(m) {
     subcontractor: m.subcontractor ?? '',
     subcontractorRate: String(m.subcontractorRate ?? ''),
     subcontractorCommission: String(m.subcontractorCommission ?? ''),
+    clientCoordinatorIds: (m.clientCoordinators ?? []).map((c) => c.coordinatorId),
+    subcontractorCoordinatorIds: (m.subcontractorCoordinators ?? []).map((c) => c.coordinatorId),
+    clientCommissionCoordinatorId: m.clientCommissionCoordinator?.coordinatorId ?? '',
+    subcontractorCommissionCoordinatorId: m.subcontractorCommissionCoordinator?.coordinatorId ?? '',
     mobilisationDate: m.mobilisationDate ? m.mobilisationDate.slice(0, 10) : '',
     checkoutDate: m.checkoutDate ? m.checkoutDate.slice(0, 10) : '',
     remark: m.remark ?? '',

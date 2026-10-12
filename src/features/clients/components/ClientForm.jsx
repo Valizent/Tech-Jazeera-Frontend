@@ -18,6 +18,7 @@ import Textarea from '../../../components/ui/Textarea.jsx';
 import Button from '../../../components/ui/Button.jsx';
 import Card from '../../../components/ui/Card.jsx';
 import Badge from '../../../components/ui/Badge.jsx';
+import CompanyProfileFields from '../../companyProfile/components/CompanyProfileFields.jsx';
 
 function Section({ title, description, children }) {
   return (
@@ -83,6 +84,7 @@ export default function ClientForm({ defaultValues, onSubmit, submitLabel, submi
         <Input label={t('staffClients.form.industry')} placeholder={t('staffClients.form.industryPlaceholder')} error={errors.industry?.message} {...register('industry')} />
         <Input label="Credit Limit Days" type="number" min="0" error={errors.creditLimitDays?.message} {...register('creditLimitDays')} />
         <Input label={t('staffClients.form.contactPerson')} error={errors.contactPerson?.message} {...register('contactPerson')} />
+        <Input label={t('companyProfile.contactPosition')} error={errors.contactPosition?.message} {...register('contactPosition')} />
         <Input label={t('staffClients.form.phone')} placeholder={t('staffClients.form.phonePlaceholder')} error={errors.phone?.message} {...register('phone')} />
         <Input label={t('staffClients.form.email')} type="email" error={errors.email?.message} {...register('email')} />
         <Select label={t('staffClients.form.status')} error={errors.status?.message} {...register('status')}>
@@ -99,6 +101,8 @@ export default function ClientForm({ defaultValues, onSubmit, submitLabel, submi
         <Input label={t('staffClients.form.crNumber')} placeholder={t('staffClients.form.crPlaceholder')} error={errors.crNumber?.message} {...register('crNumber')} />
         <Input label={t('staffClients.form.address')} className="sm:col-span-2" error={errors.address?.message} {...register('address')} />
       </Section>
+
+      <CompanyProfileFields register={register} control={control} errors={errors} />
 
       <Card>
         <div className="flex items-center justify-between">

@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { listOutsourcedEmployees } from './outsourcedEmployees.api.js';
+import { listTransfers } from '../subcontractorTransfers/subcontractorTransfers.api.js';
 import { useAuth } from '../auth/AuthContext.jsx';
 import PageHeader from '../../components/shared/PageHeader.jsx';
 import Button from '../../components/ui/Button.jsx';
@@ -28,6 +29,13 @@ export default function OutsourcedEmployeesPage() {
     queryKey: ['outsourcedEmployees', { search, workerType }],
     queryFn: () => listOutsourcedEmployees({ search, workerType }),
   });
+
+  // Requests waiting for the Marketing Manager; shown on the option that opens them.
+  const { data: transferData } = useQuery({
+    queryKey: ['subcontractor-transfers', { status: 'Pending' }],
+    queryFn: () => listTransfers({ status: 'Pending' }),
+  });
+  const pendingTransfers = transferData?.items?.length ?? 0;
 
   const handleEdit = (id) => {
     setEditingId(id);
@@ -62,7 +70,7 @@ export default function OutsourcedEmployeesPage() {
       header: t('common.type', 'Type'),
       render: (row) => (
         <Badge variant={row.workerType === 'Freelancer' ? 'primary' : 'warning'}>
-          {t(`employees.workerTypes.${row.workerType}`, row.workerType)}
+          {t(`staffMobilisations.form.workerType.${row.workerType}`)}
         </Badge>
       ),
     },
@@ -115,17 +123,23 @@ export default function OutsourcedEmployeesPage() {
     <div className="space-y-6">
       <PageHeader
         title={t('employees.outsourced.title', 'Outsourced Employees')}
-        description={t('employees.outsourced.description', 'Freelancers and subcontractor workers mobilised through this company.')}
+        description={t('employees.outsourced.description', 'Freelancers and subcontractor employees mobilised through this company.')}
         onBack={() => navigate(-1)}
         actions={
-          canWrite && (
-            <Button onClick={() => setFormOpen(true)}>
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="me-2 h-4 w-4">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
-              </svg>
-              {t('common.add')}
+          <div className="flex flex-wrap items-center gap-2">
+            <Button variant="secondary" onClick={() => navigate('/subcontractor-transfers')}>
+              {t('subcontractorTransfers.title')}
+              {pendingTransfers > 0 && <Badge variant="warning" className="ms-2">{pendingTransfers}</Badge>}
             </Button>
-          )
+            {canWrite && (
+              <Button onClick={() => setFormOpen(true)}>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="me-2 h-4 w-4">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
+                </svg>
+                {t('common.add')}
+              </Button>
+            )}
+          </div>
         }
       />
 
@@ -154,8 +168,8 @@ export default function OutsourcedEmployeesPage() {
           className="w-full sm:w-48"
         >
           <option value="">{t('common.allTypes', 'All types')}</option>
-          <option value="Freelancer">{t('employees.workerTypes.Freelancer', 'Freelancer')}</option>
-          <option value="SupplierEmployee">{t('employees.workerTypes.SupplierEmployee', 'Supplier Employee')}</option>
+          <option value="Freelancer">{t('staffMobilisations.form.workerType.Freelancer')}</option>
+          <option value="SupplierEmployee">{t('staffMobilisations.form.workerType.SupplierEmployee')}</option>
         </Select>
       </div>
 
@@ -169,7 +183,7 @@ export default function OutsourcedEmployeesPage() {
           emptyState={
             <EmptyState
               title={t('employees.outsourced.emptyTitle', 'No outsourced employees yet')}
-              description={t('employees.outsourced.emptyDescription', 'Add a freelancer or subcontractor worker, or mobilise one to have them appear here automatically.')}
+              description={t('employees.outsourced.emptyDescription', 'Add a freelancer or subcontractor employee, or mobilise one to have them appear here automatically.')}
             />
           }
         />

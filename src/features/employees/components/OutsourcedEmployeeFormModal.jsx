@@ -322,8 +322,8 @@ export default function OutsourcedEmployeeFormModal({ open, employeeId, canWrite
             <Input label={t('common.name')} className="sm:col-span-2" error={errors.name?.message} {...register('name')} />
             
             <Select label={t('common.type')} error={errors.workerType?.message} {...register('workerType')}>
-              <option value="Freelancer">{t('employees.workerTypes.Freelancer', 'Freelancer')}</option>
-              <option value="SupplierEmployee">{t('employees.workerTypes.SupplierEmployee', 'Supplier Employee')}</option>
+              <option value="Freelancer">{t('staffMobilisations.form.workerType.Freelancer')}</option>
+              <option value="SupplierEmployee">{t('staffMobilisations.form.workerType.SupplierEmployee')}</option>
             </Select>
 
             {workerType === 'SupplierEmployee' && (

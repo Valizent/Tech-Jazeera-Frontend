@@ -65,6 +65,8 @@ export default function MobilisationEditPage() {
     onSuccess: () => {
       toast.success(t('staffMobilisations.edit.updatedToast'));
       queryClient.invalidateQueries({ queryKey: ['mobilisations'] });
+      // A "yes, move him" answer raises a transfer request (the Outsourced page's badge).
+      queryClient.invalidateQueries({ queryKey: ['subcontractor-transfers'] });
       queryClient.invalidateQueries({ queryKey: ['mobilisation', id] });
       navigate(`/mobilisations/${id}`);
     },
@@ -144,6 +146,7 @@ export default function MobilisationEditPage() {
           jobTitles={jobTitles}
           locations={locations}
           existingWorkerId={mobilisation.worker}
+          pendingTransferTo={mobilisation.subcontractorTransfer?.status === 'Pending' ? mobilisation.subcontractor : null}
           defaultValues={mobilisationToForm(mobilisation)}
           onSubmit={(values) => mutation.mutate(values)}
           onCancel={() => navigate(`/mobilisations/${id}`)}

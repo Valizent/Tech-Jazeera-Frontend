@@ -23,7 +23,7 @@ const SEVERITY_VARIANT = { high: 'danger', medium: 'warning', low: 'default' };
 
 const CATEGORY_LABELS = {
   orphanedMobilisation: 'Mobilisation with no Deployment',
-  doubleBookedWorker: 'Worker placed at two clients at once',
+  doubleBookedWorker: 'Employee placed at two clients at once',
   advanceOverRepaid: 'Salary advance over-repaid',
   advanceStatusMismatch: 'Salary advance status mismatch',
   assetMultipleHolders: 'Asset held by more than one person',
@@ -53,7 +53,7 @@ export default function ReconciliationPage() {
     <div className="mx-auto max-w-[1600px] space-y-6">
       <PageHeader
         title="Data Reconciliation"
-        description="A standing integrity check: ledger totals that no longer add up, an approved mobilisation with no deployment, a worker placed two places at once."
+        description="A standing integrity check: ledger totals that no longer add up, an approved mobilisation with no deployment, an employee placed two places at once."
         onBack={() => navigate(-1)}
         actions={
           <Button variant="secondary" onClick={() => refetch()} isLoading={isFetching}>

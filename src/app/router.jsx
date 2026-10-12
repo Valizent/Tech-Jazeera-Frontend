@@ -74,6 +74,9 @@ const MobilisationSettingsPage = lazy(() => import('../features/mobilisationSett
 const CompanySettingsPage = lazy(() => import('../features/companySettings/pages/CompanySettingsPage.jsx'));
 const SectionAccessPage = lazy(() => import('../features/sectionAccess/pages/SectionAccessPage.jsx'));
 const SubcontractorListPage = lazy(() => import('../features/subcontractors/pages/SubcontractorListPage.jsx'));
+const SubcontractorFormPage = lazy(() => import('../features/subcontractors/pages/SubcontractorFormPage.jsx'));
+const SubcontractorTransfersPage = lazy(() => import('../features/subcontractorTransfers/pages/SubcontractorTransfersPage.jsx'));
+const SubcontractorProfilePage = lazy(() => import('../features/subcontractors/pages/SubcontractorProfilePage.jsx'));
 const AttendancePage = lazy(() => import('../features/attendance/pages/AttendancePage.jsx'));
 const AttendanceSummaryPage = lazy(() => import('../features/attendance/pages/AttendanceSummaryPage.jsx'));
 const DocumentListPage = lazy(() => import('../features/documents/pages/DocumentListPage.jsx'));
@@ -289,6 +292,12 @@ export const router = createBrowserRouter([
               { path: '/company-settings', element: <CompanySettingsPage /> },
               { path: '/section-access', element: <SectionAccessPage /> },
               { path: '/subcontractors', element: guarded('subcontractorsManage', <SubcontractorListPage />) },
+              { path: '/subcontractors/new', element: guardedWrite('subcontractorsManage', <SubcontractorFormPage />) },
+              // Open to any staff login: deciding is checked on the server (Marketing Manager / Admin),
+              // everyone else sees the requests they raised.
+              { path: '/subcontractor-transfers', element: <SubcontractorTransfersPage /> },
+              { path: '/subcontractors/:id', element: guarded('subcontractorsManage', <SubcontractorProfilePage />) },
+              { path: '/subcontractors/:id/edit', element: guardedWrite('subcontractorsManage', <SubcontractorFormPage />) },
               { path: '/attendance', element: guarded(['attendanceRecords', 'attendanceSignInOut', 'attendanceOfficeLocation'], <AttendancePage />) },
               { path: '/attendance/summary', element: guarded('attendanceRecords', <AttendanceSummaryPage />) },
               { path: '/documents', element: guarded('documentsManage', <DocumentListPage />) },

@@ -21,7 +21,7 @@ export default function AuthLayout() {
   const { name: brandName } = useBranding();
 
   return (
-    <div className="relative flex min-h-screen overflow-hidden bg-bg">
+    <div className="relative flex min-h-screen min-h-[100dvh] w-full overflow-x-hidden bg-bg">
 
       {/* ── Keyframe animations ── */}
       <style>{`
@@ -54,13 +54,13 @@ export default function AuthLayout() {
         .auth-brand-in { animation: auth-brand-in 0.7s cubic-bezier(0.16, 1, 0.3, 1) 0.1s both; }
       `}</style>
 
-      {/* ── Full-page ambient orbs ── */}
-      <div className="orb-1 pointer-events-none fixed -top-32 -left-32 h-[500px] w-[500px] rounded-full bg-primary/20 blur-3xl" />
-      <div className="orb-2 pointer-events-none fixed -bottom-40 -right-40 h-[600px] w-[600px] rounded-full bg-purple-500/15 blur-3xl" />
-      <div className="orb-3 pointer-events-none fixed bottom-1/4 left-1/3 h-[300px] w-[300px] rounded-full bg-success/10 blur-3xl" />
+      {/* ── Full-page ambient orbs (responsive sizes for mobile GPU performance) ── */}
+      <div className="orb-1 pointer-events-none fixed -top-24 -left-24 h-64 w-64 rounded-full bg-primary/20 blur-2xl sm:-top-32 sm:-left-32 sm:h-[500px] sm:w-[500px] sm:blur-3xl" />
+      <div className="orb-2 pointer-events-none fixed -bottom-32 -right-32 h-72 w-72 rounded-full bg-purple-500/15 blur-2xl sm:-bottom-40 sm:-right-40 sm:h-[600px] sm:w-[600px] sm:blur-3xl" />
+      <div className="orb-3 pointer-events-none fixed bottom-1/4 left-1/3 h-44 w-44 rounded-full bg-success/10 blur-2xl sm:h-[300px] sm:w-[300px] sm:blur-3xl" />
 
-      {/* ── Top-right controls ── */}
-      <div className="fixed right-4 top-4 z-50 flex items-center gap-2">
+      {/* ── Top controls (RTL & mobile safe-inset friendly) ── */}
+      <div className="fixed end-3 top-3 z-50 flex items-center gap-2 sm:end-6 sm:top-6">
         <LanguageSwitcher className="w-auto" />
         <ThemeToggle />
       </div>
@@ -132,24 +132,33 @@ export default function AuthLayout() {
       </div>
 
       {/* ═══════════════════════════════════════════════
-          RIGHT LOGIN PANEL
+          RIGHT LOGIN PANEL (Scrollable and centered)
       ═══════════════════════════════════════════════ */}
-      <div className="relative flex w-full flex-col items-center justify-center p-6 lg:w-1/2">
+      <div className="relative flex min-h-screen min-h-[100dvh] w-full flex-col items-center justify-center px-4 py-16 sm:px-6 sm:py-12 lg:w-1/2 lg:py-8">
 
-        {/* Mobile-only brand (shown above card when panel is hidden) */}
-        <div className="mb-8 flex items-center gap-3 lg:hidden">
-          <BrandLogo className="h-10 w-10" />
-          <span className="text-lg font-bold tracking-tight text-text">{brandName}</span>
+        {/* Mobile-only brand badge (shown above card when left panel is hidden) */}
+        <div className="mb-6 flex flex-col items-center text-center lg:hidden">
+          <div className="flex items-center gap-2.5">
+            <BrandLogo className="h-9 w-9 drop-shadow-md" />
+            <div className="text-start">
+              <p className="text-[10px] font-semibold uppercase tracking-widest text-primary leading-none">Al Jazeera</p>
+              <p className="text-lg font-bold tracking-tight text-text leading-tight">{brandName}</p>
+            </div>
+          </div>
+          <div className="mt-2.5 inline-flex items-center gap-1.5 rounded-full border border-primary/20 bg-primary/10 px-3 py-0.5 text-[11px] font-semibold text-primary backdrop-blur-sm">
+            <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-primary" />
+            Internal ERP Platform
+          </div>
         </div>
 
         {/* Glass card */}
         <div className="auth-card-in relative w-full max-w-md">
           {/* Outer colour-glow ring */}
-          <div className="pointer-events-none absolute -inset-px rounded-3xl bg-gradient-to-br from-primary/30 via-purple-500/20 to-success/20 blur-sm" />
+          <div className="pointer-events-none absolute -inset-px rounded-2xl bg-gradient-to-br from-primary/30 via-purple-500/20 to-success/20 blur-sm sm:rounded-3xl" />
 
-          <div className="relative rounded-3xl border border-white/25 bg-surface/65 p-8 shadow-xl backdrop-blur-2xl dark:border-white/10 dark:bg-surface/50">
+          <div className="relative rounded-2xl border border-white/25 bg-surface/65 p-5 shadow-xl backdrop-blur-2xl dark:border-white/10 dark:bg-surface/50 sm:rounded-3xl sm:p-8">
             {/* Top rainbow accent bar */}
-            <div className="mb-7 h-1 w-full rounded-full bg-gradient-to-r from-primary via-purple-400 to-success opacity-80" />
+            <div className="mb-5 h-1 w-full rounded-full bg-gradient-to-r from-primary via-purple-400 to-success opacity-80 sm:mb-7" />
 
             <ErrorBoundary>
               <Suspense fallback={<RouteFallback />}>
@@ -158,7 +167,7 @@ export default function AuthLayout() {
             </ErrorBoundary>
 
             {/* Footer */}
-            <p className="mt-6 text-center text-xs text-muted/60">{t('auth.footerNotice')}</p>
+            <p className="mt-5 text-center text-xs text-muted/60 sm:mt-6">{t('auth.footerNotice')}</p>
           </div>
         </div>
       </div>

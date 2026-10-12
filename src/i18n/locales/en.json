@@ -501,18 +501,18 @@
     },
     "sales": {
       "label": "Sales & Clients",
-      "description": "Client relationships and worker placements.",
+      "description": "Client relationships and employee placements.",
       "clients": {
         "label": "Clients",
-        "description": "Companies your workers are placed with."
+        "description": "Companies your employees are placed with."
       },
       "deployments": {
         "label": "Deployments",
-        "description": "Which worker is placed where."
+        "description": "Which employee is placed where."
       },
       "mobilisations": {
         "label": "Mobilisations",
-        "description": "Worker placements with client billing terms."
+        "description": "Employee placements with client billing terms."
       },
       "subcontractors": {
         "label": "Subcontractors",
@@ -528,7 +528,7 @@
       },
       "standby": {
         "label": "Standby List",
-        "description": "Workers waiting for an assignment."
+        "description": "Employees waiting for an assignment."
       }
     },
     "financial": {
@@ -643,14 +643,17 @@
     "stats": {
       "deployedNow": "Deployed now",
       "activePlacements": "Active placements",
-      "activeWorkers": "Active workers",
+      "activeWorkers": "Active employees",
       "workersHint": "{{total}} total · {{onLeave}} on leave",
       "activeClients": "Active clients",
       "yourClients": "Your clients",
       "expiringSoon": "Expiring soon",
       "documentsNeedingAttention": "Documents needing attention",
       "markedToday": "Marked today",
-      "ofActiveWorkers": "of {{count}} active workers"
+      "ofActiveWorkers": "of {{count}} active employees",
+      "currentlyDeployed": "Currently deployed",
+      "activeEmployees": "Active employees",
+      "sharedEmployees": "Shared employees"
     },
     "waitingOnYou": "Waiting on you",
     "pendingModules": {
@@ -664,7 +667,8 @@
       "Payments due soon": "Payments due soon",
       "Annual vacation": "Annual vacation",
       "Ready to invoice": "Ready to invoice",
-      "Missing timesheets": "Missing timesheets"
+      "Missing timesheets": "Missing timesheets",
+      "Subcontractor transfers": "Subcontractor transfers"
     },
     "noDataYet": "No data yet.",
     "expiringDocuments": {
@@ -688,7 +692,7 @@
       "title": "Quick actions",
       "addEmployee": "Add employee",
       "addClient": "Add client",
-      "addSupplier": "Add supplier",
+      "addSupplier": "Add subcontractor",
       "newMobilisation": "New mobilisation",
       "attendance": "Attendance"
     },
@@ -733,12 +737,12 @@
         "title": "Standby workforce analysis",
         "subtitle": "Everyone currently free to mobilise, with an idle-cost estimate where the company pays them a salary.",
         "viewAll": "View all standby →",
-        "worker": "Worker",
+        "worker": "Employee",
         "days": "Days",
         "daysCount": "{{count}}d",
         "estLoss": "Est. loss",
         "loadFailed": "the standby analysis",
-        "emptyTitle": "No workers on standby",
+        "emptyTitle": "No employees on standby",
         "emptyDescription": "Everyone is currently placed with a client."
       },
       "systemLogs": {
@@ -915,7 +919,7 @@
       "deleteTitle": "Delete employee?",
       "deleteMessage": "{{name}} ({{code}}) will be permanently removed, along with their login (if any) and attendance history. For staff who left the company, set status to \"Exited\" instead.",
       "emptyTitleCoordinator": "No employees to show yet",
-      "emptyDescriptionCoordinator": "This list shows the employees assigned to you, unassigned standby workers and every labourer with a Worker login. None exist yet.",
+      "emptyDescriptionCoordinator": "This list shows the employees assigned to you, unassigned standby employees and every labourer with a Worker login. None exist yet.",
       "emptyDescriptionView": "The register is empty. Employees appear here once HR or an administrator adds them."
     },
     "form": {
@@ -933,7 +937,7 @@
       "typeHintSubcontracted": "Sourced from an outside subcontractor, placed with a client visa/iqama tracking applies, but payroll does not: the subcontractor pays them, not this company.",
       "subcontractor": "Subcontractor",
       "selectSubcontractor": "Select a subcontractor…",
-      "subcontractorHint": "Who this worker is actually employed by.",
+      "subcontractorHint": "Who this employee is actually employed by.",
       "employeeId": "Employee ID",
       "fullName": "Full name",
       "nationality": "Nationality",
@@ -949,7 +953,7 @@
       "transportAllowance": "Transport allowance",
       "accommodation": "Accommodation",
       "expectedDailyHours": "Expected daily hours",
-      "expectedDailyHoursHint": "Warns this worker in My Attendance if they sign out before this many hours. Leave blank for no warning.",
+      "expectedDailyHoursHint": "Warns this employee in My Attendance if they sign out before this many hours. Leave blank for no warning.",
       "weeklyOffDay": "Weekly off day",
       "noFixedDayOff": "No fixed day off",
       "weeklyOffDayHint": "Shown as an inferred \"Off\" day on the Attendance Records grid when nothing was recorded a real record for that day always overrides it.",
@@ -1071,8 +1075,8 @@
       "legendInferredOff": "Inferred weekly off (not recorded)",
       "legendHoliday": "Company holiday (not recorded)",
       "legendSelfMarked": "Self-marked (hours shown once signed out)",
-      "clickToCorrect": "Click any worker cell to correct a day.",
-      "worker": "Worker",
+      "clickToCorrect": "Click any employee cell to correct a day.",
+      "worker": "Employee",
       "coordinatorsAndStaff": "Coordinators & staff",
       "holidayTitle": "Holiday {{name}} (not recorded)",
       "offTitle": "Off weekly day off (not recorded)",
@@ -1089,9 +1093,9 @@
       "timesHint": "Both times set the worked hours automatically. Leave either blank to clear the hours for this day the status above is still saved on its own.",
       "note": "Note (optional)",
       "updatedSuccess": "Attendance updated.",
-      "markedPresentSuccess": "Marked {{count}} worker(s) present for today.",
+      "markedPresentSuccess": "Marked {{count}} employee(s) present for today.",
       "markAllTitle": "Mark all present?",
-      "markAllMessage": "{{count}} worker(s) will be marked Present for today ({{date}}). Anyone with an existing mark for today will be overwritten; workers whose weekly off day is today are skipped."
+      "markAllMessage": "{{count}} employee(s) will be marked Present for today ({{date}}). Anyone with an existing mark for today will be overwritten; employees whose weekly off day is today are skipped."
     },
     "signInOut": {
       "verifiedByLocation": "Verified by location",
@@ -1129,7 +1133,7 @@
     },
     "officeLocation": {
       "title": "Office location",
-      "hint": "Workers can only mark their own attendance from within this radius, or from an allow-listed office IP.",
+      "hint": "Employees can only mark their own attendance from within this radius, or from an allow-listed office IP.",
       "notConfigured": " Not configured yet self-marking is disabled until you set this up.",
       "readOnlyHint": "You can view this setting but not edit it ask an Admin to grant you Write access if you need to change it.",
       "locationName": "Location name",
@@ -1146,8 +1150,8 @@
     },
     "summary": {
       "pageTitle": "Attendance Summary",
-      "pageDescription": "Per-worker status counts over a date range, with Excel/PDF export.",
-      "worker": "Worker",
+      "pageDescription": "Per-employee status counts over a date range, with Excel/PDF export.",
+      "worker": "Employee",
       "total": "Total",
       "exportExcel": "Export Excel",
       "exportPdf": "Export PDF",
@@ -1286,7 +1290,7 @@
         "maxDaysPerRequest": "Max days per request",
         "maxDaysPlaceholder": "No cap",
         "paidLeave": "Paid leave",
-        "activeHint": "Active visible when staff/workers submit a request"
+        "activeHint": "Active visible when staff/employees submit a request"
       },
       "updatedSuccess": "Leave type updated.",
       "createdSuccess": "Leave type created."
@@ -1334,7 +1338,7 @@
       "description": "Monthly attendance-based timesheets for internal staff pick someone to view their month."
     },
     "employeeList": {
-      "description": "Internal staff only a deployed/mobilised field worker has their own timesheet on their Deployment record instead.",
+      "description": "Internal staff only a deployed/mobilised field employee has their own timesheet on their Deployment record instead.",
       "columns": {
         "name": "Name"
       },
@@ -1428,10 +1432,10 @@
       "computeButton": "Compute settlement",
       "computedToast": "Settlement computed for {{name}}.",
       "reasonHints": {
-        "Resignation": "The worker is leaving on their own terms Article 85 tiering by length of service applies.",
+        "Resignation": "The employee is leaving on their own terms Article 85 tiering by length of service applies.",
         "TerminationByEmployer": "The company is ending the contract full award, no reduction.",
         "EndOfContract": "The contract term ended and wasn't renewed full award, no reduction.",
-        "SponsorshipTransfer": "The worker's sponsorship is transferring to another employer full award, no reduction. Confirm this treatment with your HR/legal advisor if unsure.",
+        "SponsorshipTransfer": "The employee's sponsorship is transferring to another employer full award, no reduction. Confirm this treatment with your HR/legal advisor if unsure.",
         "CurrentEmployee": "A what-if calculation for someone still employed; it doesn’t end their employment."
       }
     },
@@ -1476,7 +1480,8 @@
   "staffDocuments": {
     "ownerTypeLabels": {
       "Employee": "Employee",
-      "Client": "Client"
+      "Client": "Client",
+      "Subcontractor": "Subcontractor"
     },
     "categoryLabels": {
       "Passport": "Passport",
@@ -1490,7 +1495,9 @@
       "VAT Certificate": "VAT Certificate",
       "Agreement": "Agreement",
       "Invoice": "Invoice",
-      "Other": "Other"
+      "Other": "Other",
+      "National Address": "National address",
+      "Letterhead": "Letterhead"
     },
     "list": {
       "pageTitle": "Documents",
@@ -1612,9 +1619,9 @@
       "crPlaceholder": "10 digits",
       "address": "Address",
       "sitesTitle": "Sites",
-      "sitesDescription": "Locations or projects where workers are deployed.",
+      "sitesDescription": "Locations or projects where employees are deployed.",
       "addSite": "Add site",
-      "noSites": "No sites added yet. Add the locations where this client's workers are based.",
+      "noSites": "No sites added yet. Add the locations where this client's employees are based.",
       "siteNamePlaceholder": "Site name *",
       "cityPlaceholder": "City",
       "addressPlaceholder": "Address",
@@ -1649,7 +1656,7 @@
     "profile": {
       "tabs": {
         "overview": "Overview",
-        "workers": "Workers",
+        "workers": "Employees",
         "documents": "Documents"
       },
       "companyDetails": "Company details",
@@ -1668,14 +1675,14 @@
       "noLocationDetails": "No location details",
       "notes": "Notes",
       "workersColumns": {
-        "worker": "Worker",
+        "worker": "Employee",
         "designation": "Designation",
         "site": "Site",
         "status": "Status"
       },
-      "couldNotLoadWorkers": "Could not load workers",
-      "noWorkersTitle": "No workers assigned",
-      "noWorkersDescription": "Workers assigned to this client through deployments will appear here.",
+      "couldNotLoadWorkers": "Could not load employees",
+      "noWorkersTitle": "No employees assigned",
+      "noWorkersDescription": "Employees assigned to this client through deployments will appear here.",
       "notFoundTitle": "Client not found",
       "notFoundDescription": "The record may have been deleted.",
       "backToList": "Back to clients",
@@ -1697,7 +1704,7 @@
     },
     "list": {
       "pageTitle": "Deployments",
-      "pageDescription": "Every worker actually at work with a client born automatically once a mobilisation is approved.",
+      "pageDescription": "Every employee actually at work with a client born automatically once a mobilisation is approved.",
       "filterStatusAriaLabel": "Filter by status",
       "filterClientAriaLabel": "Filter by client",
       "allClients": "All clients",
@@ -1706,7 +1713,7 @@
       "exportExcel": "Export to Excel",
       "overview": "Overview",
       "columns": {
-        "worker": "Worker",
+        "worker": "Employee",
         "clientSite": "Client / Site",
         "period": "Period",
         "status": "Status"
@@ -1736,8 +1743,8 @@
       "dragColumnHint": "Drag to reorder this column",
       "totalRowLabel": "Total",
       "columns": {
-        "worker": "Worker",
-        "workerType": "Worker type",
+        "worker": "Employee",
+        "workerType": "Employee type",
         "client": "Client",
         "site": "Site",
         "subcontractor": "Subcontractor",
@@ -1759,12 +1766,12 @@
       "pageTitle": "Standby list",
       "pageDescription": "Everyone who was placed with a client at some point and isn't right now.",
       "newMobilisation": "New mobilisation",
-      "workerDataButton": "Worker data",
+      "workerDataButton": "Employee data",
       "mobiliseAction": "Mobilise",
       "couldNotLoad": "Could not load the standby list",
       "columns": {
         "employee": "Employee",
-        "worker": "Worker",
+        "worker": "Employee",
         "designation": "Designation",
         "nationality": "Nationality",
         "mobile": "Mobile",
@@ -1773,25 +1780,25 @@
       },
       "endedOn": "Ended {{date}}",
       "ownEmployeesTitle": "Own employees",
-      "ownEmployeesDescription": "Directly employed field workers with no current client assignment.",
+      "ownEmployeesDescription": "Directly employed field employees with no current client assignment.",
       "ownEmployeesEmptyTitle": "Nobody on standby",
-      "ownEmployeesEmptyDescription": "Every own-employee worker is currently placed with a client.",
-      "subcontractedTitle": "Subcontractor / freelancer workers",
-      "subcontractedDescription": "Workers whose most recent placement has ended, with nothing newer since inferred from mobilisation history, since these workers have no ongoing record of their own between placements.",
+      "ownEmployeesEmptyDescription": "Every own employee is currently placed with a client.",
+      "subcontractedTitle": "Subcontractor / freelancer employees",
+      "subcontractedDescription": "Employees whose most recent placement has ended, with nothing newer since inferred from mobilisation history, since these employees have no ongoing record of their own between placements.",
       "subcontractedEmptyTitle": "No one available",
-      "subcontractedEmptyDescription": "No subcontractor or freelancer worker has an ended placement with nothing newer since."
+      "subcontractedEmptyDescription": "No subcontractor or freelancer employee has an ended placement with nothing newer since."
     },
     "paymentsDue": {
       "pageTitle": "Payments due",
       "pageDescription": "Every client with at least one outstanding invoice, soonest-due first. A client pays in bulk for everyone placed there see the breakdown behind each balance.",
-      "filterBySupplier": "Filter by supplier",
-      "allSuppliers": "All suppliers",
+      "filterBySupplier": "Filter by subcontractor",
+      "allSuppliers": "All subcontractors",
       "columns": {
         "client": "Client",
         "invoiceCount": "Outstanding invoices",
         "totalOutstanding": "Total outstanding",
         "due": "Due",
-        "worker": "Worker",
+        "worker": "Employee",
         "month": "Month",
         "invoice": "Invoice",
         "allocated": "Allocated",
@@ -1824,7 +1831,7 @@
       "pageTitle": "Ready to invoice",
       "pageDescription": "Every approved month waiting on a client invoice, oldest first.",
       "columns": {
-        "worker": "Worker / client",
+        "worker": "Employee / client",
         "month": "Month",
         "hours": "Hours",
         "waitingSince": "Approved on"
@@ -1845,10 +1852,10 @@
       "columns": {
         "contractHours": "Contract hours",
         "clientTimesheet": "Client timesheet",
-        "supplierTimesheet": "Supplier timesheet",
+        "supplierTimesheet": "Subcontractor timesheet",
         "otHours": "OT hours",
         "otAmount": "OT amount",
-        "workerOtPay": "Worker OT Pay",
+        "workerOtPay": "Employee OT Pay",
         "deduction": "Deduction",
         "invoiceAmount": "Invoice amount",
         "netProfit": "Net profit"
@@ -1868,7 +1875,7 @@
         "clientInvoiceAmount": "Client Invoice Amount",
         "subContractorInvoiceAmount": "Sub Contractor Invoice Amount",
         "subCommission": "Sub Commission",
-        "otCalculations": "Worker OT Pay",
+        "otCalculations": "Employee OT Pay",
         "clientCommission": "Client Commission",
         "fta": "FTA",
         "allowance": "Allowance",
@@ -1904,9 +1911,9 @@
       "notFoundDescription": "It may have been removed.",
       "sectionPlacement": "Placement",
       "fields": {
-        "worker": "Worker",
-        "workerName": "Worker name",
-        "workerType": "Worker type",
+        "worker": "Employee",
+        "workerName": "Employee name",
+        "workerType": "Employee type",
         "client": "Client",
         "site": "Site",
         "subcontractor": "Subcontractor",
@@ -1925,7 +1932,7 @@
       "demobiliseDateLabel": "Demobilisation date *",
       "reasonLabel": "Reason *",
       "chooseReason": "Choose a reason",
-      "otherExitCheckbox": "This worker is no longer part of the company (mark as Exited)",
+      "otherExitCheckbox": "This employee is no longer part of the company (mark as Exited)",
       "exitWarning": "This will mark {{name}} as Exited they'll no longer appear as active staff, in payroll, or be eligible for a new mobilisation until re-activated.",
       "demobiliseNoteLabel": "Note",
       "demobilisedToast": "{{name}} demobilised.",
@@ -1943,12 +1950,12 @@
         "month": "Month",
         "contractHours": "Contract",
         "actualHours": "Actual",
-        "supplierHours": "Supplier hours",
+        "supplierHours": "Subcontractor hours",
         "daysWorked": "Days worked",
         "otHours": "OT hours",
         "otAmount": "OT amount",
         "deduction": "Client deduction",
-        "supplierDeduction": "Supplier deduction",
+        "supplierDeduction": "Subcontractor deduction",
         "employeeAdditionalAmount": "Additional amount",
         "profitOrDue": "Profit / Due",
         "status": "Status",
@@ -1993,7 +2000,7 @@
       },
       "monthLabel": "Month *",
       "clientTimesheetHoursLabel": "Client timesheet hours *",
-      "supplierTimesheetHoursLabel": "Supplier timesheet hours",
+      "supplierTimesheetHoursLabel": "Subcontractor timesheet hours",
       "supplierTimesheetHoursPlaceholder": "Not entered yet",
       "supplierTimesheetHoursHint": "Optional add it now if you already know it, or use \"Enter subcontractor hours\" on this month's row once the subcontractor's own timesheet comes in.",
       "enterSupplierHoursButton": "Enter subcontractor hours",
@@ -2004,7 +2011,7 @@
       "viewDailyBreakdown": "View daily breakdown",
       "fixHighlighted": "Please fix the highlighted fields before saving.",
       "summaryContractHours": "Client agreement hours",
-      "summarySupplierHours": "Supplier hours",
+      "summarySupplierHours": "Subcontractor hours",
       "summaryOtHours": "Overtime hours",
       "summarySupplierOtHours": "Subcontractor overtime hours",
       "summaryOtAmount": "OT amount",
@@ -2012,8 +2019,8 @@
       "deductionAmountLabel": "Client deduction",
       "deductionAmountPlaceholder": "0.00",
       "deductionAmountHint": "A deduction the client applied on their own timesheet (e.g. for an Absent day) enter the exact figure shown there.",
-      "summarySupplierDeduction": "Supplier deduction",
-      "supplierDeductionAmountLabel": "Supplier deduction",
+      "summarySupplierDeduction": "Subcontractor deduction",
+      "supplierDeductionAmountLabel": "Subcontractor deduction",
       "supplierDeductionAmountPlaceholder": "0.00",
       "supplierDeductionAmountHint": "An adjustment deducted from what this company owes the subcontractor this month (a dispute or correction) reduces the Sub Invoice amount.",
       "supplierDeductionNoteLabel": "Reason (optional)",
@@ -2052,7 +2059,7 @@
         "invoiceCount": "Invoices",
         "totalOutstanding": "Total Outstanding",
         "due": "Due",
-        "worker": "Worker",
+        "worker": "Employee",
         "month": "Month",
         "invoice": "Invoice",
         "invoiceAmount": "Invoice Amount",
@@ -2065,8 +2072,8 @@
       "pageTitle": "Subcontractor Payments Due",
       "pageDescription": "Every subcontractor with at least one outstanding invoice, soonest-due first. This company pays a subcontractor in bulk for everyone they supply.",
       "reviewPendingButton": "Review Pending Payments",
-      "filterBySupplier": "Filter by supplier",
-      "allSuppliers": "All suppliers",
+      "filterBySupplier": "Filter by subcontractor",
+      "allSuppliers": "All subcontractors",
       "couldNotLoad": "Could not load payments due",
       "emptyTitle": "No payments due",
       "emptyDescription": "No subcontractor currently has an outstanding invoice.",
@@ -2127,13 +2134,13 @@
       "subOtHours": "Sub OT hours",
       "subInvoice": "Sub invoice",
       "subCommissionExpense": "Sub commission expense",
-      "supplierDeduction": "Supplier deduction",
+      "supplierDeduction": "Subcontractor deduction",
       "expenses": "Expenses",
       "fta": "FTA",
       "allowance": "Allowance",
       "clientDeduction": "Client deduction",
       "mobilisationCost": "Mobilisation cost",
-      "workerOtPay": "Worker OT pay",
+      "workerOtPay": "Employee OT pay",
       "clientCommission": "Client commission",
       "subCommission": "Sub commission",
       "employeeSalary": "Employee salary",
@@ -2144,8 +2151,9 @@
       "otHours": "OT hours",
       "clientInvoiceAmount": "Client invoice amount",
       "netProfit": "Net profit",
-      "workerOtPayHint": "OT premium paid to the worker, on top of their fixed salary or rate.",
-      "workerOtPayHintSupplier": "Paid directly to the worker; not part of the supplier invoice."
+      "workerOtPayHint": "OT premium paid to the employee, on top of their fixed salary or rate.",
+      "workerOtPayHintSupplier": "Paid directly to the employee; not part of the subcontractor invoice.",
+      "freelancerPay": "Freelancer pay (regular hours x rate)"
     }
   },
   "staffMobilisations": {
@@ -2156,11 +2164,11 @@
     },
     "list": {
       "pageTitle": "Mobilisations",
-      "pageDescription": "Worker placements with client billing terms.",
+      "pageDescription": "Employee placements with client billing terms.",
       "newMobilisation": "New mobilisation",
-      "workerDataButton": "Worker data",
+      "workerDataButton": "Employee data",
       "exportExcel": "Export to Excel",
-      "searchPlaceholderWithSerial": "Search #, worker, client, job title…",
+      "searchPlaceholderWithSerial": "Search #, employee, client, job title…",
       "searchAriaLabel": "Search mobilisations",
       "filterStatusAriaLabel": "Filter by status",
       "filteredToCoordinator": "Filtered to: {{name}}",
@@ -2168,7 +2176,7 @@
       "clearCoordinatorFilterAriaLabel": "Clear coordinator filter",
       "columns": {
         "serialNumber": "#",
-        "worker": "Worker",
+        "worker": "Employee",
         "jobTitle": "Job title",
         "client": "Client",
         "mobilisationDate": "Mobilisation date",
@@ -2178,11 +2186,13 @@
       "couldNotLoadDescription": "Please try again.",
       "emptyTitleNoFilters": "No mobilisations yet",
       "emptyTitleFiltered": "No mobilisations match",
-      "emptyDescriptionNoFilters": "Create your first mobilisation above."
+      "emptyDescriptionNoFilters": "Create your first mobilisation above.",
+      "filteredToShared": "Shared employees only",
+      "clearSharedFilterAriaLabel": "Clear the shared employees filter"
     },
     "workerHistory": {
-      "pageTitle": "Worker data",
-      "pageDescription": "Look up everything on record for a Freelancer or subcontractor-supplied worker by their Iqama number, and archive it once they're no longer relevant.",
+      "pageTitle": "Employee data",
+      "pageDescription": "Look up everything on record for a Freelancer or subcontractor-supplied employee by their Iqama number, and archive it once they're no longer relevant.",
       "searchLabel": "Iqama number",
       "searchPlaceholder": "10-digit Iqama number…",
       "searchButton": "Search",
@@ -2190,15 +2200,15 @@
       "notFoundDescription": "Nothing on record for this Iqama number.",
       "recordCount": "{{count}} mobilisation(s) on record",
       "activeEngagementBadge": "Currently active",
-      "activeEngagementWarning": "This worker still has an active mobilisation or deployment demobilise or complete it first before archiving.",
-      "archiveButton": "Archive worker data",
+      "activeEngagementWarning": "This employee still has an active mobilisation or deployment demobilise or complete it first before archiving.",
+      "archiveButton": "Archive employee data",
       "archiveConfirmTitle": "Archive data for {{name}}?",
       "archiveConfirmMessage": "This hides all {{count}} record(s) and any deployment they produced from every list and lookup across the app. Nothing is deleted; you can restore it anytime.",
-      "archivedToast": "Worker data archived.",
-      "restoreButton": "Restore worker data",
+      "archivedToast": "Employee data archived.",
+      "restoreButton": "Restore employee data",
       "restoreConfirmTitle": "Restore data for {{name}}?",
       "restoreConfirmMessage": "This makes all {{count}} record(s) and any deployment they produced visible again in every list and lookup.",
-      "restoredToast": "Worker data restored.",
+      "restoredToast": "Employee data restored.",
       "archivedBadge": "Archived",
       "columns": {
         "mobilisationNumber": "Mobilisation #",
@@ -2213,26 +2223,26 @@
       "sectionOnBehalf": "Creating for",
       "onBehalfOfLabel": "Coordinator this mobilisation is for",
       "selectCoordinator": "Select a coordinator…",
-      "sectionWorkerJob": "Worker & job",
-      "workerTypeLabel": "Worker type",
+      "sectionWorkerJob": "Employee & job",
+      "workerTypeLabel": "Employee type",
       "workerType": {
         "Employee": "Own Employee",
-        "SupplierEmployee": "Supplier employee",
+        "SupplierEmployee": "Subcontractor employee",
         "Freelancer": "Freelancer"
       },
-      "workerLabel": "Worker *",
-      "selectWorker": "Select a worker…",
-      "loadingWorkers": "Loading workers…",
-      "workerNameLabel": "Worker name *",
+      "workerLabel": "Employee *",
+      "selectWorker": "Select an employee…",
+      "loadingWorkers": "Loading employees…",
+      "workerNameLabel": "Employee name *",
       "iqamaNumberLabel": "Iqama / ID number",
       "iqamaNumberPlaceholder": "10 digits",
-      "iqamaAutofillToast": "Found {{name}} from a previous mobilisation details filled in.",
+      "iqamaAutofillToast": "Found {{name}} in our records. Details filled in.",
       "previousSupplierWorkerLabel": "Previously mobilised via this subcontractor",
       "previousFreelancerLabel": "Previously mobilised freelancer",
       "selectPreviousWorker": "Select to auto-fill…",
       "previousWorkerAppliedToast": "Filled in {{name}}'s details.",
-      "previousClientRateHint": "This worker's last client rate: {{rate}}/hour",
-      "previousSubcontractorRateHint": "This worker's last subcontractor rate: {{rate}}/hour",
+      "previousClientRateHint": "This employee's last client rate: {{rate}}/hour",
+      "previousSubcontractorRateHint": "This employee's last subcontractor rate: {{rate}}/hour",
       "nationalityLabel": "Nationality",
       "phoneLabel": "Phone",
       "jobTitleLabel": "Job title *",
@@ -2260,9 +2270,8 @@
       "allowanceRemarkPlaceholder": "What this allowance is for",
       "mobilisationCost": "Mobilisation cost (one-time, ⃁)",
       "requiredTimesheetHours": "Required timesheet hours",
-      "otClientRate": "OT client rate (⃁/hour)",
-      "otEmployeeRate": "Worker OT Pay Rate (⃁/hour)",
-      "otEmployeeRateHint": "Paid directly to the worker for each OT hour not billed through the subcontractor. Treated as a company expense when the hours are approved.",
+      "otEmployeeRate": "OT payment to employee (⃁/hour)",
+      "otEmployeeRateHint": "Paid directly to the employee for each OT hour not billed through the subcontractor. Treated as a company expense when the hours are approved.",
       "otEmployeeRateHintEmployee": "OT premium paid to the employee per OT hour, on top of their fixed salary. Treated as a company expense when the hours are approved. Leave blank if no OT premium applies.",
       "sectionSubcontractor": "Subcontractor",
       "subcontractorLabel": "Subcontractor *",
@@ -2272,7 +2281,7 @@
       "sectionEconomicsDates": "Dates",
       "mobilisationDate": "Mobilisation date *",
       "checkoutDate": "Demobilisation date",
-      "checkoutDateHint": "Leave blank if the worker is still there a date locks in when this placement actually ended.",
+      "checkoutDateHint": "Leave blank if the employee is still there a date locks in when this placement actually ended.",
       "clearCheckoutDate": "Clear still ongoing",
       "remark": "Remark",
       "addJobTitleModalTitle": "Add job title",
@@ -2282,11 +2291,28 @@
       "addLocationModalTitle": "Add location",
       "locationFieldLabel": "Site / location",
       "locationPlaceholder": "e.g. Jubail Industrial City",
-      "locationAddedToast": "\"{{name}}\" added."
+      "locationAddedToast": "\"{{name}}\" added.",
+      "employeeRate": "Employee rate (SAR/hour) *",
+      "employeeRateHint": "What you pay the freelancer per hour. Overtime is paid at the same rate.",
+      "clientCoordinators": "Client coordinators",
+      "subcontractorCoordinators": "Subcontractor coordinators",
+      "noCompanyCoordinators": "No coordinators on file for this company yet. Add one.",
+      "selectCompanyFirst": "Select the company first.",
+      "addCoordinatorModalTitle": "Add coordinator",
+      "coordinatorAddedToast": "{{name}} added to {{company}}.",
+      "clientCommissionRecipient": "Client commission goes to *",
+      "subcontractorCommissionRecipient": "Subcontractor commission goes to *",
+      "knownSubcontractorHint": "In our records this employee is with {{name}}.",
+      "transfer": {
+        "title": "Move {{name}} to {{to}}?",
+        "message": "In our records he is with {{from}}. Moving him needs the Marketing Manager's approval. You can still save and submit this mobilisation, but its final approval waits for the transfer to be approved.",
+        "yes": "Yes, request the move",
+        "no": "No, only for this mobilisation"
+      }
     },
     "new": {
       "pageTitle": "New mobilisation",
-      "pageDescription": "Place a worker with a client and record its billing terms.",
+      "pageDescription": "Place an employee with a client and record its billing terms.",
       "submitLabel": "Save draft",
       "createdToast": "Mobilisation created.",
       "fromRequirement": "Starting from {{serial}} · {{client}} for {{name}}. Check the details below; saving links this mobilisation to that requirement.",
@@ -2314,12 +2340,12 @@
       "backToList": "Back to mobilisations",
       "detailsTitle": "Details",
       "exportExcel": "Export to Excel",
-      "sectionWorkerPlacement": "Worker & placement",
+      "sectionWorkerPlacement": "Employee & placement",
       "sectionRatesFinancials": "Rates & financials",
       "fields": {
         "fromRequirement": "From requirement",
-        "workerName": "Worker name",
-        "workerType": "Worker type",
+        "workerName": "Employee name",
+        "workerType": "Employee type",
         "iqamaNumber": "Iqama number",
         "nationality": "Nationality",
         "phone": "Phone",
@@ -2342,8 +2368,13 @@
         "profitPerHour": "Profit per hour (estimate)",
         "profitPerMonth": "Profit per month (estimate)",
         "otClientRate": "OT client rate",
-        "otEmployeeRate": "Worker OT Pay Rate",
-        "otProfitPerHour": "OT profit per hour (estimate)"
+        "otEmployeeRate": "OT payment to employee",
+        "otProfitPerHour": "OT profit per hour (estimate)",
+        "employeeRate": "Employee rate (per hour)",
+        "clientCoordinators": "Client coordinators",
+        "subcontractorCoordinators": "Subcontractor coordinators",
+        "clientCommissionCoordinator": "Client commission goes to",
+        "subcontractorCommissionCoordinator": "Subcontractor commission goes to"
       },
       "remark": "Remark",
       "coordinatorsTitle": "Coordinators",
@@ -2418,7 +2449,12 @@
         "downloadToView": "Download it to view."
       },
       "defaultRejectError": "Explain what needs fixing before rejecting.",
-      "viewDeployment": "View deployment"
+      "viewDeployment": "View deployment",
+      "transfer": {
+        "pending": "Waiting for the subcontractor transfer approval: {{name}} moves from {{from}} to {{to}}. You can still submit this mobilisation, but its final approval waits for the transfer.",
+        "rejected": "Subcontractor transfer rejected: {{note}}",
+        "approved": "Subcontractor transfer approved: {{name}} now moves to {{to}}."
+      }
     },
     "warnings": {
       "noRequiredHours": "No required timesheet hours set: every hour will be billed as overtime, and with no overtime rate the invoice will show SAR 0."
@@ -2465,10 +2501,20 @@
       "vatNumber": "VAT number",
       "crNumber": "Commercial Registration",
       "crPlaceholder": "10 digits",
-      "address": "Address"
+      "address": "Address",
+      "invalid": "Please check the form and try again."
     },
     "deleteConfirmTitle": "Delete subcontractor?",
-    "deleteConfirmMessage": "{{name}} will be permanently removed."
+    "deleteConfirmMessage": "{{name}} will be permanently removed.",
+    "profile": {
+      "notFoundTitle": "Subcontractor not found",
+      "notFoundDescription": "It may have been removed.",
+      "companyDetails": "Company details",
+      "tabs": {
+        "overview": "Overview",
+        "documents": "Documents"
+      }
+    }
   },
   "staffPayroll": {
     "list": {
@@ -2527,7 +2573,7 @@
       "finalizedToast": "Payroll run finalized.",
       "deletedToast": "Payroll run deleted.",
       "finalizeConfirmTitle": "Finalize this payroll run?",
-      "finalizeConfirmMessage": "Lines can no longer be edited after finalizing. Workers will be able to view and download their payslips.",
+      "finalizeConfirmMessage": "Lines can no longer be edited after finalizing. Employees will be able to view and download their payslips.",
       "deleteConfirmTitle": "Delete this payroll run?",
       "deleteConfirmMessage": "This draft and all its computed lines will be permanently removed.",
       "payslipFailedToast": "Could not generate the payslip."
@@ -2593,7 +2639,7 @@
       "addEntry": "Add entry",
       "form": {
         "text": "Log entry *",
-        "textPlaceholder": "e.g. Visited the client site, collected passport copies for two workers…",
+        "textPlaceholder": "e.g. Visited the client site, collected passport copies for two employees…",
         "date": "Day"
       },
       "filterHeading": "Filter logs",
@@ -2704,7 +2750,7 @@
       "clientHint": "Type the company name pick a suggestion to link an existing client. A company that isn't a client yet is fine.",
       "clientHintNoSuggestions": "The client list isn't available to you, so there are no suggestions just type the company name. It links to an existing client automatically if the name matches.",
       "jobTitle": "Job title *",
-      "headcount": "Workers needed *",
+      "headcount": "Employees needed *",
       "neededBy": "Needed by",
       "site": "Site / location",
       "notes": "Notes",
@@ -2740,7 +2786,7 @@
       "add": "Add candidate",
       "addTitle": "Add candidate",
       "editTitle": "Edit candidate",
-      "emptyEditable": "No candidates yet. Add each worker you line up where they come from and how far their paperwork is.",
+      "emptyEditable": "No candidates yet. Add each employee you line up where they come from and how far their paperwork is.",
       "emptyReadOnly": "No candidates have been added yet.",
       "startMobilisation": "Start mobilisation",
       "iqamaShort": "Iqama",
@@ -2754,7 +2800,7 @@
         "removed": "Candidate removed."
       },
       "workerType": {
-        "SupplierEmployee": "Subcontractor's worker",
+        "SupplierEmployee": "Subcontractor's employee",
         "Freelancer": "Freelancer"
       },
       "status": {
@@ -2765,10 +2811,10 @@
         "Dropped": "Dropped"
       },
       "form": {
-        "workerType": "Worker type",
+        "workerType": "Employee type",
         "subcontractor": "Subcontractor *",
         "selectSubcontractor": "Select a subcontractor",
-        "workerName": "Worker name *",
+        "workerName": "Employee name *",
         "iqama": "Iqama number",
         "nationality": "Nationality",
         "phone": "Phone",
@@ -2795,7 +2841,7 @@
         "notifyOnEnter": "Notify the team when a card arrives",
         "notifyOnEnterHint": "Everyone with team access to Requirements is told e.g. for \"Ready to mobilise\".",
         "isMobilisedStage": "Where a fully-mobilised requirement goes",
-        "isMobilisedStageHint": "When every worker a requirement asked for has been approved for mobilisation, its card moves here on its own. Only one stage can be this choosing it moves the setting from the old one."
+        "isMobilisedStageHint": "When every employee a requirement asked for has been approved for mobilisation, its card moves here on its own. Only one stage can be this choosing it moves the setting from the old one."
       },
       "toasts": {
         "added": "Stage added.",
@@ -2897,11 +2943,11 @@
       }
     },
     "costs": {
-      "searchPlaceholder": "Search by worker name…",
-      "searchAriaLabel": "Search deployments by worker name",
+      "searchPlaceholder": "Search by employee name…",
+      "searchAriaLabel": "Search deployments by employee name",
       "couldNotLoad": "Could not load deployments",
-      "noWorkerMatch": "No worker matches “{{search}}”.",
-      "changeWorker": "Change worker",
+      "noWorkerMatch": "No employee matches “{{search}}”.",
+      "changeWorker": "Change employee",
       "noCostedMonthsTitle": "No costed months yet",
       "noCostedMonthsDescription": "Costs appear here once this deployment has an approved month you have access to view."
     }
@@ -2910,18 +2956,18 @@
     "hours": "{{hours}} hrs",
     "entryCount": "Months: {{count}}",
     "paymentCount": "Payments: {{count}}",
-    "searchClientWorker": "Search client, worker…",
-    "searchSubWorker": "Search subcontractor, worker…",
-    "searchClientWorkerInvoice": "Search client, worker, invoice…",
-    "searchSubWorkerInvoice": "Search subcontractor, worker, invoice…",
+    "searchClientWorker": "Search client, employee…",
+    "searchSubWorker": "Search subcontractor, employee…",
+    "searchClientWorkerInvoice": "Search client, employee, invoice…",
+    "searchSubWorkerInvoice": "Search subcontractor, employee, invoice…",
     "contractHours": "Contract hours",
     "timesheetHours": "Timesheet hours",
     "invoiceAmount": "Invoice amount",
     "balance": "Balance",
     "status": "Status",
     "couldNotLoad": "Could not load",
-    "clientWorker": "Client / Worker",
-    "subcontractorWorker": "Subcontractor / Worker",
+    "clientWorker": "Client / Employee",
+    "subcontractorWorker": "Subcontractor / Employee",
     "hoursHeader": "Hours",
     "month": "Month",
     "approvedOn": "Approved on",
@@ -3057,5 +3103,86 @@
     "vacationReady": "You can request annual vacation.",
     "vacationAction": "Request vacation",
     "viewDetails": "View"
+  },
+  "companyProfile": {
+    "arabicName": "Company name (Arabic)",
+    "crNumber": "CR number",
+    "crExpiry": "CR expiry date",
+    "contactPosition": "Contact person position",
+    "missingValue": "Missing",
+    "nationalAddressHint": "As on the Saudi National Address (SPL) certificate. Building number is 4 digits, postal code 5 digits, additional number 4 digits.",
+    "ownerHint": "The head of the company.",
+    "coordinatorsHint": "People at this company we coordinate with. They can be picked on mobilisations.",
+    "addCoordinator": "Add coordinator",
+    "noCoordinators": "No coordinators added yet.",
+    "coordinatorDesignation": "Designation",
+    "removeCoordinatorAriaLabel": "Remove coordinator {{index}}",
+    "sections": {
+      "identity": "Company registration",
+      "nationalAddress": "National address",
+      "contact": "Contact person",
+      "finance": "Finance person",
+      "owner": "Owner",
+      "coordinators": "Coordinators"
+    },
+    "person": {
+      "name": "Name",
+      "position": "Position",
+      "phone": "Phone number",
+      "email": "Email"
+    },
+    "nationalAddress": {
+      "buildingNumber": "Building number",
+      "streetName": "Street name",
+      "district": "District",
+      "city": "City",
+      "postalCode": "Postal code",
+      "additionalNumber": "Additional number",
+      "unitNumber": "Unit number",
+      "shortAddress": "Short address"
+    },
+    "missing": {
+      "title": "Missing details: {{count}}",
+      "badge": "{{count}} missing",
+      "items": {
+        "arabicName": "Arabic company name",
+        "crNumber": "CR number",
+        "crExpiry": "CR expiry date",
+        "nationalAddress": "National address",
+        "contact": "Contact person",
+        "finance": "Finance person",
+        "owner": "Owner",
+        "coordinators": "Coordinators",
+        "agreementDocument": "Agreement (with expiry date)",
+        "crDocument": "CR document (with expiry date)",
+        "nationalAddressDocument": "National address document"
+      }
+    }
+  },
+  "subcontractorTransfers": {
+    "title": "Subcontractor transfer approvals",
+    "description": "Moves of a subcontractor's employee to a different subcontractor, raised from a mobilisation.",
+    "columns": {
+      "employee": "Employee",
+      "move": "Move",
+      "mobilisation": "Mobilisation",
+      "requestedBy": "Requested by",
+      "status": "Status"
+    },
+    "statuses": {
+      "Pending": "Pending",
+      "Approved": "Approved",
+      "Rejected": "Rejected",
+      "Cancelled": "Withdrawn"
+    },
+    "approve": "Approve",
+    "reject": "Reject",
+    "rejectTitle": "Reject this transfer",
+    "reasonLabel": "Reason (sent back to the coordinators) *",
+    "approvedToast": "Transfer approved.",
+    "rejectedToast": "Transfer rejected and sent back.",
+    "emptyTitle": "No transfer requests",
+    "emptyDescription": "Requests appear here when a coordinator moves an employee to another subcontractor.",
+    "couldNotLoad": "Could not load the transfer requests."
   }
 }

@@ -127,7 +127,7 @@ export default function DocumentUploadModal({ open, onClose, fixedOwner, onUploa
                 setOwnerId('');
               }}
             >
-              {DOCUMENT_OWNER_TYPES.map((ot) => (
+              {DOCUMENT_OWNER_TYPES.filter((ot) => ot !== 'Subcontractor').map((ot) => (
                 <option key={ot} value={ot}>
                   {t(`staffDocuments.ownerTypeLabels.${ot}`, ot)}
                 </option>

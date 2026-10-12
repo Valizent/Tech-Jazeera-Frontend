@@ -51,6 +51,12 @@ export async function unarchiveWorkerData(iqamaNumber) {
   await api.post('/mobilisations/worker-history/unarchive', { iqamaNumber });
 }
 
+/** Add a coordinator to a client's or subcontractor's own list from the mobilisation form. */
+export async function addCompanyCoordinator(payload) {
+  const { data } = await api.post('/mobilisations/company-coordinators', payload);
+  return data.data;
+}
+
 export async function getMobilisation(id) {
   const { data } = await api.get(`/mobilisations/${id}`);
   return data.data;

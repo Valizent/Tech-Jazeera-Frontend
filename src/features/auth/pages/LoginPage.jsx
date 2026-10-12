@@ -39,18 +39,18 @@ export default function LoginPage() {
   }
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} noValidate className="flex flex-col gap-5">
+    <form onSubmit={handleSubmit(onSubmit)} noValidate className="flex flex-col gap-4 sm:gap-5">
 
       {/* Heading */}
-      <div className="mb-1 text-center">
-        <h1 className="text-2xl font-extrabold tracking-tight text-text">
+      <div className="text-center">
+        <h1 className="text-xl sm:text-2xl font-extrabold tracking-tight text-text">
           {t('auth.signIn')}
         </h1>
-        <p className="mt-1.5 text-sm text-muted">{t('auth.useCompanyAccount')}</p>
+        <p className="mt-1 sm:mt-1.5 text-xs sm:text-sm text-muted">{t('auth.useCompanyAccount')}</p>
       </div>
 
       {/* Fields */}
-      <div className="space-y-4">
+      <div className="space-y-3.5 sm:space-y-4">
         <Input
           label={t('auth.email')}
           type="email"
@@ -71,7 +71,7 @@ export default function LoginPage() {
 
       {/* Server error */}
       {serverError && (
-        <div role="alert" className="flex items-start gap-2.5 rounded-xl border border-danger/20 bg-danger/10 p-3.5 text-sm text-danger">
+        <div role="alert" className="flex items-start gap-2.5 rounded-xl border border-danger/20 bg-danger/10 p-3 sm:p-3.5 text-xs sm:text-sm text-danger break-words">
           <svg viewBox="0 0 20 20" fill="currentColor" className="mt-0.5 h-4 w-4 shrink-0">
             <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-5a.75.75 0 01.75.75v4.5a.75.75 0 01-1.5 0v-4.5A.75.75 0 0110 5zm0 10a1 1 0 100-2 1 1 0 000 2z" clipRule="evenodd" />
           </svg>
@@ -84,7 +84,7 @@ export default function LoginPage() {
         type="submit"
         size="lg"
         isLoading={isSubmitting}
-        className="mt-1 w-full shadow-glow"
+        className="mt-1 h-11 sm:h-12 w-full text-sm sm:text-base font-semibold shadow-glow"
       >
         {t('auth.signIn')}
       </Button>

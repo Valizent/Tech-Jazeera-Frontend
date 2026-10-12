@@ -30,7 +30,7 @@ export function buildDocumentColumns({ showOwner = false, t } = {}) {
             header: t('staffDocuments.columns.owner'),
             render: (d) => {
               const name =
-                d.owner?.companyName ?? d.owner?.fullName ?? t('staffDocuments.columns.unknownOwner');
+                d.owner?.companyName ?? d.owner?.fullName ?? d.owner?.name ?? t('staffDocuments.columns.unknownOwner');
               return (
                 <span>
                   {name}

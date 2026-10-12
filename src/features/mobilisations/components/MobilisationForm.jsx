@@ -34,7 +34,7 @@
  * Employee-adjacent muscle memory). Freelancer gets the "adjacent idea": no
  * subcontractor to scope by, so its picker is just company-wide.
  */
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useForm, useWatch, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useTranslation } from 'react-i18next';
@@ -58,6 +58,7 @@ import SuggestInput from '../../../components/ui/SuggestInput.jsx';
 import Textarea from '../../../components/ui/Textarea.jsx';
 import Button from '../../../components/ui/Button.jsx';
 import Modal from '../../../components/ui/Modal.jsx';
+import { CoordinatorMultiPicker, CommissionRecipientSelect } from './CompanyPeoplePickers.jsx';
 
 /** Once `iqamaNumber` reaches a full 10 digits, looks up whether this worker
  *  has been mobilised before and — if so — fills in name/nationality/phone/
@@ -110,9 +111,8 @@ function useIqamaAutofill({ control, workerType, setValue, toast, t }) {
     if (foundWorker.workerType && foundWorker.workerType !== workerType) {
       setValue('workerType', foundWorker.workerType, { shouldDirty: true });
     }
-    if (foundWorker.subcontractor) {
-      setValue('subcontractor', foundWorker.subcontractor, { shouldDirty: true });
-    }
+    // The subcontractor is deliberately NOT applied (2026-10-12): the person's
+    // own data fills in, the company is chosen for this placement.
     toast.success(t('staffMobilisations.form.iqamaAutofillToast', { name: foundWorker.workerName }));
   }, [foundWorker, iqamaDigits, setValue, workerType, toast, t]);
 
@@ -164,44 +164,18 @@ function PreviousWorkerPicker({ workerType, subcontractorId, label, onSelect }) 
   );
 }
 
-/** Mirrors Client rate into OT client rate as it's typed — a sensible
- *  default (OT usually bills at the same rate) — but only while OT client
- *  rate is still empty OR still holds whatever value WE last wrote, same
- *  "never fight a manual edit" rule as useIqamaAutofill above: the moment
- *  the coordinator types their own OT rate, further Client rate edits stop
- *  touching it. Skips the very first run (mount) so opening Edit on an
- *  existing record with its own already-different OT rate never gets
- *  silently overwritten.
- *
- *  `lastAutoValueRef` (2026-09-16, a real user-reported bug) is the fix for
- *  a genuine multi-keystroke desync: typing a Client rate character by
- *  character fires this effect once per keystroke, not once for the final
- *  value — the ORIGINAL `!getValues('otClientRate')` check alone couldn't
- *  tell "empty because nothing's been typed" apart from "non-empty because
- *  I just autofilled it a moment ago," so after the very first digit
- *  autofilled OT client rate to e.g. "3", the second digit's own check saw
- *  a non-empty OT field and refused to update it further — leaving OT
- *  client rate stuck on a leading digit while Client rate kept changing,
- *  which reads exactly like "the autofill doesn't work" (the user's own
- *  report: they gave up and typed a value in by hand). Tracking the exact
- *  value we last wrote lets every subsequent keystroke recognize its own
- *  prior output and keep mirroring, while a REAL manual edit (the field no
- *  longer matches what we last set) still correctly stops it. */
-function useOtClientRateAutofill({ control, getValues, setValue }) {
-  const clientRate = useWatch({ control, name: 'clientRate' });
-  const mountedRef = useRef(false);
-  const lastAutoValueRef = useRef(undefined);
+/** Clears a company-scoped pick when the company itself is changed - a client
+ *  coordinator ticked for client A means nothing once client B is chosen.
+ *  Skips the first run so opening Edit never wipes what was saved. */
+function useResetOnChange(value, reset) {
+  const previous = useRef(value);
   useEffect(() => {
-    if (!mountedRef.current) {
-      mountedRef.current = true;
-      return;
-    }
-    const current = getValues('otClientRate');
-    if (!current || current === lastAutoValueRef.current) {
-      setValue('otClientRate', clientRate, { shouldDirty: true });
-      lastAutoValueRef.current = clientRate;
-    }
-  }, [clientRate, getValues, setValue]);
+    if (previous.current === value) return;
+    previous.current = value;
+    reset();
+    // reset is a fresh closure each render; only the value is the trigger.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [value]);
 }
 
 /**
@@ -252,6 +226,7 @@ export default function MobilisationForm({
   locations,
   coordinatorCandidates,
   existingWorkerId,
+  pendingTransferTo,
   defaultValues,
   onSubmit,
   onCancel,
@@ -265,7 +240,6 @@ export default function MobilisationForm({
     control,
     handleSubmit,
     setValue,
-    getValues,
     formState: { errors },
   } = useForm({ resolver: zodResolver(mobilisationFormSchema), defaultValues });
 
@@ -273,9 +247,38 @@ export default function MobilisationForm({
   const ftaType = useWatch({ control, name: 'ftaType' });
   const checkoutDate = useWatch({ control, name: 'checkoutDate' });
   const subcontractorValue = useWatch({ control, name: 'subcontractor' });
+  const clientValue = useWatch({ control, name: 'client' });
   const requiredHoursValue = useWatch({ control, name: 'requiredTimesheetHours' });
+  const clientCommissionValue = useWatch({ control, name: 'clientCommission' });
+  const subcontractorCommissionValue = useWatch({ control, name: 'subcontractorCommission' });
+  const clientCoordinatorIds = useWatch({ control, name: 'clientCoordinatorIds' }) ?? [];
+  const subcontractorCoordinatorIds = useWatch({ control, name: 'subcontractorCoordinatorIds' }) ?? [];
+  const clientRecipient = useWatch({ control, name: 'clientCommissionCoordinatorId' }) ?? '';
+  const subcontractorRecipient = useWatch({ control, name: 'subcontractorCommissionCoordinatorId' }) ?? '';
   const { markApplied: markIqamaApplied, previousWorker } = useIqamaAutofill({ control, workerType, setValue, toast, t });
-  useOtClientRateAutofill({ control, getValues, setValue });
+
+  // The company's own coordinators, plus anyone added from this form before
+  // the lists have refetched.
+  const [addedCoordinators, setAddedCoordinators] = useState({});
+  const rememberAdded = (companyId) => (coordinator) =>
+    setAddedCoordinators((prev) => ({ ...prev, [companyId]: [...(prev[companyId] ?? []), coordinator] }));
+  const coordinatorsOf = (list, companyId) => {
+    const base = list.find((c) => c._id === companyId)?.coordinators ?? [];
+    const extra = (addedCoordinators[companyId] ?? []).filter((a) => !base.some((b) => b._id === a._id));
+    return [...base, ...extra];
+  };
+  const clientObj = clients.find((c) => c._id === clientValue);
+  const subcontractorObj = subcontractors.find((s) => s._id === subcontractorValue);
+  const clientCoordinators = coordinatorsOf(clients, clientValue);
+  const subcontractorCoordinators = coordinatorsOf(subcontractors, subcontractorValue);
+  useResetOnChange(clientValue, () => {
+    setValue('clientCoordinatorIds', [], { shouldDirty: true });
+    setValue('clientCommissionCoordinatorId', '', { shouldDirty: true });
+  });
+  useResetOnChange(subcontractorValue, () => {
+    setValue('subcontractorCoordinatorIds', [], { shouldDirty: true });
+    setValue('subcontractorCommissionCoordinatorId', '', { shouldDirty: true });
+  });
   const { workers, workersLoading, workersError } = useEmployeeWorkers({ workerType, existingWorkerId });
 
   const { data: outsourcedEmployees } = useQuery({
@@ -315,6 +318,31 @@ export default function MobilisationForm({
   // way to be seen. Every field's own Zod message is already
   // human-readable, so surface it directly rather than a generic "check
   // the form" toast that wouldn't have named the actual problem either.
+  // "In our records he is with another subcontractor - move him?" (2026-10-12).
+  // Asked once per save when a subcontractor employee is mobilised through a
+  // subcontractor other than the one on record; yes raises a request for the
+  // Marketing Manager. A request already pending for this very subcontractor
+  // is not asked about again.
+  const [transferPrompt, setTransferPrompt] = useState(null);
+  function submitWithTransferCheck(values) {
+    const known = previousWorker?.registeredSubcontractor;
+    const differs = values.workerType === 'SupplierEmployee' && known && values.subcontractor && known.id !== values.subcontractor;
+    if (!differs) {
+      onSubmit({ ...values, requestSubcontractorTransfer: false });
+      return;
+    }
+    if (pendingTransferTo && String(pendingTransferTo) === values.subcontractor) {
+      onSubmit({ ...values, requestSubcontractorTransfer: true });
+      return;
+    }
+    setTransferPrompt({ values, from: known.name });
+  }
+  function answerTransfer(wanted) {
+    const { values } = transferPrompt;
+    setTransferPrompt(null);
+    onSubmit({ ...values, requestSubcontractorTransfer: wanted });
+  }
+
   function onInvalid(formErrors) {
     const messages = Object.values(formErrors)
       .map((err) => err?.message)
@@ -325,7 +353,7 @@ export default function MobilisationForm({
 
   return (
     <>
-    <form onSubmit={handleSubmit(onSubmit, onInvalid)} noValidate className="space-y-6">
+    <form onSubmit={handleSubmit(submitWithTransferCheck, onInvalid)} noValidate className="space-y-6">
       {/* Office Secretary only creating this on behalf of a Coordinator
           who's busy. Every other creator never sees this (coordinatorCandidates
           is only passed by MobilisationNewPage when the logged-in user is
@@ -400,6 +428,36 @@ export default function MobilisationForm({
                 {t('staffMobilisations.form.previousSubcontractorRateHint', { rate: formatMoney(previousWorker.subcontractorRate) })}
               </p>
             )}
+            {previousWorker?.subcontractorName && previousWorker.subcontractor !== subcontractorValue && (
+              <p className="text-xs text-muted">
+                {t('staffMobilisations.form.knownSubcontractorHint', { name: previousWorker.subcontractorName })}
+              </p>
+            )}
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <CoordinatorMultiPicker
+                ownerType="Subcontractor"
+                companyId={subcontractorValue}
+                companyName={subcontractorObj?.name}
+                coordinators={subcontractorCoordinators}
+                value={subcontractorCoordinatorIds}
+                onChange={(ids) => setValue('subcontractorCoordinatorIds', ids, { shouldDirty: true })}
+                onAdded={rememberAdded(subcontractorValue)}
+                label={t('staffMobilisations.form.subcontractorCoordinators')}
+              />
+              {Number(subcontractorCommissionValue) >= 1 && (
+                <CommissionRecipientSelect
+                  ownerType="Subcontractor"
+                  companyId={subcontractorValue}
+                  companyName={subcontractorObj?.name}
+                  coordinators={subcontractorCoordinators}
+                  value={subcontractorRecipient}
+                  onChange={(id) => setValue('subcontractorCommissionCoordinatorId', id, { shouldDirty: true, shouldValidate: true })}
+                  onAdded={rememberAdded(subcontractorValue)}
+                  label={t('staffMobilisations.form.subcontractorCommissionRecipient')}
+                  error={errors.subcontractorCommissionCoordinatorId?.message}
+                />
+              )}
+            </div>
             {/* Hidden once a specific worker is already resolved (Iqama typed
                 directly, or already picked from this very list) 2026-09-19,
                 the user's own ask: "we already selected him, so why show rest
@@ -427,7 +485,7 @@ export default function MobilisationForm({
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           {workerType === 'Employee' ? (
             <div className="space-y-2">
-              <PickerLoadWarning failed={[{ label: 'workers', isError: workersError }]} />
+              <PickerLoadWarning failed={[{ label: 'employees', isError: workersError }]} />
               <Select
                 label={t('staffMobilisations.form.workerLabel')}
                 error={errors.worker?.message}
@@ -563,6 +621,29 @@ export default function MobilisationForm({
             )}
           </div>
           <Input label={t('staffMobilisations.form.clientCommission')} type="number" step="0.01" min="0" error={errors.clientCommission?.message} {...register('clientCommission')} />
+          <CoordinatorMultiPicker
+            ownerType="Client"
+            companyId={clientValue}
+            companyName={clientObj?.companyName}
+            coordinators={clientCoordinators}
+            value={clientCoordinatorIds}
+            onChange={(ids) => setValue('clientCoordinatorIds', ids, { shouldDirty: true })}
+            onAdded={rememberAdded(clientValue)}
+            label={t('staffMobilisations.form.clientCoordinators')}
+          />
+          {Number(clientCommissionValue) >= 1 && (
+            <CommissionRecipientSelect
+              ownerType="Client"
+              companyId={clientValue}
+              companyName={clientObj?.companyName}
+              coordinators={clientCoordinators}
+              value={clientRecipient}
+              onChange={(id) => setValue('clientCommissionCoordinatorId', id, { shouldDirty: true, shouldValidate: true })}
+              onAdded={rememberAdded(clientValue)}
+              label={t('staffMobilisations.form.clientCommissionRecipient')}
+              error={errors.clientCommissionCoordinatorId?.message}
+            />
+          )}
           <Select label={t('staffMobilisations.form.ftaTypeLabel')} error={errors.ftaType?.message} {...register('ftaType')}>
             <option value="">{t('staffMobilisations.form.selectFtaType')}</option>
             {FTA_TYPES.map((ft) => (
@@ -607,29 +688,35 @@ export default function MobilisationForm({
             error={errors.mobilisationCost?.message}
             {...register('mobilisationCost')}
           />
-          <Input
-            label={t('staffMobilisations.form.otClientRate')}
-            type="number"
-            step="0.01"
-            min="0"
-            error={errors.otClientRate?.message}
-            {...register('otClientRate')}
-          />
-          <div>
-            <Input
-              label={t('staffMobilisations.form.otEmployeeRate')}
-              type="number"
-              step="0.01"
-              min="0"
-              error={errors.otEmployeeRate?.message}
-              {...register('otEmployeeRate')}
-            />
-            <p className="mt-1 text-xs text-muted">
-              {workerType === 'Employee'
-                ? t('staffMobilisations.form.otEmployeeRateHintEmployee')
-                : t('staffMobilisations.form.otEmployeeRateHint')}
-            </p>
-          </div>
+          {workerType === 'Freelancer' ? (
+            <div>
+              <Input
+                label={t('staffMobilisations.form.employeeRate')}
+                type="number"
+                step="0.01"
+                min="0"
+                error={errors.employeeRate?.message}
+                {...register('employeeRate')}
+              />
+              <p className="mt-1 text-xs text-muted">{t('staffMobilisations.form.employeeRateHint')}</p>
+            </div>
+          ) : (
+            <div>
+              <Input
+                label={t('staffMobilisations.form.otEmployeeRate')}
+                type="number"
+                step="0.01"
+                min="0"
+                error={errors.otEmployeeRate?.message}
+                {...register('otEmployeeRate')}
+              />
+              <p className="mt-1 text-xs text-muted">
+                {workerType === 'Employee'
+                  ? t('staffMobilisations.form.otEmployeeRateHintEmployee')
+                  : t('staffMobilisations.form.otEmployeeRateHint')}
+              </p>
+            </div>
+          )}
         </div>
       </section>
 
@@ -665,6 +752,30 @@ export default function MobilisationForm({
         </Button>
       </div>
     </form>
+
+    <Modal
+      open={Boolean(transferPrompt)}
+      onClose={() => setTransferPrompt(null)}
+      title={t('staffMobilisations.form.transfer.title', {
+        name: transferPrompt?.values.workerName,
+        to: subcontractorObj?.name,
+      })}
+    >
+      <div className="flex flex-col gap-4">
+        <p className="text-sm text-muted">{t('staffMobilisations.form.transfer.message', { from: transferPrompt?.from })}</p>
+        <div className="flex flex-col gap-2 sm:flex-row sm:justify-end">
+          <Button type="button" variant="secondary" onClick={() => setTransferPrompt(null)}>
+            {t('common.cancel')}
+          </Button>
+          <Button type="button" variant="secondary" onClick={() => answerTransfer(false)}>
+            {t('staffMobilisations.form.transfer.no')}
+          </Button>
+          <Button type="button" onClick={() => answerTransfer(true)}>
+            {t('staffMobilisations.form.transfer.yes')}
+          </Button>
+        </div>
+      </div>
+    </Modal>
 
     <Modal open={addingJobTitle} onClose={() => setAddingJobTitle(false)} title={t('staffMobilisations.form.addJobTitleModalTitle')}>
       <div className="flex flex-col gap-4">

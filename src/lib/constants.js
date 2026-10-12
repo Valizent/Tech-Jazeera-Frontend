@@ -324,7 +324,7 @@ export const WEEKDAY_LABELS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thur
 export const STAFF_SELF_ATTENDANCE_ROLES = ['Coordinator', 'HR', 'Accounts', 'Manager'];
 
 /** Mirrors the Document model enums. */
-export const DOCUMENT_OWNER_TYPES = ['Employee', 'Client'];
+export const DOCUMENT_OWNER_TYPES = ['Employee', 'Client', 'Subcontractor'];
 export const DOCUMENT_CATEGORIES = [
   'Passport',
   'Visa',
@@ -336,6 +336,8 @@ export const DOCUMENT_CATEGORIES = [
   'Commercial Registration',
   'VAT Certificate',
   'Agreement',
+  'National Address',
+  'Letterhead',
   'Invoice',
   'Other',
 ];

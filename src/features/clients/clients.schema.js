@@ -8,6 +8,12 @@
  */
 import { z } from 'zod';
 import { CLIENT_STATUSES } from '../../lib/constants.js';
+import {
+  companyProfileFormShape,
+  emptyCompanyProfile,
+  companyProfileToForm,
+  companyProfileToPayload,
+} from '../companyProfile/companyProfile.schema.js';
 
 const optional = z.string().trim().max(300).optional().or(z.literal(''));
 const optionalPhone = z
@@ -27,6 +33,7 @@ export const clientFormSchema = z.object({
   vatNumber: z.union([z.literal(''), z.string().regex(/^\d{15}$/, 'Saudi VAT number is 15 digits.')]),
   crNumber: z.union([z.literal(''), z.string().regex(/^\d{10}$/, 'Commercial Registration is 10 digits.')]),
   industry: optional,
+  ...companyProfileFormShape,
   // Whole days only; blank lets the server keep its own default.
   creditLimitDays: z.string().trim().regex(/^\d*$/, 'Enter a whole number of days.'),
   status: z.enum(CLIENT_STATUSES),
@@ -50,6 +57,7 @@ export const emptyClientForm = {
   status: 'Active',
   sites: [],
   notes: '',
+  ...emptyCompanyProfile,
 };
 
 /** API client → form values. */
@@ -71,6 +79,7 @@ export function clientToForm(client) {
       address: s.address ?? '',
     })),
     notes: client.notes ?? '',
+    ...companyProfileToForm(client),
   };
 }
 
@@ -78,6 +87,7 @@ export function clientToForm(client) {
 export function formToPayload(values) {
   return {
     ...values,
+    ...companyProfileToPayload(values),
     sites: values.sites.filter((s) => s.name.trim() !== ''),
   };
 }

@@ -509,7 +509,7 @@
     },
     "sales": {
       "label": "المبيعات والعملاء",
-      "description": "علاقات العملاء وتنسيب العمالة.",
+      "description": "علاقات العملاء وتنسيب الموظفين.",
       "clients": {
         "label": "العملاء",
         "description": "الشركات التي يعمل لديها موظفوك."
@@ -520,7 +520,7 @@
       },
       "mobilisations": {
         "label": "التعبئة والتنسيب",
-        "description": "تنسيب العمالة مع شروط الفوترة للعميل."
+        "description": "تنسيب الموظفين مع شروط الفوترة للعميل."
       },
       "subcontractors": {
         "label": "الباطن",
@@ -536,7 +536,7 @@
       },
       "standby": {
         "label": "قائمة الاحتياط",
-        "description": "عمال بانتظار تعيين."
+        "description": "موظفون بانتظار تعيين."
       }
     },
     "financial": {
@@ -651,14 +651,17 @@
     "stats": {
       "deployedNow": "المنسَّبون حاليًا",
       "activePlacements": "التنسيبات النشطة",
-      "activeWorkers": "العمالة النشطة",
+      "activeWorkers": "الموظفون النشطون",
       "workersHint": "الإجمالي {{total}} · في إجازة {{onLeave}}",
       "activeClients": "العملاء النشطون",
       "yourClients": "عملاؤك",
       "expiringSoon": "قريبة الانتهاء",
       "documentsNeedingAttention": "مستندات تحتاج إلى متابعة",
       "markedToday": "تم تسجيله اليوم",
-      "ofActiveWorkers": "من أصل {{count}} عامل نشط"
+      "ofActiveWorkers": "من أصل {{count}} موظف نشط",
+      "currentlyDeployed": "المنشورون حاليًا",
+      "activeEmployees": "الموظفون النشطون",
+      "sharedEmployees": "موظفون مشتركون"
     },
     "waitingOnYou": "بانتظارك",
     "pendingModules": {
@@ -672,7 +675,8 @@
       "Payments due soon": "مدفوعات مستحقة قريبًا",
       "Annual vacation": "الإجازة السنوية",
       "Ready to invoice": "جاهز للفوترة",
-      "Missing timesheets": "سجلات دوام ناقصة"
+      "Missing timesheets": "سجلات دوام ناقصة",
+      "Subcontractor transfers": "نقل المقاولين من الباطن"
     },
     "noDataYet": "لا توجد بيانات بعد.",
     "expiringDocuments": {
@@ -739,15 +743,15 @@
       },
       "standby": {
         "title": "تحليل القوى العاملة الاحتياطية",
-        "subtitle": "كل من هو متاح حاليًا للتعبئة، مع تقدير للتكلفة عندما تدفع الشركة راتبًا لذلك العامل.",
+        "subtitle": "كل من هو متاح حاليًا للتعبئة، مع تقدير للتكلفة عندما تدفع الشركة راتبًا لذلك الموظف.",
         "viewAll": "عرض جميع الاحتياطي ←",
-        "worker": "العامل",
+        "worker": "الموظف",
         "days": "الأيام",
         "daysCount": "{{count}} يوم",
         "estLoss": "الخسارة التقديرية",
         "loadFailed": "تحليل القوى العاملة الاحتياطية",
-        "emptyTitle": "لا يوجد عمال احتياطيون",
-        "emptyDescription": "جميع العمال معيّنون لدى عميل حاليًا."
+        "emptyTitle": "لا يوجد موظفون احتياطيون",
+        "emptyDescription": "جميع الموظفين معيّنون لدى عميل حاليًا."
       },
       "leaderboard": {
         "title": "لوحة تصنيف تعبئة المنسقين",
@@ -934,7 +938,7 @@
       "deleteTitle": "حذف الموظف؟",
       "deleteMessage": "سيتم حذف {{name}} ({{code}}) نهائيًا، مع حساب الدخول (إن وجد) وسجل الحضور. للموظفين الذين تركوا الشركة، استخدم تغيير الحالة إلى \"خارج الخدمة\" بدلاً من الحذف.",
       "emptyTitleCoordinator": "لا يوجد موظفون لعرضهم بعد",
-      "emptyDescriptionCoordinator": "تعرض هذه القائمة الموظفين المسندين إليك، والعاملين المتاحين غير المسندين، وكل عامل لديه حساب عامل. لا يوجد أي منهم حتى الآن.",
+      "emptyDescriptionCoordinator": "تعرض هذه القائمة الموظفين المسندين إليك، والموظفين المتاحين غير المسندين، وكل عامل لديه حساب عامل. لا يوجد أي منهم حتى الآن.",
       "emptyDescriptionView": "السجل فارغ. يظهر الموظفون هنا بعد أن يضيفهم قسم الموارد البشرية أو المسؤول."
     },
     "form": {
@@ -952,7 +956,7 @@
       "typeHintSubcontracted": "مُستقدَم من مقاول باطن خارجي، ومُنسَّب لدى عميل يشمل تتبع التأشيرة/الإقامة، لكن دون رواتب: مقاول الباطن هو من يدفع راتبه، وليست الشركة.",
       "subcontractor": "مقاول الباطن",
       "selectSubcontractor": "اختر مقاول باطن…",
-      "subcontractorHint": "الجهة التي يعمل لديها هذا العامل فعليًا.",
+      "subcontractorHint": "الجهة التي يعمل لديها هذا الموظف فعليًا.",
       "employeeId": "رقم الموظف",
       "fullName": "الاسم الكامل",
       "nationality": "الجنسية",
@@ -968,7 +972,7 @@
       "transportAllowance": "بدل النقل",
       "accommodation": "السكن",
       "expectedDailyHours": "ساعات العمل اليومية المتوقعة",
-      "expectedDailyHoursHint": "ينبّه هذا العامل في حضوري إذا سجّل الخروج قبل إتمام هذه الساعات. اتركه فارغًا لعدم التنبيه.",
+      "expectedDailyHoursHint": "ينبّه هذا الموظف في حضوري إذا سجّل الخروج قبل إتمام هذه الساعات. اتركه فارغًا لعدم التنبيه.",
       "weeklyOffDay": "يوم الإجازة الأسبوعية",
       "noFixedDayOff": "لا يوجد يوم إجازة ثابت",
       "weeklyOffDayHint": "يظهر كيوم \"عطلة\" مستنتج في شبكة سجلات الحضور عند عدم تسجيل أي شيء أي تسجيل فعلي لذلك اليوم يلغي هذا الاستنتاج دائمًا.",
@@ -1090,8 +1094,8 @@
       "legendInferredOff": "عطلة أسبوعية مستنتجة (غير مسجلة)",
       "legendHoliday": "عطلة رسمية للشركة (غير مسجلة)",
       "legendSelfMarked": "تسجيل ذاتي (تظهر الساعات بعد تسجيل الخروج)",
-      "clickToCorrect": "انقر على أي خلية لتصحيح يوم عامل.",
-      "worker": "العامل",
+      "clickToCorrect": "انقر على أي خلية لتصحيح يوم موظف.",
+      "worker": "الموظف",
       "coordinatorsAndStaff": "المنسّقون والموظفون",
       "holidayTitle": "عطلة {{name}} (غير مسجلة)",
       "offTitle": "عطلة يوم الإجازة الأسبوعية (غير مسجل)",
@@ -1108,9 +1112,9 @@
       "timesHint": "يحدَّد عدد ساعات العمل تلقائيًا من الوقتين. اترك أيًا منهما فارغًا لمسح الساعات لهذا اليوم تبقى الحالة أعلاه محفوظة بشكل مستقل.",
       "note": "ملاحظة (اختياري)",
       "updatedSuccess": "تم تحديث الحضور.",
-      "markedPresentSuccess": "تم تسجيل {{count}} عامل حاضرًا اليوم.",
+      "markedPresentSuccess": "تم تسجيل {{count}} موظف حاضرًا اليوم.",
       "markAllTitle": "تسجيل الجميع حاضرين؟",
-      "markAllMessage": "سيتم تسجيل {{count}} عامل كحاضر اليوم ({{date}}). أي تسجيل موجود مسبقًا لليوم سيُستبدل؛ يُستثنى من ذلك العمال الذين يوم إجازتهم الأسبوعية هو اليوم."
+      "markAllMessage": "سيتم تسجيل {{count}} موظف كحاضر اليوم ({{date}}). أي تسجيل موجود مسبقًا لليوم سيُستبدل؛ يُستثنى من ذلك الموظفون الذين يوم إجازتهم الأسبوعية هو اليوم."
     },
     "signInOut": {
       "verifiedByLocation": "تم التحقق بالموقع",
@@ -1148,7 +1152,7 @@
     },
     "officeLocation": {
       "title": "موقع المكتب",
-      "hint": "لا يمكن للعمال تسجيل حضورهم إلا من داخل هذا النطاق، أو من عنوان IP مكتبي مُدرج في القائمة المسموحة.",
+      "hint": "لا يمكن للموظفين تسجيل حضورهم إلا من داخل هذا النطاق، أو من عنوان IP مكتبي مُدرج في القائمة المسموحة.",
       "notConfigured": " لم يُعدّ بعد التسجيل الذاتي معطّل حتى يتم الإعداد.",
       "readOnlyHint": "يمكنك عرض هذا الإعداد ولكن لا يمكنك تعديله اطلب من المسؤول منحك صلاحية الكتابة إذا احتجت إلى تغييره.",
       "locationName": "اسم الموقع",
@@ -1165,8 +1169,8 @@
     },
     "summary": {
       "pageTitle": "ملخص الحضور",
-      "pageDescription": "إجمالي حالات كل عامل خلال فترة زمنية، مع تصدير Excel/PDF.",
-      "worker": "العامل",
+      "pageDescription": "إجمالي حالات كل موظف خلال فترة زمنية، مع تصدير Excel/PDF.",
+      "worker": "الموظف",
       "total": "الإجمالي",
       "exportExcel": "تصدير Excel",
       "exportPdf": "تصدير PDF",
@@ -1309,7 +1313,7 @@
         "maxDaysPerRequest": "الحد الأقصى للأيام لكل طلب",
         "maxDaysPlaceholder": "بلا حد",
         "paidLeave": "إجازة مدفوعة",
-        "activeHint": "نشط يظهر عند تقديم الموظفين/العمال لطلب"
+        "activeHint": "نشط يظهر عند تقديم الموظفين لطلب"
       },
       "updatedSuccess": "تم تحديث نوع الإجازة.",
       "createdSuccess": "تم إنشاء نوع الإجازة."
@@ -1361,7 +1365,7 @@
       "description": "جداول زمنية شهرية مبنية على الحضور الفعلي للموظفين الداخليين اختر شخصًا لعرض شهره."
     },
     "employeeList": {
-      "description": "الموظفون الداخليون فقط العامل الميداني المُنتدب لدى عميل له جدوله الزمني الخاص في سجل الانتداب.",
+      "description": "الموظفون الداخليون فقط الموظف الميداني المُنتدب لدى عميل له جدوله الزمني الخاص في سجل الانتداب.",
       "columns": {
         "name": "الاسم"
       },
@@ -1507,7 +1511,8 @@
   "staffDocuments": {
     "ownerTypeLabels": {
       "Employee": "موظف",
-      "Client": "عميل"
+      "Client": "عميل",
+      "Subcontractor": "مقاول من الباطن"
     },
     "categoryLabels": {
       "Passport": "جواز السفر",
@@ -1521,7 +1526,9 @@
       "VAT Certificate": "شهادة ضريبة القيمة المضافة",
       "Agreement": "الاتفاقية",
       "Invoice": "الفاتورة",
-      "Other": "أخرى"
+      "Other": "أخرى",
+      "National Address": "العنوان الوطني",
+      "Letterhead": "ترويسة الشركة"
     },
     "list": {
       "pageTitle": "المستندات",
@@ -1643,7 +1650,7 @@
       "crPlaceholder": "10 أرقام",
       "address": "العنوان",
       "sitesTitle": "المواقع",
-      "sitesDescription": "المواقع أو المشاريع التي يُنشر فيها العمال.",
+      "sitesDescription": "المواقع أو المشاريع التي يُنشر فيها الموظفون.",
       "addSite": "إضافة موقع",
       "noSites": "لم تتم إضافة مواقع بعد. أضف المواقع التي يعمل بها موظفو هذا العميل.",
       "siteNamePlaceholder": "اسم الموقع *",
@@ -1680,7 +1687,7 @@
     "profile": {
       "tabs": {
         "overview": "نظرة عامة",
-        "workers": "العمال",
+        "workers": "الموظفين",
         "documents": "المستندات"
       },
       "companyDetails": "بيانات الشركة",
@@ -1699,14 +1706,14 @@
       "noLocationDetails": "لا توجد تفاصيل موقع",
       "notes": "ملاحظات",
       "workersColumns": {
-        "worker": "العامل",
+        "worker": "الموظف",
         "designation": "المسمى الوظيفي",
         "site": "الموقع",
         "status": "الحالة"
       },
-      "couldNotLoadWorkers": "تعذر تحميل العمال",
-      "noWorkersTitle": "لا يوجد عمال مُسندون",
-      "noWorkersDescription": "سيظهر هنا العمال المُسندون لهذا العميل من خلال عمليات النشر.",
+      "couldNotLoadWorkers": "تعذر تحميل الموظفين",
+      "noWorkersTitle": "لا يوجد موظفون مُسندون",
+      "noWorkersDescription": "سيظهر هنا الموظفون المُسندون لهذا العميل من خلال عمليات النشر.",
       "notFoundTitle": "العميل غير موجود",
       "notFoundDescription": "ربما تم حذف السجل.",
       "backToList": "العودة إلى العملاء",
@@ -1728,7 +1735,7 @@
     },
     "list": {
       "pageTitle": "عمليات النشر",
-      "pageDescription": "كل عامل يعمل فعليًا لدى عميل تُنشأ تلقائيًا فور اعتماد التعبئة.",
+      "pageDescription": "كل موظف يعمل فعليًا لدى عميل تُنشأ تلقائيًا فور اعتماد التعبئة.",
       "filterStatusAriaLabel": "تصفية حسب الحالة",
       "filterClientAriaLabel": "تصفية حسب العميل",
       "allClients": "كل العملاء",
@@ -1737,7 +1744,7 @@
       "exportExcel": "تصدير إلى Excel",
       "overview": "نظرة عامة",
       "columns": {
-        "worker": "العامل",
+        "worker": "الموظف",
         "clientSite": "العميل / الموقع",
         "period": "الفترة",
         "status": "الحالة"
@@ -1767,8 +1774,8 @@
       "dragColumnHint": "اسحب لإعادة ترتيب هذا العمود",
       "totalRowLabel": "الإجمالي",
       "columns": {
-        "worker": "العامل",
-        "workerType": "نوع العامل",
+        "worker": "الموظف",
+        "workerType": "نوع الموظف",
         "client": "العميل",
         "site": "الموقع",
         "subcontractor": "المقاول من الباطن",
@@ -1790,12 +1797,12 @@
       "pageTitle": "قائمة الاحتياط",
       "pageDescription": "كل من تم تعيينه لدى عميل في وقت ما وهو غير معيّن حاليًا.",
       "newMobilisation": "تعبئة جديدة",
-      "workerDataButton": "بيانات العامل",
+      "workerDataButton": "بيانات الموظف",
       "mobiliseAction": "تعبئة",
       "couldNotLoad": "تعذر تحميل قائمة الاحتياط",
       "columns": {
         "employee": "الموظف",
-        "worker": "العامل",
+        "worker": "الموظف",
         "designation": "المسمى الوظيفي",
         "nationality": "الجنسية",
         "mobile": "الجوال",
@@ -1804,13 +1811,13 @@
       },
       "endedOn": "انتهى في {{date}}",
       "ownEmployeesTitle": "الموظفون المباشرون",
-      "ownEmployeesDescription": "عمال ميدانيون موظفون مباشرة بلا عميل حالي.",
+      "ownEmployeesDescription": "موظفون ميدانيون يعملون لدى الشركة مباشرة بلا عميل حالي.",
       "ownEmployeesEmptyTitle": "لا أحد في الاحتياط",
-      "ownEmployeesEmptyDescription": "كل عامل من الموظفين المباشرين معيّن حاليًا لدى عميل.",
-      "subcontractedTitle": "عمال المقاولين من الباطن / المستقلون",
-      "subcontractedDescription": "عمال انتهى آخر تعيين لهم دون تعيين أحدث منذ ذلك مُستنتج من سجل التعبئات، لأن هؤلاء العمال ليس لديهم سجل مستمر خاص بهم بين التعيينات.",
+      "ownEmployeesEmptyDescription": "كل موظف من الموظفين المباشرين معيّن حاليًا لدى عميل.",
+      "subcontractedTitle": "موظفو المقاولين من الباطن / المستقلون",
+      "subcontractedDescription": "موظفون انتهى آخر تعيين لهم دون تعيين أحدث منذ ذلك مُستنتج من سجل التعبئات، لأن هؤلاء الموظفين ليس لديهم سجل مستمر خاص بهم بين التعيينات.",
       "subcontractedEmptyTitle": "لا يوجد أحد متاح",
-      "subcontractedEmptyDescription": "لا يوجد عامل مقاول من الباطن أو مستقل انتهى تعيينه دون تعيين أحدث منذ ذلك."
+      "subcontractedEmptyDescription": "لا يوجد موظف مقاول من الباطن أو مستقل انتهى تعيينه دون تعيين أحدث منذ ذلك."
     },
     "paymentsDue": {
       "pageTitle": "المدفوعات المستحقة",
@@ -1822,7 +1829,7 @@
         "invoiceCount": "الفواتير المستحقة",
         "totalOutstanding": "إجمالي المستحق",
         "due": "الاستحقاق",
-        "worker": "العامل",
+        "worker": "الموظف",
         "month": "الشهر",
         "invoice": "الفاتورة",
         "allocated": "المخصّص",
@@ -1855,7 +1862,7 @@
       "pageTitle": "جاهز للفوترة",
       "pageDescription": "كل شهر مُعتمد بانتظار فاتورة للعميل، الأقدم أولًا.",
       "columns": {
-        "worker": "العامل / العميل",
+        "worker": "الموظف / العميل",
         "month": "الشهر",
         "hours": "الساعات",
         "waitingSince": "تاريخ الاعتماد"
@@ -1876,10 +1883,10 @@
       "columns": {
         "contractHours": "ساعات العقد",
         "clientTimesheet": "جدول ساعات العميل",
-        "supplierTimesheet": "جدول ساعات المورّد",
+        "supplierTimesheet": "جدول ساعات المقاول من الباطن",
         "otHours": "ساعات إضافية",
         "otAmount": "مبلغ الساعات الإضافية",
-        "workerOtPay": "أجر الوقت الإضافي للعامل",
+        "workerOtPay": "أجر الوقت الإضافي للموظف",
         "deduction": "خصم",
         "invoiceAmount": "مبلغ الفاتورة",
         "netProfit": "صافي الربح"
@@ -1899,7 +1906,7 @@
         "clientInvoiceAmount": "مبلغ فاتورة العميل",
         "subContractorInvoiceAmount": "مبلغ فاتورة المقاول من الباطن",
         "subCommission": "عمولة المقاول من الباطن",
-        "otCalculations": "أجر الوقت الإضافي للعامل",
+        "otCalculations": "أجر الوقت الإضافي للموظف",
         "clientCommission": "عمولة العميل",
         "fta": "بدل الطعام والسفر",
         "allowance": "البدل",
@@ -1935,9 +1942,9 @@
       "notFoundDescription": "ربما تمت إزالتها.",
       "sectionPlacement": "التعيين",
       "fields": {
-        "worker": "العامل",
-        "workerName": "اسم العامل",
-        "workerType": "نوع العامل",
+        "worker": "الموظف",
+        "workerName": "اسم الموظف",
+        "workerType": "نوع الموظف",
         "client": "العميل",
         "site": "الموقع",
         "subcontractor": "المقاول من الباطن",
@@ -1956,7 +1963,7 @@
       "demobiliseDateLabel": "تاريخ التسريح *",
       "reasonLabel": "السبب *",
       "chooseReason": "اختر سببًا",
-      "otherExitCheckbox": "هذا العامل لم يعد جزءًا من الشركة (وضعه كمنتهي الخدمة)",
+      "otherExitCheckbox": "هذا الموظف لم يعد جزءًا من الشركة (وضعه كمنتهي الخدمة)",
       "exitWarning": "سيؤدي هذا إلى تصنيف {{name}} كمنتهي الخدمة لن يظهر بعد الآن كموظف نشط أو في كشف الرواتب، ولن يكون مؤهلاً لتعبئة جديدة حتى تتم إعادة تفعيله.",
       "demobiliseNoteLabel": "ملاحظة",
       "demobilisedToast": "تم تسريح {{name}}.",
@@ -1974,12 +1981,12 @@
         "month": "الشهر",
         "contractHours": "العقد",
         "actualHours": "الفعلي",
-        "supplierHours": "ساعات المورد",
+        "supplierHours": "ساعات المقاول من الباطن",
         "daysWorked": "أيام العمل",
         "otHours": "ساعات إضافية",
         "otAmount": "مبلغ الإضافي",
         "deduction": "خصم العميل",
-        "supplierDeduction": "خصم المورد",
+        "supplierDeduction": "خصم المقاول من الباطن",
         "employeeAdditionalAmount": "مبلغ إضافي",
         "profitOrDue": "الربح / المستحق",
         "status": "الحالة",
@@ -2024,7 +2031,7 @@
       },
       "monthLabel": "الشهر *",
       "clientTimesheetHoursLabel": "ساعات جدول العميل *",
-      "supplierTimesheetHoursLabel": "ساعات جدول المورد",
+      "supplierTimesheetHoursLabel": "ساعات جدول المقاول من الباطن",
       "supplierTimesheetHoursPlaceholder": "لم تُدخل بعد",
       "supplierTimesheetHoursHint": "اختياري أدخلها الآن إذا كانت معروفة، أو استخدم \"إدخال ساعات المقاول\" في صف هذا الشهر عند استلام جدول المقاول الخاص به.",
       "enterSupplierHoursButton": "إدخال ساعات المقاول",
@@ -2035,7 +2042,7 @@
       "viewDailyBreakdown": "عرض التفصيل اليومي",
       "fixHighlighted": "يرجى تصحيح الحقول المميزة قبل الحفظ.",
       "summaryContractHours": "ساعات الاتفاقية مع العميل",
-      "summarySupplierHours": "ساعات المورد",
+      "summarySupplierHours": "ساعات المقاول من الباطن",
       "summaryOtHours": "ساعات العمل الإضافي",
       "summarySupplierOtHours": "ساعات العمل الإضافي للمقاول",
       "summaryOtAmount": "مبلغ الوقت الإضافي",
@@ -2043,10 +2050,10 @@
       "deductionAmountLabel": "خصم العميل",
       "deductionAmountPlaceholder": "0.00",
       "deductionAmountHint": "خصم طبّقه العميل على جدوله الزمني الخاص (مثلاً بسبب يوم غياب) أدخل الرقم كما هو مذكور فيه.",
-      "summarySupplierDeduction": "خصم المورد",
-      "supplierDeductionAmountLabel": "خصم المورد",
+      "summarySupplierDeduction": "خصم المقاول من الباطن",
+      "supplierDeductionAmountLabel": "خصم المقاول من الباطن",
       "supplierDeductionAmountPlaceholder": "0.00",
-      "supplierDeductionAmountHint": "تعديل يُخصم مما تدين به الشركة للمقاول من الباطن هذا الشهر (نزاع أو تصحيح) يقلّل من مبلغ فاتورة المورد.",
+      "supplierDeductionAmountHint": "تعديل يُخصم مما تدين به الشركة للمقاول من الباطن هذا الشهر (نزاع أو تصحيح) يقلّل من مبلغ فاتورة المقاول من الباطن.",
       "supplierDeductionNoteLabel": "السبب (اختياري)",
       "supplierDeductionNotePlaceholder": "سبب هذا الخصم…",
       "employeeAdditionalAmountLabel": "مبلغ إضافي للموظف",
@@ -2059,7 +2066,7 @@
       "addedToast": "تم تسجيل الساعات.",
       "updatedToast": "تم تحديث الساعات.",
       "noMonthlyHours": "لم تُدخل أي ساعات بعد.",
-      "endedNote": "انتهت عملية النشر هذه تم إدخال جميع الأشهر التي كان فيها العامل مُعيّنًا بالفعل.",
+      "endedNote": "انتهت عملية النشر هذه تم إدخال جميع الأشهر التي كان فيها الموظف مُعيّنًا بالفعل.",
       "recordSubInvoiceButton": "تسجيل فاتورة المقاول",
       "recordSubInvoiceModalTitle": "تسجيل فاتورة المقاول {{month}}",
       "recordSubInvoiceModalMessage": "أدخل رقم وتاريخ الفاتورة التي أرسلها المقاول عن هذا الشهر، وأرفق نسخة منها للمرجعية.",
@@ -2083,7 +2090,7 @@
         "invoiceCount": "الفواتير المستحقة",
         "totalOutstanding": "إجمالي المستحق",
         "due": "الاستحقاق",
-        "worker": "العامل",
+        "worker": "الموظف",
         "month": "الشهر",
         "invoice": "الفاتورة",
         "invoiceAmount": "مبلغ الفاتورة",
@@ -2158,13 +2165,13 @@
       "subOtHours": "ساعات العمل الإضافي للمقاول",
       "subInvoice": "فاتورة المقاول",
       "subCommissionExpense": "مصروف عمولة المقاول",
-      "supplierDeduction": "خصم المورّد",
+      "supplierDeduction": "خصم المقاول من الباطن",
       "expenses": "المصروفات",
       "fta": "بدل الطعام والسفر والسكن",
       "allowance": "البدل",
       "clientDeduction": "خصم العميل",
       "mobilisationCost": "تكلفة التعبئة",
-      "workerOtPay": "أجر العمل الإضافي للعامل",
+      "workerOtPay": "أجر العمل الإضافي للموظف",
       "clientCommission": "عمولة العميل",
       "subCommission": "عمولة المقاول",
       "employeeSalary": "راتب الموظف",
@@ -2175,8 +2182,9 @@
       "otHours": "ساعات العمل الإضافي",
       "clientInvoiceAmount": "مبلغ فاتورة العميل",
       "netProfit": "صافي الربح",
-      "workerOtPayHint": "علاوة العمل الإضافي المدفوعة للعامل، فوق راتبه أو أجره الثابت.",
-      "workerOtPayHintSupplier": "تُدفع مباشرة للعامل؛ ليست جزءًا من فاتورة المورد."
+      "workerOtPayHint": "علاوة العمل الإضافي المدفوعة للموظف، فوق راتبه أو أجره الثابت.",
+      "workerOtPayHintSupplier": "تُدفع مباشرة للموظف؛ ليست جزءًا من فاتورة المقاول من الباطن.",
+      "freelancerPay": "أجر الموظف المستقل (الساعات العادية × الأجر)"
     }
   },
   "staffMobilisations": {
@@ -2187,11 +2195,11 @@
     },
     "list": {
       "pageTitle": "التعبئات",
-      "pageDescription": "تعيينات العمال مع شروط الفوترة للعميل.",
+      "pageDescription": "تعيينات الموظفين مع شروط الفوترة للعميل.",
       "newMobilisation": "تعبئة جديدة",
-      "workerDataButton": "بيانات العامل",
+      "workerDataButton": "بيانات الموظف",
       "exportExcel": "تصدير إلى إكسل",
-      "searchPlaceholderWithSerial": "البحث بالرقم أو العامل أو العميل أو المسمى الوظيفي…",
+      "searchPlaceholderWithSerial": "البحث بالرقم أو الموظف أو العميل أو المسمى الوظيفي…",
       "searchAriaLabel": "البحث في التعبئات",
       "filterStatusAriaLabel": "تصفية حسب الحالة",
       "filteredToCoordinator": "مُصفّى حسب: {{name}}",
@@ -2199,7 +2207,7 @@
       "clearCoordinatorFilterAriaLabel": "إزالة تصفية المنسق",
       "columns": {
         "serialNumber": "#",
-        "worker": "العامل",
+        "worker": "الموظف",
         "jobTitle": "المسمى الوظيفي",
         "client": "العميل",
         "mobilisationDate": "تاريخ التعبئة",
@@ -2209,11 +2217,13 @@
       "couldNotLoadDescription": "يرجى المحاولة مرة أخرى.",
       "emptyTitleNoFilters": "لا توجد تعبئات بعد",
       "emptyTitleFiltered": "لا توجد تعبئات مطابقة",
-      "emptyDescriptionNoFilters": "أنشئ أول تعبئة أعلاه."
+      "emptyDescriptionNoFilters": "أنشئ أول تعبئة أعلاه.",
+      "filteredToShared": "الموظفون المشتركون فقط",
+      "clearSharedFilterAriaLabel": "إلغاء فلتر الموظفين المشتركين"
     },
     "workerHistory": {
-      "pageTitle": "بيانات العامل",
-      "pageDescription": "ابحث عن كل ما هو مسجل لعامل مستقل أو موفَّر من مقاول من الباطن برقم الإقامة، وأرشِف بياناته عندما لم يعد ذا صلة.",
+      "pageTitle": "بيانات الموظف",
+      "pageDescription": "ابحث عن كل ما هو مسجل لموظف مستقل أو موفَّر من مقاول من الباطن برقم الإقامة، وأرشِف بياناته عندما لم يعد ذا صلة.",
       "searchLabel": "رقم الإقامة",
       "searchPlaceholder": "رقم إقامة مكوّن من 10 أرقام…",
       "searchButton": "بحث",
@@ -2221,15 +2231,15 @@
       "notFoundDescription": "لا يوجد سجل لرقم الإقامة هذا.",
       "recordCount": "{{count}} تعبئة مسجلة",
       "activeEngagementBadge": "نشط حاليًا",
-      "activeEngagementWarning": "لا يزال لهذا العامل تعبئة أو عملية نشر نشطة أنهِ التعبئة أو النشر أولًا قبل الأرشفة.",
-      "archiveButton": "أرشفة بيانات العامل",
+      "activeEngagementWarning": "لا يزال لهذا الموظف تعبئة أو عملية نشر نشطة أنهِ التعبئة أو النشر أولًا قبل الأرشفة.",
+      "archiveButton": "أرشفة بيانات الموظف",
       "archiveConfirmTitle": "أرشفة بيانات {{name}}؟",
       "archiveConfirmMessage": "سيؤدي هذا إلى إخفاء جميع السجلات البالغ عددها {{count}} وأي عملية نشر نتجت عنها من كل القوائم وعمليات البحث في التطبيق. لا يُحذف شيء؛ يمكنك استعادتها في أي وقت.",
-      "archivedToast": "تم أرشفة بيانات العامل.",
-      "restoreButton": "استعادة بيانات العامل",
+      "archivedToast": "تم أرشفة بيانات الموظف.",
+      "restoreButton": "استعادة بيانات الموظف",
       "restoreConfirmTitle": "استعادة بيانات {{name}}؟",
       "restoreConfirmMessage": "سيؤدي هذا إلى إظهار جميع السجلات البالغ عددها {{count}} وأي عملية نشر نتجت عنها مجددًا في كل القوائم وعمليات البحث.",
-      "restoredToast": "تم استعادة بيانات العامل.",
+      "restoredToast": "تم استعادة بيانات الموظف.",
       "archivedBadge": "مؤرشف",
       "columns": {
         "mobilisationNumber": "رقم التعبئة",
@@ -2243,27 +2253,27 @@
     "form": {
       "sectionOnBehalf": "الإنشاء نيابة عن",
       "onBehalfOfLabel": "المنسق الذي تعود له هذه التعبئة",
-      "selectCoordinator": "اختر منسقًا…",
-      "sectionWorkerJob": "العامل والوظيفة",
-      "workerTypeLabel": "نوع العامل",
+      "selectCoordinator": "اختر منسّقًا…",
+      "sectionWorkerJob": "الموظف والوظيفة",
+      "workerTypeLabel": "نوع الموظف",
       "workerType": {
         "Employee": "موظف داخلي",
         "SupplierEmployee": "موظف مقاول من الباطن",
-        "Freelancer": "عامل حر"
+        "Freelancer": "موظف مستقل"
       },
-      "workerLabel": "العامل *",
-      "selectWorker": "اختر عاملًا…",
-      "loadingWorkers": "جارٍ تحميل العمال…",
-      "workerNameLabel": "اسم العامل *",
+      "workerLabel": "الموظف *",
+      "selectWorker": "اختر موظفًا…",
+      "loadingWorkers": "جارٍ تحميل الموظفين…",
+      "workerNameLabel": "اسم الموظف *",
       "iqamaNumberLabel": "رقم الإقامة / الهوية",
       "iqamaNumberPlaceholder": "10 أرقام",
-      "iqamaAutofillToast": "تم العثور على {{name}} من تعبئة سابقة تم تعبئة التفاصيل.",
+      "iqamaAutofillToast": "تم العثور على {{name}} في سجلاتنا. تم ملء التفاصيل.",
       "previousSupplierWorkerLabel": "تمت تعبئته سابقًا عبر هذا المقاول من الباطن",
-      "previousFreelancerLabel": "عامل حر تمت تعبئته سابقًا",
+      "previousFreelancerLabel": "موظف مستقل تمت تعبئته سابقًا",
       "selectPreviousWorker": "اختر للتعبئة التلقائية…",
       "previousWorkerAppliedToast": "تم تعبئة بيانات {{name}}.",
-      "previousClientRateHint": "آخر معدل عميل لهذا العامل: {{rate}}/ساعة",
-      "previousSubcontractorRateHint": "آخر معدل مقاول من الباطن لهذا العامل: {{rate}}/ساعة",
+      "previousClientRateHint": "آخر معدل عميل لهذا الموظف: {{rate}}/ساعة",
+      "previousSubcontractorRateHint": "آخر معدل مقاول من الباطن لهذا الموظف: {{rate}}/ساعة",
       "nationalityLabel": "الجنسية",
       "phoneLabel": "الهاتف",
       "jobTitleLabel": "المسمى الوظيفي *",
@@ -2291,9 +2301,8 @@
       "allowanceRemarkPlaceholder": "الغرض من هذا البدل",
       "mobilisationCost": "تكلفة التعبئة (مرة واحدة، ريال)",
       "requiredTimesheetHours": "ساعات الجدول الزمني المطلوبة",
-      "otClientRate": "معدل العميل للوقت الإضافي (ريال/ساعة)",
-      "otEmployeeRate": "معدل أجر الوقت الإضافي للعامل (ريال/ساعة)",
-      "otEmployeeRateHint": "يُدفع مباشرةً للعامل عن كل ساعة إضافية لا يُدرج في فاتورة المقاول من الباطن. يُعامَل كمصروف على الشركة عند اعتماد الساعات.",
+      "otEmployeeRate": "معدل أجر الوقت الإضافي للموظف (ريال/ساعة)",
+      "otEmployeeRateHint": "يُدفع مباشرةً للموظف عن كل ساعة إضافية لا يُدرج في فاتورة المقاول من الباطن. يُعامَل كمصروف على الشركة عند اعتماد الساعات.",
       "otEmployeeRateHintEmployee": "علاوة الوقت الإضافي المدفوعة للموظف عن كل ساعة إضافية، فوق راتبه الثابت. تُعامَل كمصروف على الشركة عند اعتماد الساعات. اتركها فارغةً إن لم تُطبَّق أي علاوة.",
       "sectionSubcontractor": "المقاول من الباطن",
       "subcontractorLabel": "المقاول من الباطن *",
@@ -2303,7 +2312,7 @@
       "sectionEconomicsDates": "التواريخ",
       "mobilisationDate": "تاريخ التعبئة *",
       "checkoutDate": "تاريخ التسريح",
-      "checkoutDateHint": "اتركه فارغًا إذا كان العامل لا يزال هناك إدخال تاريخ يعني أن هذه التعبئة انتهت فعليًا.",
+      "checkoutDateHint": "اتركه فارغًا إذا كان الموظف لا يزال هناك إدخال تاريخ يعني أن هذه التعبئة انتهت فعليًا.",
       "clearCheckoutDate": "مسح لا يزال مستمرًا",
       "remark": "ملاحظة",
       "addJobTitleModalTitle": "إضافة مسمى وظيفي",
@@ -2313,14 +2322,31 @@
       "addLocationModalTitle": "إضافة موقع",
       "locationFieldLabel": "الموقع",
       "locationPlaceholder": "مثال: مدينة الجبيل الصناعية",
-      "locationAddedToast": "تمت إضافة \"{{name}}\"."
+      "locationAddedToast": "تمت إضافة \"{{name}}\".",
+      "employeeRate": "أجر الموظف (ريال/ساعة) *",
+      "employeeRateHint": "ما تدفعه للموظف المستقل في الساعة. يُدفع الوقت الإضافي بالأجر نفسه.",
+      "clientCoordinators": "منسّقو العميل",
+      "subcontractorCoordinators": "منسّقو المقاول من الباطن",
+      "noCompanyCoordinators": "لا يوجد منسّقون مسجّلون لهذه الشركة بعد. أضف منسّقًا.",
+      "selectCompanyFirst": "اختر الشركة أولًا.",
+      "addCoordinatorModalTitle": "إضافة منسّق",
+      "coordinatorAddedToast": "تمت إضافة {{name}} إلى {{company}}.",
+      "clientCommissionRecipient": "عمولة العميل تذهب إلى *",
+      "subcontractorCommissionRecipient": "عمولة المقاول من الباطن تذهب إلى *",
+      "knownSubcontractorHint": "حسب سجلاتنا، هذا الموظف لدى {{name}}.",
+      "transfer": {
+        "title": "نقل {{name}} إلى {{to}}؟",
+        "message": "حسب سجلاتنا هو لدى {{from}}. نقله يحتاج إلى اعتماد مدير التسويق. يمكنك حفظ هذه التعبئة وإرسالها، لكن اعتمادها النهائي ينتظر اعتماد النقل.",
+        "yes": "نعم، اطلب النقل",
+        "no": "لا، لهذه التعبئة فقط"
+      }
     },
     "new": {
       "pageTitle": "تعبئة جديدة",
-      "pageDescription": "عيّن عاملًا لدى عميل وسجّل شروط الفوترة الخاصة به.",
+      "pageDescription": "عيّن موظفًا لدى عميل وسجّل شروط الفوترة الخاصة به.",
       "submitLabel": "حفظ كمسودة",
       "createdToast": "تم إنشاء التعبئة.",
-      "fromRequirement": "بدءًا من {{serial}} · {{client}} للعامل {{name}}. راجع التفاصيل أدناه؛ سيربط الحفظ هذه التعبئة بذلك الطلب.",
+      "fromRequirement": "بدءًا من {{serial}} · {{client}} للموظف {{name}}. راجع التفاصيل أدناه؛ سيربط الحفظ هذه التعبئة بذلك الطلب.",
       "linkUnavailable": "تعذّر فتح الطلب الذي بدأت منه هذه التعبئة، لذلك لن يتم ربطها به. يمكنك متابعة تعبئتها كالمعتاد.",
       "alreadyStartedTitle": "{{name}} لديه تعبئة بالفعل",
       "alreadyStartedDescription": "تم بدء {{serial}} لهذا المرشح مسبقًا يمكن أن يكون للمرشح تعبئة واحدة فقط.",
@@ -2345,12 +2371,12 @@
       "backToList": "العودة إلى التعبئات",
       "detailsTitle": "التفاصيل",
       "exportExcel": "تصدير إلى إكسل",
-      "sectionWorkerPlacement": "العامل والتعيين",
+      "sectionWorkerPlacement": "الموظف والتعيين",
       "sectionRatesFinancials": "المعدلات والبيانات المالية",
       "fields": {
         "fromRequirement": "من الطلب",
-        "workerName": "اسم العامل",
-        "workerType": "نوع العامل",
+        "workerName": "اسم الموظف",
+        "workerType": "نوع الموظف",
         "iqamaNumber": "رقم الإقامة",
         "nationality": "الجنسية",
         "phone": "الهاتف",
@@ -2373,8 +2399,13 @@
         "profitPerHour": "الربح لكل ساعة (تقديري)",
         "profitPerMonth": "الربح الشهري (تقديري)",
         "otClientRate": "معدل العميل للوقت الإضافي",
-        "otEmployeeRate": "معدل أجر الوقت الإضافي للعامل",
-        "otProfitPerHour": "ربح الوقت الإضافي لكل ساعة (تقديري)"
+        "otEmployeeRate": "معدل أجر الوقت الإضافي للموظف",
+        "otProfitPerHour": "ربح الوقت الإضافي لكل ساعة (تقديري)",
+        "employeeRate": "أجر الموظف (في الساعة)",
+        "clientCoordinators": "منسّقو العميل",
+        "subcontractorCoordinators": "منسّقو المقاول من الباطن",
+        "clientCommissionCoordinator": "عمولة العميل تذهب إلى",
+        "subcontractorCommissionCoordinator": "عمولة المقاول من الباطن تذهب إلى"
       },
       "remark": "ملاحظة",
       "coordinatorsTitle": "المنسقون",
@@ -2449,7 +2480,12 @@
         "downloadToView": "قم بتنزيله لعرضه."
       },
       "defaultRejectError": "اشرح ما الذي يحتاج إلى تصحيح قبل الرفض.",
-      "viewDeployment": "عرض النشر"
+      "viewDeployment": "عرض النشر",
+      "transfer": {
+        "pending": "بانتظار اعتماد نقل المقاول من الباطن: {{name}} من {{from}} إلى {{to}}. يمكنك إرسال هذه التعبئة، لكن اعتمادها النهائي ينتظر النقل.",
+        "rejected": "تم رفض نقل المقاول من الباطن: {{note}}",
+        "approved": "تم اعتماد النقل: {{name}} أصبح لدى {{to}}."
+      }
     },
     "warnings": {
       "noRequiredHours": "لم تُحدَّد ساعات الدوام المطلوبة: ستُحتسب كل ساعة كوقت إضافي، ومع عدم تحديد سعر الوقت الإضافي ستظهر الفاتورة بقيمة 0 ريال."
@@ -2496,10 +2532,20 @@
       "vatNumber": "الرقم الضريبي",
       "crNumber": "السجل التجاري",
       "crPlaceholder": "10 أرقام",
-      "address": "العنوان"
+      "address": "العنوان",
+      "invalid": "يرجى مراجعة النموذج والمحاولة مرة أخرى."
     },
     "deleteConfirmTitle": "حذف المقاول من الباطن؟",
-    "deleteConfirmMessage": "سيتم حذف {{name}} نهائيًا."
+    "deleteConfirmMessage": "سيتم حذف {{name}} نهائيًا.",
+    "profile": {
+      "notFoundTitle": "لم يتم العثور على المقاول من الباطن",
+      "notFoundDescription": "ربما تمت إزالته.",
+      "companyDetails": "بيانات الشركة",
+      "tabs": {
+        "overview": "نظرة عامة",
+        "documents": "المستندات"
+      }
+    }
   },
   "staffPayroll": {
     "list": {
@@ -2558,7 +2604,7 @@
       "finalizedToast": "تم اعتماد دورة الرواتب نهائيًا.",
       "deletedToast": "تم حذف دورة الرواتب.",
       "finalizeConfirmTitle": "اعتماد دورة الرواتب هذه نهائيًا؟",
-      "finalizeConfirmMessage": "لا يمكن تعديل السطور بعد الاعتماد النهائي. سيتمكن العمال من عرض وتنزيل قسائم رواتبهم.",
+      "finalizeConfirmMessage": "لا يمكن تعديل السطور بعد الاعتماد النهائي. سيتمكن الموظفون من عرض وتنزيل قسائم رواتبهم.",
       "deleteConfirmTitle": "حذف دورة الرواتب هذه؟",
       "deleteConfirmMessage": "سيتم حذف هذه المسودة وجميع سطورها المحسوبة نهائيًا.",
       "payslipFailedToast": "تعذر إنشاء قسيمة الراتب."
@@ -2624,7 +2670,7 @@
       "addEntry": "إضافة إدخال",
       "form": {
         "text": "إدخال السجل *",
-        "textPlaceholder": "مثال: زرت موقع العميل، واستلمت نسخ جوازات سفر لعاملين…",
+        "textPlaceholder": "مثال: زرت موقع العميل، واستلمت نسخ جوازات سفر لموظفين…",
         "date": "اليوم"
       },
       "filterHeading": "تصفية السجلات",
@@ -2707,14 +2753,14 @@
     "lost": {
       "viewLostButton": "الطلبات الخاسرة",
       "pageTitle": "الطلبات الخاسرة",
-      "pageDescription": "كل طلب أُغلق دون أن يتحول إلى نقل عامل محفوظ هنا للمراجعة، خارج اللوحة النشطة.",
+      "pageDescription": "كل طلب أُغلق دون أن يتحول إلى نقل موظف محفوظ هنا للمراجعة، خارج اللوحة النشطة.",
       "backToBoard": "العودة إلى اللوحة",
       "totalCount": "طلب خاسر واحد",
       "totalCount_other": "{{count}} طلب خاسر",
       "searchPlaceholder": "ابحث بالعميل أو المسمى الوظيفي أو الرقم…",
       "couldNotLoad": "تعذر تحميل الطلبات الخاسرة",
       "emptyTitle": "لا توجد طلبات خاسرة",
-      "emptyDescription": "عند إغلاق طلب دون تحويله إلى نقل عامل، سيظهر هنا.",
+      "emptyDescription": "عند إغلاق طلب دون تحويله إلى نقل موظف، سيظهر هنا.",
       "columns": {
         "requirement": "رقم الطلب",
         "client": "العميل",
@@ -2739,7 +2785,7 @@
       "clientHint": "اكتب اسم الشركة واختر اقتراحًا لربطها بعميل موجود. لا بأس إن لم تكن الشركة عميلًا بعد.",
       "clientHintNoSuggestions": "قائمة العملاء غير متاحة لك، فلا توجد اقتراحات اكتب اسم الشركة فقط. وسيُربط تلقائيًا بعميل موجود إن تطابق الاسم.",
       "jobTitle": "المسمى الوظيفي *",
-      "headcount": "عدد العمال المطلوب *",
+      "headcount": "عدد الموظفين المطلوب *",
       "neededBy": "مطلوب بحلول",
       "site": "الموقع",
       "notes": "ملاحظات",
@@ -2775,7 +2821,7 @@
       "add": "إضافة مرشح",
       "addTitle": "إضافة مرشح",
       "editTitle": "تعديل المرشح",
-      "emptyEditable": "لا يوجد مرشحون بعد. أضف كل عامل تجهّزه من أين جاء وأين وصلت أوراقه.",
+      "emptyEditable": "لا يوجد مرشحون بعد. أضف كل موظف تجهّزه من أين جاء وأين وصلت أوراقه.",
       "emptyReadOnly": "لم تتم إضافة أي مرشح بعد.",
       "startMobilisation": "بدء التعبئة",
       "iqamaShort": "الإقامة",
@@ -2789,8 +2835,8 @@
         "removed": "تمت إزالة المرشح."
       },
       "workerType": {
-        "SupplierEmployee": "عامل مقاول باطن",
-        "Freelancer": "عامل مستقل"
+        "SupplierEmployee": "موظف مقاول من الباطن",
+        "Freelancer": "موظف مستقل"
       },
       "status": {
         "Identified": "تم تحديده",
@@ -2800,10 +2846,10 @@
         "Dropped": "مُستبعد"
       },
       "form": {
-        "workerType": "نوع العامل",
+        "workerType": "نوع الموظف",
         "subcontractor": "مقاول الباطن *",
         "selectSubcontractor": "اختر مقاول باطن",
-        "workerName": "اسم العامل *",
+        "workerName": "اسم الموظف *",
         "iqama": "رقم الإقامة",
         "nationality": "الجنسية",
         "phone": "الهاتف",
@@ -2830,7 +2876,7 @@
         "notifyOnEnter": "إخطار الفريق عند وصول بطاقة",
         "notifyOnEnterHint": "يُخطَر كل من لديه صلاحية الفريق للطلبات مثلًا عند \"جاهز للتنسيب\".",
         "isMobilisedStage": "وجهة الطلب بعد تنسيب الجميع",
-        "isMobilisedStageHint": "عندما تتم الموافقة على تنسيب كل العمال الذين طلبهم الطلب، تنتقل بطاقته إلى هنا تلقائيًا. يمكن أن تكون هذه مرحلة واحدة فقط واختيارها ينقل الإعداد من المرحلة السابقة."
+        "isMobilisedStageHint": "عندما تتم الموافقة على تنسيب كل الموظفين الذين طلبهم الطلب، تنتقل بطاقته إلى هنا تلقائيًا. يمكن أن تكون هذه مرحلة واحدة فقط واختيارها ينقل الإعداد من المرحلة السابقة."
       },
       "toasts": {
         "added": "تمت إضافة المرحلة.",
@@ -2932,11 +2978,11 @@
       }
     },
     "costs": {
-      "searchPlaceholder": "ابحث باسم العامل…",
-      "searchAriaLabel": "البحث في التعيينات باسم العامل",
+      "searchPlaceholder": "ابحث باسم الموظف…",
+      "searchAriaLabel": "البحث في التعيينات باسم الموظف",
       "couldNotLoad": "تعذر تحميل عمليات النشر",
-      "noWorkerMatch": "لا يوجد عامل يطابق «{{search}}».",
-      "changeWorker": "تغيير العامل",
+      "noWorkerMatch": "لا يوجد موظف يطابق «{{search}}».",
+      "changeWorker": "تغيير الموظف",
       "noCostedMonthsTitle": "لا توجد أشهر محتسبة التكاليف بعد",
       "noCostedMonthsDescription": "تظهر التكاليف هنا بعد أن يكون لهذا النشر شهر معتمد يحق لك الاطلاع عليه."
     }
@@ -2945,18 +2991,18 @@
     "hours": "{{hours}} ساعة",
     "entryCount": "الأشهر: {{count}}",
     "paymentCount": "الدفعات: {{count}}",
-    "searchClientWorker": "ابحث بالعميل أو العامل…",
-    "searchSubWorker": "ابحث بالمقاول أو العامل…",
-    "searchClientWorkerInvoice": "ابحث بالعميل أو العامل أو الفاتورة…",
-    "searchSubWorkerInvoice": "ابحث بالمقاول أو العامل أو الفاتورة…",
+    "searchClientWorker": "ابحث بالعميل أو الموظف…",
+    "searchSubWorker": "ابحث بالمقاول أو الموظف…",
+    "searchClientWorkerInvoice": "ابحث بالعميل أو الموظف أو الفاتورة…",
+    "searchSubWorkerInvoice": "ابحث بالمقاول أو الموظف أو الفاتورة…",
     "contractHours": "ساعات العقد",
     "timesheetHours": "ساعات الجدول الزمني",
     "invoiceAmount": "مبلغ الفاتورة",
     "balance": "الرصيد",
     "status": "الحالة",
     "couldNotLoad": "تعذر التحميل",
-    "clientWorker": "العميل / العامل",
-    "subcontractorWorker": "المقاول / العامل",
+    "clientWorker": "العميل / الموظف",
+    "subcontractorWorker": "المقاول / الموظف",
     "hoursHeader": "الساعات",
     "month": "الشهر",
     "approvedOn": "تاريخ الاعتماد",
@@ -3092,5 +3138,86 @@
     "vacationReady": "يمكنك طلب إجازة سنوية.",
     "vacationAction": "طلب إجازة",
     "viewDetails": "عرض"
+  },
+  "companyProfile": {
+    "arabicName": "اسم الشركة (بالعربية)",
+    "crNumber": "رقم السجل التجاري",
+    "crExpiry": "تاريخ انتهاء السجل التجاري",
+    "contactPosition": "المسمى الوظيفي لجهة الاتصال",
+    "missingValue": "غير مُدخل",
+    "nationalAddressHint": "كما في شهادة العنوان الوطني (سبل). رقم المبنى 4 أرقام، والرمز البريدي 5 أرقام، والرقم الإضافي 4 أرقام.",
+    "ownerHint": "رئيس الشركة.",
+    "coordinatorsHint": "الأشخاص في هذه الشركة الذين ننسّق معهم. يمكن اختيارهم في التعبئات.",
+    "addCoordinator": "إضافة منسّق",
+    "noCoordinators": "لم تتم إضافة منسّقين بعد.",
+    "coordinatorDesignation": "المسمى",
+    "removeCoordinatorAriaLabel": "إزالة المنسّق {{index}}",
+    "sections": {
+      "identity": "السجل التجاري والاسم",
+      "nationalAddress": "العنوان الوطني",
+      "contact": "جهة الاتصال",
+      "finance": "الشخص المسؤول عن الشؤون المالية",
+      "owner": "المالك",
+      "coordinators": "المنسّقون"
+    },
+    "person": {
+      "name": "الاسم",
+      "position": "المسمى الوظيفي",
+      "phone": "رقم الهاتف",
+      "email": "البريد الإلكتروني"
+    },
+    "nationalAddress": {
+      "buildingNumber": "رقم المبنى",
+      "streetName": "اسم الشارع",
+      "district": "الحي",
+      "city": "المدينة",
+      "postalCode": "الرمز البريدي",
+      "additionalNumber": "الرقم الإضافي",
+      "unitNumber": "رقم الوحدة",
+      "shortAddress": "العنوان المختصر"
+    },
+    "missing": {
+      "title": "بيانات ناقصة: {{count}}",
+      "badge": "{{count}} ناقصة",
+      "items": {
+        "arabicName": "اسم الشركة بالعربية",
+        "crNumber": "رقم السجل التجاري",
+        "crExpiry": "تاريخ انتهاء السجل التجاري",
+        "nationalAddress": "العنوان الوطني",
+        "contact": "جهة الاتصال",
+        "finance": "الشخص المالي",
+        "owner": "المالك",
+        "coordinators": "المنسّقون",
+        "agreementDocument": "الاتفاقية (مع تاريخ الانتهاء)",
+        "crDocument": "مستند السجل التجاري (مع تاريخ الانتهاء)",
+        "nationalAddressDocument": "مستند العنوان الوطني"
+      }
+    }
+  },
+  "subcontractorTransfers": {
+    "title": "اعتماد نقل الموظفين بين المقاولين من الباطن",
+    "description": "طلبات نقل موظف مقاول من الباطن إلى مقاول آخر، تنشأ من التعبئة.",
+    "columns": {
+      "employee": "الموظف",
+      "move": "النقل",
+      "mobilisation": "التعبئة",
+      "requestedBy": "طلبه",
+      "status": "الحالة"
+    },
+    "statuses": {
+      "Pending": "قيد الانتظار",
+      "Approved": "معتمد",
+      "Rejected": "مرفوض",
+      "Cancelled": "مسحوب"
+    },
+    "approve": "اعتماد",
+    "reject": "رفض",
+    "rejectTitle": "رفض طلب النقل",
+    "reasonLabel": "السبب (يُعاد إلى المنسّقين) *",
+    "approvedToast": "تم اعتماد النقل.",
+    "rejectedToast": "تم رفض النقل وإعادته.",
+    "emptyTitle": "لا توجد طلبات نقل",
+    "emptyDescription": "تظهر الطلبات هنا عندما ينقل منسّق موظفًا إلى مقاول من الباطن آخر.",
+    "couldNotLoad": "تعذر تحميل طلبات النقل."
   }
 }

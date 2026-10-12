@@ -117,7 +117,7 @@ export const candidateFormSchema = z
   })
   .superRefine((v, ctx) => {
     if (v.workerType === 'SupplierEmployee' && !v.subcontractor) {
-      ctx.addIssue({ code: 'custom', path: ['subcontractor'], message: 'Select the subcontractor this worker comes from.' });
+      ctx.addIssue({ code: 'custom', path: ['subcontractor'], message: 'Select the subcontractor this employee comes from.' });
     }
   });
 

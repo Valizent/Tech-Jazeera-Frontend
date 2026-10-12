@@ -46,14 +46,19 @@ export default function MobilisationListPage() {
   const [searchParams] = useSearchParams();
   const initialCoordinator = searchParams.get('coordinator') ?? '';
   const initialCoordinatorName = searchParams.get('coordinatorName') ?? '';
+  // The dashboard's "Shared employees" tile links here with ?status=Approved&shared=true.
+  const linkedStatus = searchParams.get('status');
+  const initialStatus = ['Draft', 'PendingReview', 'Approved', 'Rejected', 'Completed'].includes(linkedStatus) ? linkedStatus : '';
+  const initialShared = searchParams.get('shared') === 'true' ? 'true' : '';
 
   const [search, setSearch] = useState('');
   const [params, setParams] = useState({
     page: 1,
     limit: 20,
     search: '',
-    status: '',
+    status: initialStatus,
     coordinator: initialCoordinator,
+    shared: initialShared,
     sortBy: 'createdAt',
     sortOrder: 'desc',
   });
@@ -89,6 +94,7 @@ export default function MobilisationListPage() {
         ...(params.search && { search: params.search }),
         ...(params.status && { status: params.status }),
         ...(params.coordinator && { coordinator: params.coordinator }),
+        ...(params.shared && { shared: params.shared }),
       }),
     placeholderData: keepPreviousData,
     // Same reasoning as the Leave review queue: a coordinator submitting or
@@ -108,6 +114,7 @@ export default function MobilisationListPage() {
         ...(params.search && { search: params.search }),
         ...(params.status && { status: params.status }),
         ...(params.coordinator && { coordinator: params.coordinator }),
+        ...(params.shared && { shared: params.shared }),
       }),
     onError: (error) => toast.error(apiMessage(error)),
   });
@@ -140,7 +147,11 @@ export default function MobilisationListPage() {
     },
   ];
 
-  const noFilters = !params.search && !params.status && !params.coordinator;
+  const noFilters = !params.search && !params.status && !params.coordinator && !params.shared;
+
+  function clearSharedFilter() {
+    setParams((p) => ({ ...p, shared: '', page: 1 }));
+  }
 
   function clearCoordinatorFilter() {
     setParams((p) => ({ ...p, coordinator: '', page: 1 }));
@@ -174,6 +185,22 @@ export default function MobilisationListPage() {
           </div>
         }
       />
+
+      {params.shared && (
+        <div className="mb-3 flex items-center gap-2">
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-3 py-1 text-xs font-medium text-primary">
+            {t('staffMobilisations.list.filteredToShared')}
+            <button
+              type="button"
+              onClick={clearSharedFilter}
+              className="hover:text-primary/70"
+              aria-label={t('staffMobilisations.list.clearSharedFilterAriaLabel')}
+            >
+              ✕
+            </button>
+          </span>
+        </div>
+      )}
 
       {params.coordinator && (
         <div className="mb-3 flex items-center gap-2">

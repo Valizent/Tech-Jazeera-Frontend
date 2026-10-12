@@ -34,6 +34,8 @@ import Skeleton from '../../../components/ui/Skeleton.jsx';
 import EmptyState from '../../../components/ui/EmptyState.jsx';
 import ProfileField from '../../../components/ui/ProfileField.jsx';
 import DocumentsPanel from '../../documents/components/DocumentsPanel.jsx';
+import CompanyProfileSummary from '../../companyProfile/components/CompanyProfileSummary.jsx';
+import { MissingDetailsBanner } from '../../companyProfile/components/MissingDetails.jsx';
 
 const STATUS_VARIANT = { Active: 'success', Inactive: 'default' };
 
@@ -42,6 +44,7 @@ function OverviewTab({ client }) {
   const { t } = useTranslation();
   return (
     <div className="space-y-6">
+      <MissingDetailsBanner missing={client.missingDetails} />
       {client.approvalStatus === 'Rejected' && (
         <Card className="border-danger/30 bg-danger/5">
           <div className="flex items-start gap-3">
@@ -70,12 +73,8 @@ function OverviewTab({ client }) {
       <Card>
         <h2 className="mb-4 text-sm font-semibold uppercase tracking-wide text-muted">{t('staffClients.profile.companyDetails')}</h2>
         <dl className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          <ProfileField label={t('staffClients.profile.fields.contactPerson')}>{client.contactPerson}</ProfileField>
-          <ProfileField label={t('staffClients.profile.fields.phone')}>{client.phone}</ProfileField>
-          <ProfileField label={t('staffClients.profile.fields.email')}>{client.email}</ProfileField>
           <ProfileField label={t('staffClients.profile.fields.industry')}>{client.industry}</ProfileField>
           <ProfileField label={t('staffClients.profile.fields.vatNumber')}>{client.vatNumber}</ProfileField>
-          <ProfileField label={t('staffClients.profile.fields.crNumber')}>{client.crNumber}</ProfileField>
           <ProfileField label={t('staffClients.profile.fields.address')}>{client.address}</ProfileField>
           <ProfileField label={t('staffClients.profile.fields.addedBy')}>
             {client.createdBy?.name && (
@@ -91,6 +90,8 @@ function OverviewTab({ client }) {
           </ProfileField>
         </dl>
       </Card>
+
+      <CompanyProfileSummary company={client} />
 
       <Card>
         <h2 className="mb-4 text-sm font-semibold uppercase tracking-wide text-muted">
@@ -137,7 +138,7 @@ function WorkersTab({ clientId }) {
   const columns = [
     {
       key: 'workerName',
-      header: t('staffClients.profile.workersColumns.worker', 'Worker'),
+      header: t('staffClients.profile.workersColumns.worker', 'Employee'),
       render: (d) => (
         <Link to={d.workerType === 'Employee' ? `/employees/${d.worker?._id}` : `/deployments/${d._id}`} className="font-medium text-text hover:text-primary">
           {d.workerName}

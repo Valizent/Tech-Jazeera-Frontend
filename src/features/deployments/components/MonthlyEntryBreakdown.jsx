@@ -122,6 +122,7 @@ export default function MonthlyEntryBreakdownPanel({ row, formatMoney, children 
           {isSupplier && subCommissionExpense > 0 && <DetailRow label={k('subCommission')} value={formatMoney(subCommissionExpense)} valueClass="text-danger" />}
           {(b.expenseEmployeeSalary ?? 0) > 0 && <DetailRow label={k('employeeSalary')} value={formatMoney(b.expenseEmployeeSalary)} />}
           {(b.expenseEmployeeAdditional ?? 0) > 0 && <DetailRow label={k('additionalAmount')} value={formatMoney(b.expenseEmployeeAdditional)} />}
+          {(b.expenseFreelancerPay ?? 0) > 0 && <DetailRow label={k('freelancerPay')} value={formatMoney(b.expenseFreelancerPay)} valueClass="text-danger" />}
           <DetailRow label={k('totalExpenses')} value={formatMoney(expensesTotal)} valueClass={costColor(expensesTotal)} />
         </div>
       </div>

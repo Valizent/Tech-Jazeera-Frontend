@@ -23,8 +23,7 @@ export default function StatusBreakdown({ title, data, colors }) {
     // h-full (2026-09-24): this widget always pairs in a 2-col grid with a sibling
     // that's often taller (Standby Workforce Analysis, the Coordinator Leaderboard)
     // — without it, a shorter breakdown leaves a real visible gap below its own
-    // card instead of matching the row's full height (the same class of bug found
-    // and fixed on DirectoryStatsWidget the same day — see its own doc comment).
+    // card instead of matching the row's full height.
     <Card className="h-full">
       <h2 className="mb-4 text-sm font-semibold uppercase tracking-wide text-muted">{title}</h2>
       {total === 0 ? (
