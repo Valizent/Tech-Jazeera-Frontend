@@ -15,10 +15,10 @@ import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import Card from '../../../components/ui/Card.jsx';
 
-export default function MyPendingActions({ items }) {
+export default function MyPendingActions({ items, decidedThisWeek = 0 }) {
   const { t } = useTranslation();
   const safeItems = items ?? [];
-  if (safeItems.length === 0) return null;
+  if (safeItems.length === 0 && decidedThisWeek === 0) return null;
 
   return (
     <Card>
@@ -41,6 +41,9 @@ export default function MyPendingActions({ items }) {
           </li>
         ))}
       </ul>
+      {decidedThisWeek > 0 && (
+        <p className="mt-3 text-xs text-muted">{t('staffDashboard.insights.decidedThisWeek', { count: decidedThisWeek })}</p>
+      )}
     </Card>
   );
 }

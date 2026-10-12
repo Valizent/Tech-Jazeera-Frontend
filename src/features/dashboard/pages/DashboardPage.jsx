@@ -17,7 +17,7 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
-import { getDashboard } from '../dashboard.api.js';
+import { getDashboard, getDashboardInsights } from '../dashboard.api.js';
 import { getMyTarget, getMyMonthlyWindow } from '../../mobilisationTargets/mobilisationTargets.api.js';
 import { useAuth } from '../../auth/AuthContext.jsx';
 import { EXPIRY_WARNING_DAYS } from '../../../lib/constants.js';
@@ -40,6 +40,12 @@ import SystemLogsWidget from '../components/SystemLogsWidget.jsx';
 import ActiveRevenueWidget from '../components/ActiveRevenueWidget.jsx';
 import ActualPerformanceWidget from '../components/ActualPerformanceWidget.jsx';
 import CoordinatorLeaderboardWidget from '../components/CoordinatorLeaderboardWidget.jsx';
+import SystemHealthStrip from '../components/SystemHealthStrip.jsx';
+import StuckApprovalsCard from '../components/StuckApprovalsCard.jsx';
+import HrWatchCard from '../components/HrWatchCard.jsx';
+import BillingSnapshotCard from '../components/BillingSnapshotCard.jsx';
+import MyWorkCard from '../components/MyWorkCard.jsx';
+import FloorTodayCard from '../components/FloorTodayCard.jsx';
 import { useCloseOnOutsideClick } from '../../../lib/useCloseOnOutsideClick.js';
 
 const THRESHOLD_STORAGE_KEY = 'aj-erp:dashboard-alert-threshold';
@@ -75,6 +81,15 @@ export default function DashboardPage() {
   const { data, isPending, isError, refetch } = useQuery({
     queryKey: ['dashboard', thresholdDays],
     queryFn: () => getDashboard(thresholdDays),
+  });
+
+  // The "look at today" layer (2026-10-11): its own call so a slow figure never delays the headline
+  // numbers, and each block is null unless the viewer holds the Read behind it. A failure here only
+  // hides the extra cards; the dashboard above it still renders.
+  const { data: insights } = useQuery({
+    queryKey: ['dashboard-insights'],
+    queryFn: getDashboardInsights,
+    staleTime: 60_000,
   });
 
   const firstName = user.name.split(' ')[0];
@@ -197,7 +212,9 @@ export default function DashboardPage() {
         </Link>
       )}
 
-      <MyPendingActions items={myPendingActions} />
+      <MyPendingActions items={myPendingActions} decidedThisWeek={insights?.decidedThisWeek ?? 0} />
+
+      <SystemHealthStrip health={insights?.systemHealth} />
 
       {/* Full-width, swapped with HrComplianceWidget 2026-09-24 (the user's own ask) 
           Active Mobilisation Revenue now leads the page instead of sitting in a half-width
@@ -285,6 +302,16 @@ export default function DashboardPage() {
             </div>
           )}
         </>
+      )}
+
+      {insights && (
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-2 [&>*:last-child:nth-child(odd)]:lg:col-span-2">
+          <StuckApprovalsCard rows={insights.stuckApprovals} />
+          <MyWorkCard work={insights.myWork} />
+          <BillingSnapshotCard billing={insights.billing} />
+          <HrWatchCard expiring={insights.expiringByType} contracts={insights.contractsEnding} leavePicture={insights.leavePicture} />
+          <FloorTodayCard signedIn={insights.signedInToday} idle={insights.idleStandby} />
+        </div>
       )}
 
       {/* The coordinator's own pipeline breakdown is now rendered inside the grid above */}

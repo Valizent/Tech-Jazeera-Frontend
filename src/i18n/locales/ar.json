@@ -669,7 +669,10 @@
       "Mobilisations": "التعبئة والتنسيب",
       "Stale requirements": "طلبات متأخرة",
       "Open tasks": "مهام مفتوحة",
-      "Payments due soon": "مدفوعات مستحقة قريبًا"
+      "Payments due soon": "مدفوعات مستحقة قريبًا",
+      "Annual vacation": "الإجازة السنوية",
+      "Ready to invoice": "جاهز للفوترة",
+      "Missing timesheets": "سجلات دوام ناقصة"
     },
     "noDataYet": "لا توجد بيانات بعد.",
     "expiringDocuments": {
@@ -756,7 +759,8 @@
         "loadFailed": "لوحة تصنيف المنسقين",
         "viewAll": "عرض التعبئات ←",
         "emptyTitle": "لا يوجد منسقون بعد",
-        "emptyDescription": "ستظهر حسابات المنسقين هنا بمجرد إنشائها."
+        "emptyDescription": "ستظهر حسابات المنسقين هنا بمجرد إنشائها.",
+        "reached": "{{percent}}% من الهدف"
       },
       "systemLogs": {
         "title": "سلامة النظام والبرمجيات",
@@ -835,7 +839,71 @@
     "clientsWaitingApproval_one": "عميل واحد بانتظار الموافقة",
     "clientsWaitingApproval_two": "عميلان بانتظار الموافقة",
     "clientsWaitingApproval_few": "{{count}} عملاء بانتظار الموافقة",
-    "clientsWaitingApproval_many": "{{count}} عميلًا بانتظار الموافقة"
+    "clientsWaitingApproval_many": "{{count}} عميلًا بانتظار الموافقة",
+    "insights": {
+      "health": {
+        "title": "حالة النظام",
+        "failedLogins": "محاولات دخول فاشلة (24 ساعة)",
+        "grantsChanged": "تغييرات الصلاحيات (7 أيام)",
+        "neverLoggedIn": "حسابات لم تُستخدم قط",
+        "reconciliation": "ملاحظات المطابقة"
+      },
+      "stuck": {
+        "title": "طلبات تأخر البتّ فيها",
+        "subtitle": "طلبات دون قرار منذ أكثر من {{days}} أيام.",
+        "oldest": "الأقدم {{days}} يوم",
+        "waitingOn": "بانتظار {{names}}"
+      },
+      "hr": {
+        "title": "متابعة الموظفين",
+        "lapsing": "مستندات قاربت على الانتهاء",
+        "expired": "منتهية",
+        "d30": "30 يوم",
+        "d60": "31-60 يوم",
+        "d90": "61-90 يوم",
+        "contracts": "عقود تنتهي خلال 30 يومًا",
+        "daysLeft": "{{days}} يوم",
+        "onLeave": "في إجازة اليوم",
+        "returning": "يعودون هذا الأسبوع",
+        "until": "حتى {{date}}",
+        "backOn": "يعود {{date}}",
+        "nobody": "لا أحد"
+      },
+      "billing": {
+        "title": "ملخص الفوترة",
+        "outstanding": "مستحق من العملاء",
+        "aging0": "0-30 يومًا",
+        "aging31": "31-60 يومًا",
+        "aging61": "أكثر من 60 يومًا",
+        "dueNext7": "مستحق خلال 7 أيام",
+        "overdue": "متأخر",
+        "readyToInvoice": "جاهز للفوترة",
+        "subOwed": "مستحق للمقاولين من الباطن",
+        "expenses": "مصروفات هذا الشهر",
+        "lastMonth": "الشهر الماضي {{amount}}",
+        "topClients": "أكبر الأرصدة",
+        "invoices": "{{count}} فواتير"
+      },
+      "myWork": {
+        "title": "عملي",
+        "stale": "طلبات متأخرة",
+        "missingTimesheets": "سجلات دوام ناقصة",
+        "awaiting": "تعبئاتي قيد المراجعة",
+        "tasks": "مهام مفتوحة",
+        "overdue": "متأخرة",
+        "due": "تستحق {{date}}",
+        "inStage": "{{days}} يوم في {{stage}}",
+        "waitingDays": "{{days}} يوم عند {{names}}",
+        "more": "+{{count}} أخرى"
+      },
+      "floor": {
+        "title": "الميدان اليوم",
+        "signedIn": "سجّلوا الحضور اليوم",
+        "idle": "بلا تنسيب لأكثر من {{days}} يومًا",
+        "idleDays": "{{days}} يوم"
+      },
+      "decidedThisWeek": "بتَّ في {{count}} طلب هذا الأسبوع"
+    }
   },
   "staffEmployees": {
     "list": {
@@ -2379,6 +2447,9 @@
       },
       "defaultRejectError": "اشرح ما الذي يحتاج إلى تصحيح قبل الرفض.",
       "viewDeployment": "عرض النشر"
+    },
+    "warnings": {
+      "noRequiredHours": "لم تُحدَّد ساعات الدوام المطلوبة: ستُحتسب كل ساعة كوقت إضافي، ومع عدم تحديد سعر الوقت الإضافي ستظهر الفاتورة بقيمة 0 ريال."
     }
   },
   "staffSubcontractors": {
@@ -2994,5 +3065,29 @@
     "approveMessage": "الموافقة على الإجازة السنوية لـ {{name}}؟ ستُسجَّل كإجازة معتمدة ولا يمكن التراجع.",
     "rejectTitle": "رفض الإجازة السنوية؟",
     "rejectMessage": "رفض طلب الإجازة السنوية لـ {{name}}؟ لا يمكن التراجع عن ذلك."
+  },
+  "portalHome": {
+    "title": "اليوم",
+    "signedInAt": "سجّلت الحضور الساعة {{time}}",
+    "signedOutAt": "سجّلت الانصراف الساعة {{time}}",
+    "notSignedIn": "لم تسجّل حضورك اليوم",
+    "attendanceLink": "فتح الحضور",
+    "leaveBalance": "رصيد الإجازات",
+    "daysLeft": "متبقٍ {{remaining}} من {{total}} يوم",
+    "nextHoliday": "العطلة القادمة",
+    "myRequests": "طلباتي",
+    "pending": "قيد المراجعة",
+    "approved": "مقبولة",
+    "rejected": "مرفوضة",
+    "documents": "مستندات تحتاج إلى تجديد",
+    "expiredDoc": "منتهية",
+    "daysShort": "متبقٍ {{days}} يوم",
+    "contract": "العقد",
+    "contractEnds": "ينتهي {{date}} (بعد {{days}} يوم)",
+    "contractEnded": "انتهى {{date}}",
+    "contractNotSet": "لا يوجد تاريخ انتهاء للعقد",
+    "vacationReady": "يمكنك طلب إجازة سنوية.",
+    "vacationAction": "طلب إجازة",
+    "viewDetails": "عرض"
   }
 }

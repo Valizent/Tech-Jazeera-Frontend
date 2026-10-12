@@ -113,7 +113,7 @@ export default function SettlementNewPage() {
 
           <div className="mt-6 border-t border-border pt-4">
             <h3 className="mb-4 text-sm font-semibold text-muted">Manual Overrides (Optional)</h3>
-            <p className="mb-4 text-xs text-muted">If left blank, the system will automatically compute these based on length of service (e.g. 2 months salary + 45 days leave for 2+ years of service).</p>
+            <p className="mb-4 text-xs text-muted">If left blank, the system computes these under Saudi Labor Law: the end-of-service award by length of service (Articles 84 and 85) and the real unused annual-leave balance at the daily wage.</p>
             <div className="space-y-4">
               <Input label="Override EOSB Award (Gross Amount)" type="number" step="0.01" min="0" error={errors.overrideEosbGross?.message} {...register('overrideEosbGross')} />
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">

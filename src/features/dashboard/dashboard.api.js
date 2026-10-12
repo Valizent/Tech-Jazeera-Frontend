@@ -24,6 +24,12 @@ export async function getCoordinatorDrillDown(id, month) {
   return data.data;
 }
 
+/** The "look at today" blocks under the headline figures: each null unless the viewer holds its Read. */
+export async function getDashboardInsights() {
+  const { data } = await api.get('/dashboard/insights');
+  return data.data;
+}
+
 /** month: "YYYY-MM", omit for the current calendar month. */
 export async function getCoordinatorLeaderboard(month) {
   const { data } = await api.get('/dashboard/coordinator-leaderboard', { params: month ? { month } : undefined });

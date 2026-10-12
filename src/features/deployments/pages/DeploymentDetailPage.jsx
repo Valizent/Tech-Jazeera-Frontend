@@ -744,7 +744,11 @@ export default function DeploymentDetailPage() {
         {deployment.subcontractorName && (
           <DetailRow label={t('staffDeployments.detail.fields.subcontractor')}>{deployment.subcontractorName}</DetailRow>
         )}
-        <DetailRow label={t('staffDeployments.detail.fields.contractHours')}>{deployment.requiredTimesheetHours ?? ''}</DetailRow>
+        <DetailRow label={t('staffDeployments.detail.fields.contractHours')}>
+          {deployment.requiredTimesheetHours || (
+            <span className="text-warning">{t('staffMobilisations.warnings.noRequiredHours')}</span>
+          )}
+        </DetailRow>
         <DetailRow label={t('staffDeployments.detail.fields.since')}>{formatDate(deployment.startDate)}</DetailRow>
         {!isActive && (
           <>

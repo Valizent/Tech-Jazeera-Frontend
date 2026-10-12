@@ -162,7 +162,14 @@ export default function CoordinatorLeaderboardWidget() {
                   <td className="px-4 py-3 font-medium text-text">{r.name}</td>
                   <td className="px-4 py-3 text-center text-muted">{r.count}</td>
                   <td className="px-4 py-3 text-right font-medium text-muted">{formatMoney(r.profit)}</td>
-                  <td className="px-4 py-3 text-right text-muted">{r.target != null ? formatMoney(r.target) : ''}</td>
+                  <td className="px-4 py-3 text-right text-muted">
+                    {r.target != null ? formatMoney(r.target) : ''}
+                    {r.target > 0 && (
+                      <span className="block text-xs">
+                        {t('staffDashboard.widgets.leaderboard.reached', { percent: Math.round((r.profit / r.target) * 100) })}
+                      </span>
+                    )}
+                  </td>
                 </tr>
               ))}
             </tbody>

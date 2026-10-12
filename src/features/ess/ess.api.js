@@ -10,6 +10,12 @@ export async function getMyProfile() {
   return data.data;
 }
 
+/** The portal home: attendance today, leave balances, request counts, document warnings, contract/vacation. */
+export async function getMyOverview() {
+  const { data } = await api.get('/me/overview');
+  return data.data;
+}
+
 /** Self-edit (Milestone 4) — contact-info fields only. `payload` matches
  *  profile.schema.js's updateMyProfileFormSchema shape. */
 export async function updateMyProfile(payload) {

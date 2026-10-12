@@ -661,7 +661,10 @@
       "Mobilisations": "Mobilisations",
       "Stale requirements": "Stale requirements",
       "Open tasks": "Open tasks",
-      "Payments due soon": "Payments due soon"
+      "Payments due soon": "Payments due soon",
+      "Annual vacation": "Annual vacation",
+      "Ready to invoice": "Ready to invoice",
+      "Missing timesheets": "Missing timesheets"
     },
     "noDataYet": "No data yet.",
     "expiringDocuments": {
@@ -756,7 +759,8 @@
         "loadFailed": "the coordinator leaderboard",
         "viewAll": "View mobilisations →",
         "emptyTitle": "No coordinators yet",
-        "emptyDescription": "Coordinator logins will appear here once created."
+        "emptyDescription": "Coordinator logins will appear here once created.",
+        "reached": "{{percent}}% of target"
       }
     },
     "targets": {
@@ -815,7 +819,72 @@
       "recentLogEntries": "Recent log entries",
       "noRecentLogs": "No logs submitted in the last 30 days."
     },
-    "clientsWaitingApproval_one": "{{count}} client waiting for approval"
+    "clientsWaitingApproval_one": "{{count}} client waiting for approval",
+    "insights": {
+      "health": {
+        "title": "System health",
+        "failedLogins": "Failed logins (24h)",
+        "grantsChanged": "Access changes (7 days)",
+        "neverLoggedIn": "Logins never used",
+        "reconciliation": "Reconciliation findings"
+      },
+      "stuck": {
+        "title": "Waiting too long",
+        "subtitle": "Requests with no decision for more than {{days}} days.",
+        "oldest": "oldest {{days}}d",
+        "waitingOn": "waiting on {{names}}"
+      },
+      "hr": {
+        "title": "People watch",
+        "lapsing": "Documents lapsing",
+        "expired": "Expired",
+        "d30": "30d",
+        "d60": "31-60d",
+        "d90": "61-90d",
+        "contracts": "Contracts ending in 30 days",
+        "daysLeft": "{{days}}d",
+        "onLeave": "On leave today",
+        "returning": "Back this week",
+        "until": "until {{date}}",
+        "backOn": "back {{date}}",
+        "nobody": "Nobody"
+      },
+      "billing": {
+        "title": "Billing snapshot",
+        "outstanding": "Owed by clients",
+        "aging0": "0-30 days",
+        "aging31": "31-60 days",
+        "aging61": "Over 60 days",
+        "dueNext7": "Due in the next 7 days",
+        "overdue": "Overdue",
+        "readyToInvoice": "Ready to invoice",
+        "subOwed": "Owed to subcontractors",
+        "expenses": "Expenses this month",
+        "lastMonth": "last month {{amount}}",
+        "topClients": "Largest balances",
+        "invoices": "{{count}} invoice",
+        "invoices_other": "{{count}} invoices"
+      },
+      "myWork": {
+        "title": "My work",
+        "stale": "Stale requirements",
+        "missingTimesheets": "Missing timesheets",
+        "awaiting": "My mobilisations in review",
+        "tasks": "Open tasks",
+        "overdue": "overdue",
+        "due": "due {{date}}",
+        "inStage": "{{days}}d in {{stage}}",
+        "waitingDays": "{{days}}d on {{names}}",
+        "more": "+{{count}} more"
+      },
+      "floor": {
+        "title": "On the floor today",
+        "signedIn": "Signed in today",
+        "idle": "Idle on standby over {{days}} days",
+        "idleDays": "{{days}}d"
+      },
+      "decidedThisWeek": "You decided {{count}} this week"
+    }
   },
   "staffEmployees": {
     "list": {
@@ -2347,6 +2416,9 @@
       },
       "defaultRejectError": "Explain what needs fixing before rejecting.",
       "viewDeployment": "View deployment"
+    },
+    "warnings": {
+      "noRequiredHours": "No required timesheet hours set: every hour will be billed as overtime, and with no overtime rate the invoice will show SAR 0."
     }
   },
   "staffSubcontractors": {
@@ -2958,5 +3030,29 @@
     "approveMessage": "Approve {{name}}'s annual vacation? It will be recorded as approved leave and cannot be undone.",
     "rejectTitle": "Reject annual vacation?",
     "rejectMessage": "Reject {{name}}'s annual vacation request? This cannot be undone."
+  },
+  "portalHome": {
+    "title": "Today",
+    "signedInAt": "Signed in at {{time}}",
+    "signedOutAt": "Signed out at {{time}}",
+    "notSignedIn": "You have not signed in today",
+    "attendanceLink": "Open attendance",
+    "leaveBalance": "Leave balance",
+    "daysLeft": "{{remaining}} of {{total}} days left",
+    "nextHoliday": "Next holiday",
+    "myRequests": "My requests",
+    "pending": "Pending",
+    "approved": "Approved",
+    "rejected": "Rejected",
+    "documents": "Documents to renew",
+    "expiredDoc": "Expired",
+    "daysShort": "{{days}}d left",
+    "contract": "Contract",
+    "contractEnds": "Ends {{date}} ({{days}} days)",
+    "contractEnded": "Ended {{date}}",
+    "contractNotSet": "No contract end date on file",
+    "vacationReady": "You can request annual vacation.",
+    "vacationAction": "Request vacation",
+    "viewDetails": "View"
   }
 }

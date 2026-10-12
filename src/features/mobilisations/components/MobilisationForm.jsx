@@ -273,6 +273,7 @@ export default function MobilisationForm({
   const ftaType = useWatch({ control, name: 'ftaType' });
   const checkoutDate = useWatch({ control, name: 'checkoutDate' });
   const subcontractorValue = useWatch({ control, name: 'subcontractor' });
+  const requiredHoursValue = useWatch({ control, name: 'requiredTimesheetHours' });
   const { markApplied: markIqamaApplied, previousWorker } = useIqamaAutofill({ control, workerType, setValue, toast, t });
   useOtClientRateAutofill({ control, getValues, setValue });
   const { workers, workersLoading, workersError } = useEmployeeWorkers({ workerType, existingWorkerId });
@@ -596,6 +597,7 @@ export default function MobilisationForm({
             error={errors.requiredTimesheetHours?.message}
             {...register('requiredTimesheetHours')}
           />
+          {!Number(requiredHoursValue) && <p className="-mt-2 text-xs text-warning">{t('staffMobilisations.warnings.noRequiredHours')}</p>}
           <Input
             label={t('staffMobilisations.form.mobilisationCost')}
             type="number"

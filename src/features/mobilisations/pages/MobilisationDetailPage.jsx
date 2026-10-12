@@ -849,7 +849,11 @@ export default function MobilisationDetailPage() {
               { label: t('staffMobilisations.detail.fields.allowance'), value: formatMoney(m.allowance) },
               { label: t('staffMobilisations.detail.fields.allowanceRemark'), value: m.allowanceRemark },
               { label: t('staffMobilisations.detail.fields.mobilisationCost'), value: m.mobilisationCost ? formatMoney(m.mobilisationCost) : null },
-              { label: t('staffMobilisations.detail.fields.requiredTimesheetHours'), value: m.requiredTimesheetHours ?? null },
+              {
+                label: t('staffMobilisations.detail.fields.requiredTimesheetHours'),
+                value: m.requiredTimesheetHours || t('staffMobilisations.warnings.noRequiredHours'),
+                valueClassName: m.requiredTimesheetHours ? undefined : 'text-warning',
+              },
               ...(m.hasSubcontractor
                 ? [
                     { label: t('staffMobilisations.detail.fields.subcontractorRate'), value: formatMoney(m.subcontractorRate) },

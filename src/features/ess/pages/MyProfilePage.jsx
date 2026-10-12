@@ -25,6 +25,7 @@ import ExpiryBadge from '../../../components/shared/ExpiryBadge.jsx';
 import Skeleton from '../../../components/ui/Skeleton.jsx';
 import EmptyState from '../../../components/ui/EmptyState.jsx';
 import Button from '../../../components/ui/Button.jsx';
+import PortalTodayCard from '../components/PortalTodayCard.jsx';
 
 const STATUS_VARIANT = { Active: 'success', 'On Leave': 'warning', Exited: 'default' };
 const DOCUMENTS = ['passport', 'visa', 'iqama', 'medical', 'drivingLicense'];
@@ -125,6 +126,8 @@ export default function MyProfilePage() {
           </div>
         }
       />
+
+      <PortalTodayCard />
 
       <Card>
         <h2 className="mb-4 text-sm font-semibold uppercase tracking-wide text-muted">{t('profile.personalDetails')}</h2>
