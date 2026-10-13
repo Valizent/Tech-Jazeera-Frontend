@@ -1812,7 +1812,7 @@
       "pageTitle": "قائمة الاحتياط",
       "pageDescription": "كل من تم تعيينه لدى عميل في وقت ما وهو غير معيّن حاليًا.",
       "newMobilisation": "تعبئة جديدة",
-      "workerDataButton": "بيانات الموظف",
+      "workerDataButton": "البحث برقم الإقامة",
       "mobiliseAction": "تعبئة",
       "couldNotLoad": "تعذر تحميل قائمة الاحتياط",
       "columns": {
@@ -2244,8 +2244,7 @@
       "pageTitle": "التعبئات",
       "pageDescription": "كل تعيين، من أول مسودة حتى التسريح. المعبأون هم الموظفون المتواجدون لدى عميل الآن.",
       "newMobilisation": "تعبئة جديدة",
-      "workerDataButton": "بيانات الموظف",
-      "searchPlaceholderWithSerial": "البحث بالرقم أو الموظف أو العميل أو المسمى الوظيفي…",
+      "searchPlaceholderWithSerial": "ابحث بالرقم أو الموظف أو الإقامة أو العميل أو المسمى الوظيفي…",
       "searchAriaLabel": "البحث في التعبئات",
       "filterStatusAriaLabel": "تصفية حسب الحالة",
       "filteredToCoordinator": "مُصفّى حسب: {{name}}",
@@ -2271,7 +2270,6 @@
       "exportMobilisations": "تصدير التعبئات",
       "exportDeployments": "تصدير عمليات النشر",
       "overview": "نظرة عامة",
-      "standbyList": "قائمة الاحتياط",
       "approveTimesheets": "اعتماد الجداول الزمنية",
       "allClients": "كل العملاء",
       "searchClientPlaceholder": "ابحث عن عميل…",
@@ -2287,7 +2285,15 @@
         "status": "الحالة"
       },
       "filterBySite": "تصفية حسب الموقع",
-      "siteFilterPlaceholder": "مثال: جازان، أبها..."
+      "siteFilterPlaceholder": "مثال: جازان، أبها...",
+      "export": "تصدير",
+      "workerMatch": {
+        "iqama": "الإقامة {{iqama}}",
+        "placements": "عدد التعيينات المسجلة: {{count}}",
+        "mobilisedAt": "معيَّن حاليًا لدى {{client}}",
+        "notMobilised": "غير معيَّن حاليًا",
+        "fullHistory": "السجل الكامل والبيانات"
+      }
     },
     "workerHistory": {
       "pageTitle": "بيانات الموظف",

@@ -24,7 +24,7 @@
  */
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Navigate, useNavigate } from 'react-router-dom';
+import { Navigate, useNavigate, useSearchParams } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '../../auth/AuthContext.jsx';
 import { getWorkerHistory, archiveWorkerData, unarchiveWorkerData } from '../mobilisations.api.js';
@@ -50,8 +50,11 @@ export default function WorkerHistoryPage() {
   const toast = useToast();
   const queryClient = useQueryClient();
 
-  const [iqamaInput, setIqamaInput] = useState('');
-  const [searchedIqama, setSearchedIqama] = useState('');
+  // The Mobilisations list links here with ?iqama=<number> once its search finds one worker.
+  const [searchParams] = useSearchParams();
+  const fromLink = searchParams.get('iqama') ?? '';
+  const [iqamaInput, setIqamaInput] = useState(iqamaRegex.test(fromLink) ? fromLink : '');
+  const [searchedIqama, setSearchedIqama] = useState(iqamaRegex.test(fromLink) ? fromLink : '');
   const [confirmAction, setConfirmAction] = useState(null); // 'archive' | 'unarchive' | null
 
   const { data, isPending, isError, isFetching } = useQuery({

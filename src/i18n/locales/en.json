@@ -1781,7 +1781,7 @@
       "pageTitle": "Standby list",
       "pageDescription": "Everyone who was placed with a client at some point and isn't right now.",
       "newMobilisation": "New mobilisation",
-      "workerDataButton": "Employee data",
+      "workerDataButton": "Search using IQAMA",
       "mobiliseAction": "Mobilise",
       "couldNotLoad": "Could not load the standby list",
       "columns": {
@@ -2213,8 +2213,7 @@
       "pageTitle": "Mobilisations",
       "pageDescription": "Every placement, from the first draft to release. Mobilised ones are the employees at a client right now.",
       "newMobilisation": "New mobilisation",
-      "workerDataButton": "Employee data",
-      "searchPlaceholderWithSerial": "Search #, employee, client, job title…",
+      "searchPlaceholderWithSerial": "Search #, employee, Iqama, client, job title…",
       "searchAriaLabel": "Search mobilisations",
       "filterStatusAriaLabel": "Filter by status",
       "filteredToCoordinator": "Filtered to: {{name}}",
@@ -2240,7 +2239,6 @@
       "exportMobilisations": "Export mobilisations",
       "exportDeployments": "Export deployments",
       "overview": "Overview",
-      "standbyList": "Standby list",
       "approveTimesheets": "Approve timesheets",
       "allClients": "All clients",
       "searchClientPlaceholder": "Search clients…",
@@ -2256,7 +2254,15 @@
         "status": "Status"
       },
       "filterBySite": "Filter by site",
-      "siteFilterPlaceholder": "e.g. Jizan, Abha..."
+      "siteFilterPlaceholder": "e.g. Jizan, Abha...",
+      "export": "Export",
+      "workerMatch": {
+        "iqama": "Iqama {{iqama}}",
+        "placements": "Placements on file: {{count}}",
+        "mobilisedAt": "Mobilised now at {{client}}",
+        "notMobilised": "Not mobilised right now",
+        "fullHistory": "Full history and data"
+      }
     },
     "workerHistory": {
       "pageTitle": "Employee data",

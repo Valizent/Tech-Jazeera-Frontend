@@ -29,6 +29,7 @@ import { listClients } from '../../clients/clients.api.js';
 import { apiMessage, formatDate, mobilisationStatusLabel } from '../../../lib/utils.js';
 import { MOBILISATION_STATUSES, MOBILISATION_STATUS_VARIANT } from '../../../lib/constants.js';
 import { useToast } from '../../../components/ui/Toast.jsx';
+import ActionMenu from '../../../components/ui/ActionMenu.jsx';
 import PageHeader from '../../../components/shared/PageHeader.jsx';
 import PickerLoadWarning from '../../../components/shared/PickerLoadWarning.jsx';
 import Table from '../../../components/ui/Table.jsx';
@@ -59,6 +60,42 @@ function readStoredSortOrder() {
   } catch {
     return 'desc';
   }
+}
+
+/**
+ * WorkerMatch - when what was typed in the search finds exactly one person (every
+ * placement returned is the same worker), say who it is and where they stand, so
+ * the list below reads as "everything on file for this worker" (2026-10-13). Admin
+ * also gets the link to the full history and data page.
+ */
+function WorkerMatch({ search, data, isAdmin, onOpenHistory }) {
+  const { t } = useTranslation();
+  const items = data?.items ?? [];
+  if (!search?.trim() || items.length === 0 || items.length !== data.total) return null;
+  const keyOf = (m) => m.iqamaNumber || String(m.worker ?? m.workerName);
+  if (!items.every((m) => keyOf(m) === keyOf(items[0]))) return null;
+  const first = items[0];
+  const live = items.find((m) => m.deployment?.status === 'Active');
+  return (
+    <div className="mb-4 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-primary/30 bg-primary/5 px-4 py-3">
+      <div className="min-w-0">
+        <p className="truncate text-sm font-semibold text-text">
+          {first.workerName}
+          {first.iqamaNumber && <span className="font-normal text-muted"> · {t('staffMobilisations.list.workerMatch.iqama', { iqama: first.iqamaNumber })}</span>}
+        </p>
+        <p className="text-xs text-muted">
+          {t('staffMobilisations.list.workerMatch.placements', { count: items.length })}
+          {' · '}
+          {live ? t('staffMobilisations.list.workerMatch.mobilisedAt', { client: live.clientName }) : t('staffMobilisations.list.workerMatch.notMobilised')}
+        </p>
+      </div>
+      {isAdmin && first.iqamaNumber && (
+        <Button size="sm" variant="secondary" onClick={() => onOpenHistory(first.iqamaNumber)}>
+          {t('staffMobilisations.list.workerMatch.fullHistory')}
+        </Button>
+      )}
+    </div>
+  );
 }
 
 export default function MobilisationListPage() {
@@ -293,31 +330,27 @@ export default function MobilisationListPage() {
                 )}
               </Button>
             )}
-            <Button size="sm" variant="secondary" isLoading={exportMutation.isPending} onClick={() => exportMutation.mutate()}>
-              {t('staffMobilisations.list.exportMobilisations')}
-            </Button>
+            {/* One Export button for both downloads (2026-10-13: the header was crowded). */}
+            <ActionMenu
+              label={t('staffMobilisations.list.export')}
+              isLoading={exportMutation.isPending || deploymentsExportMutation.isPending}
+              items={[
+                { key: 'mobilisations', label: t('staffMobilisations.list.exportMobilisations'), onSelect: () => exportMutation.mutate() },
+                ...(canReadDeployments
+                  ? [
+                      {
+                        key: 'deployments',
+                        label: t('staffMobilisations.list.exportDeployments'),
+                        disabled: !canExportDeployments,
+                        onSelect: () => deploymentsExportMutation.mutate(),
+                      },
+                    ]
+                  : []),
+              ]}
+            />
             {canReadDeployments && (
-              <>
-                <Button
-                  size="sm"
-                  variant="secondary"
-                  disabled={!canExportDeployments}
-                  isLoading={deploymentsExportMutation.isPending}
-                  onClick={() => deploymentsExportMutation.mutate()}
-                >
-                  {t('staffMobilisations.list.exportDeployments')}
-                </Button>
-                <Button size="sm" variant="secondary" onClick={() => setOverviewOpen(true)}>
-                  {t('staffMobilisations.list.overview')}
-                </Button>
-                <Button size="sm" variant="secondary" onClick={() => navigate('/deployments/standby')}>
-                  {t('staffMobilisations.list.standbyList')}
-                </Button>
-              </>
-            )}
-            {user.role === 'Admin' && (
-              <Button size="sm" variant="secondary" onClick={() => navigate('/mobilisations/worker-history')}>
-                {t('staffMobilisations.list.workerDataButton')}
+              <Button size="sm" variant="secondary" onClick={() => setOverviewOpen(true)}>
+                {t('staffMobilisations.list.overview')}
               </Button>
             )}
             <Button size="sm" onClick={() => navigate('/mobilisations/new')}>
@@ -368,6 +401,13 @@ export default function MobilisationListPage() {
           className="sm:max-w-xs"
           aria-label={t('staffMobilisations.list.searchAriaLabel')}
         />
+        {/* The standby list lives here, beside the search (2026-10-13): the header was crowded and the
+            Workforce/Sales menus no longer carry a separate entry for it. */}
+        {canReadDeployments && (
+          <Button variant="secondary" onClick={() => navigate('/deployments/standby')}>
+            {t('staffNav.sales.standby.label')}
+          </Button>
+        )}
         <Select
           value={params.status}
           onChange={(e) => setParams((p) => ({ ...p, status: e.target.value, page: 1 }))}
@@ -490,6 +530,8 @@ export default function MobilisationListPage() {
           )}
         </div>
       </div>
+
+      <WorkerMatch search={params.search} data={data} isAdmin={user.role === 'Admin'} onOpenHistory={(iqama) => navigate(`/mobilisations/worker-history?iqama=${iqama}`)} />
 
       {isError ? (
         <EmptyState
