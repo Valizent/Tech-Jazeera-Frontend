@@ -52,21 +52,13 @@ function mobiliseWorkerUrl(worker) {
   return `/mobilisations/new?${params}`;
 }
 
-const OWN_SORT_FIELDS = [
-  { value: 'fullName', label: 'Name' },
-  { value: 'designation', label: 'Designation' },
-  { value: 'nationality', label: 'Nationality' },
-];
-
-const SUB_SORT_FIELDS = [
-  { value: 'workerName', label: 'Name' },
-  { value: 'nationality', label: 'Nationality' },
-  { value: 'lastClientName', label: 'Last client' },
-  { value: 'subcontractorName', label: 'Subcontractor' },
-];
+// Each value doubles as the label's key under staffDeployments.standby.sort.
+const OWN_SORT_FIELDS = ['fullName', 'designation', 'nationality'];
+const SUB_SORT_FIELDS = ['workerName', 'nationality', 'lastClientName', 'subcontractorName'];
 
 /** Small reusable sort popover */
 function SortPopover({ id, fields, sort, onSort, search, onSearch, searchPlaceholder }) {
+  const { t } = useTranslation();
   const [open, setOpen] = useState(false);
   const ref = useRef(null);
 
@@ -79,7 +71,7 @@ function SortPopover({ id, fields, sort, onSort, search, onSearch, searchPlaceho
     return () => document.removeEventListener('mousedown', handleClick);
   }, [open]);
 
-  const active = sort.by !== fields[0].value || sort.dir !== 'asc' || search !== '';
+  const active = sort.by !== fields[0] || sort.dir !== 'asc' || search !== '';
 
   return (
     <div className="relative" ref={ref}>
@@ -87,7 +79,7 @@ function SortPopover({ id, fields, sort, onSort, search, onSearch, searchPlaceho
         type="button"
         id={`${id}-btn`}
         onClick={() => setOpen((o) => !o)}
-        aria-label="Sort and filter"
+        aria-label={t('common.sortFilter.ariaLabel')}
         aria-expanded={open}
         className={[
           'relative flex h-8 w-8 items-center justify-center rounded-lg border transition-colors',
@@ -108,12 +100,12 @@ function SortPopover({ id, fields, sort, onSort, search, onSearch, searchPlaceho
           id={`${id}-panel`}
           className="absolute start-0 top-10 z-30 w-56 rounded-xl border border-border bg-surface p-4 shadow-lg"
           role="dialog"
-          aria-label="Sort and filter"
+          aria-label={t('common.sortFilter.ariaLabel')}
         >
-          <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-muted">Sort &amp; Filter</p>
+          <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-muted">{t('common.sortFilter.title')}</p>
 
           {/* Search */}
-          <label htmlFor={`${id}-search`} className="mb-1 block text-xs font-medium text-text">Search</label>
+          <label htmlFor={`${id}-search`} className="mb-1 block text-xs font-medium text-text">{t('common.sortFilter.search')}</label>
           <input
             id={`${id}-search`}
             type="text"
@@ -124,7 +116,7 @@ function SortPopover({ id, fields, sort, onSort, search, onSearch, searchPlaceho
           />
 
           {/* Sort by */}
-          <label className="mb-1 block text-xs font-medium text-text">Sort by</label>
+          <label className="mb-1 block text-xs font-medium text-text">{t('common.sortFilter.sortBy')}</label>
           <div className="relative mb-3">
             <select
               value={sort.by}
@@ -132,7 +124,7 @@ function SortPopover({ id, fields, sort, onSort, search, onSearch, searchPlaceho
               className="h-9 w-full appearance-none rounded-lg border border-border bg-bg ps-3 pe-7 text-sm text-text focus:border-primary focus:outline-none"
             >
               {fields.map((f) => (
-                <option key={f.value} value={f.value}>{f.label}</option>
+                <option key={f} value={f}>{t(`staffDeployments.standby.sort.${f}`)}</option>
               ))}
             </select>
             <svg className="pointer-events-none absolute end-2 top-1/2 -translate-y-1/2 text-muted" width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
@@ -141,11 +133,11 @@ function SortPopover({ id, fields, sort, onSort, search, onSearch, searchPlaceho
           </div>
 
           {/* Direction */}
-          <label className="mb-1 block text-xs font-medium text-text">Direction</label>
+          <label className="mb-1 block text-xs font-medium text-text">{t('common.sortFilter.direction')}</label>
           <div className="flex gap-2">
             {[
-              { val: 'asc', icon: '↑', label: 'Asc' },
-              { val: 'desc', icon: '↓', label: 'Desc' },
+              { val: 'asc', icon: '↑', label: t('common.sortFilter.asc') },
+              { val: 'desc', icon: '↓', label: t('common.sortFilter.desc') },
             ].map(({ val, icon, label }) => (
               <button
                 key={val}
@@ -167,10 +159,10 @@ function SortPopover({ id, fields, sort, onSort, search, onSearch, searchPlaceho
           {active && (
             <button
               type="button"
-              onClick={() => { onSort({ by: fields[0].value, dir: 'asc' }); onSearch(''); }}
+              onClick={() => { onSort({ by: fields[0], dir: 'asc' }); onSearch(''); }}
               className="mt-3 w-full rounded-lg py-1.5 text-xs text-muted transition-colors hover:text-danger"
             >
-              Reset
+              {t('common.sortFilter.reset')}
             </button>
           )}
         </div>
@@ -327,7 +319,7 @@ export default function StandbyListPage() {
                 onSort={setOwnSort}
                 search={ownSearch}
                 onSearch={setOwnSearch}
-                searchPlaceholder="Search name, designation..."
+                searchPlaceholder={t('staffDeployments.standby.ownSearchPlaceholder')}
               />
             </div>
             <Table
@@ -359,7 +351,7 @@ export default function StandbyListPage() {
                 onSort={setSubSort}
                 search={subSearch}
                 onSearch={setSubSearch}
-                searchPlaceholder="Search name, subcontractor..."
+                searchPlaceholder={t('staffDeployments.standby.subSearchPlaceholder')}
               />
             </div>
             <Table

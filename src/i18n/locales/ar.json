@@ -99,6 +99,17 @@
       "10": "أكتوبر",
       "11": "نوفمبر",
       "12": "ديسمبر"
+    },
+    "sortFilter": {
+      "ariaLabel": "الترتيب والتصفية",
+      "title": "الترتيب والتصفية",
+      "search": "بحث",
+      "sortBy": "الترتيب حسب",
+      "direction": "الاتجاه",
+      "asc": "تصاعدي",
+      "desc": "تنازلي",
+      "reset": "إعادة تعيين",
+      "resetToDefaults": "إعادة التعيين إلى الافتراضي"
     }
   },
   "auth": {
@@ -1001,7 +1012,9 @@
       "additionalDocumentExpiry": "تاريخ الانتهاء",
       "emergencyRelationPlaceholder": "زوجة، أخ…",
       "contractStartDate": "تاريخ بداية العقد",
-      "contractEndDate": "تاريخ نهاية العقد"
+      "contractEndDate": "تاريخ نهاية العقد",
+      "contractHours": "ساعات العقد (شهرياً)",
+      "contractHoursHint": "تُحسب الساعة الإضافية بالراتب ÷ هذه الساعات × 1.5. مطلوبة قبل تعبئة هذا الموظف."
     },
     "new": {
       "title": "إضافة موظف",
@@ -1794,7 +1807,17 @@
       "subcontractedTitle": "موظفو المقاولين من الباطن / المستقلون",
       "subcontractedDescription": "موظفون انتهى آخر تعيين لهم دون تعيين أحدث منذ ذلك مُستنتج من سجل التعبئات، لأن هؤلاء الموظفين ليس لديهم سجل مستمر خاص بهم بين التعيينات.",
       "subcontractedEmptyTitle": "لا يوجد أحد متاح",
-      "subcontractedEmptyDescription": "لا يوجد موظف مقاول من الباطن أو مستقل انتهى تعيينه دون تعيين أحدث منذ ذلك."
+      "subcontractedEmptyDescription": "لا يوجد موظف مقاول من الباطن أو مستقل انتهى تعيينه دون تعيين أحدث منذ ذلك.",
+      "sort": {
+        "fullName": "الاسم",
+        "designation": "المسمى الوظيفي",
+        "nationality": "الجنسية",
+        "workerName": "الاسم",
+        "lastClientName": "آخر عميل",
+        "subcontractorName": "المقاول من الباطن"
+      },
+      "ownSearchPlaceholder": "ابحث بالاسم أو المسمى الوظيفي...",
+      "subSearchPlaceholder": "ابحث بالاسم أو المقاول..."
     },
     "paymentsDue": {
       "pageTitle": "المدفوعات المستحقة",
@@ -1829,11 +1852,22 @@
       "recordPaymentButton": "تسجيل دفعة",
       "reviewPendingButton": "مراجعة المدفوعات المعلقة",
       "recordPaymentModalTitle": "تسجيل دفعة {{client}}",
-      "recordPaymentModalMessage": "أدخل إجمالي المبلغ الذي دفعه هذا العميل فعليًا، مغطيًا جميع من تم تعيينهم لديه. سيحتاج ذلك إلى موافقة المدير المالي، ثم يُسدَّد تلقائيًا على أقدم الفواتير المستحقة أولًا.",
+      "recordPaymentModalMessage": "أدخل إجمالي المبلغ الذي دفعه هذا العميل فعليًا، مغطيًا جميع من تم تعيينهم لديه. اختر أدناه الفواتير التي يُسدِّدها؛ وتحتاج إلى موافقة المدير المالي قبل أن تُحتسب.",
       "amountLabel": "المبلغ المستلم *",
       "paymentRecordedToast": "تم تسجيل الدفعة بانتظار الموافقة.",
       "paymentReferenceLabel": "رقم الفاتورة / المرجع",
-      "paymentDateLabel": "تاريخ الدفع"
+      "paymentDateLabel": "تاريخ الدفع",
+      "applyToTitle": "تطبيق هذه الدفعة على الفواتير",
+      "applyToHint": "اختر الفواتير بالترتيب الذي يجب سدادها به. يُوزَّع المبلغ عليها بهذا الترتيب، وقد تُسدَّد الأخيرة جزئياً.",
+      "addInvoicePlaceholder": "أضف فاتورة…",
+      "invoiceOption": "{{number}} · المتبقي {{balance}}",
+      "noInvoicePicked": "لم تُختَر أي فاتورة: ستُطبَّق الدفعة على الأقدم أولاً.",
+      "paidInFull": "مُسدَّدة بالكامل ({{amount}})",
+      "partPaid": "تُسدَّد {{amount}} ويبقى {{left}}",
+      "nothingLeftForThis": "لا يبقى مبلغ لهذه الفاتورة",
+      "leftoverCredit": "المتبقي رصيد دائن على الحساب: {{amount}}",
+      "creditJoins": "الرصيد الدائن على الحساب ({{amount}}) يُضاف إلى هذه الدفعة.",
+      "appliedTo": "مُطبَّقة على: {{list}}"
     },
     "readyToInvoice": {
       "pageTitle": "جاهز للفوترة",
@@ -1912,7 +1946,8 @@
       "noteOptionalLabel": "ملاحظة (اختياري)",
       "notePlaceholder": "مثال: يحتاج إلى تصحيح...",
       "approvedToast": "تمت الموافقة على الدفعة.",
-      "rejectedToast": "تم رفض الدفعة."
+      "rejectedToast": "تم رفض الدفعة.",
+      "appliedTo": "مُطبَّقة على: {{list}}"
     },
     "detail": {
       "notFoundTitle": "عملية النشر غير موجودة",
@@ -2093,10 +2128,21 @@
       "statusApproved": "معتمدة",
       "statusRejected": "مرفوضة",
       "recordPaymentModalTitle": "تسجيل دفعة {{subcontractor}}",
-      "recordPaymentModalMessage": "أدخل إجمالي المبلغ المدفوع لهذا المقاول، مغطيًا جميع من يوفّرهم. سيحتاج ذلك إلى موافقة المدير المالي، ثم يُسدَّد تلقائيًا على أقدم الفواتير المستحقة أولًا.",
+      "recordPaymentModalMessage": "أدخل إجمالي المبلغ المدفوع لهذا المقاول، مغطيًا جميع من يوفّرهم. اختر أدناه الفواتير التي يُسدِّدها؛ وتحتاج إلى موافقة المدير المالي قبل أن تُحتسب.",
       "amountLabel": "المبلغ المدفوع *",
       "paymentReferenceLabel": "رقم الفاتورة / المرجع",
-      "paymentDateLabel": "تاريخ الدفع"
+      "paymentDateLabel": "تاريخ الدفع",
+      "applyToTitle": "تطبيق هذه الدفعة على الفواتير",
+      "applyToHint": "اختر الفواتير بالترتيب الذي يجب سدادها به. يُوزَّع المبلغ عليها بهذا الترتيب، وقد تُسدَّد الأخيرة جزئياً.",
+      "addInvoicePlaceholder": "أضف فاتورة…",
+      "invoiceOption": "{{number}} · المتبقي {{balance}}",
+      "noInvoicePicked": "لم تُختَر أي فاتورة: ستُطبَّق الدفعة على الأقدم أولاً.",
+      "paidInFull": "مُسدَّدة بالكامل ({{amount}})",
+      "partPaid": "تُسدَّد {{amount}} ويبقى {{left}}",
+      "nothingLeftForThis": "لا يبقى مبلغ لهذه الفاتورة",
+      "leftoverCredit": "المتبقي رصيد دائن على الحساب: {{amount}}",
+      "creditJoins": "الرصيد الدائن على الحساب ({{amount}}) يُضاف إلى هذه الدفعة.",
+      "appliedTo": "مُطبَّقة على: {{list}}"
     },
     "paidSubInvoices": {
       "statusPaid": "مدفوعة",
@@ -2206,7 +2252,17 @@
       "searchClientPlaceholder": "ابحث عن عميل…",
       "filterClientAriaLabel": "تصفية حسب العميل",
       "clientFilterList": "قائمة تصفية العملاء",
-      "missingMonths": "أشهر الجداول الزمنية المتبقية للإدخال: {{count}}"
+      "missingMonths": "أشهر الجداول الزمنية المتبقية للإدخال: {{count}}",
+      "sort": {
+        "createdAt": "تاريخ الإنشاء",
+        "mobilisationDate": "تاريخ التعبئة",
+        "workerName": "الموظف",
+        "clientName": "العميل",
+        "site": "الموقع",
+        "status": "الحالة"
+      },
+      "filterBySite": "تصفية حسب الموقع",
+      "siteFilterPlaceholder": "مثال: جازان، أبها..."
     },
     "workerHistory": {
       "pageTitle": "بيانات الموظف",
@@ -2290,7 +2346,6 @@
       "requiredTimesheetHours": "ساعات الجدول الزمني المطلوبة",
       "otEmployeeRate": "معدل أجر الوقت الإضافي للموظف (ريال/ساعة)",
       "otEmployeeRateHint": "يُدفع مباشرةً للموظف عن كل ساعة إضافية لا يُدرج في فاتورة المقاول من الباطن. يُعامَل كمصروف على الشركة عند اعتماد الساعات.",
-      "otEmployeeRateHintEmployee": "علاوة الوقت الإضافي المدفوعة للموظف عن كل ساعة إضافية، فوق راتبه الثابت. تُعامَل كمصروف على الشركة عند اعتماد الساعات. اتركها فارغةً إن لم تُطبَّق أي علاوة.",
       "sectionSubcontractor": "المقاول من الباطن",
       "subcontractorLabel": "المقاول من الباطن *",
       "selectSubcontractor": "اختر مقاولًا من الباطن…",
@@ -2334,7 +2389,10 @@
       "coordinatorN": "المنسق {{n}}",
       "sharePercent": "النسبة (%)",
       "addAnotherCoordinator": "إضافة منسق آخر",
-      "shareTotal": "المجموع: {{total}}%"
+      "shareTotal": "المجموع: {{total}}%",
+      "otOwnEmployeeHint": "تُحسب الساعة الإضافية للموظف التابع للشركة بالراتب ÷ ساعات العقد × 1.5 من سجل الموظف.",
+      "otOwnEmployeeRate": "تُدفع الساعة الإضافية بمبلغ {{rate}} (الراتب ÷ ساعات العقد × 1.5 من سجل الموظف).",
+      "ownEmployeeMissingHours": "لا يوجد راتب أو ساعات عقد في سجل {{name}}. أضفهما هناك قبل التعبئة لتُحسب الساعات الإضافية."
     },
     "new": {
       "pageTitle": "تعبئة جديدة",

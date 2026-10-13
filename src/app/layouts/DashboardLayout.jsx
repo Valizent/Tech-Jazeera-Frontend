@@ -15,7 +15,7 @@
  */
 import { useState, Suspense } from 'react';
 import { useTranslation } from 'react-i18next';
-import { NavLink, Outlet, useNavigate } from 'react-router-dom';
+import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../features/auth/AuthContext.jsx';
 import ChangePasswordModal from '../../features/auth/components/ChangePasswordModal.jsx';
 import AvatarUploadModal from '../../features/auth/components/AvatarUploadModal.jsx';
@@ -136,6 +136,7 @@ export default function DashboardLayout() {
   const { t } = useTranslation();
   const { name: brandName } = useBranding();
   const navigate = useNavigate();
+  const { pathname } = useLocation();
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [changePasswordOpen, setChangePasswordOpen] = useState(false);
   const [avatarModalOpen, setAvatarModalOpen] = useState(false);
@@ -267,7 +268,8 @@ export default function DashboardLayout() {
 
         <div className="pt-16 lg:pl-64">
           <main className="p-4 sm:p-6">
-            <ErrorBoundary>
+            {/* keyed by path: a crashed page must not keep every other page on the error screen */}
+            <ErrorBoundary key={pathname}>
               <Suspense fallback={<RouteFallback />}>
                 <Outlet />
               </Suspense>

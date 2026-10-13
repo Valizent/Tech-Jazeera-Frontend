@@ -99,6 +99,17 @@
       "10": "October",
       "11": "November",
       "12": "December"
+    },
+    "sortFilter": {
+      "ariaLabel": "Sort and filter",
+      "title": "Sort & Filter",
+      "search": "Search",
+      "sortBy": "Sort by",
+      "direction": "Direction",
+      "asc": "Asc",
+      "desc": "Desc",
+      "reset": "Reset",
+      "resetToDefaults": "Reset to defaults"
     }
   },
   "auth": {
@@ -982,7 +993,9 @@
       "additionalDocumentExpiry": "Expiry date",
       "emergencyRelationPlaceholder": "Wife, brother…",
       "contractStartDate": "Contract start date",
-      "contractEndDate": "Contract end date"
+      "contractEndDate": "Contract end date",
+      "contractHours": "Contract hours (per month)",
+      "contractHoursHint": "Overtime is paid at salary ÷ these hours × 1.5. Needed before this employee can be mobilised."
     },
     "new": {
       "title": "Add employee",
@@ -1763,7 +1776,17 @@
       "subcontractedTitle": "Subcontractor / freelancer employees",
       "subcontractedDescription": "Employees whose most recent placement has ended, with nothing newer since inferred from mobilisation history, since these employees have no ongoing record of their own between placements.",
       "subcontractedEmptyTitle": "No one available",
-      "subcontractedEmptyDescription": "No subcontractor or freelancer employee has an ended placement with nothing newer since."
+      "subcontractedEmptyDescription": "No subcontractor or freelancer employee has an ended placement with nothing newer since.",
+      "sort": {
+        "fullName": "Name",
+        "designation": "Designation",
+        "nationality": "Nationality",
+        "workerName": "Name",
+        "lastClientName": "Last client",
+        "subcontractorName": "Subcontractor"
+      },
+      "ownSearchPlaceholder": "Search name, designation...",
+      "subSearchPlaceholder": "Search name, subcontractor..."
     },
     "paymentsDue": {
       "pageTitle": "Payments due",
@@ -1798,11 +1821,22 @@
       "recordPaymentButton": "Record payment",
       "reviewPendingButton": "Review Pending Payments",
       "recordPaymentModalTitle": "Record payment {{client}}",
-      "recordPaymentModalMessage": "Enter the total amount this client has actually paid, covering everyone placed there. It will need Financial Manager approval, then automatically settle their oldest outstanding invoices first.",
+      "recordPaymentModalMessage": "Enter the total amount this client has actually paid, covering everyone placed there. Pick below which invoices it pays; it needs Financial Manager approval before it counts.",
       "amountLabel": "Amount received *",
       "paymentRecordedToast": "Payment recorded awaiting approval.",
       "paymentReferenceLabel": "Invoice / reference #",
-      "paymentDateLabel": "Payment date"
+      "paymentDateLabel": "Payment date",
+      "applyToTitle": "Apply this payment to invoices",
+      "applyToHint": "Pick the invoices in the order they should be paid. The amount fills them in that order; the last one may be part-paid.",
+      "addInvoicePlaceholder": "Add an invoice…",
+      "invoiceOption": "{{number}} · {{balance}} outstanding",
+      "noInvoicePicked": "No invoice picked: the payment will be applied to the oldest invoices first.",
+      "paidInFull": "Paid in full ({{amount}})",
+      "partPaid": "Pays {{amount}}, {{left}} still to pay",
+      "nothingLeftForThis": "Nothing left for this one",
+      "leftoverCredit": "Left over as credit on the account: {{amount}}",
+      "creditJoins": "Credit on the account ({{amount}}) is added to this payment.",
+      "appliedTo": "Applied to: {{list}}"
     },
     "readyToInvoice": {
       "pageTitle": "Ready to invoice",
@@ -1881,7 +1915,8 @@
       "noteOptionalLabel": "Note (Optional)",
       "notePlaceholder": "e.g. Needs correction...",
       "approvedToast": "Payment approved.",
-      "rejectedToast": "Payment rejected."
+      "rejectedToast": "Payment rejected.",
+      "appliedTo": "Applied to: {{list}}"
     },
     "detail": {
       "notFoundTitle": "Deployment not found",
@@ -2062,10 +2097,21 @@
       "statusApproved": "Approved",
       "statusRejected": "Rejected",
       "recordPaymentModalTitle": "Record Payment for {{subcontractor}}",
-      "recordPaymentModalMessage": "Enter the total amount paid to this subcontractor, covering everyone they supply. It needs Financial Manager approval, then settles their oldest outstanding invoices first.",
+      "recordPaymentModalMessage": "Enter the total amount paid to this subcontractor, covering everyone they supply. Pick below which invoices it pays; it needs Financial Manager approval before it counts.",
       "amountLabel": "Amount paid *",
       "paymentReferenceLabel": "Invoice / Reference #",
-      "paymentDateLabel": "Payment Date"
+      "paymentDateLabel": "Payment Date",
+      "applyToTitle": "Apply this payment to invoices",
+      "applyToHint": "Pick the invoices in the order they should be paid. The amount fills them in that order; the last one may be part-paid.",
+      "addInvoicePlaceholder": "Add an invoice…",
+      "invoiceOption": "{{number}} · {{balance}} outstanding",
+      "noInvoicePicked": "No invoice picked: the payment will be applied to the oldest invoices first.",
+      "paidInFull": "Paid in full ({{amount}})",
+      "partPaid": "Pays {{amount}}, {{left}} still to pay",
+      "nothingLeftForThis": "Nothing left for this one",
+      "leftoverCredit": "Left over as credit on the account: {{amount}}",
+      "creditJoins": "Credit on the account ({{amount}}) is added to this payment.",
+      "appliedTo": "Applied to: {{list}}"
     },
     "paidSubInvoices": {
       "statusPaid": "Paid",
@@ -2175,7 +2221,17 @@
       "searchClientPlaceholder": "Search clients…",
       "filterClientAriaLabel": "Filter by client",
       "clientFilterList": "the client filter list",
-      "missingMonths": "Timesheet months still to enter: {{count}}"
+      "missingMonths": "Timesheet months still to enter: {{count}}",
+      "sort": {
+        "createdAt": "Date created",
+        "mobilisationDate": "Mobilisation date",
+        "workerName": "Employee",
+        "clientName": "Client",
+        "site": "Site",
+        "status": "Status"
+      },
+      "filterBySite": "Filter by site",
+      "siteFilterPlaceholder": "e.g. Jizan, Abha..."
     },
     "workerHistory": {
       "pageTitle": "Employee data",
@@ -2259,7 +2315,6 @@
       "requiredTimesheetHours": "Required timesheet hours",
       "otEmployeeRate": "OT payment to employee (⃁/hour)",
       "otEmployeeRateHint": "Paid directly to the employee for each OT hour not billed through the subcontractor. Treated as a company expense when the hours are approved.",
-      "otEmployeeRateHintEmployee": "OT premium paid to the employee per OT hour, on top of their fixed salary. Treated as a company expense when the hours are approved. Leave blank if no OT premium applies.",
       "sectionSubcontractor": "Subcontractor",
       "subcontractorLabel": "Subcontractor *",
       "selectSubcontractor": "Select a subcontractor…",
@@ -2303,7 +2358,10 @@
       "coordinatorN": "Coordinator {{n}}",
       "sharePercent": "Share (%)",
       "addAnotherCoordinator": "Add another coordinator",
-      "shareTotal": "Total: {{total}}%"
+      "shareTotal": "Total: {{total}}%",
+      "otOwnEmployeeHint": "An own employee's overtime hour is paid at salary ÷ contract hours × 1.5, taken from the employee's record.",
+      "otOwnEmployeeRate": "Overtime is paid at {{rate}} per hour (salary ÷ contract hours × 1.5, from the employee's record).",
+      "ownEmployeeMissingHours": "{{name}} has no salary or contract hours on the employee record. Add them there before mobilising, so overtime can be paid."
     },
     "new": {
       "pageTitle": "New mobilisation",

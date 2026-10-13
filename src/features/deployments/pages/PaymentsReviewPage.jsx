@@ -17,6 +17,7 @@ import { useAuth } from '../../auth/AuthContext.jsx';
 import { FINANCIAL_SIDES } from '../financialSides.js';
 import { apiMessage, formatMoney, formatDate } from '../../../lib/utils.js';
 import { useToast } from '../../../components/ui/Toast.jsx';
+import { appliedToText } from '../paymentPlan.js';
 import PageHeader from '../../../components/shared/PageHeader.jsx';
 import Card from '../../../components/ui/Card.jsx';
 import Badge from '../../../components/ui/Badge.jsx';
@@ -139,6 +140,11 @@ export default function PaymentsReviewPage({ side: sideName }) {
                       </>
                     )}
                   </div>
+                  {row.allocated && row.allocations?.length > 0 && (
+                    <p className="mt-1 text-xs text-muted">
+                      {t('staffDeployments.paymentsReview.appliedTo', { list: appliedToText(row.allocations, formatMoney) })}
+                    </p>
+                  )}
                   <div className="mt-1 flex items-center gap-2">
                     <Badge variant="warning">{t('common.status.Pending')}</Badge>
                     <span className="text-xs font-medium text-muted">{t('staffDeployments.paymentsReview.recordedBy', { name: row.recordedBy?.name })}</span>

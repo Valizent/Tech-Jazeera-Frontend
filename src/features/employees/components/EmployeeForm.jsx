@@ -244,6 +244,19 @@ export default function EmployeeForm({ defaultValues, onSubmit, submitLabel, sub
           error={errors.salary?.message}
           {...register('salary')}
         />
+        <div>
+          <Input
+            label={t('staffEmployees.form.contractHours')}
+            type="number"
+            min="0"
+            max="744"
+            step="1"
+            placeholder="e.g. 240"
+            error={errors.contractHours?.message}
+            {...register('contractHours')}
+          />
+          <p className="mt-1 text-xs text-muted">{t('staffEmployees.form.contractHoursHint')}</p>
+        </div>
         <div className="sm:col-span-2">
           <p className="mb-2 text-xs font-medium text-muted">{t('staffEmployees.form.wpsBreakdownHint')}</p>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">

@@ -102,6 +102,15 @@ export default function SearchableSelect({ label, value, onChange, options = [],
           setOpen(true);
           setQuery('');
         }}
+        // A pick leaves the box focused but closed, so a second click has no
+        // focus event to open it again (adding several coordinators or invoices
+        // one after another, 2026-10-13).
+        onClick={() => {
+          if (!open) {
+            setOpen(true);
+            setQuery('');
+          }
+        }}
         onKeyDown={handleKeyDown}
         className={cn(
           'h-10 w-full rounded-lg border bg-surface px-3 text-sm text-text shadow-xs',

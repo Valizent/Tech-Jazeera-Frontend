@@ -19,6 +19,14 @@ const optionalHours = z
     (s) => !s || (!Number.isNaN(Number(s)) && Number(s) >= 0 && Number(s) <= 24),
     'Enter a number of hours between 0 and 24.'
   );
+const optionalMonthlyHours = z
+  .string()
+  .optional()
+  .or(z.literal(''))
+  .refine(
+    (s) => !s || (!Number.isNaN(Number(s)) && Number(s) >= 0 && Number(s) <= 744),
+    'Enter the contract hours for a month (0 to 744).'
+  );
 const optionalAmount = z
   .string()
   .optional()
@@ -82,6 +90,9 @@ export const employeeFormSchema = z
     // Early-sign-out warning threshold for My Attendance — genuinely varies per
     // employee, so it's blank (no warning) unless Admin/Manager/HR sets it.
     expectedDailyHours: optionalHours,
+    // The hours this employee's month is contracted for: overtime is paid at
+    // salary / these x 1.5, and a mobilisation needs them (2026-10-13).
+    contractHours: optionalMonthlyHours,
     // A closed <select> of weekdays, not free text — no numeric range to
     // validate client-side, just "did they pick one of the options."
     weeklyOffDay: z.string().optional().or(z.literal('')),
@@ -150,6 +161,7 @@ export const emptyEmployeeForm = {
   transportAllowance: '',
   accommodation: '',
   expectedDailyHours: '',
+  contractHours: '',
   weeklyOffDay: '5', // pre-selected Friday, mirrors the model's create-default
   status: 'Active',
   emergencyContact: { name: '', phone: '', relation: '' },
@@ -186,6 +198,7 @@ export function employeeToForm(employee) {
     transportAllowance: employee.transportAllowance != null ? String(employee.transportAllowance) : '',
     accommodation: employee.accommodation ?? '',
     expectedDailyHours: employee.expectedDailyHours != null ? String(employee.expectedDailyHours) : '',
+    contractHours: employee.contractHours != null ? String(employee.contractHours) : '',
     weeklyOffDay: employee.weeklyOffDay != null ? String(employee.weeklyOffDay) : '',
     status: employee.status,
     emergencyContact: {
@@ -208,6 +221,7 @@ export function formToEmployeePayload(values) {
     approvalWorkflow: values.approvalWorkflow || null,
     subcontractor: values.subcontractor || null,
     expectedDailyHours: values.expectedDailyHours || null,
+    contractHours: values.contractHours || null,
     weeklyOffDay: values.weeklyOffDay === '' ? null : values.weeklyOffDay,
     basicSalary: values.basicSalary || null,
     housingAllowance: values.housingAllowance || null,

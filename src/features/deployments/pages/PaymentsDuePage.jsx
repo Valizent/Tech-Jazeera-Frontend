@@ -24,6 +24,7 @@ import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { FINANCIAL_SIDES } from '../financialSides.js';
+import { appliedToText, outstandingInvoices, previewPayment } from '../paymentPlan.js';
 import { formatDate, formatMoney, apiMessage } from '../../../lib/utils.js';
 import { useAuth } from '../../auth/AuthContext.jsx';
 import { useToast } from '../../../components/ui/Toast.jsx';
@@ -34,6 +35,7 @@ import Badge from '../../../components/ui/Badge.jsx';
 import Button from '../../../components/ui/Button.jsx';
 import Input from '../../../components/ui/Input.jsx';
 import Select from '../../../components/ui/Select.jsx';
+import SearchableSelect from '../../../components/ui/SearchableSelect.jsx';
 import Modal from '../../../components/ui/Modal.jsx';
 import Skeleton from '../../../components/ui/Skeleton.jsx';
 import EmptyState from '../../../components/ui/EmptyState.jsx';
@@ -65,6 +67,7 @@ export default function PaymentsDuePage({ side: sideName }) {
   const [paymentAmount, setPaymentAmount] = useState('');
   const [paymentReference, setPaymentReference] = useState('');
   const [paymentDate, setPaymentDate] = useState(today);
+  const [pickedKeys, setPickedKeys] = useState([]); // invoiceKey[], in the order they are to be paid
   const { data: rows = [], isPending, isError } = useQuery({
     queryKey: side.dueKey,
     queryFn: side.getDue,
@@ -82,6 +85,19 @@ export default function PaymentsDuePage({ side: sideName }) {
     queryFn: () => side.getDetail(openPartyId),
     enabled: Boolean(openPartyId),
   });
+  // The invoices the payment being recorded can be applied to, and the credit on the account.
+  const { data: payingDetail } = useQuery({
+    queryKey: [...side.dueKey, payingParty?.id],
+    queryFn: () => side.getDetail(payingParty.id),
+    enabled: Boolean(payingParty),
+  });
+  const outstanding = useMemo(() => outstandingInvoices(payingDetail?.invoices), [payingDetail]);
+  const plan = previewPayment({
+    amount: paymentAmount,
+    credit: payingDetail?.creditBalance,
+    pickedKeys,
+    outstanding,
+  });
 
   // Only a client's row lists the subcontractors behind it; on the
   // subcontractor side each row already is one, so the filter never shows.
@@ -98,6 +114,7 @@ export default function PaymentsDuePage({ side: sideName }) {
     setPaymentAmount('');
     setPaymentReference('');
     setPaymentDate(today());
+    setPickedKeys([]);
   }
 
   const recordMutation = useMutation({
@@ -292,6 +309,11 @@ export default function PaymentsDuePage({ side: sideName }) {
                         <span className="ms-2 text-xs text-muted">
                           {p.recordedBy?.name} · {formatDate(p.paymentDate || p.recordedAt)}
                         </span>
+                        {p.allocated && p.allocations?.length > 0 && (
+                          <span className="mt-0.5 block text-xs text-muted">
+                            {t(`${ns}.appliedTo`, { list: appliedToText(p.allocations, formatMoney) })}
+                          </span>
+                        )}
                       </div>
                       {p.decisionStatus === 'Pending' ? (
                         <Badge variant="warning">{t(`${ns}.statusPending`)}</Badge>
@@ -337,6 +359,64 @@ export default function PaymentsDuePage({ side: sideName }) {
               value={paymentAmount}
               onChange={(e) => setPaymentAmount(e.target.value)}
             />
+            {payingDetail?.creditBalance > 0 && (
+              <p className="rounded-lg bg-success/10 px-3 py-2 text-sm text-success">
+                {t(`${ns}.creditJoins`, { amount: formatMoney(payingDetail.creditBalance) })}
+              </p>
+            )}
+
+            {/* Which invoices this payment pays, in the order they are picked. */}
+            <div className="space-y-2 rounded-lg border border-border bg-bg/40 p-3">
+              <p className="text-sm font-medium text-text">{t(`${ns}.applyToTitle`)}</p>
+              <p className="text-xs text-muted">{t(`${ns}.applyToHint`)}</p>
+              <SearchableSelect
+                value=""
+                onChange={(key) => key && setPickedKeys((keys) => [...keys, key])}
+                placeholder={t(`${ns}.addInvoicePlaceholder`)}
+                aria-label={t(`${ns}.addInvoicePlaceholder`)}
+                options={[
+                  { value: '', label: t(`${ns}.addInvoicePlaceholder`) },
+                  ...outstanding
+                    .filter((g) => !pickedKeys.includes(g.invoiceKey))
+                    .map((g) => ({
+                      value: g.invoiceKey,
+                      label: t(`${ns}.invoiceOption`, { number: g.invoiceNumber ?? g.workerNames[0], balance: formatMoney(g.balanceDue) }),
+                    })),
+                ]}
+              />
+              {plan.rows.length === 0 ? (
+                <p className="text-xs text-muted">{t(`${ns}.noInvoicePicked`)}</p>
+              ) : (
+                <ol className="divide-y divide-border rounded-lg border border-border bg-surface">
+                  {plan.rows.map((row, index) => (
+                    <li key={row.invoiceKey} className="flex items-start justify-between gap-3 p-3 text-sm">
+                      <span>
+                        <span className="font-medium">
+                          {index + 1}. {row.invoiceNumber ?? row.workerNames[0]}
+                        </span>
+                        <span className="block text-xs text-muted">
+                          {row.covers <= 0
+                            ? t(`${ns}.nothingLeftForThis`)
+                            : row.left <= 0
+                              ? t(`${ns}.paidInFull`, { amount: formatMoney(row.covers) })
+                              : t(`${ns}.partPaid`, { amount: formatMoney(row.covers), left: formatMoney(row.left) })}
+                        </span>
+                      </span>
+                      <button
+                        type="button"
+                        className="text-xs font-medium text-danger hover:underline"
+                        onClick={() => setPickedKeys((keys) => keys.filter((k) => k !== row.invoiceKey))}
+                      >
+                        {t('common.remove')}
+                      </button>
+                    </li>
+                  ))}
+                </ol>
+              )}
+              {plan.rows.length > 0 && plan.leftover > 0 && (
+                <p className="text-xs font-medium text-success">{t(`${ns}.leftoverCredit`, { amount: formatMoney(plan.leftover) })}</p>
+              )}
+            </div>
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <Input
                 label={t(`${ns}.paymentReferenceLabel`)}
@@ -359,7 +439,17 @@ export default function PaymentsDuePage({ side: sideName }) {
                 type="button"
                 isLoading={recordMutation.isPending}
                 disabled={!paymentAmount || Number(paymentAmount) <= 0 || !paymentDate}
-                onClick={() => recordMutation.mutate({ partyId: payingParty.id, values: { amount: Number(paymentAmount), paymentReference: paymentReference || undefined, paymentDate: paymentDate || undefined } })}
+                onClick={() =>
+                  recordMutation.mutate({
+                    partyId: payingParty.id,
+                    values: {
+                      amount: Number(paymentAmount),
+                      paymentReference: paymentReference || undefined,
+                      paymentDate: paymentDate || undefined,
+                      ...(pickedKeys.length > 0 && { invoiceKeys: pickedKeys }),
+                    },
+                  })
+                }
               >
                 {t(`${ns}.recordPaymentButton`)}
               </Button>

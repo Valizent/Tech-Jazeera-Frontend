@@ -197,11 +197,13 @@ function MonthlyHoursForm({ deployment, defaultValues, onSubmit, submitting, sub
   const actualHoursPreview = Number(watch('actualHours')) || 0;
   const supplierHoursRaw = watch('supplierHours');
   const supplierHoursPreview = Number(supplierHoursRaw) || 0;
-  // Client-billed OT is always against this deployment's own contract hours,
-  // for every worker type alike (2026-10-01, the user's own correction — see
-  // deployment.service.js's computeOtHours doc comment for why this can no
-  // longer depend on the subcontractor's own, separately-entered timesheet).
-  const otHoursPreview = Math.max(0, actualHoursPreview - agreementHours);
+  // OT mirrors deployment.service.js's computeOtHours (2026-10-13): a
+  // subcontractor employee with the subcontractor's hours typed is client hours
+  // minus those; otherwise client hours minus this deployment's contract hours.
+  const otHoursPreview =
+    isSupplierEmployee && supplierHoursRaw
+      ? Math.max(0, actualHoursPreview - supplierHoursPreview)
+      : Math.max(0, actualHoursPreview - agreementHours);
   const otAmountPreview = otHoursPreview * (otClientRate ?? 0);
   // The subcontractor's OWN overtime — an independent figure, only shown
   // once they've actually typed a supplier-hours value (mirrors

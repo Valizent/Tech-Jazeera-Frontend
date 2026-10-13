@@ -105,7 +105,7 @@ export default function MobilisationEditPage() {
   // Found 2026-09-14: the original check only gated the PendingReview
   // branch, so a Draft/Rejected record was a live form for ANY viewer who
   // could reach this URL at all, primary or not.
-  const isPrimary = mobilisation.coordinators.some((c) => (c.user._id ?? c.user) === user.id && c.isPrimary);
+  const isPrimary = mobilisation.coordinators.some((c) => (c.user?._id ?? c.user) === user.id && c.isPrimary);
   const isDraftOrRejected = ['Draft', 'Rejected'].includes(mobilisation.status);
   const canEdit = isDraftOrRejected ? user.role === 'Admin' || isPrimary : Boolean(mobilisation.canEditSection1);
 

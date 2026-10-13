@@ -40,14 +40,8 @@ import SearchableSelect from '../../../components/ui/SearchableSelect.jsx';
 import EmptyState from '../../../components/ui/EmptyState.jsx';
 import DeploymentOverviewModal from '../../deployments/components/DeploymentOverviewModal.jsx';
 
-const SORT_FIELDS = [
-  { value: 'createdAt', label: 'Date created' },
-  { value: 'mobilisationDate', label: 'Mobilisation date' },
-  { value: 'workerName', label: 'Worker' },
-  { value: 'clientName', label: 'Client' },
-  { value: 'site', label: 'Site' },
-  { value: 'status', label: 'Status' },
-];
+// Each value doubles as the label's key under staffMobilisations.list.sort.
+const SORT_FIELDS = ['createdAt', 'mobilisationDate', 'workerName', 'clientName', 'site', 'status'];
 
 // The deployments export knows the deployment's own statuses and sort fields.
 const DEPLOYMENT_STATUS_OF = { Approved: 'Active', Completed: 'Ended' };
@@ -407,7 +401,7 @@ export default function MobilisationListPage() {
             type="button"
             id="mob-sort-filter-btn"
             onClick={() => setSortPanelOpen((o) => !o)}
-            aria-label="Sort and filter"
+            aria-label={t('common.sortFilter.ariaLabel')}
             aria-expanded={sortPanelOpen}
             className={[
               'relative flex h-10 w-10 items-center justify-center rounded-lg border transition-colors',
@@ -430,11 +424,11 @@ export default function MobilisationListPage() {
               id="mob-sort-filter-panel"
               className="absolute start-0 top-12 z-30 w-64 rounded-xl border border-border bg-surface p-4 shadow-lg"
               role="dialog"
-              aria-label="Sort and filter options"
+              aria-label={t('common.sortFilter.ariaLabel')}
             >
-              <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-muted">Sort &amp; Filter</p>
+              <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-muted">{t('common.sortFilter.title')}</p>
 
-              <label className="mb-1 block text-xs font-medium text-text">Sort by</label>
+              <label className="mb-1 block text-xs font-medium text-text">{t('common.sortFilter.sortBy')}</label>
               <div className="relative mb-3">
                 <select
                   value={params.sortBy}
@@ -442,7 +436,7 @@ export default function MobilisationListPage() {
                   className="h-9 w-full appearance-none rounded-lg border border-border bg-bg ps-3 pe-7 text-sm text-text focus:border-primary focus:outline-none"
                 >
                   {SORT_FIELDS.map((f) => (
-                    <option key={f.value} value={f.value}>{f.label}</option>
+                    <option key={f} value={f}>{t(`staffMobilisations.list.sort.${f}`)}</option>
                   ))}
                 </select>
                 <svg className="pointer-events-none absolute end-2 top-1/2 -translate-y-1/2 text-muted" width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
@@ -450,11 +444,11 @@ export default function MobilisationListPage() {
                 </svg>
               </div>
 
-              <label className="mb-1 block text-xs font-medium text-text">Direction</label>
+              <label className="mb-1 block text-xs font-medium text-text">{t('common.sortFilter.direction')}</label>
               <div className="mb-3 flex gap-2">
                 {[
-                  { val: 'desc', icon: '↓', label: 'Desc' },
-                  { val: 'asc', icon: '↑', label: 'Asc' },
+                  { val: 'desc', icon: '↓', label: t('common.sortFilter.desc') },
+                  { val: 'asc', icon: '↑', label: t('common.sortFilter.asc') },
                 ].map(({ val, icon, label }) => (
                   <button
                     key={val}
@@ -473,13 +467,13 @@ export default function MobilisationListPage() {
                 ))}
               </div>
 
-              <label htmlFor="mob-site-filter" className="mb-1 block text-xs font-medium text-text">Filter by site</label>
+              <label htmlFor="mob-site-filter" className="mb-1 block text-xs font-medium text-text">{t('staffMobilisations.list.filterBySite')}</label>
               <input
                 id="mob-site-filter"
                 type="text"
                 value={params.site}
                 onChange={(e) => setParams((p) => ({ ...p, site: e.target.value, page: 1 }))}
-                placeholder="e.g. Jizan, Abha..."
+                placeholder={t('staffMobilisations.list.siteFilterPlaceholder')}
                 className="h-9 w-full rounded-lg border border-border bg-bg px-3 text-sm text-text placeholder:text-muted focus:border-primary focus:outline-none"
               />
 
@@ -489,7 +483,7 @@ export default function MobilisationListPage() {
                   onClick={() => setParams((p) => ({ ...p, sortBy: 'createdAt', sortOrder: 'desc', site: '', page: 1 }))}
                   className="mt-3 w-full rounded-lg py-1.5 text-xs text-muted transition-colors hover:text-danger"
                 >
-                  Reset to defaults
+                  {t('common.sortFilter.resetToDefaults')}
                 </button>
               )}
             </div>

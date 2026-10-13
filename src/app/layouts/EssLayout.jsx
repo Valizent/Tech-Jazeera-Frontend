@@ -9,7 +9,7 @@
  * rather than also appearing on DashboardLayout.
  */
 import { useState, Suspense } from 'react';
-import { NavLink, Outlet, useNavigate } from 'react-router-dom';
+import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../features/auth/AuthContext.jsx';
 import ChangePasswordModal from '../../features/auth/components/ChangePasswordModal.jsx';
@@ -126,6 +126,7 @@ export default function EssLayout() {
   const { t } = useTranslation();
   const { user, logout } = useAuth();
   const navigate = useNavigate();
+  const { pathname } = useLocation();
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [changePasswordOpen, setChangePasswordOpen] = useState(false);
   const [avatarModalOpen, setAvatarModalOpen] = useState(false);
@@ -238,7 +239,8 @@ export default function EssLayout() {
 
         <div className="pt-16 lg:pl-64">
           <main className="p-4 sm:p-6">
-            <ErrorBoundary>
+            {/* keyed by path: a crashed page must not keep every other page on the error screen */}
+            <ErrorBoundary key={pathname}>
               <Suspense fallback={<RouteFallback />}>
                 <Outlet />
               </Suspense>

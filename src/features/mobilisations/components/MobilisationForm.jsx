@@ -189,6 +189,24 @@ function PreviousWorkerPicker({ workerType, subcontractorId, label, onSelect }) 
   );
 }
 
+/** An Own employee's overtime hour is paid from their own record - salary /
+ *  contract hours x 1.5 - not typed (2026-10-13). Says what that is for the
+ *  picked employee, or what is missing from their record. */
+function OwnEmployeeOtNote({ worker }) {
+  const { t } = useTranslation();
+  if (!worker) return <p className="text-xs text-muted">{t('staffMobilisations.form.otOwnEmployeeHint')}</p>;
+  const salary = Number(worker.salary);
+  const hours = Number(worker.contractHours);
+  if (!(salary > 0) || !(hours > 0)) {
+    return (
+      <p role="status" className="rounded-lg border border-warning/30 bg-warning/10 px-3 py-2 text-sm text-warning">
+        {t('staffMobilisations.form.ownEmployeeMissingHours', { name: worker.fullName })}
+      </p>
+    );
+  }
+  return <p className="text-xs text-muted">{t('staffMobilisations.form.otOwnEmployeeRate', { rate: formatMoney((salary / hours) * 1.5) })}</p>;
+}
+
 /** Clears a company-scoped pick when the company itself is changed - a client
  *  coordinator ticked for client A means nothing once client B is chosen.
  *  Skips the first run so opening Edit never wipes what was saved. */
@@ -337,6 +355,8 @@ export default function MobilisationForm({
     setValue('subcontractorCommissionMultiple', false, { shouldDirty: true });
   });
   const { workers, workersLoading, workersError } = useEmployeeWorkers({ workerType, existingWorkerId });
+  const workerValue = useWatch({ control, name: 'worker' });
+  const selectedWorker = workers.find((w) => w._id === workerValue);
 
   const { data: outsourcedEmployees } = useQuery({
     queryKey: ['outsourcedEmployees', { workerType }],
@@ -756,15 +776,17 @@ export default function MobilisationForm({
             error={errors.allowanceRemark?.message}
             {...register('allowanceRemark')}
           />
-          <Input
-            label={t('staffMobilisations.form.requiredTimesheetHours')}
-            type="number"
-            step="0.01"
-            min="0"
-            error={errors.requiredTimesheetHours?.message}
-            {...register('requiredTimesheetHours')}
-          />
-          {!Number(requiredHoursValue) && <p className="-mt-2 text-xs text-warning">{t('staffMobilisations.warnings.noRequiredHours')}</p>}
+          <div>
+            <Input
+              label={t('staffMobilisations.form.requiredTimesheetHours')}
+              type="number"
+              step="0.01"
+              min="0"
+              error={errors.requiredTimesheetHours?.message}
+              {...register('requiredTimesheetHours')}
+            />
+            {!Number(requiredHoursValue) && <p className="mt-1 text-xs text-warning">{t('staffMobilisations.warnings.noRequiredHours')}</p>}
+          </div>
           <Input
             label={t('staffMobilisations.form.mobilisationCost')}
             type="number"
@@ -786,6 +808,10 @@ export default function MobilisationForm({
               />
               <p className="mt-1 text-xs text-muted">{t('staffMobilisations.form.employeeRateHint')}</p>
             </div>
+          ) : workerType === 'Employee' ? (
+            <div className="sm:col-span-2">
+              <OwnEmployeeOtNote worker={selectedWorker} />
+            </div>
           ) : (
             <div>
               <Input
@@ -796,11 +822,7 @@ export default function MobilisationForm({
                 error={errors.otEmployeeRate?.message}
                 {...register('otEmployeeRate')}
               />
-              <p className="mt-1 text-xs text-muted">
-                {workerType === 'Employee'
-                  ? t('staffMobilisations.form.otEmployeeRateHintEmployee')
-                  : t('staffMobilisations.form.otEmployeeRateHint')}
-              </p>
+              <p className="mt-1 text-xs text-muted">{t('staffMobilisations.form.otEmployeeRateHint')}</p>
             </div>
           )}
         </div>

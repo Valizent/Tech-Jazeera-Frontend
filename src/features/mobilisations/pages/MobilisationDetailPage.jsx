@@ -341,6 +341,9 @@ export default function MobilisationDetailPage() {
   const { data: m, isPending, isError } = useQuery({
     queryKey: ['mobilisation', id],
     queryFn: () => getMobilisation(id),
+    // A coordinator whose login was deleted comes back as `user: null`; every
+    // coordinator widget on this page reads `c.user`, so drop those entries once here.
+    select: (data) => ({ ...data, coordinators: data.coordinators?.filter((c) => c.user) }),
   });
 
   const invalidate = () => {
