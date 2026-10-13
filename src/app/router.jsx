@@ -306,7 +306,7 @@ export const router = createBrowserRouter([
               { path: '/timesheet-processor', element: guarded('timesheetProcessor', <TimesheetProcessorPage />) },
               { path: '/team', element: guarded('team', <UserListPage />) },
               { path: '/coordinator-activity', element: <CoordinatorActivityPage /> },
-              { path: '/leave', element: guarded('leaveRequests', <LeavePage />) },
+              { path: '/leave', element: guarded(['leaveRequests', 'leaveApply'], <LeavePage />) },
               { path: '/holidays', element: <HolidayListPage /> },
               { path: '/eosb', element: guarded('eosb', <SettlementListPage />) },
               // Before the /eosb/:id catch-all, or "new" is read as a settlement id.
@@ -317,7 +317,7 @@ export const router = createBrowserRouter([
               { path: '/exit-documents', element: guarded('exitDocuments', <ExitDocumentsPage />) },
               // Unguarded on purpose: any staff login files their own; the page shows the queue only with Read.
               { path: '/annual-vacation', element: <AnnualVacationPage /> },
-              { path: '/timesheets', element: guarded('timesheetRequests', <TimesheetsPage />) },
+              { path: '/timesheets', element: guarded(['timesheetRequests', 'timesheetOwn'], <TimesheetsPage />) },
               { path: '/targets', element: guarded('mobilisationTargets', <TargetsListPage />, false, true) },
 
               // Client billing — the internal tracking layer on top of

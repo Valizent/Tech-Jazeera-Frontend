@@ -13,6 +13,12 @@ export async function getMyProfile() {
   return data.data;
 }
 
+/** The staff panel's own official settlement (same shape as the portal's), or null. */
+export async function getMyEosb() {
+  const { data } = await api.get('/profile/eosb');
+  return data.data;
+}
+
 export async function updateMyProfile(payload) {
   const { data } = await api.patch('/profile', payload);
   return data.data;

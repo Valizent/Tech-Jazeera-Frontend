@@ -5,6 +5,12 @@
  */
 import { api } from '../../lib/axios.js';
 
+/** The official end-of-service settlement once the company has calculated it, else null. */
+export async function getMyEosb() {
+  const { data } = await api.get('/me/eosb');
+  return data.data;
+}
+
 export async function getMyProfile() {
   const { data } = await api.get('/me');
   return data.data;

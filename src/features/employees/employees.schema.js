@@ -7,7 +7,7 @@
  * coercion and is the actual gatekeeper.
  */
 import { z } from 'zod';
-import { EMPLOYEE_STATUSES, EMPLOYEE_TYPES } from '../../lib/constants.js';
+import { EMPLOYEE_DEPARTMENTS, EMPLOYEE_STATUSES, EMPLOYEE_TYPES } from '../../lib/constants.js';
 import { toDateInput } from '../../lib/utils.js';
 
 const optional = z.string().trim().max(200).optional().or(z.literal(''));
@@ -75,7 +75,10 @@ export const employeeFormSchema = z
     contractStartDate: z.string().optional().or(z.literal('')),
     contractEndDate: z.string().optional().or(z.literal('')),
     designation: z.string().trim().min(2, 'Designation is required.').max(60),
-    department: optional,
+    department: z.string().optional(),
+    // The old free-text value of a record saved before Department became a list;
+    // only used to show a hint, never sent.
+    departmentLegacy: z.string().optional(),
     // True while the pay boxes are hidden (an edit by someone without
     // 'employeeFinancial'): salary is then neither required nor sent.
     payHidden: z.boolean().optional(),
@@ -158,6 +161,7 @@ export const emptyEmployeeForm = {
   contractEndDate: '',
   designation: '',
   department: '',
+  departmentLegacy: '',
   salary: '',
   basicSalary: '',
   housingAllowance: '',
@@ -194,7 +198,9 @@ export function employeeToForm(employee) {
     contractStartDate: toDateInput(employee.contractStartDate),
     contractEndDate: toDateInput(employee.contractEndDate),
     designation: employee.designation,
-    department: employee.department ?? '',
+    // A value outside the list is not preselected (HR picks one); the old text is shown as a hint.
+    department: EMPLOYEE_DEPARTMENTS.includes(employee.department) ? employee.department : '',
+    departmentLegacy: employee.department && !EMPLOYEE_DEPARTMENTS.includes(employee.department) ? employee.department : '',
     salary: employee.salary != null ? String(employee.salary) : '',
     basicSalary: employee.basicSalary != null ? String(employee.basicSalary) : '',
     housingAllowance: employee.housingAllowance != null ? String(employee.housingAllowance) : '',
@@ -217,7 +223,7 @@ export function employeeToForm(employee) {
 }
 
 /** Form values → API payload: '' becomes null so an explicit unassign/clear is sent. */
-export function formToEmployeePayload({ payHidden, ...values }) {
+export function formToEmployeePayload({ payHidden, departmentLegacy: _legacy, ...values }) {
   const payload = {
     ...values,
     manager: values.manager || null,

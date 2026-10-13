@@ -3,7 +3,7 @@
  * server's Zod layer is the real gatekeeper (same split as everywhere else).
  */
 import { z } from 'zod';
-import { APPROVAL_REQUEST_TYPES } from '../../lib/constants.js';
+import { APPROVAL_REQUEST_TYPES, EMPLOYEE_DEPARTMENTS } from '../../lib/constants.js';
 
 export const approvalRoleFormSchema = z.object({
   name: z.string().trim().min(2, 'Name is required.').max(60),
@@ -32,6 +32,8 @@ export const approvalWorkflowFormSchema = z.object({
   name: z.string().trim().min(2, 'Name is required.').max(60),
   steps: z.array(workflowStepFormSchema).min(1, 'Add at least one step.'),
   appliesTo: z.array(z.enum(APPROVAL_REQUEST_TYPES)),
+  // "For employees in this department use that workflow" - only on a default workflow.
+  departmentRoutes: z.array(z.object({ department: z.enum(EMPLOYEE_DEPARTMENTS), workflow: z.string().min(1, 'Choose a workflow.') })),
   isActive: z.boolean(),
 });
 
@@ -39,6 +41,7 @@ export const emptyApprovalWorkflowForm = {
   name: '',
   steps: [{ label: '', roles: [] }],
   appliesTo: [],
+  departmentRoutes: [],
   isActive: true,
 };
 
@@ -50,6 +53,7 @@ export function approvalWorkflowToForm(workflow) {
       roles: (s.roles ?? []).map((r) => r._id ?? r),
     })),
     appliesTo: workflow.appliesTo ?? [],
+    departmentRoutes: (workflow.departmentRoutes ?? []).map((r) => ({ department: r.department, workflow: r.workflow?._id ?? r.workflow })),
     isActive: workflow.isActive,
   };
 }

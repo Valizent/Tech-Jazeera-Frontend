@@ -541,10 +541,18 @@ export default function LeavePage() {
   const { t } = useTranslation();
   const { user } = useAuth();
   const canManageTypes = LEAVE_TYPE_MANAGE_ROLES.includes(user.role);
+  // 2026-10-13: applying for your own leave and seeing everyone's are separate
+  // permissions. Without the queue, the same list shows only your own requests.
+  const seesQueue = Boolean(user.sectionAccess?.includes('leaveRequests'));
+  const canApply = Boolean(user.sectionAccessWrite?.includes('leaveApply'));
 
   const tabs = [
-    { key: 'requests', label: t('staffLeave.tabs.requests'), content: <ReviewQueue /> },
-    user.role !== 'Admin' && { key: 'submit', label: t('staffLeave.tabs.submit'), content: <SubmitLeavePanel /> },
+    {
+      key: 'requests',
+      label: seesQueue ? t('staffLeave.tabs.requests') : t('staffLeave.tabs.myRequests'),
+      content: <ReviewQueue />,
+    },
+    user.role !== 'Admin' && canApply && { key: 'submit', label: t('staffLeave.tabs.submit'), content: <SubmitLeavePanel /> },
     { key: 'holidays', label: t('staffLeave.tabs.holidays'), content: <UpcomingHolidays /> },
     canManageTypes && { key: 'types', label: t('staffLeave.tabs.types'), content: <LeaveTypesPanel /> },
   ].filter(Boolean);
@@ -556,9 +564,11 @@ export default function LeavePage() {
         title={t('staffLeave.page.title')}
         onBack={() => navigate(-1)}
         description={
-          user.role === 'Coordinator'
-            ? t('staffLeave.page.descriptionCoordinator')
-            : t('staffLeave.page.descriptionDefault')
+          !seesQueue
+            ? t('staffLeave.page.descriptionOwn')
+            : user.role === 'Coordinator'
+              ? t('staffLeave.page.descriptionCoordinator')
+              : t('staffLeave.page.descriptionDefault')
         }
       />
       <Tabs tabs={tabs} value={activeTab} onChange={setActiveTab} />

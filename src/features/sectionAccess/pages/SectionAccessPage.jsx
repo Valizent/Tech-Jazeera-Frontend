@@ -60,6 +60,7 @@ const idsFromServer = (section) => ({
   writeApprovalRoles: (section.writeApprovalRoles ?? []).map((r) => r._id),
   readAllStaff: Boolean(section.readAllStaff),
   writeAllStaff: Boolean(section.writeAllStaff),
+  allStaffExceptRoles: (section.allStaffExceptRoles ?? []).map((r) => r._id),
 });
 
 const sameIds = (a, b) => a.length === b.length && a.every((id) => b.includes(id));
@@ -69,7 +70,8 @@ const isDirty = (section, local) =>
   (!sameIds(local.readApprovalRoles, section.readApprovalRoles.map((r) => r._id)) ||
     !sameIds(local.writeApprovalRoles, section.writeApprovalRoles.map((r) => r._id)) ||
     local.readAllStaff !== Boolean(section.readAllStaff) ||
-    local.writeAllStaff !== Boolean(section.writeAllStaff));
+    local.writeAllStaff !== Boolean(section.writeAllStaff) ||
+    !sameIds(local.allStaffExceptRoles ?? [], (section.allStaffExceptRoles ?? []).map((r) => r._id)));
 
 /** One tier's approval-role checklist, reused for both Read and Write below.
  *  `allStaff` (when offered) is the "every office login" switch for the tier. */
@@ -107,7 +109,7 @@ function TierChecklist({ title, hint, approvalRoleIds, onToggleApprovalRole, app
   );
 }
 
-function SectionCard({ section, local, dirty, onToggleRead, onToggleWrite, onToggleAllStaff, onSave, saving, approvalRoles: allRoles, approvalRolesLoading, approvalRolesError }) {
+function SectionCard({ section, local, dirty, onToggleRead, onToggleWrite, onToggleAllStaff, onToggleExcept, onSave, saving, approvalRoles: allRoles, approvalRolesLoading, approvalRolesError }) {
   // The reserved Worker/Staff roles can only be granted the safe list — elsewhere they are not offered.
   const safeForSelfService = SELF_SERVICE_GRANTABLE_KEYS.includes(section.sectionKey);
   const approvalRoles = (allRoles ?? []).filter((r) => !r.allowsSelfService || safeForSelfService);
@@ -148,7 +150,7 @@ function SectionCard({ section, local, dirty, onToggleRead, onToggleWrite, onTog
           hint={
             only === 'write'
               ? 'Only the roles ticked here (and Admin) can do this. Everyone else cannot.'
-              : 'If granted, users can actively make changes (like creating, editing, approving, or deleting records). If not granted, they cannot make any changes.'
+              : 'If granted, users can actively make changes (like creating, editing or approving records). Deleting a record is Admin only. If not granted, they cannot make any changes.'
           }
           approvalRoleIds={local.writeApprovalRoles}
           onToggleApprovalRole={onToggleWrite}
@@ -158,6 +160,28 @@ function SectionCard({ section, local, dirty, onToggleRead, onToggleWrite, onTog
           allStaff={local.writeAllStaff}
           onToggleAllStaff={() => onToggleAllStaff('writeAllStaff')}
         />
+      )}
+
+      {(local.readAllStaff || local.writeAllStaff) && (
+        <div className="space-y-2 rounded-lg border border-border/60 p-3">
+          <div>
+            <h3 className="text-xs font-semibold uppercase tracking-wide text-text">Except these roles</h3>
+            <p className="mt-0.5 text-xs text-muted">
+              Members of the roles ticked here are left out of &quot;All office staff&quot; above. A person who is also named in a role
+              grant on this card keeps that grant.
+            </p>
+          </div>
+          {approvalRolesLoading ? (
+            <Skeleton className="h-10 w-full" />
+          ) : (
+            <PillChecklist
+              items={approvalRoles ?? []}
+              selected={local.allStaffExceptRoles ?? []}
+              onToggle={onToggleExcept}
+              emptyMessage="No approval roles configured yet."
+            />
+          )}
+        </div>
       )}
 
       <div className="flex justify-end">
@@ -446,6 +470,7 @@ export default function SectionAccessPage() {
                 onToggleRead={toggleIn(key, 'readApprovalRoles')}
                 onToggleWrite={toggleIn(key, 'writeApprovalRoles')}
                 onToggleAllStaff={toggleFlag(key)}
+                onToggleExcept={toggleIn(key, 'allStaffExceptRoles')}
                 onSave={() => saveSection(key)}
                 saving={savingKeys.has(key)}
                 approvalRoles={approvalRoles}

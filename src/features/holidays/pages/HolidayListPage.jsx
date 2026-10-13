@@ -117,9 +117,11 @@ export default function HolidayListPage() {
             <Button size="sm" variant="ghost" onClick={() => openEdit(h)}>
               {t('common.edit')}
             </Button>
-            <Button size="sm" variant="danger-ghost" onClick={() => setToDelete(h)}>
-              {t('common.delete')}
-            </Button>
+            {user.role === 'Admin' && (
+              <Button size="sm" variant="danger-ghost" onClick={() => setToDelete(h)}>
+                {t('common.delete')}
+              </Button>
+            )}
           </span>
         ) : null,
     },

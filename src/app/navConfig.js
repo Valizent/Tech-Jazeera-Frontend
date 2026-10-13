@@ -118,9 +118,9 @@ export const NAV_GROUPS = [
       { to: '/employees', label: 'Employees', icon: ICON.users, sectionKey: 'employeeCreate', description: 'Records, profiles, documents.', labelKey: 'staffNav.workforce.employees.label', descriptionKey: 'staffNav.workforce.employees.description' },
       { to: '/outsourced-employees', label: 'Outsourced', icon: ICON.team, sectionKey: 'employeeCreate', description: 'Freelancers and Subcontractors.', labelKey: 'staffNav.workforce.outsourcedEmployees.label', descriptionKey: 'staffNav.workforce.outsourcedEmployees.description' },
       { to: '/attendance', label: 'Attendance', icon: ICON.calendar, sectionKey: ['attendanceRecords', 'attendanceSignInOut', 'attendanceOfficeLocation'], description: 'Daily sign-in/out and records.', labelKey: 'staffNav.workforce.attendance.label', descriptionKey: 'staffNav.workforce.attendance.description' },
-      { to: '/leave', label: 'Leave', icon: ICON.calendarOff, sectionKey: 'leaveRequests', description: 'Types, requests and approvals.', labelKey: 'staffNav.workforce.leave.label', descriptionKey: 'staffNav.workforce.leave.description' },
+      { to: '/leave', label: 'Leave', icon: ICON.calendarOff, sectionKey: ['leaveRequests', 'leaveApply'], description: 'Types, requests and approvals.', labelKey: 'staffNav.workforce.leave.label', descriptionKey: 'staffNav.workforce.leave.description' },
       { to: '/holidays', label: 'Holidays', icon: ICON.holidays, description: 'The company holiday calendar.', labelKey: 'staffNav.workforce.holidays.label', descriptionKey: 'staffNav.workforce.holidays.description' },
-      { to: '/timesheets', label: 'Timesheets', icon: ICON.list, sectionKey: 'timesheetRequests', description: 'Weekly hours, submitted for approval.', labelKey: 'staffNav.workforce.timesheets.label', descriptionKey: 'staffNav.workforce.timesheets.description' },
+      { to: '/timesheets', label: 'Timesheets', icon: ICON.list, sectionKey: ['timesheetRequests', 'timesheetOwn'], description: 'Weekly hours, submitted for approval.', labelKey: 'staffNav.workforce.timesheets.label', descriptionKey: 'staffNav.workforce.timesheets.description' },
       { to: '/eosb', label: 'End of Service', icon: ICON.eosb, sectionKey: 'eosb', description: 'EOSB settlements on exit.', labelKey: 'staffNav.workforce.eosb.label', descriptionKey: 'staffNav.workforce.eosb.description' },
       // No sectionKey: any staff login can file their own request; the page itself shows the
       // review queue only to whoever holds Read on 'annualVacation'.
@@ -214,3 +214,36 @@ export const NAV_GROUPS = [
     ],
   },
 ];
+
+/**
+ * Modules an Executive login (MM, FM, COO, GM) sees once a Section Access grant
+ * opens them (2026-10-13): the Executive sidebar above is a fixed short list, so
+ * without these a granted module would exist but never show. Each entry is the
+ * normal nav item with the grant that unlocks it; nothing here is shown without it.
+ */
+const EXECUTIVE_GRANT_BY_PATH = {
+  '/employees': 'employeeCreate',
+  '/outsourced-employees': 'employeeCreate',
+  '/attendance': 'attendanceRecords',
+  '/eosb': 'eosb',
+  '/mobilisations': ['mobilisationsViewer', 'mobilisationsSelfMobilise', 'deploymentsRelease'],
+  '/clients': 'clientsManage',
+  '/subcontractors': 'subcontractorsManage',
+  '/daily-updates': ['dailyUpdatesOwn', 'dailyUpdatesTeam'],
+  '/requirements': ['requirementsOwn', 'requirementsTeam'],
+  '/financial/ready-to-invoice': 'deploymentsInvoicing',
+  '/financial/payments-due': ['deploymentsInvoicing', 'deploymentsPaymentDecide'],
+  '/financial/paid-invoices': ['deploymentsInvoicing', 'deploymentsPaymentDecide'],
+  '/financial/ready-for-sub-invoice': 'deploymentsInvoicing',
+  '/financial/sub-payments-due': ['deploymentsInvoicing', 'deploymentsPaymentDecide'],
+  '/financial/paid-sub-invoices': ['deploymentsInvoicing', 'deploymentsPaymentDecide'],
+  '/documents': 'documentsManage',
+  '/assets': 'assetsManage',
+  '/approvals': 'approvalHierarchy',
+  '/reconciliation': 'reconciliation',
+};
+
+export const EXECUTIVE_GRANTED_ITEMS = NAV_GROUPS.flatMap((group) => group.items)
+  .filter((item) => EXECUTIVE_GRANT_BY_PATH[item.to])
+  .map((item) => ({ ...item, roles: undefined, sectionKey: EXECUTIVE_GRANT_BY_PATH[item.to] }));
+

@@ -36,9 +36,9 @@ export const MODULE_GROUPS = [
     modules: [
       { ...navItem('workforce', '/employees'), sectionKeys: ['employeeCreate', 'employeeEdit', 'employeeDelete', 'employeeFinancial'] },
       { ...navItem('workforce', '/attendance'), sectionKeys: ['attendanceRecords', 'attendanceSignInOut', 'attendanceOfficeLocation'] },
-      { ...navItem('workforce', '/leave'), sectionKeys: ['leaveRequests'] },
+      { ...navItem('workforce', '/leave'), sectionKeys: ['leaveRequests', 'leaveApply'] },
       { ...navItem('workforce', '/holidays'), sectionKeys: ['holidays'] },
-      { ...navItem('workforce', '/timesheets'), sectionKeys: ['timesheetRequests'] },
+      { ...navItem('workforce', '/timesheets'), sectionKeys: ['timesheetRequests', 'timesheetOwn'] },
       { ...navItem('workforce', '/eosb'), sectionKeys: ['eosb'] },
       { ...navItem('workforce', '/annual-vacation'), sectionKeys: ['annualVacation'] },
       { ...navItem('workforce', '/exit-documents'), sectionKeys: ['exitDocuments'] },

@@ -13,7 +13,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
-import { getMyProfile, updateMyProfile } from '../ess.api.js';
+import { getMyEosb, getMyProfile, updateMyProfile } from '../ess.api.js';
 import { updateMyProfileFormSchema, profileToForm } from '../profile.schema.js';
 import { formatDate, formatMoney, apiMessage, collectFormErrorMessages } from '../../../lib/utils.js';
 import { useToast } from '../../../components/ui/Toast.jsx';
@@ -25,6 +25,7 @@ import ExpiryBadge from '../../../components/shared/ExpiryBadge.jsx';
 import Skeleton from '../../../components/ui/Skeleton.jsx';
 import EmptyState from '../../../components/ui/EmptyState.jsx';
 import Button from '../../../components/ui/Button.jsx';
+import MyEosbCard from '../components/MyEosbCard.jsx';
 import PortalTodayCard from '../components/PortalTodayCard.jsx';
 
 const STATUS_VARIANT = { Active: 'success', 'On Leave': 'warning', Exited: 'default' };
@@ -128,6 +129,8 @@ export default function MyProfilePage() {
       />
 
       <PortalTodayCard />
+
+      <MyEosbCard queryKey={['me', 'eosb']} fetcher={getMyEosb} />
 
       <Card>
         <h2 className="mb-4 text-sm font-semibold uppercase tracking-wide text-muted">{t('profile.personalDetails')}</h2>

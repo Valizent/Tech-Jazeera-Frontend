@@ -19,6 +19,7 @@ import {
   EMPLOYEE_STATUSES,
   EMPLOYEE_TYPES,
   EMPLOYEE_TYPE_LABELS,
+  EMPLOYEE_DEPARTMENTS,
   WEEKDAY_LABELS,
   MANAGER_ELIGIBLE_ROLES,
 } from '../../../lib/constants.js';
@@ -228,7 +229,19 @@ export default function EmployeeForm({ defaultValues, onSubmit, submitLabel, sub
           {...register('contractEndDate')}
         />
         <Input label={`${t('staffEmployees.form.designation')} *`} placeholder="Electrician" error={errors.designation?.message} {...register('designation')} />
-        <Input label={t('staffEmployees.form.department')} placeholder="Maintenance" error={errors.department?.message} {...register('department')} />
+        <div>
+          <Select label={t('staffEmployees.form.department')} error={errors.department?.message} {...register('department')}>
+            <option value="">{t('staffEmployees.form.departmentChoose')}</option>
+            {EMPLOYEE_DEPARTMENTS.map((d) => (
+              <option key={d} value={d}>
+                {t(`staffEmployees.departments.${d}`, d)}
+              </option>
+            ))}
+          </Select>
+          {defaultValues.departmentLegacy && (
+            <p className="mt-1 text-xs text-warning">{t('staffEmployees.form.departmentLegacyHint', { value: defaultValues.departmentLegacy })}</p>
+          )}
+        </div>
         {!payHidden && (
           <Input
             label={`${t('staffEmployees.form.salaryPerMonth')}${type === 'Outsourced' ? ' *' : ''}`}

@@ -32,7 +32,7 @@ import {
 } from '../approvals.schema.js';
 import { listStaffUsers } from '../../users/users.api.js';
 import { useAuth } from '../../auth/AuthContext.jsx';
-import { APPROVAL_REQUEST_TYPES, APPROVAL_REQUEST_TYPE_LABELS } from '../../../lib/constants.js';
+import { APPROVAL_REQUEST_TYPES, APPROVAL_REQUEST_TYPE_LABELS, EMPLOYEE_DEPARTMENTS } from '../../../lib/constants.js';
 import { apiMessage, cn } from '../../../lib/utils.js';
 import { useToast } from '../../../components/ui/Toast.jsx';
 import PageHeader from '../../../components/shared/PageHeader.jsx';
@@ -42,6 +42,7 @@ import Card from '../../../components/ui/Card.jsx';
 import Badge from '../../../components/ui/Badge.jsx';
 import Button from '../../../components/ui/Button.jsx';
 import Input from '../../../components/ui/Input.jsx';
+import Select from '../../../components/ui/Select.jsx';
 import Modal from '../../../components/ui/Modal.jsx';
 import EmptyState from '../../../components/ui/EmptyState.jsx';
 import Skeleton from '../../../components/ui/Skeleton.jsx';
@@ -305,6 +306,11 @@ function ApprovalWorkflowsPanel() {
     formState: { errors },
   } = useForm({ resolver: zodResolver(approvalWorkflowFormSchema), defaultValues: emptyApprovalWorkflowForm });
   const { fields: stepFields, append: appendStep, remove: removeStep, move: moveStep } = useFieldArray({ control, name: 'steps' });
+  const {
+    fields: routeFields,
+    append: appendRoute,
+    remove: removeRoute,
+  } = useFieldArray({ control, name: 'departmentRoutes' });
   const appliesTo = watch('appliesTo') ?? [];
 
   // A short activation distance so clicking a role pill or the label input
@@ -397,6 +403,11 @@ function ApprovalWorkflowsPanel() {
                     Default for: {wf.appliesTo.map((t) => APPROVAL_REQUEST_TYPE_LABELS[t]).join(', ')}
                   </p>
                 )}
+                {wf.departmentRoutes?.length > 0 && (
+                  <p className="mt-0.5 text-xs text-muted">
+                    By department: {wf.departmentRoutes.map((r) => `${r.department} → ${r.workflow?.name ?? '?'}`).join(', ')}
+                  </p>
+                )}
               </div>
               <Badge variant={wf.isActive ? 'success' : 'default'}>{wf.isActive ? 'Active' : 'Inactive'}</Badge>
             </button>
@@ -466,6 +477,50 @@ function ApprovalWorkflowsPanel() {
                 still override this.
               </p>
             </div>
+
+            {appliesTo.length > 0 && (
+              <div>
+                <div className="mb-2 flex items-center justify-between">
+                  <label className="text-sm font-medium">Route by department</label>
+                  <Button type="button" size="sm" variant="secondary" onClick={() => appendRoute({ department: EMPLOYEE_DEPARTMENTS[0], workflow: '' })}>
+                    Add route
+                  </Button>
+                </div>
+                <p className="mb-2 text-xs text-muted">
+                  For employees in a department, use another workflow instead of this one. An employee&apos;s own override still
+                  wins; anyone not listed follows this workflow.
+                </p>
+                {routeFields.map((field, i) => (
+                  <div key={field.id} className="mb-2 flex flex-wrap items-start gap-2">
+                    <Select {...register(`departmentRoutes.${i}.department`)} aria-label="Department" className="w-44">
+                      {EMPLOYEE_DEPARTMENTS.map((d) => (
+                        <option key={d} value={d}>
+                          {d}
+                        </option>
+                      ))}
+                    </Select>
+                    <Select
+                      {...register(`departmentRoutes.${i}.workflow`)}
+                      error={errors.departmentRoutes?.[i]?.workflow?.message}
+                      aria-label="Workflow"
+                      className="min-w-[14rem] flex-1"
+                    >
+                      <option value="">Choose a workflow...</option>
+                      {(workflows ?? [])
+                        .filter((w) => w.isActive && w._id !== editing?._id)
+                        .map((w) => (
+                          <option key={w._id} value={w._id}>
+                            {w.name}
+                          </option>
+                        ))}
+                    </Select>
+                    <Button type="button" size="sm" variant="danger-ghost" onClick={() => removeRoute(i)}>
+                      Remove
+                    </Button>
+                  </div>
+                ))}
+              </div>
+            )}
 
             <label className="flex items-center gap-2 text-sm">
               <input type="checkbox" className="h-4 w-4 rounded border-border" {...register('isActive')} />

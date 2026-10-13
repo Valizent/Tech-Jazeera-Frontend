@@ -21,6 +21,10 @@ export const EMPLOYEE_TYPE_LABELS = {
   Outsourced: 'Outsourced supplied workforce',
   Subcontracted: 'Subcontracted sourced from a subcontractor',
 };
+/** Mirrors the server's employees/departments.js. A fixed list since 2026-10-13: the
+ *  approval engine routes some requests by department (annual vacation). */
+export const EMPLOYEE_DEPARTMENTS = ['Accounts', 'Marketing', 'HR', 'Operations', 'Coordination', 'Management', 'IT'];
+
 // Who may add, edit, delete or see pay on an employee is not a static list
 // (2026-10-13): Section Access keys 'employeeCreate' (Write = add),
 // 'employeeEdit' (Write), 'employeeDelete' (Write) and 'employeeFinancial'
@@ -178,7 +182,8 @@ export const ASSET_STATUS_VARIANT = { Available: 'success', Assigned: 'primary',
 /** Create/edit/assign/return is the admin-configurable SectionAccess
  *  ('assetsManage') mechanism now — see AssetListPage.jsx. Delete stays its
  *  own hardcoded, stricter circle (mirrors asset.routes.js). */
-export const ASSET_DELETE_ROLES = ['Admin', 'HR'];
+// Deleting any record is Admin only (2026-10-13, the Section Access redesign).
+export const ASSET_DELETE_ROLES = ['Admin'];
 
 /** Mirrors timesheet.model.js — still used by the Worker ESS portal's own
  *  submit/status display (MyAttendancePage.jsx); the staff-side review queue
@@ -218,7 +223,7 @@ export const CLIENT_STATUSES = ['Active', 'Inactive'];
 /** Create/edit/decide (one circle) is the admin-configurable SectionAccess
  *  ('clientsManage') mechanism now — see clients.permissions.js. Delete
  *  stays its own hardcoded, stricter circle. */
-export const CLIENT_DELETE_ROLES = ['Admin', 'Manager'];
+export const CLIENT_DELETE_ROLES = ['Admin'];
 
 /** Mirrors the Client model's approvalStatus enum — separate from `status`
  *  above. A Coordinator-created client starts Pending until decided. */

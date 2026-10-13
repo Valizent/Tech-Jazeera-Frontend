@@ -49,7 +49,6 @@ export default function SettlementViewPage() {
   const { user } = useAuth();
   // 'eosb' has a real Read/Write split (2026-09-14 fix, a real QA-audit-
   // found gap) — reaching this page only implies Read; Delete needs Write.
-  const canWrite = Boolean(user.sectionAccessWrite?.includes('eosb'));
 
   const { data: s, isPending, isError } = useQuery({
     queryKey: ['eosb', id],
@@ -99,7 +98,7 @@ export default function SettlementViewPage() {
               {t(`staffEosb.exitReasonLabels.${s.exitReason}`, EXIT_REASON_LABELS[s.exitReason])}
             </Badge>
             <SettlementPdfButton id={s._id} employeeCode={s.employeeCode} />
-            {canWrite && (
+            {user.role === 'Admin' && (
               <Button variant="danger-ghost" onClick={() => setConfirmingDelete(true)}>
                 {t('common.delete')}
               </Button>

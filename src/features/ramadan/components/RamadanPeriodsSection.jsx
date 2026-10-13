@@ -115,9 +115,11 @@ export default function RamadanPeriodsSection() {
             <Button size="sm" variant="ghost" onClick={() => openEdit(p)}>
               {t('common.edit')}
             </Button>
-            <Button size="sm" variant="danger-ghost" onClick={() => setToDelete(p)}>
-              {t('common.delete')}
-            </Button>
+            {user.role === 'Admin' && (
+              <Button size="sm" variant="danger-ghost" onClick={() => setToDelete(p)}>
+                {t('common.delete')}
+              </Button>
+            )}
           </span>
         ) : null,
     },

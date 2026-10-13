@@ -29,7 +29,8 @@ export default function DocumentActionsCell({ doc }) {
   const [confirmingDelete, setConfirmingDelete] = useState(false);
 
   const canWrite = Boolean(user.sectionAccessWrite?.includes('documentsManage'));
-  const canDelete = canWrite;
+  // Deleting is Admin only (2026-10-13); changing a document stays 'documentsManage'.
+  const canDelete = user.role === 'Admin';
   const version = currentVersion(doc);
 
   const invalidate = () => queryClient.invalidateQueries({ queryKey: ['documents'] });

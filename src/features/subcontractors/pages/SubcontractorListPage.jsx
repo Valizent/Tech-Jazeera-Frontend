@@ -30,7 +30,7 @@ export default function SubcontractorListPage() {
   const toast = useToast();
   const queryClient = useQueryClient();
   const canWrite = Boolean(user.sectionAccessWrite?.includes('subcontractorsManage'));
-  const canDelete = canWrite;
+  const canDelete = user.role === 'Admin'; // delete is Admin only (2026-10-13)
 
   const [search, setSearch] = useState('');
   const [params, setParams] = useState({ page: 1, limit: 20, search: '', status: '' });

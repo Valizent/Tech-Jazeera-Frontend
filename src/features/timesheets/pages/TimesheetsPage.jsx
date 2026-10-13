@@ -23,6 +23,8 @@ import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { getMonthlyReport, generateMonthlyReport } from '../timesheets.api.js';
+import { getMyProfile } from '../../profile/profile.api.js';
+import { useAuth } from '../../auth/AuthContext.jsx';
 import { listAllEmployees } from '../../employees/employees.api.js';
 import { apiMessage } from '../../../lib/utils.js';
 import { useToast } from '../../../components/ui/Toast.jsx';
@@ -174,9 +176,11 @@ function MonthlyTimesheetDetail({ employee, onBack }) {
 
   return (
     <div className="space-y-4">
-      <button type="button" onClick={onBack} className="text-xs font-medium text-primary hover:underline">
-        ← {t('staffTimesheets.detail.backToList')}
-      </button>
+      {onBack && (
+        <button type="button" onClick={onBack} className="text-xs font-medium text-primary hover:underline">
+          ← {t('staffTimesheets.detail.backToList')}
+        </button>
+      )}
 
       <Card>
         <div className="mb-4 flex flex-wrap items-end justify-between gap-4">
@@ -232,19 +236,41 @@ function MonthlyTimesheetDetail({ employee, onBack }) {
   );
 }
 
+/** Someone who may open only their own timesheet ('timesheetOwn'): no list, straight to their month. */
+function OwnTimesheet() {
+  const { t } = useTranslation();
+  const { data: me, isPending, isError, refetch } = useQuery({ queryKey: ['profile', 'mine'], queryFn: getMyProfile });
+  if (isPending) return <Skeleton className="h-64 w-full" />;
+  if (isError || !me) {
+    return (
+      <EmptyState
+        title={t('staffTimesheets.detail.couldNotLoad')}
+        description={t('common.checkConnection')}
+        action={<Button variant="secondary" onClick={() => refetch()}>{t('common.retry')}</Button>}
+      />
+    );
+  }
+  return <MonthlyTimesheetDetail employee={me} />;
+}
+
 export default function TimesheetsPage() {
   const navigate = useNavigate();
   const { t } = useTranslation();
+  const { user } = useAuth();
   const [viewingEmployee, setViewingEmployee] = useState(null);
+  // Everyone's timesheets need 'timesheetRequests'; 'timesheetOwn' alone opens just your own.
+  const seesAll = Boolean(user.sectionAccess?.includes('timesheetRequests'));
 
   return (
     <div className="mx-auto max-w-[1600px] space-y-6">
       <PageHeader
         title={t('staffTimesheets.page.title')}
-        description={t('staffTimesheets.page.description')}
+        description={seesAll ? t('staffTimesheets.page.description') : t('staffTimesheets.page.descriptionOwn')}
         onBack={() => (viewingEmployee ? setViewingEmployee(null) : navigate(-1))}
       />
-      {viewingEmployee ? (
+      {!seesAll ? (
+        <OwnTimesheet />
+      ) : viewingEmployee ? (
         <MonthlyTimesheetDetail employee={viewingEmployee} onBack={() => setViewingEmployee(null)} />
       ) : (
         <EmployeeList onView={setViewingEmployee} />

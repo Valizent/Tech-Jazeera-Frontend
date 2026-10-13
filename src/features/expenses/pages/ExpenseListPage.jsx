@@ -191,7 +191,7 @@ export default function ExpenseListPage() {
             <Button size="sm" variant="ghost" onClick={() => openDuplicate(e)}>
               {L('duplicate')}
             </Button>
-            {!e.sourceReimbursement && (
+            {!e.sourceReimbursement && user.role === 'Admin' && (
               <Button size="sm" variant="danger-ghost" onClick={() => setToDelete(e)}>
                 {t('common.delete')}
               </Button>

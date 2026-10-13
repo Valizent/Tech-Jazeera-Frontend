@@ -13,7 +13,8 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
-import { getMyProfile, updateMyProfile } from '../profile.api.js';
+import { getMyEosb, getMyProfile, updateMyProfile } from '../profile.api.js';
+import MyEosbCard from '../../ess/components/MyEosbCard.jsx';
 import { updateMyProfileFormSchema, profileToForm } from '../../ess/profile.schema.js';
 import { apiMessage } from '../../../lib/utils.js';
 import { useToast } from '../../../components/ui/Toast.jsx';
@@ -89,6 +90,7 @@ export default function MyDetailsModal({ open, onClose }) {
               />
             </div>
           </div>
+          <MyEosbCard embedded queryKey={['profile', 'eosb']} fetcher={getMyEosb} />
           <div className="flex justify-end gap-2 pt-2">
             <Button type="button" variant="secondary" onClick={onClose} disabled={mutation.isPending}>
               {t('common.cancel')}

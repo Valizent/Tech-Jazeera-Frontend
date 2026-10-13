@@ -33,6 +33,7 @@ import {
   DASHBOARD_ITEM,
   NAV_GROUPS,
   EXECUTIVE_NAV_ITEMS,
+  EXECUTIVE_GRANTED_ITEMS,
   MY_PORTAL_ITEM,
   SELF_SERVICE_LOGIN_ROLES,
   isGrantedToSelfService,
@@ -55,7 +56,11 @@ function Sidebar({ onNavigate, showBrand }) {
   if (user.role === 'Executive') {
     items = [
       DASHBOARD_ITEM,
-      ...EXECUTIVE_NAV_ITEMS.filter((item) => !item.sectionKey || user.sectionAccess?.includes(item.sectionKey)),
+      ...[...EXECUTIVE_NAV_ITEMS, ...EXECUTIVE_GRANTED_ITEMS].filter((item) => {
+        if (!item.sectionKey) return true;
+        const keys = Array.isArray(item.sectionKey) ? item.sectionKey : [item.sectionKey];
+        return keys.some((key) => user.sectionAccess?.includes(key));
+      }),
     ];
   } else {
     // A group is shown if the user can reach at least one item inside it —
@@ -67,7 +72,10 @@ function Sidebar({ onNavigate, showBrand }) {
       group.items.some((item) => {
         if (item.roles && !item.roles.includes(user.role)) return false;
         if (selfService) return isGrantedToSelfService(item, user);
-        if (item.sectionKey && !user.sectionAccess?.includes(item.sectionKey)) return false;
+        if (item.sectionKey) {
+          const keys = Array.isArray(item.sectionKey) ? item.sectionKey : [item.sectionKey];
+          if (!keys.some((key) => user.sectionAccess?.includes(key))) return false;
+        }
         return true;
       })
     );

@@ -224,6 +224,19 @@
       "Active": "Active",
       "On Leave": "On Leave",
       "Exited": "Exited"
+    },
+    "eosb": {
+      "title": "End of service settlement",
+      "notCalculated": "Your end of service settlement has not been calculated yet. It appears here once the company has done it.",
+      "loadError": "Could not load your settlement. Try again later.",
+      "exitDate": "Exit date",
+      "exitReason": "Reason",
+      "serviceYears": "Years of service",
+      "monthlyWage": "Monthly wage",
+      "eosbNet": "End of service award",
+      "leaveDays": "Unused leave days",
+      "leaveEncashment": "Leave encashment",
+      "total": "Total settlement"
     }
   },
   "documents": {
@@ -993,7 +1006,9 @@
       "contractStartDate": "Contract start date",
       "contractEndDate": "Contract end date",
       "contractHours": "Contract hours (per month)",
-      "contractHoursHint": "Overtime is paid at salary ÷ these hours × 1.5. Needed before this employee can be mobilised."
+      "contractHoursHint": "Overtime is paid at salary ÷ these hours × 1.5. Needed before this employee can be mobilised.",
+      "departmentChoose": "Choose a department...",
+      "departmentLegacyHint": "Currently saved as \"{{value}}\". Choose a department so requests are routed correctly."
     },
     "new": {
       "title": "Add employee",
@@ -1060,6 +1075,15 @@
       "changeRoleHint": "Changing {{name}}'s role signs them out everywhere; they'll need to sign in again for the new role to take effect.",
       "roleUpdated": "Role updated. They will need to sign in again.",
       "resetPassword": "Reset password"
+    },
+    "departments": {
+      "Accounts": "Accounts",
+      "Marketing": "Marketing",
+      "HR": "HR",
+      "Operations": "Operations",
+      "Coordination": "Coordination",
+      "Management": "Management",
+      "IT": "IT"
     }
   },
   "staffAttendance": {
@@ -1235,13 +1259,15 @@
     "page": {
       "title": "Leave",
       "descriptionCoordinator": "Requests from your assigned employees.",
-      "descriptionDefault": "Leave requests across the company."
+      "descriptionDefault": "Leave requests across the company.",
+      "descriptionOwn": "Apply for leave and follow your own requests."
     },
     "tabs": {
       "requests": "Requests",
       "submit": "Submit Request",
       "holidays": "Holidays",
-      "types": "Leave Types"
+      "types": "Leave Types",
+      "myRequests": "My requests"
     },
     "recurrenceLabels": {
       "Annual": "Annual (recurring)",
@@ -1339,7 +1365,8 @@
   "staffTimesheets": {
     "page": {
       "title": "Timesheets",
-      "description": "Monthly attendance-based timesheets for internal staff pick someone to view their month."
+      "description": "Monthly attendance-based timesheets for internal staff pick someone to view their month.",
+      "descriptionOwn": "Your own monthly timesheet, built from your attendance."
     },
     "employeeList": {
       "description": "Internal staff only a deployed/mobilised field employee has their own timesheet on their Deployment record instead.",
