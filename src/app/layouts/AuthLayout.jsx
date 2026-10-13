@@ -75,14 +75,11 @@ export default function AuthLayout() {
         {/* Logo + brand name */}
         <div className="relative flex items-center gap-3">
           <BrandLogo className="h-12 w-12 drop-shadow-lg" />
-          <div>
-            <p className="text-xs font-semibold uppercase tracking-widest text-primary">Al Jazeera</p>
-            <p className="text-xl font-bold tracking-tight text-text">{brandName}</p>
-          </div>
+          <p className="text-xl font-bold tracking-tight text-text">{brandName}</p>
         </div>
 
         {/* Hero copy */}
-        <div className="relative space-y-6">
+        <div className="relative my-auto space-y-6">
           <div className="inline-flex items-center gap-2 rounded-full border border-primary/25 bg-primary/10 px-4 py-1.5 text-xs font-semibold text-primary backdrop-blur-sm">
             <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-primary" />
             Internal ERP Platform
@@ -112,23 +109,6 @@ export default function AuthLayout() {
             ))}
           </div>
         </div>
-
-        {/* Bottom stat cards */}
-        <div className="relative grid grid-cols-3 gap-4">
-          {[
-            { label: 'Active Workers', value: '500+' },
-            { label: 'Clients Served', value: '80+' },
-            { label: 'Uptime', value: '99.9%' },
-          ].map((s) => (
-            <div
-              key={s.label}
-              className="rounded-2xl border border-white/10 bg-surface/30 p-4 backdrop-blur-sm transition-transform duration-300 hover:-translate-y-1"
-            >
-              <p className="text-2xl font-extrabold text-text">{s.value}</p>
-              <p className="mt-0.5 text-xs text-muted">{s.label}</p>
-            </div>
-          ))}
-        </div>
       </div>
 
       {/* ═══════════════════════════════════════════════
@@ -140,10 +120,7 @@ export default function AuthLayout() {
         <div className="mb-6 flex flex-col items-center text-center lg:hidden">
           <div className="flex items-center gap-2.5">
             <BrandLogo className="h-9 w-9 drop-shadow-md" />
-            <div className="text-start">
-              <p className="text-[10px] font-semibold uppercase tracking-widest text-primary leading-none">Al Jazeera</p>
-              <p className="text-lg font-bold tracking-tight text-text leading-tight">{brandName}</p>
-            </div>
+            <p className="text-start text-lg font-bold tracking-tight text-text leading-tight">{brandName}</p>
           </div>
           <div className="mt-2.5 inline-flex items-center gap-1.5 rounded-full border border-primary/20 bg-primary/10 px-3 py-0.5 text-[11px] font-semibold text-primary backdrop-blur-sm">
             <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-primary" />

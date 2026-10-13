@@ -1,7 +1,7 @@
 /**
- * UpcomingHolidays — a compact "what's coming up" list, shared by the staff
- * Leave page and the Worker's My Leave page. Read-only; managing the calendar
- * itself happens on the dedicated Holidays page.
+ * UpcomingHolidays — a compact "what's coming up" list on the Worker's My
+ * Leave page. Read-only; managing the calendar itself happens on the dedicated
+ * Holidays page.
  */
 import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';

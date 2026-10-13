@@ -547,8 +547,7 @@
         "description": "Client requirements moving from first request to mobilised."
       },
       "standby": {
-        "label": "Standby List",
-        "description": "Employees waiting for an assignment."
+        "label": "Standby List"
       }
     },
     "financial": {
@@ -1265,7 +1264,6 @@
     "tabs": {
       "requests": "Requests",
       "submit": "Submit Request",
-      "holidays": "Holidays",
       "types": "Leave Types",
       "myRequests": "My requests"
     },

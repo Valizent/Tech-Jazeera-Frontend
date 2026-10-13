@@ -310,7 +310,7 @@ export default function OutsourcedEmployeeFormModal({ open, employeeId, canWrite
       open={open}
       onClose={onClose}
       title={isEdit ? t('employees.outsourced.edit', 'Edit Outsourced Employee') : t('employees.outsourced.add', 'Add Outsourced Employee')}
-      size="md"
+      size="lg"
     >
       {isEdit && isLoadingEmployee ? (
         <div className="py-8 text-center text-muted">{t('common.loading')}</div>

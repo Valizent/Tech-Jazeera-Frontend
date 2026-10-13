@@ -42,7 +42,6 @@ import {
   RECEIPT_MAX_MB,
 } from '../../../lib/constants.js';
 import { useToast } from '../../../components/ui/Toast.jsx';
-import UpcomingHolidays from '../../holidays/components/UpcomingHolidays.jsx';
 import PageHeader from '../../../components/shared/PageHeader.jsx';
 import ApprovalTrailView from '../../../components/shared/ApprovalTrailView.jsx';
 import ConfirmDialog from '../../../components/shared/ConfirmDialog.jsx';
@@ -553,7 +552,6 @@ export default function LeavePage() {
       content: <ReviewQueue />,
     },
     user.role !== 'Admin' && canApply && { key: 'submit', label: t('staffLeave.tabs.submit'), content: <SubmitLeavePanel /> },
-    { key: 'holidays', label: t('staffLeave.tabs.holidays'), content: <UpcomingHolidays /> },
     canManageTypes && { key: 'types', label: t('staffLeave.tabs.types'), content: <LeaveTypesPanel /> },
   ].filter(Boolean);
   const [activeTab, setActiveTab] = useTabParam(tabs, 'requests');
