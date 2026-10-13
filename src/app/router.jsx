@@ -266,12 +266,9 @@ export const router = createBrowserRouter([
               { path: '/employees/new', element: guardedWrite('employeeCreate', <EmployeeNewPage />) },
               { path: '/employees/:id', element: guarded('employeeCreate', <EmployeeProfilePage />) },
               { path: '/outsourced-employees', element: guarded('employeeCreate', <OutsourcedEmployeesPage />) },
-              // NOT guardedWrite('employeeCreate', ...): editing an employee is
-              // gated by a DIFFERENT, hardcoded role list (Admin/Manager/HR —
-              // see employee.routes.js's PATCH /:id) than creating one
-              // ('employeeCreate' Section Access, POST /). EmployeeEditPage
-              // does its own in-page EMPLOYEE_WRITE_ROLES check instead.
-              { path: '/employees/:id/edit', element: <EmployeeEditPage /> },
+              // Editing is its own permission ('employeeEdit' Write), separate
+              // from adding one ('employeeCreate' Write).
+              { path: '/employees/:id/edit', element: guardedWrite('employeeEdit', <EmployeeEditPage />) },
               { path: '/clients', element: guarded('clientsManage', <ClientListPage />) },
               { path: '/clients/new', element: guardedWrite('clientsManage', <ClientNewPage />) },
               { path: '/clients/:id', element: guarded('clientsManage', <ClientProfilePage />) },

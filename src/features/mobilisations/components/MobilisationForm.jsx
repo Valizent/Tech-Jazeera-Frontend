@@ -195,15 +195,18 @@ function PreviousWorkerPicker({ workerType, subcontractorId, label, onSelect }) 
 function OwnEmployeeOtNote({ worker }) {
   const { t } = useTranslation();
   if (!worker) return <p className="text-xs text-muted">{t('staffMobilisations.form.otOwnEmployeeHint')}</p>;
+  // Without pay access the server sends `salaryOnFile` instead of the figure.
+  const payHidden = worker.salary == null && worker.salaryOnFile != null;
   const salary = Number(worker.salary);
   const hours = Number(worker.contractHours);
-  if (!(salary > 0) || !(hours > 0)) {
+  if (!(payHidden ? worker.salaryOnFile : salary > 0) || !(hours > 0)) {
     return (
       <p role="status" className="rounded-lg border border-warning/30 bg-warning/10 px-3 py-2 text-sm text-warning">
         {t('staffMobilisations.form.ownEmployeeMissingHours', { name: worker.fullName })}
       </p>
     );
   }
+  if (payHidden) return <p className="text-xs text-muted">{t('staffMobilisations.form.otOwnEmployeeHint')}</p>;
   return <p className="text-xs text-muted">{t('staffMobilisations.form.otOwnEmployeeRate', { rate: formatMoney((salary / hours) * 1.5) })}</p>;
 }
 

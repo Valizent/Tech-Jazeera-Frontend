@@ -56,16 +56,9 @@ export default function EmployeeForm({ defaultValues, onSubmit, submitLabel, sub
   // to coordinator ASSIGNMENT itself, which this form no longer sets at all
   // (Milestone 5): coordinator is fully derived from Mobilisation state, so
   // there's nothing left here to show or pick, for anyone.
-  const isCoordinator = user.role === 'Coordinator';
-  // The server always overrides 'Own' to 'Outsourced' for a Coordinator's own
-  // submission (a Coordinator can never create an internal-staff record —
-  // see employee.service.js's createEmployee) AND, since that override runs
-  // after Zod validation, requires nationality/mobile/joiningDate that the
-  // 'Own' branch of the schema doesn't ask for — offering 'Own' here would
-  // let a Coordinator fill a form that validates, then 400s server-side on
-  // fields they were never shown as required. Simplest correct fix: never
-  // offer the type they can't actually end up with.
-  const selectableTypes = isCoordinator ? EMPLOYEE_TYPES.filter((t) => t !== 'Own') : EMPLOYEE_TYPES;
+  // Pay boxes: anyone adding may type salary once (it is never shown back to
+  // them); on an edit only 'employeeFinancial' Read sees or changes it.
+  const payHidden = isEdit && !user.sectionAccess?.includes('employeeFinancial');
   const {
     register,
     control,
@@ -73,7 +66,7 @@ export default function EmployeeForm({ defaultValues, onSubmit, submitLabel, sub
     watch,
     setValue,
     formState: { errors },
-  } = useForm({ resolver: zodResolver(employeeFormSchema), defaultValues });
+  } = useForm({ resolver: zodResolver(employeeFormSchema), defaultValues: { ...defaultValues, payHidden } });
 
   const { fields: additionalDocumentFields, append: appendDocument, remove: removeDocument } = useFieldArray({
     control,
@@ -149,7 +142,7 @@ export default function EmployeeForm({ defaultValues, onSubmit, submitLabel, sub
         {isEdit ? (
           <div className="sm:col-span-2">
             <Select label={`${t('staffEmployees.form.type')} *`} error={errors.type?.message} {...register('type')}>
-              {selectableTypes.map((ty) => (
+              {EMPLOYEE_TYPES.map((ty) => (
                 <option key={ty} value={ty}>
                   {t(`common.employeeType.${ty}`, EMPLOYEE_TYPE_LABELS[ty])}
                 </option>
@@ -236,14 +229,16 @@ export default function EmployeeForm({ defaultValues, onSubmit, submitLabel, sub
         />
         <Input label={`${t('staffEmployees.form.designation')} *`} placeholder="Electrician" error={errors.designation?.message} {...register('designation')} />
         <Input label={t('staffEmployees.form.department')} placeholder="Maintenance" error={errors.department?.message} {...register('department')} />
-        <Input
-          label={`${t('staffEmployees.form.salaryPerMonth')}${type === 'Outsourced' ? ' *' : ''}`}
-          type="number"
-          min="0"
-          step="50"
-          error={errors.salary?.message}
-          {...register('salary')}
-        />
+        {!payHidden && (
+          <Input
+            label={`${t('staffEmployees.form.salaryPerMonth')}${type === 'Outsourced' ? ' *' : ''}`}
+            type="number"
+            min="0"
+            step="50"
+            error={errors.salary?.message}
+            {...register('salary')}
+          />
+        )}
         <div>
           <Input
             label={t('staffEmployees.form.contractHours')}
@@ -257,14 +252,16 @@ export default function EmployeeForm({ defaultValues, onSubmit, submitLabel, sub
           />
           <p className="mt-1 text-xs text-muted">{t('staffEmployees.form.contractHoursHint')}</p>
         </div>
-        <div className="sm:col-span-2">
-          <p className="mb-2 text-xs font-medium text-muted">{t('staffEmployees.form.wpsBreakdownHint')}</p>
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-            <Input label={t('staffEmployees.form.basic')} type="number" min="0" step="50" error={errors.basicSalary?.message} {...register('basicSalary')} />
-            <Input label={t('staffEmployees.form.housingAllowance')} type="number" min="0" step="50" error={errors.housingAllowance?.message} {...register('housingAllowance')} />
-            <Input label={t('staffEmployees.form.transportAllowance')} type="number" min="0" step="50" error={errors.transportAllowance?.message} {...register('transportAllowance')} />
+        {!payHidden && (
+          <div className="sm:col-span-2">
+            <p className="mb-2 text-xs font-medium text-muted">{t('staffEmployees.form.wpsBreakdownHint')}</p>
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+              <Input label={t('staffEmployees.form.basic')} type="number" min="0" step="50" error={errors.basicSalary?.message} {...register('basicSalary')} />
+              <Input label={t('staffEmployees.form.housingAllowance')} type="number" min="0" step="50" error={errors.housingAllowance?.message} {...register('housingAllowance')} />
+              <Input label={t('staffEmployees.form.transportAllowance')} type="number" min="0" step="50" error={errors.transportAllowance?.message} {...register('transportAllowance')} />
+            </div>
           </div>
-        </div>
+        )}
         <Input label={t('staffEmployees.form.accommodation')} placeholder="Company camp, room 12" error={errors.accommodation?.message} {...register('accommodation')} />
         <div>
           <Input

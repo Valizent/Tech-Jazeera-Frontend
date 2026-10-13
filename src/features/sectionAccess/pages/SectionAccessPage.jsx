@@ -58,6 +58,8 @@ import Icon from '../../../components/ui/Icon.jsx';
 const idsFromServer = (section) => ({
   readApprovalRoles: (section.readApprovalRoles ?? []).map((r) => r._id),
   writeApprovalRoles: (section.writeApprovalRoles ?? []).map((r) => r._id),
+  readAllStaff: Boolean(section.readAllStaff),
+  writeAllStaff: Boolean(section.writeAllStaff),
 });
 
 const sameIds = (a, b) => a.length === b.length && a.every((id) => b.includes(id));
@@ -65,16 +67,28 @@ const sameIds = (a, b) => a.length === b.length && a.every((id) => b.includes(id
 const isDirty = (section, local) =>
   Boolean(local) &&
   (!sameIds(local.readApprovalRoles, section.readApprovalRoles.map((r) => r._id)) ||
-    !sameIds(local.writeApprovalRoles, section.writeApprovalRoles.map((r) => r._id)));
+    !sameIds(local.writeApprovalRoles, section.writeApprovalRoles.map((r) => r._id)) ||
+    local.readAllStaff !== Boolean(section.readAllStaff) ||
+    local.writeAllStaff !== Boolean(section.writeAllStaff));
 
-/** One tier's approval-role checklist, reused for both Read and Write below. */
-function TierChecklist({ title, hint, approvalRoleIds, onToggleApprovalRole, approvalRoles, approvalRolesLoading, approvalRolesError }) {
+/** One tier's approval-role checklist, reused for both Read and Write below.
+ *  `allStaff` (when offered) is the "every office login" switch for the tier. */
+function TierChecklist({ title, hint, approvalRoleIds, onToggleApprovalRole, approvalRoles, approvalRolesLoading, approvalRolesError, allStaff, onToggleAllStaff }) {
   return (
     <div className="space-y-2 rounded-lg border border-border/60 p-3">
       <div>
         <h3 className="text-xs font-semibold uppercase tracking-wide text-text">{title}</h3>
         {hint && <p className="mt-0.5 text-xs text-muted">{hint}</p>}
       </div>
+      {onToggleAllStaff && (
+        <label className="flex cursor-pointer items-start gap-2 rounded-md bg-primary/5 px-2 py-1.5 text-xs text-text">
+          <input type="checkbox" checked={allStaff} onChange={onToggleAllStaff} className="mt-0.5" />
+          <span>
+            <span className="font-medium">All office staff</span>
+            <span className="block text-muted">Everyone with an office login (Admin, Manager, HR, Accounts, Coordinator, Executive, Office Secretary). Not Worker or Staff logins.</span>
+          </span>
+        </label>
+      )}
       {approvalRolesLoading ? (
         <Skeleton className="h-10 w-full" />
       ) : (
@@ -93,10 +107,14 @@ function TierChecklist({ title, hint, approvalRoleIds, onToggleApprovalRole, app
   );
 }
 
-function SectionCard({ section, local, dirty, onToggleRead, onToggleWrite, onSave, saving, approvalRoles: allRoles, approvalRolesLoading, approvalRolesError }) {
+function SectionCard({ section, local, dirty, onToggleRead, onToggleWrite, onToggleAllStaff, onSave, saving, approvalRoles: allRoles, approvalRolesLoading, approvalRolesError }) {
   // The reserved Worker/Staff roles can only be granted the safe list — elsewhere they are not offered.
   const safeForSelfService = SELF_SERVICE_GRANTABLE_KEYS.includes(section.sectionKey);
   const approvalRoles = (allRoles ?? []).filter((r) => !r.allowsSelfService || safeForSelfService);
+  // A single yes/no permission shows one list ("Who can ..."), not Read and Write.
+  const only = section.onlyTier;
+  const showRead = only !== 'write';
+  const showWrite = only !== 'read';
   return (
     <Card className={cn('space-y-4', dirty && 'ring-2 ring-primary/50')}>
       <div className="flex items-start justify-between gap-2">
@@ -107,24 +125,40 @@ function SectionCard({ section, local, dirty, onToggleRead, onToggleWrite, onSav
         {dirty && <Badge variant="warning">Unsaved</Badge>}
       </div>
 
-      <TierChecklist
-        title="Read"
-        hint="If granted, users in this role can view the data inside this module. If not granted, the module remains completely hidden and inaccessible to them. (Note: Anyone granted Write access below can automatically read too)."
-        approvalRoleIds={local.readApprovalRoles}
-        onToggleApprovalRole={onToggleRead}
-        approvalRoles={approvalRoles}
-        approvalRolesLoading={approvalRolesLoading}
-        approvalRolesError={approvalRolesError}
-      />
-      <TierChecklist
-        title="Write"
-        hint="If granted, users can actively make changes (like creating, editing, approving, or deleting records). If not granted, they cannot make any changes."
-        approvalRoleIds={local.writeApprovalRoles}
-        onToggleApprovalRole={onToggleWrite}
-        approvalRoles={approvalRoles}
-        approvalRolesLoading={approvalRolesLoading}
-        approvalRolesError={approvalRolesError}
-      />
+      {showRead && (
+        <TierChecklist
+          title={only === 'read' ? 'Who can do this' : 'Read'}
+          hint={
+            only === 'read'
+              ? 'Only the roles ticked here (and Admin) have this. Everyone else never receives it.'
+              : 'If granted, users in this role can view the data inside this module. If not granted, the module remains completely hidden and inaccessible to them. (Note: Anyone granted Write access below can automatically read too).'
+          }
+          approvalRoleIds={local.readApprovalRoles}
+          onToggleApprovalRole={onToggleRead}
+          approvalRoles={approvalRoles}
+          approvalRolesLoading={approvalRolesLoading}
+          approvalRolesError={approvalRolesError}
+          allStaff={local.readAllStaff}
+          onToggleAllStaff={() => onToggleAllStaff('readAllStaff')}
+        />
+      )}
+      {showWrite && (
+        <TierChecklist
+          title={only === 'write' ? 'Who can do this' : 'Write'}
+          hint={
+            only === 'write'
+              ? 'Only the roles ticked here (and Admin) can do this. Everyone else cannot.'
+              : 'If granted, users can actively make changes (like creating, editing, approving, or deleting records). If not granted, they cannot make any changes.'
+          }
+          approvalRoleIds={local.writeApprovalRoles}
+          onToggleApprovalRole={onToggleWrite}
+          approvalRoles={approvalRoles}
+          approvalRolesLoading={approvalRolesLoading}
+          approvalRolesError={approvalRolesError}
+          allStaff={local.writeAllStaff}
+          onToggleAllStaff={() => onToggleAllStaff('writeAllStaff')}
+        />
+      )}
 
       <div className="flex justify-end">
         <Button size="sm" variant={dirty ? 'primary' : 'secondary'} onClick={onSave} isLoading={saving} disabled={!dirty}>
@@ -273,6 +307,9 @@ export default function SectionAccessPage() {
     queryClient.invalidateQueries({ queryKey: ['section-access'] });
   }
 
+  const toggleFlag = (sectionKey) => (flag) =>
+    setLocalValues((prev) => ({ ...prev, [sectionKey]: { ...prev[sectionKey], [flag]: !prev[sectionKey]?.[flag] } }));
+
   const toggleIn = (sectionKey, tier) => (value) =>
     setLocalValues((prev) => {
       const current = prev[sectionKey]?.[tier] ?? [];
@@ -408,6 +445,7 @@ export default function SectionAccessPage() {
                 dirty={isDirty(section, local)}
                 onToggleRead={toggleIn(key, 'readApprovalRoles')}
                 onToggleWrite={toggleIn(key, 'writeApprovalRoles')}
+                onToggleAllStaff={toggleFlag(key)}
                 onSave={() => saveSection(key)}
                 saving={savingKeys.has(key)}
                 approvalRoles={approvalRoles}

@@ -12,8 +12,6 @@ import { listAssetsByEmployee } from '../../assets/assets.api.js';
 import { useAuth } from '../../auth/AuthContext.jsx';
 import { useToast } from '../../../components/ui/Toast.jsx';
 import {
-  EMPLOYEE_WRITE_ROLES,
-  EMPLOYEE_DELETE_ROLES,
   ACCOUNT_PROVISION_ROLES,
 } from '../../../lib/constants.js';
 import { apiMessage, formatDate, formatMoney } from '../../../lib/utils.js';
@@ -89,8 +87,10 @@ export default function EmployeeProfilePage() {
   const queryClient = useQueryClient();
   const [confirmingDelete, setConfirmingDelete] = useState(false);
 
-  const canWrite = EMPLOYEE_WRITE_ROLES.includes(user.role);
-  const canDelete = EMPLOYEE_DELETE_ROLES.includes(user.role);
+  const canWrite = Boolean(user.sectionAccessWrite?.includes('employeeEdit'));
+  const canDelete = Boolean(user.sectionAccessWrite?.includes('employeeDelete'));
+  // Salary and pay come from the server only for 'employeeFinancial' Read.
+  const canSeePay = Boolean(user.sectionAccess?.includes('employeeFinancial'));
   const canProvisionAccount = ACCOUNT_PROVISION_ROLES.includes(user.role);
   const canComputeEosb = Boolean(user.sectionAccessWrite?.includes('eosb'));
 
@@ -176,7 +176,9 @@ export default function EmployeeProfilePage() {
               <ProfileField label={t('staffEmployees.form.contractEndDate')}>{formatDate(employee.contractEndDate)}</ProfileField>
             )}
             <ProfileField label={t('staffEmployees.profile.fields.department')}>{employee.department}</ProfileField>
-            <ProfileField label={t('staffEmployees.profile.fields.salary')}>{employee.salary != null ? formatMoney(employee.salary) : null}</ProfileField>
+            {canSeePay && (
+              <ProfileField label={t('staffEmployees.profile.fields.salary')}>{employee.salary != null ? formatMoney(employee.salary) : null}</ProfileField>
+            )}
             <ProfileField label={t('staffEmployees.profile.fields.accommodation')}>{employee.accommodation}</ProfileField>
             <ProfileField label={t('staffEmployees.profile.fields.coordinator')}>{employee.coordinator?.name}</ProfileField>
             <ProfileField label={t('staffEmployees.profile.fields.manager')}>{employee.manager?.name}</ProfileField>

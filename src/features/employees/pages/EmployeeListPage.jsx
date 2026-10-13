@@ -14,8 +14,6 @@ import { useToast } from '../../../components/ui/Toast.jsx';
 import {
   EMPLOYEE_STATUSES,
   EMPLOYEE_TYPES,
-  EMPLOYEE_WRITE_ROLES,
-  EMPLOYEE_DELETE_ROLES,
   EXPIRY_WARNING_DAYS,
 } from '../../../lib/constants.js';
 import { apiMessage, daysUntil, formatDate, createSortToggle } from '../../../lib/utils.js';
@@ -57,19 +55,11 @@ export default function EmployeeListPage() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 
-  const canWrite = EMPLOYEE_WRITE_ROLES.includes(user.role);
-  const canDelete = EMPLOYEE_DELETE_ROLES.includes(user.role);
-  // Who may create is admin-configurable (Section Access, 'employeeCreate')
-  // rather than a static role list — Admin only by default.
+  // Add, edit and delete are separate Section Access permissions (2026-10-13).
   const canCreate = Boolean(user.sectionAccessWrite?.includes('employeeCreate'));
-  // A Coordinator sees a scoped list, so an empty one is explained rather than
-  // met with an invitation to add the first employee.
-  const isCoordinator = user.role === 'Coordinator';
-  const emptyDescription = isCoordinator
-    ? t('staffEmployees.list.emptyDescriptionCoordinator')
-    : canCreate
-      ? t('staffEmployees.list.emptyDescription')
-      : t('staffEmployees.list.emptyDescriptionView');
+  const canWrite = Boolean(user.sectionAccessWrite?.includes('employeeEdit'));
+  const canDelete = Boolean(user.sectionAccessWrite?.includes('employeeDelete'));
+  const emptyDescription = canCreate ? t('staffEmployees.list.emptyDescription') : t('staffEmployees.list.emptyDescriptionView');
 
   // `search` is what the user types; `params.search` is what we query with —
   // debounced 300ms so we don't fire a request per keystroke.
@@ -292,13 +282,7 @@ export default function EmployeeListPage() {
             onRowClick={(e) => navigate(`/employees/${e._id}`)}
             emptyState={
               <EmptyState
-                title={
-                  !noFilters
-                    ? t('staffEmployees.list.emptyTitleFiltered')
-                    : isCoordinator
-                      ? t('staffEmployees.list.emptyTitleCoordinator')
-                      : t('staffEmployees.list.emptyTitle')
-                }
+                title={!noFilters ? t('staffEmployees.list.emptyTitleFiltered') : t('staffEmployees.list.emptyTitle')}
                 description={noFilters ? emptyDescription : t('common.tryClearingFilters')}
                 action={
                   noFilters && canCreate ? (

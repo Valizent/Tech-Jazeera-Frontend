@@ -8,7 +8,6 @@ import { useAuth } from '../../auth/AuthContext.jsx';
 import { getEmployee, updateEmployee } from '../employees.api.js';
 import { employeeToForm, formToEmployeePayload } from '../employees.schema.js';
 import { apiMessage } from '../../../lib/utils.js';
-import { EMPLOYEE_WRITE_ROLES } from '../../../lib/constants.js';
 import { useToast } from '../../../components/ui/Toast.jsx';
 import PageHeader from '../../../components/shared/PageHeader.jsx';
 import BackButton from '../../../components/shared/BackButton.jsx';
@@ -23,12 +22,10 @@ export default function EmployeeEditPage() {
   const { user } = useAuth();
   const toast = useToast();
   const queryClient = useQueryClient();
-  // Editing an employee is gated by a hardcoded role list (Admin/Manager/HR
-  // — see employee.routes.js's PATCH /:id), a DIFFERENT permission from
-  // creating one ('employeeCreate' Section Access) — this page previously
-  // had no check at all (2026-09-14 fix, a real QA-audit-found gap: direct
-  // URL/bookmark reached a fully live form for any staff role).
-  const canWrite = EMPLOYEE_WRITE_ROLES.includes(user.role);
+  // Editing is its own Section Access permission ('employeeEdit' Write),
+  // separate from adding one. The route guard already checks it; this keeps
+  // the page itself safe if it is ever mounted elsewhere.
+  const canWrite = Boolean(user.sectionAccessWrite?.includes('employeeEdit'));
 
   const { data: employee, isPending, isError } = useQuery({
     queryKey: ['employee', id],

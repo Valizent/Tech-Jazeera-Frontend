@@ -34,7 +34,7 @@ export const MODULE_GROUPS = [
     labelKey: navGroup('workforce').labelKey,
     icon: navGroup('workforce').icon,
     modules: [
-      { ...navItem('workforce', '/employees'), sectionKeys: ['employeeCreate'] },
+      { ...navItem('workforce', '/employees'), sectionKeys: ['employeeCreate', 'employeeEdit', 'employeeDelete', 'employeeFinancial'] },
       { ...navItem('workforce', '/attendance'), sectionKeys: ['attendanceRecords', 'attendanceSignInOut', 'attendanceOfficeLocation'] },
       { ...navItem('workforce', '/leave'), sectionKeys: ['leaveRequests'] },
       { ...navItem('workforce', '/holidays'), sectionKeys: ['holidays'] },

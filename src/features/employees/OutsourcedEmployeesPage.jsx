@@ -19,7 +19,9 @@ export default function OutsourcedEmployeesPage() {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const { user } = useAuth();
-  const canWrite = Boolean(user.sectionAccessWrite?.includes('employeeCreate'));
+  // Adding and changing are separate permissions (2026-10-13).
+  const canAdd = Boolean(user.sectionAccessWrite?.includes('employeeCreate'));
+  const canEdit = Boolean(user.sectionAccessWrite?.includes('employeeEdit'));
   const [search, setSearch] = useState('');
   const [workerType, setWorkerType] = useState('');
   const [formOpen, setFormOpen] = useState(false);
@@ -131,7 +133,7 @@ export default function OutsourcedEmployeesPage() {
               {t('subcontractorTransfers.title')}
               {pendingTransfers > 0 && <Badge variant="warning" className="ms-2">{pendingTransfers}</Badge>}
             </Button>
-            {canWrite && (
+            {canAdd && (
               <Button onClick={() => setFormOpen(true)}>
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="me-2 h-4 w-4">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
@@ -192,7 +194,7 @@ export default function OutsourcedEmployeesPage() {
       <OutsourcedEmployeeFormModal
         open={formOpen}
         employeeId={editingId}
-        canWrite={canWrite}
+        canWrite={editingId ? canEdit : canAdd}
         onClose={closeForm}
       />
     </div>

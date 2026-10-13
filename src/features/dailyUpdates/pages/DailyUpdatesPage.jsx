@@ -58,14 +58,12 @@ export default function DailyUpdatesPage() {
   const [tab, setTab] = useTabParam(tabs, 'tasks');
 
   return (
-    <div>
+    <div className="mx-auto max-w-[1600px]">
       <PageHeader title={t('staffDailyUpdates.pageTitle')} description={t('staffDailyUpdates.pageDescription')} onBack={() => navigate(-1)} />
-      <div className="mx-auto max-w-4xl">
-        <div className="mb-4">
-          <PickerLoadWarning failed={[{ label: 'the coordinator list', isError: coordinatorsError }]} />
-        </div>
-        <Tabs tabs={tabs} value={tab} onChange={setTab} />
+      <div className="mb-4">
+        <PickerLoadWarning failed={[{ label: 'the coordinator list', isError: coordinatorsError }]} />
       </div>
+      <Tabs tabs={tabs} value={tab} onChange={setTab} />
     </div>
   );
 }

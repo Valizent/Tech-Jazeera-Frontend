@@ -76,6 +76,9 @@ export const employeeFormSchema = z
     contractEndDate: z.string().optional().or(z.literal('')),
     designation: z.string().trim().min(2, 'Designation is required.').max(60),
     department: optional,
+    // True while the pay boxes are hidden (an edit by someone without
+    // 'employeeFinancial'): salary is then neither required nor sent.
+    payHidden: z.boolean().optional(),
     salary: z
       .string()
       .optional()
@@ -119,7 +122,7 @@ export const employeeFormSchema = z
     if (!data.nationality) ctx.addIssue({ code: 'custom', path: ['nationality'], message: 'Nationality is required.' });
     if (!data.mobile) ctx.addIssue({ code: 'custom', path: ['mobile'], message: 'Enter a valid mobile number.' });
     if (!data.joiningDate) ctx.addIssue({ code: 'custom', path: ['joiningDate'], message: 'Joining date is required.' });
-    if (data.type === 'Outsourced' && !data.salary) {
+    if (data.type === 'Outsourced' && !data.salary && !data.payHidden) {
       ctx.addIssue({ code: 'custom', path: ['salary'], message: 'Salary is required.' });
     }
     if (data.type === 'Subcontracted' && !data.subcontractor) {
@@ -214,8 +217,8 @@ export function employeeToForm(employee) {
 }
 
 /** Form values → API payload: '' becomes null so an explicit unassign/clear is sent. */
-export function formToEmployeePayload(values) {
-  return {
+export function formToEmployeePayload({ payHidden, ...values }) {
+  const payload = {
     ...values,
     manager: values.manager || null,
     approvalWorkflow: values.approvalWorkflow || null,
@@ -227,4 +230,6 @@ export function formToEmployeePayload(values) {
     housingAllowance: values.housingAllowance || null,
     transportAllowance: values.transportAllowance || null,
   };
+  if (payHidden) for (const field of ['salary', 'basicSalary', 'housingAllowance', 'transportAllowance']) delete payload[field];
+  return payload;
 }

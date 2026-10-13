@@ -21,13 +21,11 @@ export const EMPLOYEE_TYPE_LABELS = {
   Outsourced: 'Outsourced supplied workforce',
   Subcontracted: 'Subcontracted sourced from a subcontractor',
 };
-/** Mirror of the server's route guards — used only to hide UI the API would
- *  reject anyway. The server is the real enforcement. */
-export const EMPLOYEE_WRITE_ROLES = ['Admin', 'Manager', 'HR'];
-export const EMPLOYEE_DELETE_ROLES = ['Admin', 'HR'];
-// Who may reach the "Add employee" form is no longer a static list — see
-// SectionAccess ('employeeCreate'): Admin only by default, until an Admin
-// designates a real "office secretary" via the Section Access settings page.
+// Who may add, edit, delete or see pay on an employee is not a static list
+// (2026-10-13): Section Access keys 'employeeCreate' (Write = add),
+// 'employeeEdit' (Write), 'employeeDelete' (Write) and 'employeeFinancial'
+// (Read = salary and pay breakdown). The server is the real enforcement; the
+// pages only hide what it would refuse.
 
 /** Who may provision a login for an employee. Mirror of the server guard on
  *  POST /employees/:id/user — the server enforces. */
