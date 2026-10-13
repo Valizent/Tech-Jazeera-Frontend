@@ -148,11 +148,13 @@ export async function decideMobilisation(id, payload) {
 
 // --- M5: documents ---
 
-/** `files` is an array of File objects; `category` one of Contract/IDCopy/Other. */
-export async function uploadMobilisationDocuments(id, files, category) {
+/** `files` is an array of File objects; `category` one of Contract/IDCopy/Other;
+ *  `documentName` says what an "Other" file is (it becomes part of the file name). */
+export async function uploadMobilisationDocuments(id, files, category, documentName) {
   const formData = new FormData();
   for (const file of files) formData.append('files', file);
   formData.append('category', category);
+  if (category === 'Other') formData.append('documentName', documentName.trim());
   const { data } = await api.post(`/mobilisations/${id}/documents`, formData);
   return data.data;
 }

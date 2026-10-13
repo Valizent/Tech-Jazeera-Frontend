@@ -333,6 +333,7 @@ export default function MobilisationDetailPage() {
   const [pendingDecision, setPendingDecision] = useState(null); // 'Approved' | 'Rejected' | null
   const [files, setFiles] = useState([]);
   const [category, setCategory] = useState('Contract');
+  const [documentName, setDocumentName] = useState('');
   const [previewDoc, setPreviewDoc] = useState(null);
   const [confirmingUnuploadedFiles, setConfirmingUnuploadedFiles] = useState(false);
   const [confirmingNoDocuments, setConfirmingNoDocuments] = useState(false);
@@ -462,10 +463,11 @@ export default function MobilisationDetailPage() {
     onError: (error) => toast.error(apiMessage(error)),
   });
   const uploadMutation = useMutation({
-    mutationFn: () => uploadMobilisationDocuments(id, files, category),
+    mutationFn: () => uploadMobilisationDocuments(id, files, category, documentName),
     onSuccess: () => {
       toast.success(t('staffMobilisations.detail.documentUploadedToast'));
       setFiles([]);
+      setDocumentName('');
       invalidate();
     },
     onError: (error) => toast.error(apiMessage(error)),
@@ -593,6 +595,16 @@ export default function MobilisationDetailPage() {
                 </option>
               ))}
             </Select>
+            {category === 'Other' && (
+              <Input
+                label={t('staffMobilisations.detail.documentName')}
+                value={documentName}
+                onChange={(e) => setDocumentName(e.target.value)}
+                placeholder={t('staffMobilisations.detail.documentNamePlaceholder')}
+                maxLength={60}
+                className="min-w-[200px]"
+              />
+            )}
             <div>
               <label className="mb-1.5 block text-sm font-medium">{t('staffMobilisations.detail.filesLabel')}</label>
               <input
@@ -603,7 +615,12 @@ export default function MobilisationDetailPage() {
                 className="text-sm"
               />
             </div>
-            <Button size="sm" disabled={files.length === 0} isLoading={uploadMutation.isPending} onClick={() => uploadMutation.mutate()}>
+            <Button
+              size="sm"
+              disabled={files.length === 0 || (category === 'Other' && !documentName.trim())}
+              isLoading={uploadMutation.isPending}
+              onClick={() => uploadMutation.mutate()}
+            >
               {t('staffMobilisations.detail.upload')}
             </Button>
           </div>
