@@ -2549,7 +2549,11 @@
         "deployment": "Deployment"
       },
       "documentName": "What is this document?",
-      "documentNamePlaceholder": "e.g. Passport copy"
+      "documentNamePlaceholder": "e.g. Passport copy",
+      "deleteButton": "Delete",
+      "deleteConfirmTitle": "Delete {{serial}}?",
+      "deleteConfirmMessage": "This removes the mobilisation for {{name}}, its documents and any transfer request on it. It cannot be undone.",
+      "deletedToast": "{{serial}} deleted."
     },
     "warnings": {
       "noRequiredHours": "No required timesheet hours set: every hour will be billed as overtime, and with no overtime rate the invoice will show SAR 0.",

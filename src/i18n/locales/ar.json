@@ -2580,7 +2580,11 @@
         "deployment": "التنسيب"
       },
       "documentName": "ما هذا المستند؟",
-      "documentNamePlaceholder": "مثال: نسخة جواز السفر"
+      "documentNamePlaceholder": "مثال: نسخة جواز السفر",
+      "deleteButton": "حذف",
+      "deleteConfirmTitle": "حذف {{serial}}؟",
+      "deleteConfirmMessage": "سيتم حذف تعبئة {{name}} ومستنداتها وأي طلب نقل عليها. لا يمكن التراجع عن ذلك.",
+      "deletedToast": "تم حذف {{serial}}."
     },
     "warnings": {
       "noRequiredHours": "لم تُحدَّد ساعات الدوام المطلوبة: ستُحتسب كل ساعة كوقت إضافي، ومع عدم تحديد سعر الوقت الإضافي ستظهر الفاتورة بقيمة 0 ريال.",

@@ -159,6 +159,12 @@ export async function uploadMobilisationDocuments(id, files, category, documentN
   return data.data;
 }
 
+/** Delete a mobilisation that is not approved yet (the server decides who may). */
+export async function deleteMobilisation(id) {
+  const { data } = await api.delete(`/mobilisations/${id}`);
+  return data.data;
+}
+
 export async function deleteMobilisationDocument(id, fileId) {
   const { data } = await api.delete(`/mobilisations/${id}/documents/${fileId}`);
   return data.data;

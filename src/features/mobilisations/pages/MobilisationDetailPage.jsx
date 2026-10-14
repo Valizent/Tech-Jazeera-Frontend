@@ -25,6 +25,7 @@ import {
   saveCommercialDetails,
   decideMobilisation,
   uploadMobilisationDocuments,
+  deleteMobilisation,
   deleteMobilisationDocument,
   downloadMobilisationDocument,
   downloadMobilisationExport,
@@ -327,6 +328,7 @@ export default function MobilisationDetailPage() {
   const queryClient = useQueryClient();
   const [inviteId, setInviteId] = useState('');
   const [toRemove, setToRemove] = useState(null);
+  const [confirmingDelete, setConfirmingDelete] = useState(false);
   const [shareEdits, setShareEdits] = useState({});
   const [decideNote, setDecideNote] = useState('');
   const [rejectionTarget, setRejectionTarget] = useState('');
@@ -395,6 +397,23 @@ export default function MobilisationDetailPage() {
       invalidate();
     },
     onError: (error) => toast.error(apiMessage(error)),
+  });
+  const deleteMutation = useMutation({
+    mutationFn: () => deleteMobilisation(id),
+    onSuccess: () => {
+      toast.success(t('staffMobilisations.detail.deletedToast', { serial: m.serialNumber }));
+      setConfirmingDelete(false);
+      // Leave first: refetching the record that no longer exists would only show an error.
+      queryClient.removeQueries({ queryKey: ['mobilisation', id] });
+      queryClient.invalidateQueries({ queryKey: ['mobilisations'] });
+      queryClient.invalidateQueries({ queryKey: ['requirements'] });
+      navigate('/mobilisations', { replace: true });
+    },
+    onError: (error) => {
+      console.error('[mobilisations] deleting a mobilisation failed', error);
+      setConfirmingDelete(false);
+      toast.error(apiMessage(error));
+    },
   });
   const removeMutation = useMutation({
     mutationFn: (uid) => removeCoordinator(id, uid),
@@ -979,6 +998,11 @@ export default function MobilisationDetailPage() {
                 {t('common.edit')}
               </Button>
             )}
+            {m.canDelete && (
+              <Button size="sm" variant="danger" onClick={() => setConfirmingDelete(true)}>
+                {t('staffMobilisations.detail.deleteButton')}
+              </Button>
+            )}
           </div>
         }
       />
@@ -994,6 +1018,16 @@ export default function MobilisationDetailPage() {
       ) : (
         mobilisationPanels
       )}
+
+      <ConfirmDialog
+        open={confirmingDelete}
+        title={t('staffMobilisations.detail.deleteConfirmTitle', { serial: m.serialNumber })}
+        message={t('staffMobilisations.detail.deleteConfirmMessage', { name: m.workerName })}
+        confirmLabel={t('common.delete')}
+        loading={deleteMutation.isPending}
+        onConfirm={() => deleteMutation.mutate()}
+        onCancel={() => setConfirmingDelete(false)}
+      />
 
       <ConfirmDialog
         open={Boolean(toRemove)}
