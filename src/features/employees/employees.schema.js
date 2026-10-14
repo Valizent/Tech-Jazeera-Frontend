@@ -98,6 +98,7 @@ export const employeeFormSchema = z
     basicSalary: optionalAmount,
     housingAllowance: optionalAmount,
     transportAllowance: optionalAmount,
+    foodAllowance: optionalAmount,
     accommodation: optional,
     // Early-sign-out warning threshold for My Attendance — genuinely varies per
     // employee, so it's blank (no warning) unless Admin/Manager/HR sets it.
@@ -172,8 +173,9 @@ export const emptyEmployeeForm = {
   departmentLegacy: '',
   salary: '',
   basicSalary: '',
-  housingAllowance: '',
-  transportAllowance: '',
+  housingAllowance: '0',
+  transportAllowance: '0',
+  foodAllowance: '0',
   accommodation: '',
   expectedDailyHours: '',
   contractHours: '',
@@ -214,6 +216,7 @@ export function employeeToForm(employee) {
     basicSalary: employee.basicSalary != null ? String(employee.basicSalary) : '',
     housingAllowance: employee.housingAllowance != null ? String(employee.housingAllowance) : '',
     transportAllowance: employee.transportAllowance != null ? String(employee.transportAllowance) : '',
+    foodAllowance: employee.foodAllowance != null ? String(employee.foodAllowance) : '',
     accommodation: employee.accommodation ?? '',
     expectedDailyHours: employee.expectedDailyHours != null ? String(employee.expectedDailyHours) : '',
     contractHours: employee.contractHours != null ? String(employee.contractHours) : '',
@@ -246,7 +249,8 @@ export function formToEmployeePayload({ payHidden, departmentLegacy: _legacy, ..
     basicSalary: values.basicSalary || null,
     housingAllowance: values.housingAllowance || null,
     transportAllowance: values.transportAllowance || null,
+    foodAllowance: values.foodAllowance || null,
   };
-  if (payHidden) for (const field of ['salary', 'basicSalary', 'housingAllowance', 'transportAllowance']) delete payload[field];
+  if (payHidden) for (const field of ['salary', 'basicSalary', 'housingAllowance', 'transportAllowance', 'foodAllowance']) delete payload[field];
   return payload;
 }

@@ -4,13 +4,14 @@
  * owns fields + validation. That split means create/edit can never drift
  * apart in layout or rules.
  */
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useForm, Controller, useFieldArray } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { employeeFormSchema } from '../employees.schema.js';
+import { listDesignations } from '../employees.api.js';
 import { listStaffUsers } from '../../users/users.api.js';
 import { listApprovalWorkflows } from '../../approvals/approvals.api.js';
 import { listSubcontractors } from '../../subcontractors/subcontractors.api.js';
@@ -82,6 +83,14 @@ export default function EmployeeForm({ defaultValues, onSubmit, submitLabel, sub
   const type = watch('type');
   const isWorkforce = type !== 'Own';
 
+  // Designation is picked from the approval roles (Approval Hierarchy / Section Access), or typed
+  // when it is a trade with no role behind it; the server keeps the two sides in step.
+  const OTHER_DESIGNATION = '__other';
+  const { data: designationRoles, isError: designationsError } = useQuery({ queryKey: ['employee-designations'], queryFn: listDesignations });
+  const designation = watch('designation');
+  const [otherDesignation, setOtherDesignation] = useState(false);
+  const typingDesignation = otherDesignation || Boolean(designationRoles && designation && !designationRoles.includes(designation));
+
   // Only fetched/shown once 'Subcontracted' is picked — who supplied this worker.
   const { data: subcontractorData, isError: subcontractorsError } = useQuery({
     queryKey: ['subcontractors', { active: true }],
@@ -137,6 +146,7 @@ export default function EmployeeForm({ defaultValues, onSubmit, submitLabel, sub
           { label: 'subcontractors', isError: subcontractorsError },
           { label: 'managers', isError: managersError },
           { label: 'approval workflows', isError: workflowsError },
+          { label: 'designations', isError: designationsError },
         ]}
       />
       <Section title={t('staffEmployees.form.sections.employeeType')}>
@@ -228,7 +238,35 @@ export default function EmployeeForm({ defaultValues, onSubmit, submitLabel, sub
           error={errors.contractEndDate?.message}
           {...register('contractEndDate')}
         />
-        <Input label={`${t('staffEmployees.form.designation')} *`} placeholder="Electrician" error={errors.designation?.message} {...register('designation')} />
+        <div className="space-y-3">
+          <Select
+            label={`${t('staffEmployees.form.designation')} *`}
+            value={typingDesignation ? OTHER_DESIGNATION : designation || ''}
+            error={typingDesignation ? undefined : errors.designation?.message}
+            onChange={(e) => {
+              const picked = e.target.value;
+              setOtherDesignation(picked === OTHER_DESIGNATION);
+              setValue('designation', picked === OTHER_DESIGNATION ? '' : picked, { shouldValidate: true });
+            }}
+          >
+            <option value="">{t('staffEmployees.form.designationChoose')}</option>
+            {(designationRoles ?? []).map((name) => (
+              <option key={name} value={name}>
+                {name}
+              </option>
+            ))}
+            <option value={OTHER_DESIGNATION}>{t('staffEmployees.form.designationOther')}</option>
+          </Select>
+          {typingDesignation && (
+            <Input
+              label={t('staffEmployees.form.designationTrade')}
+              placeholder="Electrician"
+              error={errors.designation?.message}
+              {...register('designation')}
+            />
+          )}
+          <p className="text-xs text-muted">{t('staffEmployees.form.designationHint')}</p>
+        </div>
         <div>
           <Select label={t('staffEmployees.form.department')} error={errors.department?.message} {...register('department')}>
             <option value="">{t('staffEmployees.form.departmentChoose')}</option>
@@ -281,10 +319,11 @@ export default function EmployeeForm({ defaultValues, onSubmit, submitLabel, sub
         {!payHidden && (
           <div className="sm:col-span-2">
             <p className="mb-2 text-xs font-medium text-muted">{t('staffEmployees.form.wpsBreakdownHint')}</p>
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
               <Input label={t('staffEmployees.form.basic')} type="number" min="0" step="50" error={errors.basicSalary?.message} {...register('basicSalary')} />
               <Input label={t('staffEmployees.form.housingAllowance')} type="number" min="0" step="50" error={errors.housingAllowance?.message} {...register('housingAllowance')} />
               <Input label={t('staffEmployees.form.transportAllowance')} type="number" min="0" step="50" error={errors.transportAllowance?.message} {...register('transportAllowance')} />
+              <Input label={t('staffEmployees.form.foodAllowance')} type="number" min="0" step="50" error={errors.foodAllowance?.message} {...register('foodAllowance')} />
             </div>
           </div>
         )}

@@ -373,7 +373,12 @@ export default function DashboardPage() {
           <StuckApprovalsCard rows={insights.stuckApprovals} />
           <MyWorkCard work={insights.myWork} />
           <BillingSnapshotCard billing={insights.billing} />
-          <HrWatchCard expiring={insights.expiringByType} contracts={insights.contractsEnding} leavePicture={insights.leavePicture} />
+          <HrWatchCard
+            expiring={insights.expiringByType}
+            contracts={insights.contractsEnding}
+            contractsEnded={insights.contractsEnded}
+            leavePicture={insights.leavePicture}
+          />
           <FloorTodayCard signedIn={insights.signedInToday} />
         </div>
       )}

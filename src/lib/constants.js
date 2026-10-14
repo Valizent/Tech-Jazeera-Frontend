@@ -23,7 +23,7 @@ export const EMPLOYEE_TYPE_LABELS = {
 };
 /** Mirrors the server's employees/departments.js. A fixed list since 2026-10-13: the
  *  approval engine routes some requests by department (annual vacation). */
-export const EMPLOYEE_DEPARTMENTS = ['Accounts', 'Marketing', 'HR', 'Operations', 'Coordination', 'Management', 'IT'];
+export const EMPLOYEE_DEPARTMENTS = ['Accounts', 'Marketing', 'HR', 'Operations', 'Management', 'IT'];
 
 // Who may add, edit, delete or see pay on an employee is not a static list
 // (2026-10-13): Section Access keys 'employeeCreate' (Write = add),

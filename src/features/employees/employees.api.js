@@ -20,6 +20,12 @@ export async function listAllEmployees(params = {}) {
   return { ...first, items: [first, ...rest].flatMap((p) => p.items) };
 }
 
+/** The Designation pick-list: the approval role names (same set as Approval Hierarchy / Section Access). */
+export async function listDesignations() {
+  const { data } = await api.get('/employees/designations');
+  return data.data; // string[]
+}
+
 export async function getEmployee(id) {
   const { data } = await api.get(`/employees/${id}`);
   return data.data;

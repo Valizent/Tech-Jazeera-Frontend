@@ -1,7 +1,8 @@
 /**
  * HrWatchCard: the people-side look-ahead. Identity documents about to lapse
  * (by type and how soon), contracts ending within 30 days (the people who
- * become eligible for annual vacation), and who is away today / back this
+ * become eligible for annual vacation), contracts that ended and were not
+ * renewed, and who is away today / back this
  * week. A Coordinator's version covers their own team only (the server scopes it).
  */
 import { Link } from 'react-router-dom';
@@ -35,12 +36,13 @@ function PeopleList({ people, dateKey, dateLabelKey, emptyLabel }) {
   );
 }
 
-export default function HrWatchCard({ expiring, contracts, leavePicture }) {
+export default function HrWatchCard({ expiring, contracts, contractsEnded, leavePicture }) {
   const { t } = useTranslation();
   const hasExpiring = expiring?.length > 0;
   const hasContracts = contracts?.count > 0;
+  const hasEnded = contractsEnded?.count > 0;
   const hasLeave = leavePicture && (leavePicture.onLeaveCount > 0 || leavePicture.returningCount > 0);
-  if (!hasExpiring && !hasContracts && !hasLeave) return null;
+  if (!hasExpiring && !hasContracts && !hasEnded && !hasLeave) return null;
 
   const k = (key) => t(`staffDashboard.insights.hr.${key}`);
   return (
@@ -85,6 +87,22 @@ export default function HrWatchCard({ expiring, contracts, leavePicture }) {
                     <span className="truncate">{e.name}</span>
                     <span className="shrink-0 text-xs text-muted">
                       {formatDate(e.endDate)} · {t('staffDashboard.insights.hr.daysLeft', { days: e.daysLeft })}
+                    </span>
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </Section>
+        )}
+        {hasEnded && (
+          <Section title={`${k('contractsEnded')} · ${contractsEnded.count}`}>
+            <ul className="divide-y divide-border">
+              {contractsEnded.items.map((e) => (
+                <li key={e._id}>
+                  <Link to={`/employees/${e._id}`} className="flex items-center justify-between gap-3 py-1.5 text-sm hover:text-primary">
+                    <span className="truncate">{e.name}</span>
+                    <span className="shrink-0 text-xs font-medium text-danger">
+                      {formatDate(e.endDate)} · {t('staffDashboard.insights.hr.daysOverdue', { days: e.daysOverdue })}
                     </span>
                   </Link>
                 </li>
