@@ -8,7 +8,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { annualVacationFormSchema, emptyAnnualVacationForm, toAnnualVacationPayload } from '../annualVacation.schema.js';
-import { apiMessage, collectFormErrorMessages } from '../../../lib/utils.js';
+import { apiMessage, collectFormErrorMessages, formatDate } from '../../../lib/utils.js';
 import { useToast } from '../../../components/ui/Toast.jsx';
 import Card from '../../../components/ui/Card.jsx';
 import Input from '../../../components/ui/Input.jsx';
@@ -49,6 +49,10 @@ export default function VacationRequestForm({ submit, onSubmitted, loadEligibili
   const eligibility = eligibilityQuery.data;
   const days = eligibility?.contractDays ?? null;
   const blocked = Boolean(eligibility) && !eligibility.eligible;
+  // Only days after the contract end date (the replaced end, when it was renewed) can be picked.
+  const today = new Date().toISOString().slice(0, 10);
+  const earliest = eligibility?.earliestStart ? String(eligibility.earliestStart).slice(0, 10) : null;
+  const minDate = earliest && earliest > today ? earliest : today;
   const lastDay =
     startDate && Number.isInteger(days) && days >= 1
       ? new Date(new Date(startDate).getTime() + (days - 1) * MS_PER_DAY).toISOString().slice(0, 10)
@@ -91,10 +95,11 @@ export default function VacationRequestForm({ submit, onSubmitted, loadEligibili
           <p className="rounded-lg border border-warning/30 bg-warning/10 px-3 py-2 text-sm text-text">{eligibility.reason}</p>
         )}
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-          <Input label={t('staffAnnualVacation.startDate')} type="date" error={errors.startDate?.message} {...register('startDate')} />
+          <Input label={t('staffAnnualVacation.startDate')} type="date" min={minDate} error={errors.startDate?.message} {...register('startDate')} />
           {/* The days are the contract's, set by HR: shown, never typed. */}
           <Input label={t('staffAnnualVacation.daysFromContract')} value={days ?? ''} readOnly disabled />
         </div>
+        {earliest && earliest > today && <p className="text-sm text-muted">{t('staffAnnualVacation.earliestStart', { date: formatDate(earliest) })}</p>}
         {lastDay && <p className="text-sm text-muted">{t('staffAnnualVacation.lastDay', { date: lastDay })}</p>}
         <Textarea label={t('staffAnnualVacation.reason')} placeholder={t('common.optional')} error={errors.reason?.message} {...register('reason')} />
         <div className="flex justify-end">
