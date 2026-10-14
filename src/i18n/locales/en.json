@@ -742,9 +742,12 @@
       },
       "activeSubcontractors": "Active subcontractors",
       "hrCompliance": {
-        "title": "HR compliance actions",
+        "title": "Requests waiting",
         "pendingLeave": "Pending leave",
-        "pendingExits": "Pending exits"
+        "pendingExits": "Pending exits",
+        "pendingAnnualVacation": "Pending annual vacation",
+        "pendingTimesheets": "Pending timesheets",
+        "pendingFinancial": "Pending salary advances and reimbursements"
       },
       "myRequirements": {
         "title": "My requirements",
@@ -783,6 +786,10 @@
         "emptyTitle": "No coordinators yet",
         "emptyDescription": "Coordinator logins will appear here once created.",
         "reached": "{{percent}}% of target"
+      },
+      "peopleByDepartment": {
+        "title": "People by department",
+        "notSet": "No department yet"
       }
     },
     "targets": {

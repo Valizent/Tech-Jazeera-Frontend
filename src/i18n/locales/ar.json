@@ -750,9 +750,12 @@
       },
       "activeSubcontractors": "المقاولون من الباطن النشطون",
       "hrCompliance": {
-        "title": "إجراءات الامتثال في الموارد البشرية",
+        "title": "طلبات بانتظار المراجعة",
         "pendingLeave": "إجازات قيد الانتظار",
-        "pendingExits": "طلبات خروج قيد الانتظار"
+        "pendingExits": "طلبات خروج قيد الانتظار",
+        "pendingAnnualVacation": "إجازات سنوية معلقة",
+        "pendingTimesheets": "سجلات دوام معلقة",
+        "pendingFinancial": "سلف ومطالبات مالية معلقة"
       },
       "myRequirements": {
         "title": "متطلباتي",
@@ -791,6 +794,10 @@
         "down": "الخادم لا يستجيب.",
         "lastChecked": "آخر تحقق {{time}}",
         "viewLogs": "عرض سجلات الأخطاء (Sentry)"
+      },
+      "peopleByDepartment": {
+        "title": "الموظفون حسب القسم",
+        "notSet": "بلا قسم بعد"
       }
     },
     "targets": {

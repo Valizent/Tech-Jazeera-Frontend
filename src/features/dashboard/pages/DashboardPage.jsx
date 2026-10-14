@@ -94,6 +94,9 @@ export default function DashboardPage() {
 
   const firstName = user.name.split(' ')[0];
   const isCoordinator = user.role === 'Coordinator';
+  // The HR desk (2026-10-14): no company leaderboard, a headcount by department, and the
+  // requests card always on. Layout only; what is in it still comes from the server.
+  const isHr = user.role === 'HR';
   const canManageTargets =
     user.role === 'Admin' ||
     user.role === 'Manager' ||
@@ -155,8 +158,35 @@ export default function DashboardPage() {
     );
   }
 
-  const { stats, finance, expiringDocuments, recentActivity, myPendingActions, mobilisationsByStatus, activeSubcontractors, attendanceSummary, pendingLeave, pendingExit, myRequirementsSummary } =
-    data;
+  const {
+    stats,
+    finance,
+    expiringDocuments,
+    recentActivity,
+    myPendingActions,
+    mobilisationsByStatus,
+    activeSubcontractors,
+    attendanceSummary,
+    pendingLeave,
+    pendingExit,
+    pendingAnnualVacation,
+    pendingTimesheets,
+    pendingFinancial,
+    departmentHeadcount,
+    myRequirementsSummary,
+  } = data;
+  const requests = { pendingLeave, pendingAnnualVacation, pendingTimesheets, pendingFinancial, pendingExit };
+  const showRequests = Object.values(requests).some((n) => n != null);
+  // Department names in the viewer's language; stored values from before the list existed that
+  // are not one of its entries are counted together as "no department yet".
+  const departmentData =
+    departmentHeadcount &&
+    Object.fromEntries([
+      ...Object.entries(departmentHeadcount.counts)
+        .filter(([, count]) => count > 0)
+        .map(([department, count]) => [t(`staffEmployees.departments.${department}`, department), count]),
+      ...(departmentHeadcount.unset > 0 ? [[t('staffDashboard.widgets.peopleByDepartment.notSet'), departmentHeadcount.unset]] : []),
+    ]);
 
   // The tile row (2026-10-12): only tiles the server filled in are shown.
   // "Shared employees" belongs to Coordinator / Office Secretary / Accounts,
@@ -176,7 +206,7 @@ export default function DashboardPage() {
       key: 'subcontractors',
       value: activeSubcontractors,
       label: t('staffDashboard.widgets.activeSubcontractors'),
-      to: '/subcontractors',
+      to: user.sectionAccess?.includes('subcontractorsManage') ? '/subcontractors' : null,
     },
     stats.deployedActive != null && {
       key: 'deployed',
@@ -294,9 +324,7 @@ export default function DashboardPage() {
             </div>
           )}
           <div className="grid grid-cols-1 gap-6 lg:grid-cols-2 [&>*:last-child:nth-child(odd)]:lg:col-span-2 mt-6">
-            {(pendingLeave != null || pendingExit != null) && (
-              <HrComplianceWidget pendingLeave={pendingLeave} pendingExit={pendingExit} />
-            )}
+            {showRequests && <HrComplianceWidget {...requests} />}
             {myRequirementsSummary != null && <MyRequirementsWidget summary={myRequirementsSummary} />}
             {mobilisationsByStatus != null && (
               <StatusBreakdown
@@ -315,11 +343,12 @@ export default function DashboardPage() {
           {/* Attendance sits in the tile row for management; the roles that get
               Shared employees instead keep the full card if they can read it. */}
           {showsSharedEmployees && attendanceSummary != null && <DailyAttendanceSummary summary={attendanceSummary} />}
-          {(canSeeStandbyAnalysis || pendingLeave != null || pendingExit != null) && (
+          {(canSeeStandbyAnalysis || showRequests || departmentData) && (
             <div className="grid grid-cols-1 gap-6 lg:grid-cols-2 [&>*:last-child:nth-child(odd)]:lg:col-span-2">
               {canSeeStandbyAnalysis && <StandbyAnalysisWidget />}
-              {(pendingLeave != null || pendingExit != null) && (
-                <HrComplianceWidget pendingLeave={pendingLeave} pendingExit={pendingExit} />
+              {showRequests && <HrComplianceWidget {...requests} alwaysShow={isHr} />}
+              {departmentData && (
+                <StatusBreakdown title={t('staffDashboard.widgets.peopleByDepartment.title')} data={departmentData} colors={{}} />
               )}
             </div>
           )}
@@ -328,7 +357,7 @@ export default function DashboardPage() {
               isCoordinator-only StatusBreakdown further down). */}
           {mobilisationsByStatus != null && (
             <div className="grid grid-cols-1 gap-6 lg:grid-cols-2 [&>*:last-child:nth-child(odd)]:lg:col-span-2">
-              <CoordinatorLeaderboardWidget />
+              {!isHr && <CoordinatorLeaderboardWidget />}
               <StatusBreakdown
                 title={t('staffDashboard.globalPipelineTitle')}
                 data={mobilisationsByStatus}
