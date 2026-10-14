@@ -20,6 +20,7 @@ import Modal from '../../../components/ui/Modal.jsx';
 import Textarea from '../../../components/ui/Textarea.jsx';
 import Select from '../../../components/ui/Select.jsx';
 import EmptyState from '../../../components/ui/EmptyState.jsx';
+import { ApprovalProgressLine } from '../../../components/shared/ApprovalTrailView.jsx';
 
 const STATUS_VARIANT = { Pending: 'warning', Approved: 'success', Rejected: 'danger', Cancelled: 'default' };
 
@@ -55,7 +56,6 @@ export default function SubcontractorTransfersPage() {
     },
   });
 
-  const canDecide = Boolean(data?.canDecide);
   const columns = [
     {
       key: 'employee',
@@ -104,6 +104,7 @@ export default function SubcontractorTransfersPage() {
         <div>
           <Badge variant={STATUS_VARIANT[r.status]}>{t(`subcontractorTransfers.statuses.${r.status}`)}</Badge>
           {r.decisionNote && <span className="mt-1 block text-xs text-muted">{r.decisionNote}</span>}
+          <ApprovalProgressLine request={r} />
         </div>
       ),
     },
@@ -112,7 +113,7 @@ export default function SubcontractorTransfersPage() {
       header: '',
       className: 'text-right',
       render: (r) =>
-        canDecide && r.status === 'Pending' ? (
+        r.canDecideCurrentStep && r.status === 'Pending' ? (
           <span className="flex justify-end gap-2">
             <Button size="sm" isLoading={decideMutation.isPending} onClick={() => decideMutation.mutate({ id: r._id, decision: 'Approved' })}>
               {t('subcontractorTransfers.approve')}

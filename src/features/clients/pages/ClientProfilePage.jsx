@@ -21,6 +21,7 @@ import { useAuth } from '../../auth/AuthContext.jsx';
 import { useToast } from '../../../components/ui/Toast.jsx';
 import { CLIENT_DELETE_ROLES, CLIENT_APPROVAL_VARIANT } from '../../../lib/constants.js';
 import { canDecideClient, canEditClient } from '../clients.permissions.js';
+import ApprovalTrailView from '../../../components/shared/ApprovalTrailView.jsx';
 import { apiMessage, cn, formatDate } from '../../../lib/utils.js';
 import PageHeader from '../../../components/shared/PageHeader.jsx';
 import BackButton from '../../../components/shared/BackButton.jsx';
@@ -67,6 +68,11 @@ function OverviewTab({ client }) {
             <Badge variant="warning">{t('staffClients.form.pendingBadge')}</Badge>
             <p className="text-sm text-muted">{t('staffClients.form.pendingHint')}</p>
           </div>
+        </Card>
+      )}
+      {client.workflow && (
+        <Card>
+          <ApprovalTrailView request={client} pendingStatus="Pending" statusField="approvalStatus" />
         </Card>
       )}
 

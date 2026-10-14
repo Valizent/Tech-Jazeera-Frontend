@@ -13,6 +13,7 @@ import { useToast } from '../../../components/ui/Toast.jsx';
 import Modal from '../../../components/ui/Modal.jsx';
 import Button from '../../../components/ui/Button.jsx';
 import Textarea from '../../../components/ui/Textarea.jsx';
+import ApprovalTrailView from '../../../components/shared/ApprovalTrailView.jsx';
 
 export default function DecideClientModal({ client, onClose }) {
   const { t } = useTranslation();
@@ -57,6 +58,7 @@ export default function DecideClientModal({ client, onClose }) {
               </p>
             )}
           </div>
+          <ApprovalTrailView request={client} pendingStatus="Pending" statusField="approvalStatus" />
 
           {rejecting ? (
             <>

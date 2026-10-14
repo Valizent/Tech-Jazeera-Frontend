@@ -46,6 +46,11 @@ const PENDING_STATUS_BY_TYPE = {
   ExitReentry: 'Pending',
   Certificate: 'Pending',
   AnnualVacation: 'PendingReview',
+  ClientApproval: 'Pending',
+  ClientPayment: 'Pending',
+  SubcontractorPayment: 'Pending',
+  MonthlyHours: 'Pending',
+  SubcontractorTransfer: 'Pending',
 };
 import { apiMessage, formatDate } from '../../../lib/utils.js';
 import PageHeader from '../../../components/shared/PageHeader.jsx';
@@ -97,7 +102,7 @@ export default function ApprovalLogPage() {
     if (!search.trim()) return data.items;
     const q = search.trim().toLowerCase();
     return data.items.filter(
-      (item) => item.employee?.fullName?.toLowerCase().includes(q) || item.employee?.employeeId?.toLowerCase().includes(q)
+      (item) => item.subject?.toLowerCase().includes(q) || item.subjectRef?.toLowerCase().includes(q)
     );
   }, [data, search]);
 
@@ -127,7 +132,7 @@ export default function ApprovalLogPage() {
               </option>
             ))}
           </Select>
-          <Input label="Employee" placeholder="Search name or ID" value={search} onChange={(e) => setSearch(e.target.value)} />
+          <Input label="Employee / subject" placeholder="Search name, ID or client" value={search} onChange={(e) => setSearch(e.target.value)} />
         </div>
       </Card>
 
@@ -153,8 +158,8 @@ export default function ApprovalLogPage() {
                 <div className="flex flex-wrap items-start justify-between gap-3">
                   <div className="min-w-0">
                     <p className="font-medium">
-                      {item.employee?.fullName}{' '}
-                      <span className="font-normal text-muted">({item.employee?.employeeId})</span>
+                      {item.subject}{' '}
+                      {item.subjectRef && <span className="font-normal text-muted">({item.subjectRef})</span>}
                     </p>
                     <p className="text-xs text-muted">
                       {APPROVAL_REQUEST_TYPE_LABELS[item.requestType]} · {item.typeName} · {formatDate(item.createdAt)}

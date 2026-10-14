@@ -27,6 +27,7 @@ import EmptyState from '../../../components/ui/EmptyState.jsx';
 import Skeleton from '../../../components/ui/Skeleton.jsx';
 import ConfirmDialog from '../../../components/shared/ConfirmDialog.jsx';
 import PickerLoadWarning from '../../../components/shared/PickerLoadWarning.jsx';
+import ApprovalTrailView from '../../../components/shared/ApprovalTrailView.jsx';
 
 export default function MyLeavePage() {
   const { t } = useTranslation();
@@ -188,7 +189,7 @@ export default function MyLeavePage() {
                 ['PendingReview', 'AutoApproved'].includes(req.status) && new Date(req.startDate) > new Date();
               return (
                 <div key={req._id} className="flex items-start justify-between gap-3 py-3 text-sm">
-                  <div className="min-w-0">
+                  <div className="min-w-0 flex-1">
                     <p className="font-medium">
                       {req.leaveTypeName} · {t('leave.days', { count: req.days })}
                     </p>
@@ -199,6 +200,7 @@ export default function MyLeavePage() {
                     {req.decisionNote && (
                       <p className="mt-1 text-xs italic text-muted">{t('common.note')}: {req.decisionNote}</p>
                     )}
+                    <ApprovalTrailView request={req} pendingStatus="PendingReview" />
                   </div>
                   <div className="flex shrink-0 flex-col items-end gap-2">
                     <Badge variant={LEAVE_STATUS_VARIANT[req.status]}>{t(`common.status.${req.status}`, req.status)}</Badge>

@@ -124,7 +124,6 @@ export const employeeFormSchema = z
     // Configurable Approval Hierarchy: overrides the company-wide default
     // ApprovalWorkflow for this employee. '' means "no override" — sent to
     // the API as null.
-    approvalWorkflow: z.string().optional().or(z.literal('')),
     // '' means "not sourced from a subcontractor" — sent to the API as
     // null. Required only when type is 'Subcontracted' (superRefine below).
     subcontractor: z.string().optional().or(z.literal('')),
@@ -185,7 +184,6 @@ export const emptyEmployeeForm = {
   emergencyContact: { name: '', phone: '', relation: '' },
   notes: '',
   manager: '',
-  approvalWorkflow: '',
   subcontractor: '',
 };
 
@@ -230,7 +228,6 @@ export function employeeToForm(employee) {
     },
     notes: employee.notes ?? '',
     manager: employee.manager?._id ?? employee.manager ?? '',
-    approvalWorkflow: employee.approvalWorkflow?._id ?? employee.approvalWorkflow ?? '',
     subcontractor: employee.subcontractor?._id ?? employee.subcontractor ?? '',
   };
 }
@@ -240,7 +237,6 @@ export function formToEmployeePayload({ payHidden, departmentLegacy: _legacy, ..
   const payload = {
     ...values,
     manager: values.manager || null,
-    approvalWorkflow: values.approvalWorkflow || null,
     subcontractor: values.subcontractor || null,
     expectedDailyHours: values.expectedDailyHours || null,
     contractHours: values.contractHours || null,

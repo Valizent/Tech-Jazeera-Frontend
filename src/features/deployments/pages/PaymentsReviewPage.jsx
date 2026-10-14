@@ -26,6 +26,7 @@ import Modal from '../../../components/ui/Modal.jsx';
 import Textarea from '../../../components/ui/Textarea.jsx';
 import Skeleton from '../../../components/ui/Skeleton.jsx';
 import EmptyState from '../../../components/ui/EmptyState.jsx';
+import ApprovalTrailView from '../../../components/shared/ApprovalTrailView.jsx';
 
 export default function PaymentsReviewPage({ side: sideName }) {
   const side = FINANCIAL_SIDES[sideName];
@@ -157,6 +158,7 @@ export default function PaymentsReviewPage({ side: sideName }) {
                   <span className="me-4 text-lg font-semibold text-text">
                     {formatMoney(row.amount)}
                   </span>
+                  {row.canDecideCurrentStep && (
                   <button
                     type="button"
                     onClick={() => openModal(row, 'Approved')}
@@ -167,6 +169,8 @@ export default function PaymentsReviewPage({ side: sideName }) {
                     </svg>
                     {t('common.approve')}
                   </button>
+                  )}
+                  {row.canDecideCurrentStep && (
                   <button
                     type="button"
                     onClick={() => openModal(row, 'Rejected')}
@@ -177,8 +181,14 @@ export default function PaymentsReviewPage({ side: sideName }) {
                     </svg>
                     {t('common.reject')}
                   </button>
+                  )}
                 </div>
               </div>
+              {row.workflow && (
+                <div className="px-5 pb-4">
+                  <ApprovalTrailView request={row} pendingStatus="Pending" statusField="decisionStatus" />
+                </div>
+              )}
             </div>
           ))}
         </div>

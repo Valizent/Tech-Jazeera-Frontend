@@ -248,7 +248,14 @@ export const APPROVAL_REQUEST_TYPES = [
   'ExitReentry',
   'Certificate',
   'AnnualVacation',
+  'ClientApproval',
+  'ClientPayment',
+  'SubcontractorPayment',
+  'MonthlyHours',
+  'SubcontractorTransfer',
 ];
+/** The request types an individual employee files (they can have their own hierarchy per module). */
+export const EMPLOYEE_APPROVAL_TYPES = ['Leave', 'SalaryAdvance', 'Reimbursement', 'Timesheet', 'ExitReentry', 'Certificate', 'AnnualVacation'];
 export const APPROVAL_REQUEST_TYPE_LABELS = {
   Leave: 'Leave',
   SalaryAdvance: 'Salary Advance',
@@ -258,6 +265,11 @@ export const APPROVAL_REQUEST_TYPE_LABELS = {
   ExitReentry: 'Exit Re-Entry Visa',
   Certificate: 'Certificate Request',
   AnnualVacation: 'Annual Vacation',
+  ClientApproval: 'Client Approval',
+  ClientPayment: 'Client Payment',
+  SubcontractorPayment: 'Subcontractor Payment',
+  MonthlyHours: 'Monthly Hours',
+  SubcontractorTransfer: 'Subcontractor Transfer',
 };
 // Configuring the hierarchy itself (roles/workflows) is the
 // admin-configurable SectionAccess ('approvalHierarchy') mechanism now —

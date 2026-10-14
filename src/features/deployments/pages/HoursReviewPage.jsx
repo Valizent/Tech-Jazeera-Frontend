@@ -29,6 +29,7 @@ import Modal from '../../../components/ui/Modal.jsx';
 import Textarea from '../../../components/ui/Textarea.jsx';
 import Skeleton from '../../../components/ui/Skeleton.jsx';
 import EmptyState from '../../../components/ui/EmptyState.jsx';
+import ApprovalTrailView from '../../../components/shared/ApprovalTrailView.jsx';
 
 /** "42 @ 10.00/hr", or just the raw hours when no rate is known yet, or '—'
  *  when the hours themselves aren't entered — shared by the row-grid and the
@@ -172,7 +173,7 @@ export default function HoursReviewPage() {
                   </div>
                 </div>
 
-                {/* Action buttons */}
+                {/* Action buttons (Approve/Reject only for whoever may decide it at its current step) */}
                 <div className="flex shrink-0 items-center gap-2">
                   <Link
                     to={`/deployments/${row.deploymentId}`}
@@ -183,6 +184,7 @@ export default function HoursReviewPage() {
                     </svg>
                     {t('common.edit')}
                   </Link>
+                  {row.canDecideCurrentStep && (
                   <button
                     type="button"
                     onClick={() => openModal(row, 'Approved')}
@@ -194,6 +196,8 @@ export default function HoursReviewPage() {
                     </svg>
                     {t('common.approve')}
                   </button>
+                  )}
+                  {row.canDecideCurrentStep && (
                   <button
                     type="button"
                     onClick={() => openModal(row, 'Rejected')}
@@ -205,8 +209,14 @@ export default function HoursReviewPage() {
                     </svg>
                     {t('common.reject')}
                   </button>
+                  )}
                 </div>
               </div>
+              {row.workflow && (
+                <div className="border-b border-border px-5 pb-3">
+                  <ApprovalTrailView request={row} pendingStatus="Pending" />
+                </div>
+              )}
 
               {/* Hours grid */}
               <div className="grid grid-cols-2 gap-px bg-border sm:grid-cols-4">

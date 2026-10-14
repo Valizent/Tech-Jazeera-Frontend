@@ -1,9 +1,8 @@
 /**
  * ApprovalTrailView — read-only display of a workflow-governed request's
  * step-by-step progress as a horizontal chain of connected circular nodes.
- * Renders nothing for a request with no `workflow` — the legacy
- * single-decision flow already shows decidedBy/At/Note wherever it's used,
- * nothing new to add there. Shared across every request type's review screen.
+ * A request with no `workflow` (the legacy single-decision flow) shows one muted
+ * line saying so; its decidedBy/At/Note are shown wherever it is used. Shared across every request type's review screen.
  *
  * `pendingStatus` defaults to 'PendingReview' (Leave's own value) purely for
  * backward compatibility with existing callers that don't pass it — every
@@ -25,6 +24,7 @@
  *-casing needed.
  */
 import { Fragment } from 'react';
+import { useTranslation } from 'react-i18next';
 import { cn, formatDateTime } from '../../lib/utils.js';
 
 const CheckIcon = (
@@ -39,12 +39,13 @@ const XIcon = (
   </svg>
 );
 
-export default function ApprovalTrailView({ request, pendingStatus = 'PendingReview' }) {
-  if (!request.workflow) return null;
+export default function ApprovalTrailView({ request, pendingStatus = 'PendingReview', statusField = 'status' }) {
+  const { t } = useTranslation();
+  if (!request.workflow) return <p className="mt-2 text-xs text-muted">{t('approvalTrail.singleStep')}</p>;
 
   const steps = request.steps ?? [];
   const trail = request.approvalTrail ?? [];
-  const isPending = request.status === pendingStatus;
+  const isPending = request[statusField] === pendingStatus;
 
   return (
     <div className="mt-2 rounded-lg border border-border bg-bg/40 p-3 text-xs">
@@ -85,7 +86,7 @@ export default function ApprovalTrailView({ request, pendingStatus = 'PendingRev
                     </>
                   ) : (
                     <p className={isCurrent ? 'font-medium text-warning' : 'text-muted'}>
-                      {step.label || `Step ${i + 1}`}
+                      {step.label || step.roles?.map((r) => r.name).filter(Boolean).join(' / ') || t('approvalTrail.stepNumber', { number: i + 1 })}
                     </p>
                   )}
                 </div>
@@ -95,5 +96,19 @@ export default function ApprovalTrailView({ request, pendingStatus = 'PendingRev
         })}
       </div>
     </div>
+  );
+}
+
+/** One line for a table cell: "Step 2 of 3: Marketing Manager" while the request is pending, nothing otherwise. */
+export function ApprovalProgressLine({ request, pendingStatus = 'Pending', statusField = 'status' }) {
+  const { t } = useTranslation();
+  if (!request.workflow || request[statusField] !== pendingStatus) return null;
+  const steps = request.steps ?? [];
+  const step = steps[request.currentStep];
+  const name = step?.label || step?.roles?.map((r) => r.name).filter(Boolean).join(' / ') || '';
+  return (
+    <p className="mt-1 text-xs text-muted">
+      {t('approvalTrail.progress', { current: (request.currentStep ?? 0) + 1, total: steps.length, name })}
+    </p>
   );
 }

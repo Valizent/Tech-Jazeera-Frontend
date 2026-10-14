@@ -12,6 +12,11 @@
  *  Employee.manager) — mirrors decideClient's own check exactly. */
 export function canDecideClient(user, client) {
   if (client.approvalStatus !== 'Pending') return false;
+  // The server works it out per client (2026-10-14): the current step's members when a hierarchy governs it,
+  // else the original rule below. The grant is still the floor.
+  if (client.canDecideCurrentStep !== undefined) {
+    return client.canDecideCurrentStep && (user.role === 'Admin' || Boolean(user.sectionAccessWrite?.includes('clientsManage')));
+  }
   if (user.role === 'Admin') return true;
   if (!user.sectionAccessWrite?.includes('clientsManage')) return false;
   return client.createdBy?.employee?.manager === user.id;

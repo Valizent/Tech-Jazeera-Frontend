@@ -47,6 +47,7 @@ import Modal from '../../../components/ui/Modal.jsx';
 import Skeleton from '../../../components/ui/Skeleton.jsx';
 import EmptyState from '../../../components/ui/EmptyState.jsx';
 import DeploymentExpensesSection from './DeploymentExpensesSection.jsx';
+import { ApprovalProgressLine } from '../../../components/shared/ApprovalTrailView.jsx';
 
 function monthStrOf(date) {
   const d = new Date(date);
@@ -894,6 +895,7 @@ export default function DeploymentPanel({ deploymentId: id }) {
                         {entry.status === 'Rejected' && entry.decisionNote && (
                           <p className="mt-1 max-w-[16rem] text-xs text-muted">{entry.decisionNote}</p>
                         )}
+                        <ApprovalProgressLine request={entry} />
                       </td>
                       {(canInvoice || canEnterHours || canDecidePaymentAccess) && (
                         <td className="px-3 py-2">

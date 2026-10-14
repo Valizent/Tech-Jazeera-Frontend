@@ -47,6 +47,7 @@ import Modal from '../../../components/ui/Modal.jsx';
 import EmptyState from '../../../components/ui/EmptyState.jsx';
 import Skeleton from '../../../components/ui/Skeleton.jsx';
 import { PillChecklist } from '../../../components/ui/TogglePill.jsx';
+import EmployeeApprovalsPanel from '../components/EmployeeApprovalsPanel.jsx';
 
 function ApprovalRolesPanel() {
   const { user } = useAuth();
@@ -583,6 +584,7 @@ export default function ApprovalsPage() {
   const tabs = [
     { key: 'roles', label: 'Roles', content: <ApprovalRolesPanel /> },
     { key: 'workflows', label: 'Workflows', content: <ApprovalWorkflowsPanel /> },
+    { key: 'employees', label: 'Employees', content: <EmployeeApprovalsPanel /> },
   ];
   const [activeTab, setActiveTab] = useTabParam(tabs, 'roles');
 
@@ -590,7 +592,7 @@ export default function ApprovalsPage() {
     <div className="mx-auto max-w-[1600px] space-y-6">
       <PageHeader
         title="Approval Hierarchy"
-        description="Define your company's approval roles and the multi-step chains Leave, Salary Advance, Reimbursement and Timesheet requests route through."
+        description="Define your company's approval roles, the multi-step chains each module's requests route through, and the hierarchy each employee follows."
         onBack={() => navigate(-1)}
       />
       <Tabs tabs={tabs} value={activeTab} onChange={setActiveTab} />

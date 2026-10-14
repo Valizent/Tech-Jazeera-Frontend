@@ -45,6 +45,7 @@ import Select from '../../../components/ui/Select.jsx';
 import Textarea from '../../../components/ui/Textarea.jsx';
 import EmptyState from '../../../components/ui/EmptyState.jsx';
 import Skeleton from '../../../components/ui/Skeleton.jsx';
+import ApprovalTrailView from '../../../components/shared/ApprovalTrailView.jsx';
 
 function MyExitReentrySection() {
   const { t } = useTranslation();
@@ -130,13 +131,14 @@ function MyExitReentrySection() {
           <Card className="divide-y divide-border">
             {data.items.map((r) => (
               <div key={r._id} className="flex items-start justify-between gap-3 py-3 text-sm">
-                <div className="min-w-0">
+                <div className="min-w-0 flex-1">
                   <p className="font-medium">{t('exitDocuments.exitReentry.exitLabel', { type: t(`exitDocuments.exitReentry.visaTypes.${r.visaType}`, r.visaType) })}</p>
                   <p className="text-xs text-muted">
                     {t('exitDocuments.exitReentry.departReturn', { departure: formatDate(r.departureDate), returnDate: formatDate(r.expectedReturnDate) })}
                   </p>
                   {r.decisionNote && <p className="mt-1 text-xs italic text-muted">{t('common.note')}: {r.decisionNote}</p>}
                   {r.visaReferenceNumber && <p className="mt-1 text-xs text-muted">{t('exitDocuments.exitReentry.reference', { ref: r.visaReferenceNumber })}</p>}
+                  <ApprovalTrailView request={r} pendingStatus="Pending" />
                 </div>
                 <div className="flex shrink-0 flex-col items-end gap-2">
                   <Badge variant={EXIT_REENTRY_STATUS_VARIANT[r.status]}>{t(`common.status.${r.status}`, r.status)}</Badge>
@@ -258,10 +260,11 @@ function MyCertificatesSection() {
               const hasPdf = CERTIFICATE_TYPES_WITH_PDF.includes(c.type) && ['Approved', 'Issued'].includes(c.status);
               return (
                 <div key={c._id} className="flex items-start justify-between gap-3 py-3 text-sm">
-                  <div className="min-w-0">
+                  <div className="min-w-0 flex-1">
                     <p className="font-medium">{t(`exitDocuments.certificates.types.${c.type}`, c.type)}</p>
                     {c.purpose && <p className="text-xs text-muted">{t('exitDocuments.certificates.forPurpose', { purpose: c.purpose })}</p>}
                     {c.decisionNote && <p className="mt-1 text-xs italic text-muted">{t('common.note')}: {c.decisionNote}</p>}
+                    <ApprovalTrailView request={c} pendingStatus="Pending" />
                   </div>
                   <div className="flex shrink-0 flex-col items-end gap-2">
                     <Badge variant={CERTIFICATE_STATUS_VARIANT[c.status]}>{t(`common.status.${c.status}`, c.status)}</Badge>

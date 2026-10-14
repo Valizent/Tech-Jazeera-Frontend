@@ -13,7 +13,6 @@ import { useQuery } from '@tanstack/react-query';
 import { employeeFormSchema } from '../employees.schema.js';
 import { listDesignations } from '../employees.api.js';
 import { listStaffUsers } from '../../users/users.api.js';
-import { listApprovalWorkflows } from '../../approvals/approvals.api.js';
 import { listSubcontractors } from '../../subcontractors/subcontractors.api.js';
 import { useAuth } from '../../auth/AuthContext.jsx';
 import {
@@ -109,14 +108,6 @@ export default function EmployeeForm({ defaultValues, onSubmit, submitLabel, sub
   });
   const managers = (staffUsers ?? []).filter((u) => MANAGER_ELIGIBLE_ROLES.includes(u.role));
 
-  // Configurable Approval Hierarchy: which workflow governs THIS employee's
-  // own requests, overriding the company-wide default for its request
-  // type(s). Only active workflows are offered — an inactive one can't be
-  // newly assigned, though an employee already pointed at one keeps showing
-  // it (see the reapply effect below) rather than silently blanking the field.
-  const { data: workflows, isError: workflowsError } = useQuery({ queryKey: ['approval-workflows'], queryFn: listApprovalWorkflows });
-  const activeWorkflows = (workflows ?? []).filter((w) => w.isActive || w._id === defaultValues.approvalWorkflow);
-
   // The <select>s mount (via register's ref) before these async lists
   // resolve, so setting their value to an id with no matching <option> yet
   // silently fails — a native select doesn't retroactively select an option
@@ -127,12 +118,6 @@ export default function EmployeeForm({ defaultValues, onSubmit, submitLabel, sub
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [staffUsers]);
-  useEffect(() => {
-    if (workflows && defaultValues.approvalWorkflow) {
-      setValue('approvalWorkflow', defaultValues.approvalWorkflow);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [workflows]);
 
   const onInvalid = (formErrors) => {
     console.error('[employees] employee form invalid', formErrors);
@@ -145,7 +130,6 @@ export default function EmployeeForm({ defaultValues, onSubmit, submitLabel, sub
         failed={[
           { label: 'subcontractors', isError: subcontractorsError },
           { label: 'managers', isError: managersError },
-          { label: 'approval workflows', isError: workflowsError },
           { label: 'designations', isError: designationsError },
         ]}
       />
@@ -371,17 +355,6 @@ export default function EmployeeForm({ defaultValues, onSubmit, submitLabel, sub
           <p className="mt-1 text-xs text-muted">
             {type === 'Own' ? t('staffEmployees.form.managerHintOwn') : t('staffEmployees.form.managerHintOther')}
           </p>
-        </div>
-        <div>
-          <Select label={t('staffEmployees.form.approvalWorkflowOverride')} error={errors.approvalWorkflow?.message} {...register('approvalWorkflow')}>
-            <option value="">{t('staffEmployees.form.useCompanyDefault')}</option>
-            {activeWorkflows.map((w) => (
-              <option key={w._id} value={w._id}>
-                {w.name}
-              </option>
-            ))}
-          </Select>
-          <p className="mt-1 text-xs text-muted">{t('staffEmployees.form.approvalWorkflowHint')}</p>
         </div>
       </Section>
 

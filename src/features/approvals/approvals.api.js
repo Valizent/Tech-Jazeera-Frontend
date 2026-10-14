@@ -35,6 +35,18 @@ export async function updateApprovalWorkflow(id, payload) {
   return data.data;
 }
 
+/** Each employee's own hierarchy per module (default unless changed). */
+export async function listEmployeeApprovals(params) {
+  const { data } = await api.get('/approvals/employees', { params });
+  return data.data;
+}
+
+/** workflow: an approval hierarchy id, or null to put the module back on the default. */
+export async function setEmployeeApprovalOverride(employeeId, payload) {
+  const { data } = await api.put(`/approvals/employees/${employeeId}/override`, payload);
+  return data.data;
+}
+
 /** Cross-request-type approval log — visible to Admin or any real
  *  ApprovalRole member (the server enforces this dynamically; a non-member
  *  gets a 403 with a clear message). */

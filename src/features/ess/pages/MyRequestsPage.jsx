@@ -42,6 +42,7 @@ import Select from '../../../components/ui/Select.jsx';
 import Textarea from '../../../components/ui/Textarea.jsx';
 import EmptyState from '../../../components/ui/EmptyState.jsx';
 import Skeleton from '../../../components/ui/Skeleton.jsx';
+import ApprovalTrailView from '../../../components/shared/ApprovalTrailView.jsx';
 
 function MyAdvancesSection() {
   const { t } = useTranslation();
@@ -123,7 +124,7 @@ function MyAdvancesSection() {
           <Card className="divide-y divide-border">
             {data.items.map((a) => (
               <div key={a._id} className="flex items-start justify-between gap-3 py-3 text-sm">
-                <div className="min-w-0">
+                <div className="min-w-0 flex-1">
                   <p className="font-medium">{formatMoney(a.amount)}</p>
                   <p className="text-xs text-muted">
                     {t('requests.advances.overMonths', { count: a.repaymentMonths })}
@@ -133,6 +134,7 @@ function MyAdvancesSection() {
                     <p className="mt-1 text-xs font-semibold">{t('requests.advances.outstanding', { amount: formatMoney(a.outstandingBalance) })}</p>
                   )}
                   {a.decisionNote && <p className="mt-1 text-xs italic text-muted">{t('common.note')}: {a.decisionNote}</p>}
+                  <ApprovalTrailView request={a} pendingStatus="Pending" />
                 </div>
                 <div className="flex shrink-0 flex-col items-end gap-2">
                   <Badge variant={ADVANCE_STATUS_VARIANT[a.status]}>{t(`common.status.${a.status}`, a.status)}</Badge>
@@ -305,12 +307,13 @@ function MyReimbursementsSection() {
           <Card className="divide-y divide-border">
             {data.items.map((c) => (
               <div key={c._id} className="flex items-start justify-between gap-3 py-3 text-sm">
-                <div className="min-w-0">
+                <div className="min-w-0 flex-1">
                   <p className="font-medium">
                     {t(`requests.reimbursements.categories.${c.category}`, c.category)} · {formatMoney(c.amount)}
                   </p>
                   <p className="text-xs text-muted">{t('requests.reimbursements.expenseOn', { date: formatDate(c.expenseDate) })}</p>
                   {c.decisionNote && <p className="mt-1 text-xs italic text-muted">{t('common.note')}: {c.decisionNote}</p>}
+                  <ApprovalTrailView request={c} pendingStatus="Pending" />
                 </div>
                 <div className="flex shrink-0 flex-col items-end gap-2">
                   <Badge variant={REIMBURSEMENT_STATUS_VARIANT[c.status]}>{t(`common.status.${c.status}`, c.status)}</Badge>

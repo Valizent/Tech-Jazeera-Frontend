@@ -17,6 +17,7 @@ import EmptyState from '../../../components/ui/EmptyState.jsx';
 import Skeleton from '../../../components/ui/Skeleton.jsx';
 import ConfirmDialog from '../../../components/shared/ConfirmDialog.jsx';
 import VacationTravelDocuments from './VacationTravelDocuments.jsx';
+import ApprovalTrailView from '../../../components/shared/ApprovalTrailView.jsx';
 
 export default function MyVacationRequests({ queryKey, fetchRequests, cancelRequest, download }) {
   const { t } = useTranslation();
@@ -53,7 +54,7 @@ export default function MyVacationRequests({ queryKey, fetchRequests, cancelRequ
         <Card className="divide-y divide-border">
           {data.items.map((r) => (
             <div key={r._id} className="flex items-start justify-between gap-3 py-3 text-sm">
-              <div className="min-w-0">
+              <div className="min-w-0 flex-1">
                 <p className="font-medium">
                   {t('staffAnnualVacation.rangeLabel', { start: formatDate(r.startDate), end: formatDate(r.endDate), days: r.requestedDays })}
                 </p>
@@ -70,6 +71,7 @@ export default function MyVacationRequests({ queryKey, fetchRequests, cancelRequ
                     {t('common.note')}: {r.decisionNote}
                   </p>
                 )}
+                <ApprovalTrailView request={r} pendingStatus="PendingReview" />
               </div>
               <div className="flex shrink-0 flex-col items-end gap-2">
                 <Badge variant={ANNUAL_VACATION_STATUS_VARIANT[r.status]}>{t(`common.status.${r.status}`, r.status)}</Badge>

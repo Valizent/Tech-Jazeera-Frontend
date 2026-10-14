@@ -1,4 +1,5 @@
 {
+  "approvalTrail": { "singleStep": "Single review step (no approval hierarchy set for this request).", "stepNumber": "Step {{number}}", "progress": "Step {{current}} of {{total}}: {{name}}" },
   "common": {
     "noSectionAccessTitle": "You don't have access to this section",
     "noSectionAccessDescription": "Ask an Admin to grant you access from Section Access if you believe this is wrong.",
@@ -990,9 +991,6 @@
       "manager": "Manager",
       "managerHintOwn": "Who this employee reports to.",
       "managerHintOther": "Optional alongside or instead of a coordinator, if they report to a manager directly.",
-      "approvalWorkflowOverride": "Approval workflow override",
-      "useCompanyDefault": "Use the company default",
-      "approvalWorkflowHint": "Which approval chain this employee's Leave/Salary Advance/Reimbursement/Timesheet requests route through. Leave as the default unless this person needs a different chain configure roles and workflows under Admin & Tools → Approval Hierarchy.",
       "documentsHint": "Leave blank if not issued yet expiry dates drive the renewal alerts.",
       "documentNumber": "{{document}} number",
       "documentExpiry": "{{document}} expiry",
