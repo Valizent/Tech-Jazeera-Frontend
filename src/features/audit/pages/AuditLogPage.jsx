@@ -22,17 +22,29 @@ import Button from '../../../components/ui/Button.jsx';
 import Input from '../../../components/ui/Input.jsx';
 import EmptyState from '../../../components/ui/EmptyState.jsx';
 
-/** Compact, safe rendering of an audit row's free-form meta — never secrets
- *  (logAudit()'s callers are trusted not to put any in there; see audit.model.js). */
-function MetaSummary({ meta }) {
-  if (!meta || Object.keys(meta).length === 0) return <span className="text-muted"></span>;
-  const text = Object.entries(meta)
-    .map(([k, v]) => `${k}: ${Array.isArray(v) ? v.join(', ') : v}`)
-    .join(' · ');
+/** An entry's details in plain words (the server's `description` sentences, see
+ *  audit.describe.js): the summary first, everything else behind "View more". */
+function Details({ lines }) {
+  const [open, setOpen] = useState(false);
+  if (!lines || lines.length === 0) return null;
+  const long = lines.length > 1 || lines[0].length > 90;
   return (
-    <span className="block max-w-xs truncate font-mono text-xs text-muted" title={text}>
-      {text}
-    </span>
+    <div className="max-w-md text-sm text-text">
+      {open ? (
+        <ul className="space-y-1">
+          {lines.map((line) => (
+            <li key={line}>{line}</li>
+          ))}
+        </ul>
+      ) : (
+        <p className="line-clamp-2">{lines[0]}</p>
+      )}
+      {long && (
+        <button type="button" onClick={() => setOpen((o) => !o)} className="mt-1 text-xs font-medium text-primary hover:underline">
+          {open ? 'View less' : 'View more'}
+        </button>
+      )}
+    </div>
   );
 }
 
@@ -104,7 +116,7 @@ export default function AuditLogPage() {
       render: (a) => (a.targetType ? <span className="text-xs text-muted">{a.targetType}</span> : ''),
     },
     { key: 'ip', header: 'IP', hideOnMobile: true, render: (a) => a.ip ?? '' },
-    { key: 'meta', header: 'Details', hideOnMobile: true, render: (a) => <MetaSummary meta={a.meta} /> },
+    { key: 'meta', header: 'Details', hideOnMobile: true, render: (a) => <Details lines={a.description} /> },
   ];
 
   return (
