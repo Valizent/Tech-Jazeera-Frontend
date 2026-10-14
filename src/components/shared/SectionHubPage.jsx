@@ -9,6 +9,7 @@ import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../features/auth/AuthContext.jsx';
 import PageHeader from './PageHeader.jsx';
 import Icon from '../ui/Icon.jsx';
+import InfoTip from '../ui/InfoTip.jsx';
 import { useNavCounts } from '../../app/useNavCounts.js';
 import { SELF_SERVICE_LOGIN_ROLES, isGrantedToSelfService } from '../../app/navConfig.js';
 
@@ -41,18 +42,21 @@ export default function SectionHubPage({ title, titleKey, description, descripti
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         {visible.map((item) => {
           const badgeCount = item.badgeCount || badgeCounts[item.to] || 0;
+          const label = item.labelKey ? t(item.labelKey, item.label) : item.label;
           return (
-          <Link
+          // A stretched link under the card, so the (i) button can sit on top of it
+          // without being a button inside a link.
+          <div
             key={item.to}
-            to={item.to}
-            className="group flex items-start gap-4 rounded-2xl border border-border bg-surface p-5 shadow-sm transition-all duration-200 ease-out-expo hover:border-primary/40 hover:shadow-md"
+            className="group relative flex items-center gap-4 rounded-2xl border border-border bg-surface p-5 shadow-sm transition-all duration-200 ease-out-expo hover:border-primary/40 hover:shadow-md"
           >
+            <Link to={item.to} aria-label={label} className="absolute inset-0 rounded-2xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40" />
             <div className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-primary/10 text-primary">
               <Icon d={item.icon} size="md" />
             </div>
             <div>
-              <p className="flex items-center gap-2 font-semibold text-text group-hover:text-primary">
-                {item.labelKey ? t(item.labelKey, item.label) : item.label}
+              <p className="flex items-center gap-2 font-semibold capitalize text-text group-hover:text-primary">
+                {label}
                 {/* Optional, filled in by the calling hub page (e.g.
                     FinancialHubPage's overdue-invoice count) this
                     component stays generic and knows nothing about what a
@@ -60,14 +64,13 @@ export default function SectionHubPage({ title, titleKey, description, descripti
                 {badgeCount > 0 && (
                   <span className="rounded-full bg-danger px-1.5 py-0.5 text-[10px] font-bold text-white shadow-sm ring-1 ring-inset ring-danger/20">{badgeCount > 99 ? '99+' : badgeCount}</span>
                 )}
+                <InfoTip
+                  className="z-10"
+                  text={item.description ? (item.descriptionKey ? t(item.descriptionKey, item.description) : item.description) : null}
+                />
               </p>
-              {item.description && (
-                <p className="mt-1 text-sm text-muted">
-                  {item.descriptionKey ? t(item.descriptionKey, item.description) : item.description}
-                </p>
-              )}
             </div>
-          </Link>
+          </div>
           );
         })}
       </div>

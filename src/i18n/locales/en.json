@@ -110,7 +110,8 @@
       "desc": "Desc",
       "reset": "Reset",
       "resetToDefaults": "Reset to defaults"
-    }
+    },
+    "moreInfo": "More information"
   },
   "auth": {
     "signIn": "Sign in",

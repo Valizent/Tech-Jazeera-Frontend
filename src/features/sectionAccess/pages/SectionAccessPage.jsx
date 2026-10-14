@@ -52,8 +52,9 @@ import Button from '../../../components/ui/Button.jsx';
 import Skeleton from '../../../components/ui/Skeleton.jsx';
 import EmptyState from '../../../components/ui/EmptyState.jsx';
 import Badge from '../../../components/ui/Badge.jsx';
-import { PillChecklist } from '../../../components/ui/TogglePill.jsx';
+import Switch from '../../../components/ui/Switch.jsx';
 import Icon from '../../../components/ui/Icon.jsx';
+import InfoTip from '../../../components/ui/InfoTip.jsx';
 
 const idsFromServer = (section) => ({
   readApprovalRoles: (section.readApprovalRoles ?? []).map((r) => r._id),
@@ -73,114 +74,126 @@ const isDirty = (section, local) =>
     local.writeAllStaff !== Boolean(section.writeAllStaff) ||
     !sameIds(local.allStaffExceptRoles ?? [], (section.allStaffExceptRoles ?? []).map((r) => r._id)));
 
-/** One tier's approval-role checklist, reused for both Read and Write below.
- *  `allStaff` (when offered) is the "every office login" switch for the tier. */
-function TierChecklist({ title, hint, approvalRoleIds, onToggleApprovalRole, approvalRoles, approvalRolesLoading, approvalRolesError, allStaff, onToggleAllStaff }) {
+const ALL_STAFF_HINT =
+  'Everyone with an office login (Admin, Manager, HR, Accounts, Coordinator, Executive, Office Secretary). Not Worker or Staff logins.';
+const SEE_HINT =
+  'If on, people in this role see this module in their menu and can open it. If off, it stays hidden and closed to them. Switching "Can change" on switches this on too.';
+const CHANGE_HINT =
+  'If on, they can make changes: create, edit or approve records. Deleting a record is Admin only. If off, they can look but not change anything.';
+const ONLY_SEE_HINT = 'Only the roles switched on here (and Admin) have this. Everyone else never receives it.';
+const ONLY_CHANGE_HINT = 'Only the roles switched on here (and Admin) can do this. Everyone else cannot.';
+const EXCEPT_HINT =
+  'Roles switched on here are left out of "All office staff" above. A person who is also switched on for a role on this card keeps that access.';
+
+/** Roles down the side, one on/off switch per column. Used for Can see / Can
+ *  change on every card and for the "left out" list under All office staff. */
+function SwitchTable({ columns, rows, loading, emptyMessage }) {
+  if (loading) return <Skeleton className="h-10 w-full" />;
+  if (rows.length === 0) return <p className="text-sm text-muted">{emptyMessage}</p>;
+  const grid = { gridTemplateColumns: `minmax(0,1fr) ${columns.map(() => '7.5rem').join(' ')}` };
   return (
-    <div className="space-y-2 rounded-lg border border-border/60 p-3">
-      <div>
-        <h3 className="text-xs font-semibold uppercase tracking-wide text-text">{title}</h3>
-        {hint && <p className="mt-0.5 text-xs text-muted">{hint}</p>}
-      </div>
-      {onToggleAllStaff && (
-        <label className="flex cursor-pointer items-start gap-2 rounded-md bg-primary/5 px-2 py-1.5 text-xs text-text">
-          <input type="checkbox" checked={allStaff} onChange={onToggleAllStaff} className="mt-0.5" />
-          <span>
-            <span className="font-medium">All office staff</span>
-            <span className="block text-muted">Everyone with an office login (Admin, Manager, HR, Accounts, Coordinator, Executive, Office Secretary). Not Worker or Staff logins.</span>
+    <div className="overflow-hidden rounded-lg border border-border/60">
+      <div className="grid items-center gap-x-3 bg-border/20 px-3 py-2 text-xs font-semibold text-muted" style={grid}>
+        <span>Role</span>
+        {columns.map((column) => (
+          <span key={column.key} className="flex items-center justify-center gap-1">
+            {column.title}
+            <InfoTip text={column.hint} />
           </span>
-        </label>
-      )}
-      {approvalRolesLoading ? (
-        <Skeleton className="h-10 w-full" />
-      ) : (
-        <PillChecklist
-          items={approvalRoles ?? []}
-          selected={approvalRoleIds}
-          onToggle={onToggleApprovalRole}
-          emptyMessage={
-            approvalRolesError
-              ? "Couldn't load approval roles try refreshing the page."
-              : 'No approval roles configured yet add one on the Approval Hierarchy page first.'
-          }
-        />
-      )}
+        ))}
+      </div>
+      {rows.map((row) => (
+        <div
+          key={row.key}
+          className={cn('grid items-center gap-x-3 border-t border-border/60 px-3 py-2', row.highlight && 'bg-primary/5')}
+          style={grid}
+        >
+          <span className="flex min-w-0 items-center gap-1.5 text-sm font-medium text-text">
+            <span className="truncate">{row.label}</span>
+            <InfoTip text={row.hint} />
+          </span>
+          {columns.map((column) => (
+            <span key={column.key} className="flex justify-center">
+              <Switch
+                checked={Boolean(row.values[column.key])}
+                onChange={(on) => row.onChange(column.key, on)}
+                label={`${row.label}: ${column.title}`}
+              />
+            </span>
+          ))}
+        </div>
+      ))}
     </div>
   );
 }
 
-function SectionCard({ section, local, dirty, onToggleRead, onToggleWrite, onToggleAllStaff, onToggleExcept, onSave, saving, approvalRoles: allRoles, approvalRolesLoading, approvalRolesError }) {
+function SectionCard({ section, local, dirty, onRole, onAllStaff, onToggleExcept, onSave, saving, approvalRoles: allRoles, approvalRolesLoading, approvalRolesError }) {
   // The reserved Worker/Staff roles can only be granted the safe list — elsewhere they are not offered.
   const safeForSelfService = SELF_SERVICE_GRANTABLE_KEYS.includes(section.sectionKey);
   const approvalRoles = (allRoles ?? []).filter((r) => !r.allowsSelfService || safeForSelfService);
-  // A single yes/no permission shows one list ("Who can ..."), not Read and Write.
+  // A single yes/no permission shows one switch ("Who can do this"), not See and Change.
   const only = section.onlyTier;
-  const showRead = only !== 'write';
-  const showWrite = only !== 'read';
+  const columns =
+    only === 'read'
+      ? [{ key: 'see', title: 'Who can do this', hint: ONLY_SEE_HINT }]
+      : only === 'write'
+        ? [{ key: 'change', title: 'Who can do this', hint: ONLY_CHANGE_HINT }]
+        : [
+            { key: 'see', title: 'Can see', hint: SEE_HINT },
+            { key: 'change', title: 'Can change', hint: CHANGE_HINT },
+          ];
+  const sees = (id) => local.readApprovalRoles.includes(id) || local.writeApprovalRoles.includes(id);
+  const changes = (id) => local.writeApprovalRoles.includes(id);
+  const rows = [
+    {
+      key: 'all-office-staff',
+      label: 'All office staff',
+      hint: ALL_STAFF_HINT,
+      highlight: true,
+      values: { see: local.readAllStaff || local.writeAllStaff, change: local.writeAllStaff },
+      onChange: onAllStaff,
+    },
+    ...approvalRoles.map((role) => ({
+      key: role._id,
+      label: role.name,
+      values: { see: sees(role._id), change: changes(role._id) },
+      onChange: (column, on) => onRole(role._id, column, on),
+    })),
+  ];
+  const exceptRows = approvalRoles.map((role) => ({
+    key: role._id,
+    label: role.name,
+    values: { out: (local.allStaffExceptRoles ?? []).includes(role._id) },
+    onChange: () => onToggleExcept(role._id),
+  }));
+  const emptyMessage = approvalRolesError
+    ? "Couldn't load approval roles try refreshing the page."
+    : 'No approval roles configured yet add one on the Approval Hierarchy page first.';
+
   return (
     <Card className={cn('space-y-4', dirty && 'ring-2 ring-primary/50')}>
       <div className="flex items-start justify-between gap-2">
-        <div>
+        <div className="flex items-center gap-1.5">
           <h2 className="text-sm font-semibold uppercase tracking-wide text-muted">{section.label}</h2>
-          <p className="mt-1 text-xs text-muted">{section.description}</p>
+          <InfoTip text={section.description} />
         </div>
         {dirty && <Badge variant="warning">Unsaved</Badge>}
       </div>
 
-      {showRead && (
-        <TierChecklist
-          title={only === 'read' ? 'Who can do this' : 'Read'}
-          hint={
-            only === 'read'
-              ? 'Only the roles ticked here (and Admin) have this. Everyone else never receives it.'
-              : 'If granted, users in this role can view the data inside this module. If not granted, the module remains completely hidden and inaccessible to them. (Note: Anyone granted Write access below can automatically read too).'
-          }
-          approvalRoleIds={local.readApprovalRoles}
-          onToggleApprovalRole={onToggleRead}
-          approvalRoles={approvalRoles}
-          approvalRolesLoading={approvalRolesLoading}
-          approvalRolesError={approvalRolesError}
-          allStaff={local.readAllStaff}
-          onToggleAllStaff={() => onToggleAllStaff('readAllStaff')}
-        />
-      )}
-      {showWrite && (
-        <TierChecklist
-          title={only === 'write' ? 'Who can do this' : 'Write'}
-          hint={
-            only === 'write'
-              ? 'Only the roles ticked here (and Admin) can do this. Everyone else cannot.'
-              : 'If granted, users can actively make changes (like creating, editing or approving records). Deleting a record is Admin only. If not granted, they cannot make any changes.'
-          }
-          approvalRoleIds={local.writeApprovalRoles}
-          onToggleApprovalRole={onToggleWrite}
-          approvalRoles={approvalRoles}
-          approvalRolesLoading={approvalRolesLoading}
-          approvalRolesError={approvalRolesError}
-          allStaff={local.writeAllStaff}
-          onToggleAllStaff={() => onToggleAllStaff('writeAllStaff')}
-        />
-      )}
+      <SwitchTable columns={columns} rows={rows} loading={approvalRolesLoading} emptyMessage={emptyMessage} />
 
       {(local.readAllStaff || local.writeAllStaff) && (
-        <div className="space-y-2 rounded-lg border border-border/60 p-3">
-          <div>
+        <div className="space-y-2">
+          <div className="flex items-center gap-1.5">
             <h3 className="text-xs font-semibold uppercase tracking-wide text-text">Except these roles</h3>
-            <p className="mt-0.5 text-xs text-muted">
-              Members of the roles ticked here are left out of &quot;All office staff&quot; above. A person who is also named in a role
-              grant on this card keeps that grant.
-            </p>
+            <InfoTip text={EXCEPT_HINT} />
           </div>
-          {approvalRolesLoading ? (
-            <Skeleton className="h-10 w-full" />
-          ) : (
-            <PillChecklist
-              items={approvalRoles ?? []}
-              selected={local.allStaffExceptRoles ?? []}
-              onToggle={onToggleExcept}
-              emptyMessage="No approval roles configured yet."
-            />
-          )}
+          <SwitchTable
+            columns={[{ key: 'out', title: 'Left out', hint: EXCEPT_HINT }]}
+            rows={exceptRows}
+            loading={approvalRolesLoading}
+            emptyMessage="No approval roles configured yet."
+          />
         </div>
       )}
 
@@ -216,7 +229,7 @@ function GridTile({ icon, label, hint, dirtyCount, onClick }) {
         )}
       </div>
       <div>
-        <p className="text-sm font-semibold text-text group-hover:text-primary">{label}</p>
+        <p className="text-sm font-semibold capitalize text-text group-hover:text-primary">{label}</p>
         {hint && <p className="mt-0.5 text-xs text-muted">{hint}</p>}
       </div>
     </button>
@@ -331,8 +344,31 @@ export default function SectionAccessPage() {
     queryClient.invalidateQueries({ queryKey: ['section-access'] });
   }
 
-  const toggleFlag = (sectionKey) => (flag) =>
-    setLocalValues((prev) => ({ ...prev, [sectionKey]: { ...prev[sectionKey], [flag]: !prev[sectionKey]?.[flag] } }));
+  // The Can see / Can change switches. Write always includes Read, so Can change on
+  // also means Can see; Can see off removes both. A card that has only one tier
+  // (`only`) flips just that list.
+  const setRoleAccess = (sectionKey, only) => (roleId, column, on) =>
+    setLocalValues((prev) => {
+      const current = prev[sectionKey];
+      let read = current.readApprovalRoles.filter((id) => id !== roleId);
+      let write = current.writeApprovalRoles.filter((id) => id !== roleId);
+      if (column === 'change' && on) write = [...write, roleId];
+      else if (column === 'change' && only !== 'write') read = [...read, roleId]; // switched off: still sees it
+      else if (column === 'see' && on) read = [...read, roleId];
+      return { ...prev, [sectionKey]: { ...current, readApprovalRoles: read, writeApprovalRoles: write } };
+    });
+
+  // The same two switches for the "All office staff" row.
+  const setAllStaffAccess = (sectionKey, only) => (column, on) =>
+    setLocalValues((prev) => {
+      const current = prev[sectionKey];
+      let readAllStaff = false;
+      let writeAllStaff = false;
+      if (column === 'change' && on) writeAllStaff = true;
+      else if (column === 'change' && only !== 'write') readAllStaff = true;
+      else if (column === 'see' && on) readAllStaff = true;
+      return { ...prev, [sectionKey]: { ...current, readAllStaff, writeAllStaff } };
+    });
 
   const toggleIn = (sectionKey, tier) => (value) =>
     setLocalValues((prev) => {
@@ -373,8 +409,8 @@ export default function SectionAccessPage() {
   const headerDescription = activeModule
     ? activeModule.description
     : activeGroup
-      ? 'Choose a module below to control who can read or write its data click one to see its Read/Write editor.'
-      : "Section Access is your security control center. It lets you strictly govern who can see or change sensitive data across the system. It exists to ensure privacy and prevent unauthorized edits. Admins always have full access. Pick a category below, then choose a module to grant Read or Write permissions to your custom Approval Roles.";
+      ? 'Choose a module below, then switch on what each role can see or change in it.'
+      : "Section Access is your security control center. It lets you strictly govern who can see or change sensitive data across the system. It exists to ensure privacy and prevent unauthorized edits. Admins always have full access. Pick a category below, then choose a module and switch on what each of your Approval Roles can see or change.";
   const handleBack = activeModule ? closeModule : activeGroup ? closeGroup : () => navigate(-1);
 
   return (
@@ -467,9 +503,8 @@ export default function SectionAccessPage() {
                 section={section}
                 local={local}
                 dirty={isDirty(section, local)}
-                onToggleRead={toggleIn(key, 'readApprovalRoles')}
-                onToggleWrite={toggleIn(key, 'writeApprovalRoles')}
-                onToggleAllStaff={toggleFlag(key)}
+                onRole={setRoleAccess(key, section.onlyTier)}
+                onAllStaff={setAllStaffAccess(key, section.onlyTier)}
                 onToggleExcept={toggleIn(key, 'allStaffExceptRoles')}
                 onSave={() => saveSection(key)}
                 saving={savingKeys.has(key)}
