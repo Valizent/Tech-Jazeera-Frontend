@@ -80,6 +80,8 @@ const SEE_HINT =
   'If on, people in this role see this module in their menu and can open it. If off, it stays hidden and closed to them. Switching "Can change" on switches this on too.';
 const CHANGE_HINT =
   'If on, they can make changes: create, edit or approve records. Deleting a record is Admin only. If off, they can look but not change anything.';
+const LOCKED_HINT =
+  'Worker and Staff logins use their own portal. This module is not available to them, so it cannot be switched on.';
 const ONLY_SEE_HINT = 'Only the roles switched on here (and Admin) have this. Everyone else never receives it.';
 const ONLY_CHANGE_HINT = 'Only the roles switched on here (and Admin) can do this. Everyone else cannot.';
 const EXCEPT_HINT =
@@ -92,13 +94,13 @@ function SwitchTable({ columns, rows, loading, emptyMessage }) {
   if (rows.length === 0) return <p className="text-sm text-muted">{emptyMessage}</p>;
   const grid = { gridTemplateColumns: `minmax(0,1fr) ${columns.map(() => '7.5rem').join(' ')}` };
   return (
-    <div className="overflow-hidden rounded-lg border border-border/60">
-      <div className="grid items-center gap-x-3 bg-border/20 px-3 py-2 text-xs font-semibold text-muted" style={grid}>
+    <div className="rounded-lg border border-border/60">
+      <div className="grid items-center gap-x-3 rounded-t-lg bg-border/20 px-3 py-2 text-xs font-semibold text-muted" style={grid}>
         <span>Role</span>
         {columns.map((column) => (
           <span key={column.key} className="flex items-center justify-center gap-1">
             {column.title}
-            <InfoTip text={column.hint} />
+            <InfoTip text={column.hint} align="end" />
           </span>
         ))}
       </div>
@@ -117,6 +119,7 @@ function SwitchTable({ columns, rows, loading, emptyMessage }) {
               <Switch
                 checked={Boolean(row.values[column.key])}
                 onChange={(on) => row.onChange(column.key, on)}
+                disabled={row.disabled}
                 label={`${row.label}: ${column.title}`}
               />
             </span>
@@ -128,9 +131,11 @@ function SwitchTable({ columns, rows, loading, emptyMessage }) {
 }
 
 function SectionCard({ section, local, dirty, onRole, onAllStaff, onToggleExcept, onSave, saving, approvalRoles: allRoles, approvalRolesLoading, approvalRolesError }) {
-  // The reserved Worker/Staff roles can only be granted the safe list — elsewhere they are not offered.
+  // The reserved Worker/Staff roles can only be granted the safe list; elsewhere their rows stay
+  // visible but locked, so it is clear they were not forgotten.
   const safeForSelfService = SELF_SERVICE_GRANTABLE_KEYS.includes(section.sectionKey);
-  const approvalRoles = (allRoles ?? []).filter((r) => !r.allowsSelfService || safeForSelfService);
+  const approvalRoles = allRoles ?? [];
+  const lockedFor = (role) => role.allowsSelfService && !safeForSelfService;
   // A single yes/no permission shows one switch ("Who can do this"), not See and Change.
   const only = section.onlyTier;
   const columns =
@@ -156,11 +161,13 @@ function SectionCard({ section, local, dirty, onRole, onAllStaff, onToggleExcept
     ...approvalRoles.map((role) => ({
       key: role._id,
       label: role.name,
-      values: { see: sees(role._id), change: changes(role._id) },
+      values: lockedFor(role) ? { see: false, change: false } : { see: sees(role._id), change: changes(role._id) },
       onChange: (column, on) => onRole(role._id, column, on),
+      disabled: lockedFor(role),
+      hint: lockedFor(role) ? LOCKED_HINT : undefined,
     })),
   ];
-  const exceptRows = approvalRoles.map((role) => ({
+  const exceptRows = approvalRoles.filter((role) => !role.allowsSelfService).map((role) => ({
     key: role._id,
     label: role.name,
     values: { out: (local.allStaffExceptRoles ?? []).includes(role._id) },

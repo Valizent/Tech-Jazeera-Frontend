@@ -9,7 +9,7 @@ import { useTranslation } from 'react-i18next';
 
 const INFO_PATH = 'M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z';
 
-export default function InfoTip({ text, className = '' }) {
+export default function InfoTip({ text, className = '', align = 'start' }) {
   const { t } = useTranslation();
   const [open, setOpen] = useState(false);
   const ref = useRef(null);
@@ -52,7 +52,7 @@ export default function InfoTip({ text, className = '' }) {
       {open && (
         <span
           role="tooltip"
-          className="absolute start-0 top-full z-50 mt-2 w-72 max-w-[80vw] rounded-xl border border-border bg-surface p-3 text-start text-sm font-normal normal-case leading-relaxed tracking-normal text-text shadow-lg"
+          className={`absolute ${align === 'end' ? 'end-0' : 'start-0'} top-full z-50 mt-2 w-72 max-w-[80vw] rounded-xl border border-border bg-surface p-3 text-start text-sm font-normal normal-case leading-relaxed tracking-normal text-text shadow-lg`}
         >
           {text}
         </span>
