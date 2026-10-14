@@ -242,7 +242,7 @@ const STEP_DUTY_OPTIONS = [
   { value: 'TravelDocuments', label: 'Travel documents: attaches the air tickets and the re-entry visa (annual vacation)' },
 ];
 
-function SortableStepCard({ id, index, register, roleError, roles, stepRoles, onToggleRole, onRemove, canRemove }) {
+function SortableStepCard({ id, index, register, roleError, roles, stepRoles, onToggleRole, onRemove, canRemove, showDuty }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id });
   const style = {
     transform: CSS.Transform.toString(transform),
@@ -289,13 +289,16 @@ function SortableStepCard({ id, index, register, roleError, roles, stepRoles, on
       <p className="mb-1 text-xs text-muted">Any ONE member of any role checked below can decide this step:</p>
       <PillChecklist items={roles} selected={stepRoles} onToggle={onToggleRole} />
       {roleError && <p className="mt-1 text-sm text-danger">{roleError}</p>}
-      <Select className="mt-3" label="Special duty of this step" {...register(`steps.${index}.duty`)}>
-        {STEP_DUTY_OPTIONS.map((o) => (
-          <option key={o.value} value={o.value}>
-            {o.label}
-          </option>
-        ))}
-      </Select>
+      {/* Only the annual vacation flow has step duties; shown there, or where one is already set. */}
+      {showDuty && (
+        <Select className="mt-3" label="Special duty of this step" {...register(`steps.${index}.duty`)}>
+          {STEP_DUTY_OPTIONS.map((o) => (
+            <option key={o.value} value={o.value}>
+              {o.label}
+            </option>
+          ))}
+        </Select>
+      )}
     </div>
   );
 }
@@ -475,6 +478,7 @@ function ApprovalWorkflowsPanel() {
                           onToggleRole={(roleId) => toggleStepRole(i, roleId)}
                           onRemove={() => removeStep(i)}
                           canRemove={stepFields.length > 1}
+                          showDuty={appliesTo.includes('AnnualVacation') || Boolean(watch(`steps.${i}.duty`))}
                         />
                       </div>
                     ))}
