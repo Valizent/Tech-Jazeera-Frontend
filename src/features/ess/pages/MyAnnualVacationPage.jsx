@@ -5,12 +5,20 @@
  */
 import { useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
-import { submitMyAnnualVacation, listMyAnnualVacation, cancelMyAnnualVacation } from '../../annualVacation/annualVacation.api.js';
+import {
+  submitMyAnnualVacation,
+  listMyAnnualVacation,
+  cancelMyAnnualVacation,
+  getMyVacationEligibility,
+  downloadMyVacationTicket,
+  downloadMyVacationVisa,
+} from '../../annualVacation/annualVacation.api.js';
 import PageHeader from '../../../components/shared/PageHeader.jsx';
 import VacationRequestForm from '../../annualVacation/components/VacationRequestForm.jsx';
 import MyVacationRequests from '../../annualVacation/components/MyVacationRequests.jsx';
 
 const QUERY_KEY = ['me', 'annual-vacation'];
+const DOWNLOAD = { ticket: downloadMyVacationTicket, visa: downloadMyVacationVisa };
 
 export default function MyAnnualVacationPage() {
   const { t } = useTranslation();
@@ -19,8 +27,12 @@ export default function MyAnnualVacationPage() {
   return (
     <div className="mx-auto max-w-3xl space-y-6">
       <PageHeader title={t('staffAnnualVacation.title')} description={t('staffAnnualVacation.essDescription')} />
-      <VacationRequestForm submit={submitMyAnnualVacation} onSubmitted={() => queryClient.invalidateQueries({ queryKey: QUERY_KEY })} />
-      <MyVacationRequests queryKey={QUERY_KEY} fetchRequests={listMyAnnualVacation} cancelRequest={cancelMyAnnualVacation} />
+      <VacationRequestForm
+        submit={submitMyAnnualVacation}
+        loadEligibility={getMyVacationEligibility}
+        onSubmitted={() => queryClient.invalidateQueries({ queryKey: QUERY_KEY })}
+      />
+      <MyVacationRequests queryKey={QUERY_KEY} fetchRequests={listMyAnnualVacation} cancelRequest={cancelMyAnnualVacation} download={DOWNLOAD} />
     </div>
   );
 }

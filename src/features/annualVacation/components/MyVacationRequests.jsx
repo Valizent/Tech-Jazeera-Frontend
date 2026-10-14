@@ -16,8 +16,9 @@ import Button from '../../../components/ui/Button.jsx';
 import EmptyState from '../../../components/ui/EmptyState.jsx';
 import Skeleton from '../../../components/ui/Skeleton.jsx';
 import ConfirmDialog from '../../../components/shared/ConfirmDialog.jsx';
+import VacationTravelDocuments from './VacationTravelDocuments.jsx';
 
-export default function MyVacationRequests({ queryKey, fetchRequests, cancelRequest }) {
+export default function MyVacationRequests({ queryKey, fetchRequests, cancelRequest, download }) {
   const { t } = useTranslation();
   const toast = useToast();
   const queryClient = useQueryClient();
@@ -57,6 +58,13 @@ export default function MyVacationRequests({ queryKey, fetchRequests, cancelRequ
                   {t('staffAnnualVacation.rangeLabel', { start: formatDate(r.startDate), end: formatDate(r.endDate), days: r.requestedDays })}
                 </p>
                 {r.reason && <p className="mt-1 text-xs text-muted">{r.reason}</p>}
+                {r.daysChange && (
+                  <p className="mt-1 text-xs text-muted">
+                    {t('staffAnnualVacation.daysChangedBy', { from: r.daysChange.from, to: r.daysChange.to })}
+                    {r.daysChange.note ? `: ${r.daysChange.note}` : ''}
+                  </p>
+                )}
+                {(r.travelDate || r.tickets?.length > 0 || r.visaRequest) && <VacationTravelDocuments request={r} download={download} />}
                 {r.decisionNote && (
                   <p className="mt-1 text-xs italic text-muted">
                     {t('common.note')}: {r.decisionNote}

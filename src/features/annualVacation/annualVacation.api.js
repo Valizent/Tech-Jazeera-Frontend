@@ -52,3 +52,62 @@ export async function cancelMyAnnualVacation(id) {
   const { data } = await api.patch(`/me/annual-vacation/${id}/cancel`);
   return data.data;
 }
+
+/** Can this person ask for vacation yet, and how many days their contract gives. `employeeId` omitted = yourself. */
+export async function getVacationEligibility(employeeId) {
+  const { data } = await api.get('/annual-vacation/eligibility', { params: employeeId ? { employee: employeeId } : {} });
+  return data.data; // { eligible, reason, contractDays }
+}
+
+export async function getMyVacationEligibility() {
+  const { data } = await api.get('/me/annual-vacation/eligibility');
+  return data.data;
+}
+
+/** HR changing the days at the HR step. */
+export async function changeVacationDays(id, payload) {
+  const { data } = await api.patch(`/annual-vacation/${id}/days`, payload);
+  return data.data;
+}
+
+/** Accounts attaching the air tickets with the day of travel. `files` is an array of File objects. */
+export async function attachVacationTickets(id, { files, travelDate }) {
+  const formData = new FormData();
+  for (const file of files) formData.append('files', file);
+  formData.append('travelDate', travelDate);
+  const { data } = await api.post(`/annual-vacation/${id}/tickets`, formData);
+  return data.data;
+}
+
+export async function removeVacationTicket(id, fileId) {
+  const { data } = await api.delete(`/annual-vacation/${id}/tickets/${fileId}`);
+  return data.data;
+}
+
+/** Accounts uploading the issued re-entry visa. */
+export async function uploadVacationVisa(id, { file, visaReferenceNumber }) {
+  const formData = new FormData();
+  formData.append('file', file);
+  if (visaReferenceNumber?.trim()) formData.append('visaReferenceNumber', visaReferenceNumber.trim());
+  const { data } = await api.post(`/annual-vacation/${id}/visa`, formData);
+  return data.data;
+}
+
+/** A stored file comes back as an authenticated Blob (a plain link cannot send the in-memory token). */
+async function downloadBlob(path, fallbackName) {
+  const res = await api.get(path, { responseType: 'blob' });
+  const url = URL.createObjectURL(res.data);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = fallbackName || 'document';
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+}
+
+/** Staff side (anyone who may see the request) and the employee's own side (/api/me). */
+export const downloadVacationTicket = (id, fileId, name) => downloadBlob(`/annual-vacation/${id}/tickets/${fileId}/file`, name);
+export const downloadVacationVisa = (id, name) => downloadBlob(`/annual-vacation/${id}/visa/file`, name);
+export const downloadMyVacationTicket = (id, fileId, name) => downloadBlob(`/me/annual-vacation/${id}/tickets/${fileId}/file`, name);
+export const downloadMyVacationVisa = (id, name) => downloadBlob(`/me/annual-vacation/${id}/visa/file`, name);

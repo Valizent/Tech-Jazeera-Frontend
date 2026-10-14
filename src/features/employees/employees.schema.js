@@ -19,6 +19,12 @@ const optionalHours = z
     (s) => !s || (!Number.isNaN(Number(s)) && Number(s) >= 0 && Number(s) <= 24),
     'Enter a number of hours between 0 and 24.'
   );
+const optionalVacationDays = z
+  .string()
+  .optional()
+  .or(z.literal(''))
+  .refine((s) => !s || (Number.isInteger(Number(s)) && Number(s) >= 1 && Number(s) <= 90), 'Enter a whole number of days from 1 to 90.');
+
 const optionalMonthlyHours = z
   .string()
   .optional()
@@ -99,6 +105,8 @@ export const employeeFormSchema = z
     // The hours this employee's month is contracted for: overtime is paid at
     // salary / these x 1.5, and a mobilisation needs them (2026-10-13).
     contractHours: optionalMonthlyHours,
+    // Annual vacation days the contract gives: an annual vacation request starts from this number (2026-10-14).
+    annualVacationDays: optionalVacationDays,
     // A closed <select> of weekdays, not free text — no numeric range to
     // validate client-side, just "did they pick one of the options."
     weeklyOffDay: z.string().optional().or(z.literal('')),
@@ -169,6 +177,7 @@ export const emptyEmployeeForm = {
   accommodation: '',
   expectedDailyHours: '',
   contractHours: '',
+  annualVacationDays: '',
   weeklyOffDay: '5', // pre-selected Friday, mirrors the model's create-default
   status: 'Active',
   emergencyContact: { name: '', phone: '', relation: '' },
@@ -208,6 +217,7 @@ export function employeeToForm(employee) {
     accommodation: employee.accommodation ?? '',
     expectedDailyHours: employee.expectedDailyHours != null ? String(employee.expectedDailyHours) : '',
     contractHours: employee.contractHours != null ? String(employee.contractHours) : '',
+    annualVacationDays: employee.annualVacationDays != null ? String(employee.annualVacationDays) : '',
     weeklyOffDay: employee.weeklyOffDay != null ? String(employee.weeklyOffDay) : '',
     status: employee.status,
     emergencyContact: {
@@ -231,6 +241,7 @@ export function formToEmployeePayload({ payHidden, departmentLegacy: _legacy, ..
     subcontractor: values.subcontractor || null,
     expectedDailyHours: values.expectedDailyHours || null,
     contractHours: values.contractHours || null,
+    annualVacationDays: values.annualVacationDays || null,
     weeklyOffDay: values.weeklyOffDay === '' ? null : values.weeklyOffDay,
     basicSalary: values.basicSalary || null,
     housingAllowance: values.housingAllowance || null,

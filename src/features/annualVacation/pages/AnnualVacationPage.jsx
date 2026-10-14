@@ -12,6 +12,9 @@ import {
   submitAnnualVacation,
   listMyStaffAnnualVacation,
   cancelStaffAnnualVacation,
+  getVacationEligibility,
+  downloadVacationTicket,
+  downloadVacationVisa,
   VACATION_QUEUE_KEY,
   MY_VACATION_REQUESTS_KEY,
 } from '../annualVacation.api.js';
@@ -47,6 +50,7 @@ export default function AnnualVacationPage() {
       content: (
         <VacationRequestForm
           submit={submitAnnualVacation}
+          loadEligibility={getVacationEligibility}
           employeeOptions={employeeOptions}
           allowSelf={canFileForSelf}
           onSubmitted={() => {
@@ -60,7 +64,12 @@ export default function AnnualVacationPage() {
       key: 'mine',
       label: t('staffAnnualVacation.tabMine'),
       content: (
-        <MyVacationRequests queryKey={MY_VACATION_REQUESTS_KEY} fetchRequests={listMyStaffAnnualVacation} cancelRequest={cancelStaffAnnualVacation} />
+        <MyVacationRequests
+          queryKey={MY_VACATION_REQUESTS_KEY}
+          fetchRequests={listMyStaffAnnualVacation}
+          cancelRequest={cancelStaffAnnualVacation}
+          download={{ ticket: downloadVacationTicket, visa: downloadVacationVisa }}
+        />
       ),
     },
   ].filter(Boolean);

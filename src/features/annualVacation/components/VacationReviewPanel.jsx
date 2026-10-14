@@ -7,7 +7,13 @@
 import { useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
-import { listAnnualVacation, decideAnnualVacation, VACATION_QUEUE_KEY } from '../annualVacation.api.js';
+import {
+  listAnnualVacation,
+  decideAnnualVacation,
+  downloadVacationTicket,
+  downloadVacationVisa,
+  VACATION_QUEUE_KEY,
+} from '../annualVacation.api.js';
 import { apiMessage, formatDate } from '../../../lib/utils.js';
 import { ANNUAL_VACATION_STATUSES, ANNUAL_VACATION_STATUS_VARIANT } from '../../../lib/constants.js';
 import { useToast } from '../../../components/ui/Toast.jsx';
@@ -19,6 +25,10 @@ import EmptyState from '../../../components/ui/EmptyState.jsx';
 import Skeleton from '../../../components/ui/Skeleton.jsx';
 import ConfirmDialog from '../../../components/shared/ConfirmDialog.jsx';
 import ApprovalTrailView from '../../../components/shared/ApprovalTrailView.jsx';
+import VacationDaysEditor from './VacationDaysEditor.jsx';
+import VacationTravelDocuments from './VacationTravelDocuments.jsx';
+
+const DOWNLOAD = { ticket: downloadVacationTicket, visa: downloadVacationVisa };
 
 export default function VacationReviewPanel() {
   const { t } = useTranslation();
@@ -74,33 +84,57 @@ export default function VacationReviewPanel() {
         <EmptyState title={t('staffAnnualVacation.queueEmpty')} description={t('staffAnnualVacation.queueEmptyDescription')} />
       ) : (
         <div className="divide-y divide-border">
-          {data.items.map((r) => (
-            <div key={r._id} className="flex flex-wrap items-start justify-between gap-3 py-3 text-sm">
-              <div className="min-w-0">
-                <p className="font-medium">
-                  {r.employee?.fullName} <span className="font-normal text-muted">({r.employee?.employeeId})</span>
-                </p>
-                <p className="text-xs text-muted">
-                  {t('staffAnnualVacation.rangeLabel', { start: formatDate(r.startDate), end: formatDate(r.endDate), days: r.requestedDays })}
-                </p>
-                {r.reason && <p className="mt-1 text-xs text-muted">{r.reason}</p>}
-                <ApprovalTrailView request={r} pendingStatus="PendingReview" />
+          {data.items.map((r) => {
+            const pending = r.status === 'PendingReview';
+            const duty = pending ? r.steps?.[r.currentStep]?.duty : null;
+            const canAct = Boolean(r.canDecideCurrentStep) && pending;
+            const hasTravel = Boolean(r.travelDate) || r.tickets?.length > 0 || Boolean(r.visaRequest) || (duty === 'TravelDocuments' && canAct);
+            return (
+              <div key={r._id} className="flex flex-wrap items-start justify-between gap-3 py-3 text-sm">
+                <div className="min-w-0 flex-1">
+                  <p className="font-medium">
+                    {r.employee?.fullName} <span className="font-normal text-muted">({r.employee?.employeeId})</span>
+                  </p>
+                  <p className="text-xs text-muted">
+                    {t('staffAnnualVacation.rangeLabel', { start: formatDate(r.startDate), end: formatDate(r.endDate), days: r.requestedDays })}
+                    {r.contractDays != null && r.contractDays !== r.requestedDays && (
+                      <> · {t('staffAnnualVacation.contractDaysWas', { days: r.contractDays })}</>
+                    )}
+                  </p>
+                  {r.daysChange && (
+                    <p className="mt-1 text-xs text-muted">
+                      {t('staffAnnualVacation.daysChangedBy', { from: r.daysChange.from, to: r.daysChange.to })}
+                      {r.daysChange.note ? `: ${r.daysChange.note}` : ''}
+                    </p>
+                  )}
+                  {r.reason && (
+                    <p className="mt-1 text-xs text-muted">
+                      {t('staffAnnualVacation.reason')}: {r.reason}
+                    </p>
+                  )}
+                  {duty === 'HrReview' && canAct && <VacationDaysEditor request={r} />}
+                  {hasTravel && <VacationTravelDocuments request={r} canAct={duty === 'TravelDocuments' && canAct} download={DOWNLOAD} />}
+                  <ApprovalTrailView request={r} pendingStatus="PendingReview" />
+                </div>
+                <div className="flex shrink-0 flex-col items-end gap-2">
+                  <Badge variant={ANNUAL_VACATION_STATUS_VARIANT[r.status]}>{t(`common.status.${r.status}`, r.status)}</Badge>
+                  {canAct && (
+                    <div className="flex gap-2">
+                      {/* The Accounts step has no Approve button: it moves on by itself once the tickets and the visa are in. */}
+                      {duty !== 'TravelDocuments' && (
+                        <Button size="sm" variant="secondary" onClick={() => setConfirming({ req: r, decision: 'Approved' })}>
+                          {t('common.approve')}
+                        </Button>
+                      )}
+                      <Button size="sm" variant="danger-ghost" onClick={() => setConfirming({ req: r, decision: 'Rejected' })}>
+                        {t('common.reject')}
+                      </Button>
+                    </div>
+                  )}
+                </div>
               </div>
-              <div className="flex shrink-0 flex-col items-end gap-2">
-                <Badge variant={ANNUAL_VACATION_STATUS_VARIANT[r.status]}>{t(`common.status.${r.status}`, r.status)}</Badge>
-                {r.canDecideCurrentStep && r.status === 'PendingReview' && (
-                  <div className="flex gap-2">
-                    <Button size="sm" variant="secondary" onClick={() => setConfirming({ req: r, decision: 'Approved' })}>
-                      {t('common.approve')}
-                    </Button>
-                    <Button size="sm" variant="danger-ghost" onClick={() => setConfirming({ req: r, decision: 'Rejected' })}>
-                      {t('common.reject')}
-                    </Button>
-                  </div>
-                )}
-              </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
 

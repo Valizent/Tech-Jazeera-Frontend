@@ -17,10 +17,12 @@ const ToastContext = createContext(null);
 
 let nextId = 0;
 
+// Each type owns its background (no shared bg-surface on the card): with both classes present the
+// stylesheet order let the surface colour win over the error red, leaving white text on white.
 const styles = {
-  success: 'border-success/30 text-success bg-success/5',
+  success: 'border-success/30 bg-surface text-success',
   error: 'border-danger bg-danger text-white',
-  info: 'border-border text-text',
+  info: 'border-border bg-surface text-text',
 };
 
 const icons = {
@@ -66,7 +68,7 @@ export function ToastProvider({ children }) {
           <div
             key={t.id}
             className={cn(
-              'pointer-events-auto flex items-start gap-3 rounded-lg border bg-surface p-4 shadow-lg',
+              'pointer-events-auto flex items-start gap-3 rounded-lg border p-4 shadow-lg',
               'animate-in slide-in-from-right-8 fade-in duration-300',
               styles[t.type]
             )}

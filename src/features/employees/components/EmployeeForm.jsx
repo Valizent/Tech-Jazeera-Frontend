@@ -265,6 +265,19 @@ export default function EmployeeForm({ defaultValues, onSubmit, submitLabel, sub
           />
           <p className="mt-1 text-xs text-muted">{t('staffEmployees.form.contractHoursHint')}</p>
         </div>
+        <div>
+          <Input
+            label={t('staffEmployees.form.annualVacationDays')}
+            type="number"
+            min="1"
+            max="90"
+            step="1"
+            placeholder="e.g. 25"
+            error={errors.annualVacationDays?.message}
+            {...register('annualVacationDays')}
+          />
+          <p className="mt-1 text-xs text-muted">{t('staffEmployees.form.annualVacationDaysHint')}</p>
+        </div>
         {!payHidden && (
           <div className="sm:col-span-2">
             <p className="mb-2 text-xs font-medium text-muted">{t('staffEmployees.form.wpsBreakdownHint')}</p>

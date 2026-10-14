@@ -1015,7 +1015,9 @@
       "contractHours": "Contract hours (per month)",
       "contractHoursHint": "Overtime is paid at salary ÷ these hours × 1.5. Needed before this employee can be mobilised.",
       "departmentChoose": "Choose a department...",
-      "departmentLegacyHint": "Currently saved as \"{{value}}\". Choose a department so requests are routed correctly."
+      "departmentLegacyHint": "Currently saved as \"{{value}}\". Choose a department so requests are routed correctly.",
+      "annualVacationDays": "Annual vacation days (per contract)",
+      "annualVacationDaysHint": "The days an annual vacation request starts from. HR can still change them for one request at the review step."
     },
     "new": {
       "title": "Add employee",
@@ -3159,7 +3161,7 @@
     "startDate": "First day",
     "days": "Number of days",
     "lastDay": "Last day: {{date}}",
-    "reason": "Reason",
+    "reason": "Notes",
     "formInvalid": "Please check the form and try again.",
     "submittedToast": "Annual vacation request submitted.",
     "cancelledToast": "Request cancelled.",
@@ -3179,7 +3181,32 @@
     "approveTitle": "Approve annual vacation?",
     "approveMessage": "Approve {{name}}'s annual vacation? It will be recorded as approved leave and cannot be undone.",
     "rejectTitle": "Reject annual vacation?",
-    "rejectMessage": "Reject {{name}}'s annual vacation request? This cannot be undone."
+    "rejectMessage": "Reject {{name}}'s annual vacation request? This cannot be undone.",
+    "daysFromContract": "Number of days (from the contract)",
+    "contractDaysWas": "contract: {{days}} days",
+    "daysChangedBy": "HR changed the days from {{from}} to {{to}}",
+    "changeDays": "Change days",
+    "newDays": "New number of days",
+    "changeNote": "Why (from the employee's notes)",
+    "saveDays": "Save days",
+    "daysChangedToast": "Days changed.",
+    "travel": {
+      "title": "Travel documents",
+      "travelDay": "Day of travel",
+      "tickets": "Air tickets",
+      "noTickets": "No tickets attached yet.",
+      "visa": "Re-entry visa",
+      "visaNotRaised": "Raised automatically when the tickets are attached.",
+      "visaWaiting": "The re-entry visa request ({{from}} to {{to}}) is waiting for the visa document.",
+      "visaIssued": "Re-entry visa uploaded",
+      "attach": "Attach tickets",
+      "visaDocument": "Visa document",
+      "visaReference": "Visa reference (optional)",
+      "uploadVisa": "Upload re-entry visa",
+      "attachedToast": "Tickets attached.",
+      "visaUploadedToast": "Re-entry visa uploaded.",
+      "movesOnItsOwn": "This step moves on to the next one by itself once the tickets are attached and the visa is uploaded."
+    }
   },
   "portalHome": {
     "title": "Today",

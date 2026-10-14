@@ -5,7 +5,7 @@
  */
 import { useForm, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { annualVacationFormSchema, emptyAnnualVacationForm, toAnnualVacationPayload } from '../annualVacation.schema.js';
 import { apiMessage, collectFormErrorMessages } from '../../../lib/utils.js';
@@ -25,8 +25,10 @@ const MS_PER_DAY = 86_400_000;
  * @param {{value:string,label:string}[]|null} [props.employeeOptions] when given, shows an
  *   employee picker; `allowSelf` adds a "Myself" choice first.
  * @param {boolean} [props.allowSelf]
+ * @param {(employeeId?: string) => Promise<{eligible:boolean, reason:string|null, contractDays:number|null}>} props.loadEligibility
+ *   asks the server whether this person may ask yet and how many days their contract gives (the form never types days).
  */
-export default function VacationRequestForm({ submit, onSubmitted, employeeOptions = null, allowSelf = true }) {
+export default function VacationRequestForm({ submit, onSubmitted, loadEligibility, employeeOptions = null, allowSelf = true }) {
   const { t } = useTranslation();
   const toast = useToast();
   const {
@@ -37,8 +39,16 @@ export default function VacationRequestForm({ submit, onSubmitted, employeeOptio
     formState: { errors },
   } = useForm({ resolver: zodResolver(annualVacationFormSchema), defaultValues: emptyAnnualVacationForm });
 
-  const [startDate, requestedDays] = useWatch({ control, name: ['startDate', 'requestedDays'] });
-  const days = Number(requestedDays);
+  const [startDate, selectedEmployee] = useWatch({ control, name: ['startDate', 'employee'] });
+  const eligibilityQuery = useQuery({
+    queryKey: ['annual-vacation', 'eligibility', selectedEmployee || 'me'],
+    queryFn: () => loadEligibility(selectedEmployee || undefined),
+    // A login with no employee record of its own (Admin) must pick someone first.
+    enabled: allowSelf || Boolean(selectedEmployee),
+  });
+  const eligibility = eligibilityQuery.data;
+  const days = eligibility?.contractDays ?? null;
+  const blocked = Boolean(eligibility) && !eligibility.eligible;
   const lastDay =
     startDate && Number.isInteger(days) && days >= 1
       ? new Date(new Date(startDate).getTime() + (days - 1) * MS_PER_DAY).toISOString().slice(0, 10)
@@ -77,22 +87,18 @@ export default function VacationRequestForm({ submit, onSubmitted, employeeOptio
             ))}
           </Select>
         )}
+        {blocked && (
+          <p className="rounded-lg border border-warning/30 bg-warning/10 px-3 py-2 text-sm text-text">{eligibility.reason}</p>
+        )}
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <Input label={t('staffAnnualVacation.startDate')} type="date" error={errors.startDate?.message} {...register('startDate')} />
-          <Input
-            label={t('staffAnnualVacation.days')}
-            type="number"
-            min="1"
-            max="90"
-            step="1"
-            error={errors.requestedDays?.message}
-            {...register('requestedDays')}
-          />
+          {/* The days are the contract's, set by HR: shown, never typed. */}
+          <Input label={t('staffAnnualVacation.daysFromContract')} value={days ?? ''} readOnly disabled />
         </div>
         {lastDay && <p className="text-sm text-muted">{t('staffAnnualVacation.lastDay', { date: lastDay })}</p>}
         <Textarea label={t('staffAnnualVacation.reason')} placeholder={t('common.optional')} error={errors.reason?.message} {...register('reason')} />
         <div className="flex justify-end">
-          <Button type="submit" isLoading={submitMutation.isPending}>
+          <Button type="submit" isLoading={submitMutation.isPending} disabled={blocked || eligibilityQuery.isPending}>
             {t('common.submitRequest')}
           </Button>
         </div>

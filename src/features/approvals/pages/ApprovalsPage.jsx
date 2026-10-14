@@ -235,6 +235,12 @@ function StepConnector() {
  * drag listeners, so clicking a role pill or the label input never fights
  * with starting a drag.
  */
+const STEP_DUTY_OPTIONS = [
+  { value: '', label: 'No special duty' },
+  { value: 'HrReview', label: 'HR review: may change the number of days (annual vacation)' },
+  { value: 'TravelDocuments', label: 'Travel documents: attaches the air tickets and the re-entry visa (annual vacation)' },
+];
+
 function SortableStepCard({ id, index, register, roleError, roles, stepRoles, onToggleRole, onRemove, canRemove }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id });
   const style = {
@@ -282,6 +288,13 @@ function SortableStepCard({ id, index, register, roleError, roles, stepRoles, on
       <p className="mb-1 text-xs text-muted">Any ONE member of any role checked below can decide this step:</p>
       <PillChecklist items={roles} selected={stepRoles} onToggle={onToggleRole} />
       {roleError && <p className="mt-1 text-sm text-danger">{roleError}</p>}
+      <Select className="mt-3" label="Special duty of this step" {...register(`steps.${index}.duty`)}>
+        {STEP_DUTY_OPTIONS.map((o) => (
+          <option key={o.value} value={o.value}>
+            {o.label}
+          </option>
+        ))}
+      </Select>
     </div>
   );
 }
@@ -331,6 +344,10 @@ function ApprovalWorkflowsPanel() {
 
   function toggleAppliesTo(type) {
     setValue('appliesTo', appliesTo.includes(type) ? appliesTo.filter((t) => t !== type) : [...appliesTo, type]);
+  }
+  const notifyRoles = watch('notifyRoles') ?? [];
+  function toggleNotifyRole(roleId) {
+    setValue('notifyRoles', notifyRoles.includes(roleId) ? notifyRoles.filter((r) => r !== roleId) : [...notifyRoles, roleId]);
   }
   function toggleStepRole(stepIndex, roleId) {
     const current = watch(`steps.${stepIndex}.roles`) ?? [];
@@ -403,6 +420,9 @@ function ApprovalWorkflowsPanel() {
                     Default for: {wf.appliesTo.map((t) => APPROVAL_REQUEST_TYPE_LABELS[t]).join(', ')}
                   </p>
                 )}
+                {wf.notifyRoles?.length > 0 && (
+                  <p className="mt-0.5 text-xs text-muted">Told: {wf.notifyRoles.map((r) => r.name).join(', ')}</p>
+                )}
                 {wf.departmentRoutes?.length > 0 && (
                   <p className="mt-0.5 text-xs text-muted">
                     By department: {wf.departmentRoutes.map((r) => `${r.department} → ${r.workflow?.name ?? '?'}`).join(', ')}
@@ -434,7 +454,7 @@ function ApprovalWorkflowsPanel() {
             <div>
               <div className="mb-2 flex items-center justify-between">
                 <label className="text-sm font-medium">Steps, in order *</label>
-                <Button type="button" size="sm" variant="secondary" onClick={() => appendStep({ label: '', roles: [] })}>
+                <Button type="button" size="sm" variant="secondary" onClick={() => appendStep({ label: '', roles: [], duty: '' })}>
                   Add step
                 </Button>
               </div>
@@ -461,6 +481,16 @@ function ApprovalWorkflowsPanel() {
                 </DndContext>
               </div>
               {errors.steps?.message && <p className="mt-1 text-sm text-danger">{errors.steps.message}</p>}
+            </div>
+
+            <div>
+              <label className="mb-1 block text-sm font-medium">Told, not asked</label>
+              <p className="mb-2 text-xs text-muted">
+                These roles are notified when a request is submitted and again when it is approved (for example the
+                Marketing Manager for an annual vacation, or the Financial Manager for someone in Accounts). They do not
+                decide anything.
+              </p>
+              <PillChecklist items={roles ?? []} selected={notifyRoles} onToggle={toggleNotifyRole} />
             </div>
 
             <div>
