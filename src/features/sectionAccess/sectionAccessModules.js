@@ -69,8 +69,6 @@ export const MODULE_GROUPS = [
           'deploymentsRelease',
           'deploymentsHours',
           'deploymentsHoursDecide',
-          'deploymentsInvoicing',
-          'deploymentsPaymentDecide',
           'deploymentsEdit',
         ],
       },
@@ -87,6 +85,16 @@ export const MODULE_GROUPS = [
     icon: navGroup('financial').icon,
     modules: [
 
+      // The six invoice and payment pages of the Financial menu are governed by these two permissions
+      // (who sends invoices, who approves received payments), so they sit here as one module
+      // (2026-10-14: they used to be hidden inside Mobilisations, which made Financial look empty).
+      {
+        label: 'Invoicing & Payments',
+        description:
+          'Controls the six invoice and payment pages in Financial: Ready to Invoice, Payments Due, Received Invoices, Sub Invoices Received, Sub Payments Due and Paid Sub Invoices. Choose who sends invoices and who approves received payments.',
+        icon: navItem('financial', '/financial/ready-to-invoice').icon,
+        sectionKeys: ['deploymentsInvoicing', 'deploymentsPaymentDecide'],
+      },
       { ...navItem('financial', '/expenses'), sectionKeys: ['expenses'] },
       { ...navItem('financial', '/financial-requests'), sectionKeys: ['financialRequests'] },
       // No nav hub tile of its own — Dashboard is the landing page, outside
