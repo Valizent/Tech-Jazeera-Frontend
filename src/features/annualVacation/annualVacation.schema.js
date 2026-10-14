@@ -9,9 +9,9 @@ export const MAX_VACATION_DAYS = 90;
 export const annualVacationFormSchema = z.object({
   // '' = file for myself; an employee id = file on their behalf (needs Write).
   employee: z.string().optional(),
-  startDate: z.string().min(1, 'Choose the first day of the vacation.'),
+  startDate: z.string().min(1, 'Choose the start date of the vacation.'),
   // The number of days is the contract's (set by HR on the employee record), so it is not a field.
-  reason: z.string().max(1000, 'Keep the notes under 1000 characters.').optional(),
+  reason: z.string().max(1000, 'Keep the remarks under 1000 characters.').optional(),
 });
 
 export const emptyAnnualVacationForm = { employee: '', startDate: '', reason: '' };

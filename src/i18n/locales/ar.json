@@ -3200,7 +3200,7 @@
     "employee": "الموظف",
     "myself": "نفسي",
     "chooseEmployee": "اختر موظفًا…",
-    "startDate": "أول يوم",
+    "startDate": "تاريخ البدء",
     "days": "عدد الأيام",
     "lastDay": "آخر يوم: {{date}}",
     "reason": "ملاحظات",
