@@ -169,17 +169,17 @@ function DecideButtons({ canDecide, isFinalStep, onApprove, onReject, saving }) 
     // underlying call as Approve (advances currentStep), just never
     // offered a Reject alongside it.
     return (
-      <Button type="button" isLoading={saving} onClick={onApprove}>
+      <Button variant="success-solid" type="button" isLoading={saving} onClick={onApprove}>
         {t('staffMobilisations.detail.submitToNextStep')}
       </Button>
     );
   }
   return (
     <>
-      <Button type="button" variant="danger-ghost" disabled={saving} onClick={onReject}>
+      <Button icon="close" type="button" variant="danger-solid" disabled={saving} onClick={onReject}>
         {t('common.reject')}
       </Button>
-      <Button type="button" isLoading={saving} onClick={onApprove}>
+      <Button icon="check" variant="success-solid" type="button" isLoading={saving} onClick={onApprove}>
         {t('common.approve')}
       </Button>
     </>
@@ -292,7 +292,7 @@ function CommercialDetailsForm({ m, canDecide, isFinalStep, onSave, saving, onAp
         </div>
         <Textarea label={t('staffMobilisations.form.remark')} error={errors.remark?.message} {...register('remark')} />
         <div className="flex flex-wrap justify-end gap-2 pt-2">
-          <Button type="submit" variant="secondary" isLoading={saving}>
+          <Button icon="check" type="submit" variant="success-solid" isLoading={saving}>
             {t('staffMobilisations.detail.saveDetails')}
           </Button>
           {/* Approve/Reject ('Submit to next step') used to bypass this form
@@ -588,14 +588,14 @@ export default function MobilisationDetailPage() {
                   {d.originalName} <span className="text-xs text-muted">({t(`staffMobilisations.documentCategoryLabels.${d.category}`, MOBILISATION_DOCUMENT_CATEGORY_LABELS[d.category])})</span>
                 </span>
                 <span className="flex shrink-0 gap-2">
-                  <Button size="sm" variant="ghost" onClick={() => setPreviewDoc(d)}>
+                  <Button icon="eye" size="sm" variant="soft" onClick={() => setPreviewDoc(d)}>
                     {t('common.view')}
                   </Button>
-                  <Button size="sm" variant="ghost" onClick={() => downloadMobilisationDocument(id, d._id, d.originalName)}>
+                  <Button icon="download" size="sm" variant="info" onClick={() => downloadMobilisationDocument(id, d._id, d.originalName)}>
                     {t('common.download')}
                   </Button>
                   {canDeleteDocuments && (
-                    <Button size="sm" variant="danger-ghost" isLoading={deleteDocMutation.isPending} onClick={() => deleteDocMutation.mutate(d._id)}>
+                    <Button icon="trash" size="sm" variant="danger-solid" isLoading={deleteDocMutation.isPending} onClick={() => deleteDocMutation.mutate(d._id)}>
                       {t('common.delete')}
                     </Button>
                   )}
@@ -748,7 +748,7 @@ export default function MobilisationDetailPage() {
                 )}
                 <Badge variant={c.confirmed ? 'success' : 'warning'}>{c.confirmed ? t('staffMobilisations.detail.confirmed') : t('staffMobilisations.detail.pending')}</Badge>
                 {canManage && !c.isPrimary && !c.confirmed && (
-                  <Button size="sm" variant="danger-ghost" onClick={() => setToRemove(c)}>
+                  <Button icon="trash" size="sm" variant="danger-solid" onClick={() => setToRemove(c)}>
                     {t('staffMobilisations.detail.remove')}
                   </Button>
                 )}
@@ -779,7 +779,7 @@ export default function MobilisationDetailPage() {
                 />
               );
             })}
-            <Button
+            <Button icon="check" variant="success-solid"
               size="sm"
               isLoading={sharesMutation.isPending}
               onClick={() =>
@@ -990,16 +990,16 @@ export default function MobilisationDetailPage() {
         actions={
           <div className="flex flex-wrap items-center gap-2">
             <Badge variant={MOBILISATION_STATUS_VARIANT[m.status]}>{mobilisationStatusLabel(t, m.status)}</Badge>
-            <Button size="sm" variant="secondary" isLoading={exportMutation.isPending} onClick={() => exportMutation.mutate()}>
+            <Button icon="download" size="sm" variant="info" isLoading={exportMutation.isPending} onClick={() => exportMutation.mutate()}>
               {t('staffMobilisations.detail.exportExcel')}
             </Button>
             {canEditSection1 && (
-              <Button size="sm" variant="secondary" onClick={() => navigate(`/mobilisations/${id}/edit`)}>
+              <Button icon="pencil" size="sm" variant="soft" onClick={() => navigate(`/mobilisations/${id}/edit`)}>
                 {t('common.edit')}
               </Button>
             )}
             {m.canDelete && (
-              <Button size="sm" variant="danger" onClick={() => setConfirmingDelete(true)}>
+              <Button icon="trash" size="sm" variant="danger-solid" onClick={() => setConfirmingDelete(true)}>
                 {t('staffMobilisations.detail.deleteButton')}
               </Button>
             )}
@@ -1107,7 +1107,7 @@ export default function MobilisationDetailPage() {
               {t('common.cancel')}
             </Button>
             <Button
-              variant={pendingDecision === 'Rejected' ? 'danger' : 'primary'}
+              variant={pendingDecision === 'Rejected' ? 'danger-solid' : 'success-solid'}
               isLoading={decideMutation.isPending}
               onClick={() => {
                 const values = { status: pendingDecision, decisionNote: decideNote, rejectionTarget: rejectionTarget || undefined };

@@ -204,7 +204,7 @@ export default function RequirementsBoardPage() {
         actions={
           <>
             {stages.length > 0 && (
-              <Button size="sm" variant="secondary" isLoading={exportMutation.isPending} onClick={() => exportMutation.mutate()}>
+              <Button icon="download" size="sm" variant="info" isLoading={exportMutation.isPending} onClick={() => exportMutation.mutate()}>
                 {t('staffRequirements.exportExcel')}
               </Button>
             )}
@@ -214,7 +214,7 @@ export default function RequirementsBoardPage() {
               </Button>
             )}
             {canCreate && stages.length > 0 && (
-              <Button size="sm" onClick={() => setFormState({ requirement: null })}>
+              <Button icon="plus" variant="success-solid" size="sm" onClick={() => setFormState({ requirement: null })}>
                 {t('staffRequirements.addRequirement')}
               </Button>
             )}

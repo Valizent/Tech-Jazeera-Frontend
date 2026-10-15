@@ -143,7 +143,7 @@ function MyExitReentrySection() {
                 <div className="flex shrink-0 flex-col items-end gap-2">
                   <Badge variant={EXIT_REENTRY_STATUS_VARIANT[r.status]}>{t(`common.status.${r.status}`, r.status)}</Badge>
                   {r.status === 'Pending' && (
-                    <Button size="sm" variant="danger-ghost" onClick={() => setToCancel(r)}>
+                    <Button icon="close" size="sm" variant="danger-solid" onClick={() => setToCancel(r)}>
                       {t('leave.cancelButton')}
                     </Button>
                   )}
@@ -269,12 +269,12 @@ function MyCertificatesSection() {
                   <div className="flex shrink-0 flex-col items-end gap-2">
                     <Badge variant={CERTIFICATE_STATUS_VARIANT[c.status]}>{t(`common.status.${c.status}`, c.status)}</Badge>
                     {hasPdf && (
-                      <Button size="sm" variant="ghost" isLoading={downloadingId === c._id} onClick={() => handleDownload(c)}>
+                      <Button icon="download" size="sm" variant="info" isLoading={downloadingId === c._id} onClick={() => handleDownload(c)}>
                         {t('common.download')}
                       </Button>
                     )}
                     {c.status === 'Pending' && (
-                      <Button size="sm" variant="danger-ghost" onClick={() => setToCancel(c)}>
+                      <Button icon="close" size="sm" variant="danger-solid" onClick={() => setToCancel(c)}>
                         {t('leave.cancelButton')}
                       </Button>
                     )}

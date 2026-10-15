@@ -96,8 +96,7 @@ function ReadyToInvoiceRow({ row, side, isOpen, onToggle, onInvoice, t, navigate
           <td colSpan={6} className="px-4 pb-3">
             <MonthlyEntryBreakdownPanel row={row} formatMoney={formatMoney}>
               <div className="mt-3">
-                <Button
-                  variant="ghost"
+                <Button icon="eye" variant="soft"
                   size="sm"
                   className="w-full justify-center"
                   onClick={(e) => {
@@ -287,8 +286,7 @@ export default function ReadyToInvoicePage({ side: sideName }) {
             </div>
             <div className="flex justify-end gap-2 pt-2">
               <Button
-                type="button"
-                variant="secondary"
+                type="button" variant="secondary"
                 onClick={() => {
                   setInvoicingEntry(null);
                   resetInvoiceForm();

@@ -81,7 +81,7 @@ export default function MobilisationSettingsPage() {
           </p>
 
           <div className="flex justify-end pt-2">
-            <Button onClick={() => saveMutation.mutate()} isLoading={saveMutation.isPending}>
+            <Button icon="check" variant="success-solid" onClick={() => saveMutation.mutate()} isLoading={saveMutation.isPending}>
               Save
             </Button>
           </div>

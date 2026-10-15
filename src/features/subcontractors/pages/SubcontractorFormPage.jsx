@@ -87,10 +87,10 @@ function SubcontractorForm({ defaultValues, onSubmit, submitting }) {
       </Card>
 
       <div className="flex justify-end gap-2">
-        <Button variant="secondary" onClick={() => navigate(-1)} disabled={submitting}>
+        <Button icon="close" variant="danger-solid" onClick={() => navigate(-1)} disabled={submitting}>
           {t('common.cancel')}
         </Button>
-        <Button type="submit" isLoading={submitting}>
+        <Button icon="check" variant="success-solid" type="submit" isLoading={submitting}>
           {t('common.save')}
         </Button>
       </div>

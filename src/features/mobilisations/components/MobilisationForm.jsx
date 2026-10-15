@@ -901,7 +901,7 @@ export default function MobilisationForm({
           <Button type="button" variant="secondary" onClick={() => setAddingJobTitle(false)}>
             {t('common.cancel')}
           </Button>
-          <Button
+          <Button icon="plus" variant="success-solid"
             type="button"
             onClick={() => addJobTitleMutation.mutate()}
             isLoading={addJobTitleMutation.isPending}
@@ -926,7 +926,7 @@ export default function MobilisationForm({
           <Button type="button" variant="secondary" onClick={() => setAddingLocation(false)}>
             {t('common.cancel')}
           </Button>
-          <Button
+          <Button icon="plus" variant="success-solid"
             type="button"
             onClick={() => addLocationMutation.mutate()}
             isLoading={addLocationMutation.isPending}

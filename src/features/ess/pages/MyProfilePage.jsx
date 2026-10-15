@@ -120,7 +120,7 @@ export default function MyProfilePage() {
           <div className="flex items-center gap-2">
             <Badge variant={STATUS_VARIANT[employee.status]}>{t(`profile.employeeStatus.${employee.status}`, employee.status)}</Badge>
             {!isEditing && (
-              <Button type="button" variant="secondary" size="sm" onClick={() => setIsEditing(true)}>
+              <Button icon="pencil" type="button" variant="soft" size="sm" onClick={() => setIsEditing(true)}>
                 {t('profile.edit')}
               </Button>
             )}
@@ -216,10 +216,10 @@ export default function MyProfilePage() {
 
       {isEditing && (
         <div className="flex justify-end gap-2">
-          <Button type="button" variant="secondary" onClick={handleCancel} disabled={mutation.isPending}>
+          <Button icon="close" type="button" variant="danger-solid" onClick={handleCancel} disabled={mutation.isPending}>
             {t('common.cancel')}
           </Button>
-          <Button type="submit" isLoading={mutation.isPending}>
+          <Button icon="check" variant="success-solid" type="submit" isLoading={mutation.isPending}>
             {t('profile.save')}
           </Button>
         </div>

@@ -101,8 +101,7 @@ export default function OutsourcedEmployeesPage() {
       header: '',
       hideOnMobile: true,
       render: (row) => (
-        <Button
-          variant="ghost"
+        <Button icon="pencil" variant="soft"
           size="sm"
           onClick={(e) => { e.stopPropagation(); handleEdit(row._id); }}
         >
@@ -125,7 +124,7 @@ export default function OutsourcedEmployeesPage() {
               {pendingTransfers > 0 && <Badge variant="warning" className="ms-2">{pendingTransfers}</Badge>}
             </Button>
             {canAdd && (
-              <Button onClick={() => setFormOpen(true)}>
+              <Button icon="plus" onClick={() => setFormOpen(true)}>
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="me-2 h-4 w-4">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
                 </svg>

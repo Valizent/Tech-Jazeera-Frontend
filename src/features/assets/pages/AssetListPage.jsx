@@ -199,7 +199,7 @@ export default function AssetListPage() {
             </Button>
           )}
           {canWrite && (a.status === 'Available' || a.status === 'Maintenance') && (
-            <Button size="sm" variant="ghost" onClick={() => openEdit(a)}>
+            <Button icon="pencil" size="sm" variant="soft" onClick={() => openEdit(a)}>
               {t('common.edit')}
             </Button>
           )}
@@ -209,7 +209,7 @@ export default function AssetListPage() {
             </Button>
           )}
           {canDelete && a.status !== 'Assigned' && (
-            <Button size="sm" variant="danger-ghost" onClick={() => setToDelete(a)}>
+            <Button icon="trash" size="sm" variant="danger-solid" onClick={() => setToDelete(a)}>
               {t('common.delete')}
             </Button>
           )}
@@ -224,7 +224,7 @@ export default function AssetListPage() {
         title={t('staffAssets.title')}
         description={t('staffAssets.description')}
         onBack={() => navigate(-1)}
-        actions={canWrite && <Button onClick={openNew}>{t('staffAssets.addTitle')}</Button>}
+        actions={canWrite && <Button icon="plus" variant="success-solid" onClick={openNew}>{t('staffAssets.addTitle')}</Button>}
       />
 
       <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-end">
@@ -258,7 +258,7 @@ export default function AssetListPage() {
             <EmptyState
               title={t('staffAssets.emptyTitle')}
               description={t(canWrite ? 'staffAssets.emptyDescriptionWrite' : 'staffAssets.emptyDescriptionView')}
-              action={canWrite && <Button variant="secondary" onClick={openNew}>{t('staffAssets.addTitle')}</Button>}
+              action={canWrite && <Button icon="plus" variant="success-solid" onClick={openNew}>{t('staffAssets.addTitle')}</Button>}
             />
           }
         />
@@ -284,7 +284,7 @@ export default function AssetListPage() {
             <Button variant="secondary" onClick={() => setEditing(null)} disabled={saveMutation.isPending}>
               {t('common.cancel')}
             </Button>
-            <Button type="submit" isLoading={saveMutation.isPending}>
+            <Button icon="check" variant="success-solid" type="submit" isLoading={saveMutation.isPending}>
               {t('common.save')}
             </Button>
           </div>

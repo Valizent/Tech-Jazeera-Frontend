@@ -178,10 +178,10 @@ export default function NfcCompanyProfilePage() {
             <Button size="sm" variant="secondary" onClick={() => setAssigningTo(p)}>
               {p.card ? 'Change card' : 'Assign card'}
             </Button>
-            <Button size="sm" variant="ghost" onClick={() => setEditingPerson(p)}>
+            <Button icon="pencil" size="sm" variant="soft" onClick={() => setEditingPerson(p)}>
               Edit
             </Button>
-            <Button size="sm" variant="ghost" onClick={() => setDeletingPerson(p)}>
+            <Button icon="trash" size="sm" variant="danger-solid" onClick={() => setDeletingPerson(p)}>
               Delete
             </Button>
           </div>
@@ -211,10 +211,10 @@ export default function NfcCompanyProfilePage() {
         actions={
           canWrite && (
             <>
-              <Button variant="secondary" onClick={() => setEditingCompany(true)}>
+              <Button icon="pencil" variant="soft" onClick={() => setEditingCompany(true)}>
                 Edit
               </Button>
-              <Button variant="danger" onClick={() => setDeletingCompany(true)}>
+              <Button icon="trash" variant="danger-solid" onClick={() => setDeletingCompany(true)}>
                 Delete
               </Button>
             </>

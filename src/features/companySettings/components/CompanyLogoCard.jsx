@@ -116,9 +116,8 @@ export default function CompanyLogoCard({ canWrite }) {
                   {data?.logoUrl ? 'Replace' : 'Upload logo'}
                 </Button>
                 {data?.logoUrl && (
-                  <Button
-                    type="button"
-                    variant="danger-ghost"
+                  <Button icon="trash"
+                    type="button" variant="danger-solid"
                     onClick={() => setConfirmingRemove(true)}
                   >
                     Remove

@@ -216,7 +216,7 @@ export default function ExpenseFormModal({ open, editing, onClose, onSaved, lock
           <Button type="button" variant="secondary" onClick={onClose} disabled={saveMutation.isPending}>
             {t('common.cancel')}
           </Button>
-          <Button type="submit" isLoading={saveMutation.isPending}>
+          <Button icon="check" variant="success-solid" type="submit" isLoading={saveMutation.isPending}>
             {t('common.save')}
           </Button>
         </div>

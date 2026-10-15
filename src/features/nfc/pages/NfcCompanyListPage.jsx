@@ -64,7 +64,7 @@ export default function NfcCompanyListPage() {
       render: (c) => (
         <div className="text-right">
           <Link to={`/nfc/${c._id}`}>
-            <Button size="sm" variant="secondary">
+            <Button icon="eye" size="sm" variant="soft">
               View
             </Button>
           </Link>

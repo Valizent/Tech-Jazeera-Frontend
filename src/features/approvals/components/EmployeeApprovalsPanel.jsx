@@ -121,7 +121,7 @@ export default function EmployeeApprovalsPanel() {
       key: 'actions',
       header: '',
       render: (e) => (
-        <Button size="sm" variant="secondary" onClick={() => setSelectedId(e._id)}>
+        <Button icon="eye" size="sm" variant="soft" onClick={() => setSelectedId(e._id)}>
           {canManage ? 'Change' : 'View'}
         </Button>
       ),

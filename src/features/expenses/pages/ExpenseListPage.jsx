@@ -180,7 +180,7 @@ export default function ExpenseListPage() {
       hideOnMobile: true,
       render: (e) =>
         e.receipt ? (
-          <Button size="sm" variant="ghost" onClick={() => handleDownload(e)}>
+          <Button icon="download" size="sm" variant="info" onClick={() => handleDownload(e)}>
             {t('common.download')}
           </Button>
         ) : (
@@ -194,14 +194,14 @@ export default function ExpenseListPage() {
       render: (e) =>
         canWrite && !e.derived ? (
           <span className="flex justify-end gap-2">
-            <Button size="sm" variant="ghost" onClick={() => openEdit(e)}>
+            <Button icon="pencil" size="sm" variant="soft" onClick={() => openEdit(e)}>
               {t('common.edit')}
             </Button>
             <Button size="sm" variant="ghost" onClick={() => openDuplicate(e)}>
               {L('duplicate')}
             </Button>
             {!e.sourceReimbursement && user.role === 'Admin' && (
-              <Button size="sm" variant="danger-ghost" onClick={() => setToDelete(e)}>
+              <Button icon="trash" size="sm" variant="danger-solid" onClick={() => setToDelete(e)}>
                 {t('common.delete')}
               </Button>
             )}
@@ -274,7 +274,7 @@ export default function ExpenseListPage() {
               <EmptyState
                 title={noFilters ? L('emptyTitleNoFilters') : L('emptyTitleFiltered')}
                 description={noFilters ? L('emptyDescriptionNoFilters') : t('common.tryClearingFilters')}
-                action={noFilters && canWrite && <Button variant="secondary" onClick={openNew}>{L('addExpense')}</Button>}
+                action={noFilters && canWrite && <Button icon="plus" variant="success-solid" onClick={openNew}>{L('addExpense')}</Button>}
               />
             }
           />
@@ -323,7 +323,7 @@ export default function ExpenseListPage() {
           tab === 'ledger' &&
           !isError &&
           canWrite && (
-            <Button size="sm" onClick={openNew}>
+            <Button icon="plus" variant="success-solid" size="sm" onClick={openNew}>
               {L('addExpense')}
             </Button>
           )

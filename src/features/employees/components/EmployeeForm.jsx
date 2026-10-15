@@ -386,7 +386,7 @@ export default function EmployeeForm({ defaultValues, onSubmit, submitLabel, sub
         <div className="mt-8">
           <div className="mb-4 flex items-center justify-between">
             <h3 className="text-sm font-semibold uppercase tracking-wide text-muted">{t('staffEmployees.form.additionalDocuments')}</h3>
-            <Button variant="secondary" size="sm" onClick={() => appendDocument({ name: '', number: '', expiry: '' })}>
+            <Button icon="plus" variant="secondary" size="sm" onClick={() => appendDocument({ name: '', number: '', expiry: '' })}>
               {t('staffEmployees.form.addDocument')}
             </Button>
           </div>
@@ -440,7 +440,7 @@ export default function EmployeeForm({ defaultValues, onSubmit, submitLabel, sub
       </Card>
 
       <div className="flex justify-end gap-2">
-        <Button variant="secondary" onClick={() => navigate(-1)} disabled={submitting}>
+        <Button icon="close" variant="danger-solid" onClick={() => navigate(-1)} disabled={submitting}>
           {t('common.cancel')}
         </Button>
         <Button type="submit" isLoading={submitting}>

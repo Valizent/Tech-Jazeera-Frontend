@@ -73,7 +73,7 @@ export default function LocationsSettingsPage() {
             {locations.map((loc) => (
               <li key={loc._id} className="flex items-center justify-between gap-3 py-2.5">
                 <span className="text-sm text-text">{loc.name}</span>
-                <Button size="sm" variant="danger-ghost" onClick={() => setToDelete(loc)}>
+                <Button icon="trash" size="sm" variant="danger-solid" onClick={() => setToDelete(loc)}>
                   {t('common.delete')}
                 </Button>
               </li>

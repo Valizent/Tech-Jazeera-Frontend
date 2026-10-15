@@ -49,6 +49,16 @@ function urgencyVariant(daysRemaining) {
 
 const today = () => new Date().toISOString().split('T')[0];
 
+/** How far an unpaid invoice is from its due date: "Due in N days" / "N days overdue". */
+function DueIn({ date, ns, t }) {
+  const days = Math.ceil((new Date(date).getTime() - Date.now()) / 86_400_000);
+  return days < 0 ? (
+    <span className="block text-xs text-danger">{t(`${ns}.overdueBy`, { days: Math.abs(days) })}</span>
+  ) : (
+    <span className="block text-xs text-muted">{t(`${ns}.dueInDays`, { days })}</span>
+  );
+}
+
 export default function PaymentsDuePage({ side: sideName }) {
   const side = FINANCIAL_SIDES[sideName];
   const ns = side.dueNs;
@@ -157,7 +167,7 @@ export default function PaymentsDuePage({ side: sideName }) {
       render: (row) => (
         <Button
           size="sm"
-          variant="ghost"
+          variant="success-solid"
           onClick={(e) => {
             e.stopPropagation();
             setPayingParty({ id: side.partyId(row), name: side.partyName(row) });
@@ -246,6 +256,7 @@ export default function PaymentsDuePage({ side: sideName }) {
                       <th className="px-3 py-2 text-start">{t(`${ns}.columns.worker`)}</th>
                       <th className="px-3 py-2 text-start">{t(`${ns}.columns.month`)}</th>
                       <th className="px-3 py-2 text-start">{t(`${ns}.columns.invoice`)}</th>
+                      <th className="px-3 py-2 text-start">{t(`${ns}.columns.due`)}</th>
                       <th className="px-3 py-2 text-start">{t(`${ns}.columns.invoiceAmount`)}</th>
                       <th className="px-3 py-2 text-start">{t(`${ns}.columns.allocated`)}</th>
                       <th className="px-3 py-2 text-start">{t(`${ns}.columns.balance`)}</th>
@@ -278,6 +289,16 @@ export default function PaymentsDuePage({ side: sideName }) {
                               </button>
                             )}
                           </div>
+                        </td>
+                        <td className="px-3 py-2">
+                          {inv.invoiceDueAt ? (
+                            <>
+                              {formatDate(inv.invoiceDueAt)}
+                              {!inv.fullyPaid && <DueIn date={inv.invoiceDueAt} ns={ns} t={t} />}
+                            </>
+                          ) : (
+                            ''
+                          )}
                         </td>
                         <td className="px-3 py-2">{formatMoney(inv.revenue)}</td>
                         <td className="px-3 py-2">{formatMoney(inv.amountAllocated)}</td>
@@ -330,7 +351,7 @@ export default function PaymentsDuePage({ side: sideName }) {
 
             {canRecordPayment && (
               <div className="flex justify-end">
-                <Button onClick={() => setPayingParty({ id: side.partyId(detail), name: side.partyName(detail) })}>
+                <Button variant="success-solid" onClick={() => setPayingParty({ id: side.partyId(detail), name: side.partyName(detail) })}>
                   {t(`${ns}.recordPaymentButton`)}
                 </Button>
               </div>

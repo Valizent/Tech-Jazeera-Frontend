@@ -233,7 +233,7 @@ export default function RequirementFormModal({ open, requirement, canAssign, coo
           <Button variant="secondary" onClick={onClose} disabled={saveMutation.isPending}>
             {t('common.cancel')}
           </Button>
-          <Button type="submit" isLoading={saveMutation.isPending}>
+          <Button icon="check" variant="success-solid" type="submit" isLoading={saveMutation.isPending}>
             {t('common.save')}
           </Button>
         </div>
@@ -253,7 +253,7 @@ export default function RequirementFormModal({ open, requirement, canAssign, coo
           <Button type="button" variant="secondary" onClick={() => setAddingJobTitle(false)}>
             {t('common.cancel')}
           </Button>
-          <Button
+          <Button icon="plus" variant="success-solid"
             type="button"
             onClick={() => addJobTitleMutation.mutate()}
             isLoading={addJobTitleMutation.isPending}
@@ -278,7 +278,7 @@ export default function RequirementFormModal({ open, requirement, canAssign, coo
           <Button type="button" variant="secondary" onClick={() => setAddingLocation(false)}>
             {t('common.cancel')}
           </Button>
-          <Button
+          <Button icon="plus" variant="success-solid"
             type="button"
             onClick={() => addLocationMutation.mutate()}
             isLoading={addLocationMutation.isPending}

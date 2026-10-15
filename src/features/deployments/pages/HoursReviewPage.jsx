@@ -366,8 +366,7 @@ export default function HoursReviewPage() {
             {/* Actions */}
             <div className="flex justify-end gap-2 pt-1">
               <Button
-                type="button"
-                variant="secondary"
+                type="button" variant="secondary"
                 onClick={closeModal}
                 disabled={decideMutation.isPending}
               >
@@ -375,7 +374,7 @@ export default function HoursReviewPage() {
               </Button>
               <Button
                 type="button"
-                variant={decidingRow.action === 'Approved' ? 'primary' : 'danger'}
+                variant={decidingRow.action === 'Approved' ? 'success-solid' : 'danger-solid'}
                 isLoading={decideMutation.isPending}
                 disabled={decidingRow.action === 'Rejected' && !note.trim()}
                 onClick={() =>

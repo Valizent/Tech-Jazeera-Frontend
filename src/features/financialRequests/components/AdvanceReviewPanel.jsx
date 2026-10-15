@@ -208,10 +208,10 @@ export default function AdvanceReviewPanel() {
                 <Badge variant={ADVANCE_STATUS_VARIANT[a.status]}>{a.status}</Badge>
                 {a.canDecideCurrentStep && a.status === 'Pending' && (
                   <div className="flex gap-2">
-                    <Button size="sm" variant="secondary" onClick={() => setConfirming({ advance: a, decision: 'Approved' })}>
+                    <Button icon="check" size="sm" variant="success-solid" onClick={() => setConfirming({ advance: a, decision: 'Approved' })}>
                       Approve
                     </Button>
-                    <Button size="sm" variant="danger-ghost" onClick={() => setConfirming({ advance: a, decision: 'Rejected' })}>
+                    <Button icon="close" size="sm" variant="danger-solid" onClick={() => setConfirming({ advance: a, decision: 'Rejected' })}>
                       Reject
                     </Button>
                   </div>
@@ -244,7 +244,7 @@ export default function AdvanceReviewPanel() {
               <Button variant="secondary" onClick={() => setRepaying(null)} disabled={repayMutation.isPending}>
                 Cancel
               </Button>
-              <Button type="submit" isLoading={repayMutation.isPending}>
+              <Button icon="check" variant="success-solid" type="submit" isLoading={repayMutation.isPending}>
                 Save repayment
               </Button>
             </div>
@@ -260,7 +260,7 @@ export default function AdvanceReviewPanel() {
           `${confirming.decision === 'Approved' ? 'Approve' : 'Reject'} ${confirming.advance.employee?.fullName}'s ${formatMoney(confirming.advance.amount)} advance request? This cannot be undone.`
         }
         confirmLabel={confirming?.decision === 'Approved' ? 'Approve' : 'Reject'}
-        confirmVariant={confirming?.decision === 'Approved' ? 'primary' : 'danger'}
+        confirmVariant={confirming?.decision === 'Approved' ? 'success-solid' : 'danger-solid'}
         loading={decideMutation.isPending}
         onConfirm={() => decideMutation.mutate({ id: confirming.advance._id, decision: confirming.decision })}
         onCancel={() => setConfirming(null)}

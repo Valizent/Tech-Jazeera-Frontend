@@ -71,7 +71,7 @@ export default function SubcontractorProfilePage() {
               {t(`common.status.${subcontractor.status}`, subcontractor.status)}
             </Badge>
             {canWrite && (
-              <Button variant="secondary" onClick={() => navigate(`/subcontractors/${id}/edit`)}>
+              <Button icon="pencil" variant="soft" onClick={() => navigate(`/subcontractors/${id}/edit`)}>
                 {t('common.edit')}
               </Button>
             )}

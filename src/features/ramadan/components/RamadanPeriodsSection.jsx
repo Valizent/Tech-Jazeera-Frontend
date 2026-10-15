@@ -112,11 +112,11 @@ export default function RamadanPeriodsSection() {
       render: (p) =>
         canManage ? (
           <span className="flex justify-end gap-2">
-            <Button size="sm" variant="ghost" onClick={() => openEdit(p)}>
+            <Button icon="pencil" size="sm" variant="soft" onClick={() => openEdit(p)}>
               {t('common.edit')}
             </Button>
             {user.role === 'Admin' && (
-              <Button size="sm" variant="danger-ghost" onClick={() => setToDelete(p)}>
+              <Button icon="trash" size="sm" variant="danger-solid" onClick={() => setToDelete(p)}>
                 {t('common.delete')}
               </Button>
             )}
@@ -135,7 +135,7 @@ export default function RamadanPeriodsSection() {
           </p>
         </div>
         {canManage && (
-          <Button size="sm" onClick={openNew}>
+          <Button icon="plus" variant="success-solid" size="sm" onClick={openNew}>
             {t('staffHolidays.ramadan.addPeriod')}
           </Button>
         )}
@@ -161,7 +161,7 @@ export default function RamadanPeriodsSection() {
                   ? t('staffHolidays.ramadan.emptyDescriptionManage')
                   : t('staffHolidays.ramadan.emptyDescriptionView')
               }
-              action={canManage && <Button variant="secondary" onClick={openNew}>{t('staffHolidays.ramadan.addPeriod')}</Button>}
+              action={canManage && <Button icon="plus" variant="success-solid" onClick={openNew}>{t('staffHolidays.ramadan.addPeriod')}</Button>}
             />
           }
         />
@@ -186,7 +186,7 @@ export default function RamadanPeriodsSection() {
             <Button variant="secondary" onClick={() => setEditing(null)} disabled={saveMutation.isPending}>
               {t('common.cancel')}
             </Button>
-            <Button type="submit" isLoading={saveMutation.isPending}>
+            <Button icon="check" variant="success-solid" type="submit" isLoading={saveMutation.isPending}>
               {t('common.save')}
             </Button>
           </div>

@@ -208,7 +208,7 @@ function SectionCard({ section, local, dirty, onRole, onAllStaff, onToggleExcept
       )}
 
       <div className="flex justify-end">
-        <Button size="sm" variant={dirty ? 'primary' : 'secondary'} onClick={onSave} isLoading={saving} disabled={!dirty}>
+        <Button icon="check" size="sm" variant={dirty ? 'success-solid' : 'secondary'} onClick={onSave} isLoading={saving} disabled={!dirty}>
           Save
         </Button>
       </div>
@@ -431,7 +431,7 @@ export default function SectionAccessPage() {
         onBack={handleBack}
         actions={
           dirtySections.length > 0 && (
-            <Button size="sm" onClick={saveAll} isLoading={savingAll}>
+            <Button icon="check" variant="success-solid" size="sm" onClick={saveAll} isLoading={savingAll}>
               Save all changes ({dirtySections.length})
             </Button>
           )

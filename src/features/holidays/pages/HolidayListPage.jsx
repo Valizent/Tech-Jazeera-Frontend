@@ -114,11 +114,11 @@ export default function HolidayListPage() {
       render: (h) =>
         canManage ? (
           <span className="flex justify-end gap-2">
-            <Button size="sm" variant="ghost" onClick={() => openEdit(h)}>
+            <Button icon="pencil" size="sm" variant="soft" onClick={() => openEdit(h)}>
               {t('common.edit')}
             </Button>
             {user.role === 'Admin' && (
-              <Button size="sm" variant="danger-ghost" onClick={() => setToDelete(h)}>
+              <Button icon="trash" size="sm" variant="danger-solid" onClick={() => setToDelete(h)}>
                 {t('common.delete')}
               </Button>
             )}
@@ -135,7 +135,7 @@ export default function HolidayListPage() {
         onBack={() => navigate(-1)}
         actions={
           canManage && (
-            <Button size="sm" onClick={openNew}>
+            <Button icon="plus" variant="success-solid" size="sm" onClick={openNew}>
               {t('staffHolidays.addHoliday')}
             </Button>
           )
@@ -164,7 +164,7 @@ export default function HolidayListPage() {
               }
               action={
                 canManage && (
-                  <Button variant="secondary" onClick={openNew}>
+                  <Button icon="plus" variant="success-solid" onClick={openNew}>
                     {t('staffHolidays.addHoliday')}
                   </Button>
                 )
@@ -190,7 +190,7 @@ export default function HolidayListPage() {
             <Button variant="secondary" onClick={() => setEditing(null)} disabled={saveMutation.isPending}>
               {t('common.cancel')}
             </Button>
-            <Button type="submit" isLoading={saveMutation.isPending}>
+            <Button icon="check" variant="success-solid" type="submit" isLoading={saveMutation.isPending}>
               {t('common.save')}
             </Button>
           </div>

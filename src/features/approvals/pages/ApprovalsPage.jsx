@@ -194,7 +194,7 @@ function ApprovalRolesPanel() {
               {canManage ? 'Cancel' : 'Close'}
             </Button>
             {canManage && (
-              <Button type="submit" isLoading={saveMutation.isPending}>
+              <Button icon="check" variant="success-solid" type="submit" isLoading={saveMutation.isPending}>
                 Save
               </Button>
             )}
@@ -549,7 +549,7 @@ function ApprovalWorkflowsPanel() {
                           </option>
                         ))}
                     </Select>
-                    <Button type="button" size="sm" variant="danger-ghost" onClick={() => removeRoute(i)}>
+                    <Button icon="trash" type="button" size="sm" variant="danger-solid" onClick={() => removeRoute(i)}>
                       Remove
                     </Button>
                   </div>
@@ -568,7 +568,7 @@ function ApprovalWorkflowsPanel() {
               {canManage ? 'Cancel' : 'Close'}
             </Button>
             {canManage && (
-              <Button type="submit" isLoading={saveMutation.isPending}>
+              <Button icon="check" variant="success-solid" type="submit" isLoading={saveMutation.isPending}>
                 Save
               </Button>
             )}

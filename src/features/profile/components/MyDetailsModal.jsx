@@ -95,7 +95,7 @@ export default function MyDetailsModal({ open, onClose }) {
             <Button type="button" variant="secondary" onClick={onClose} disabled={mutation.isPending}>
               {t('common.cancel')}
             </Button>
-            <Button type="submit" isLoading={mutation.isPending}>
+            <Button icon="check" variant="success-solid" type="submit" isLoading={mutation.isPending}>
               {t('common.save')}
             </Button>
           </div>

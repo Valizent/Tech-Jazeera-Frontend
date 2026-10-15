@@ -212,7 +212,7 @@ export default function RequirementDetailModal({ id, stages, onClose, onEdit }) 
                       </option>
                     ))}
                 </Select>
-                <Button type="submit" isLoading={updateMutation.isPending}>
+                <Button icon="plus" variant="success-solid" type="submit" isLoading={updateMutation.isPending}>
                   {t('staffRequirements.detail.addUpdate')}
                 </Button>
               </div>
@@ -249,11 +249,11 @@ export default function RequirementDetailModal({ id, stages, onClose, onEdit }) 
           {(p.edit || p.remove) && (
             <div className="flex justify-end gap-2 border-t border-border pt-4">
               {p.remove && (
-                <Button variant="danger-ghost" onClick={() => setConfirmDelete(true)}>
+                <Button icon="trash" variant="danger-solid" onClick={() => setConfirmDelete(true)}>
                   {t('common.delete')}
                 </Button>
               )}
-              {p.edit && <Button variant="secondary" onClick={() => onEdit(requirement)}>{t('common.edit')}</Button>}
+              {p.edit && <Button icon="pencil" variant="soft" onClick={() => onEdit(requirement)}>{t('common.edit')}</Button>}
             </div>
           )}
         </div>

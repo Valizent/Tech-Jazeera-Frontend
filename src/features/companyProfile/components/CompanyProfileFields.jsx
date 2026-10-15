@@ -82,7 +82,7 @@ export default function CompanyProfileFields({ register, control, errors }) {
             <h2 className="text-sm font-semibold uppercase tracking-wide text-muted">{t('companyProfile.sections.coordinators')}</h2>
             <p className="mt-1 text-sm text-muted">{t('companyProfile.coordinatorsHint')}</p>
           </div>
-          <Button size="sm" variant="secondary" onClick={() => append({ ...emptyCoordinatorRow })}>
+          <Button icon="plus" size="sm" variant="secondary" onClick={() => append({ ...emptyCoordinatorRow })}>
             {t('companyProfile.addCoordinator')}
           </Button>
         </div>
@@ -100,7 +100,7 @@ export default function CompanyProfileFields({ register, control, errors }) {
                   <Input placeholder={t('companyProfile.coordinatorDesignation')} aria-label={t('companyProfile.coordinatorDesignation')} error={row.designation?.message} {...register(`coordinators.${index}.designation`)} />
                   <Input placeholder={t('companyProfile.person.phone')} aria-label={t('companyProfile.person.phone')} error={row.phone?.message} {...register(`coordinators.${index}.phone`)} />
                   <Input placeholder={t('companyProfile.person.email')} aria-label={t('companyProfile.person.email')} type="email" error={row.email?.message} {...register(`coordinators.${index}.email`)} />
-                  <Button size="sm" variant="danger-ghost" onClick={() => remove(index)} aria-label={t('companyProfile.removeCoordinatorAriaLabel', { index: index + 1 })}>
+                  <Button icon="trash" size="sm" variant="danger-solid" onClick={() => remove(index)} aria-label={t('companyProfile.removeCoordinatorAriaLabel', { index: index + 1 })}>
                     {t('common.remove')}
                   </Button>
                 </div>

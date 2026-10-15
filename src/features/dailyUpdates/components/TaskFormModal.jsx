@@ -108,7 +108,7 @@ export default function TaskFormModal({ open, task, canAssign, coordinators, def
           <Button variant="secondary" onClick={onClose} disabled={saveMutation.isPending}>
             {t('common.cancel')}
           </Button>
-          <Button type="submit" isLoading={saveMutation.isPending}>
+          <Button icon="check" variant="success-solid" type="submit" isLoading={saveMutation.isPending}>
             {t('common.save')}
           </Button>
         </div>

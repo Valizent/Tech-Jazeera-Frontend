@@ -230,7 +230,7 @@ export default function PaymentsReviewPage({ side: sideName }) {
               </Button>
               <Button
                 type="button"
-                variant={decidingRow.action === 'Rejected' ? 'danger' : 'primary'}
+                variant={decidingRow.action === 'Rejected' ? 'danger-solid' : 'success-solid'}
                 isLoading={decideMutation.isPending}
                 disabled={decidingRow.action === 'Rejected' && !note.trim()}
                 onClick={() =>

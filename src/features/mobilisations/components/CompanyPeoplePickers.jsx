@@ -58,7 +58,7 @@ function AddCoordinatorModal({ open, onClose, ownerType, companyId, companyName,
           <Button type="button" variant="secondary" onClick={onClose}>
             {t('common.cancel')}
           </Button>
-          <Button type="button" onClick={() => mutation.mutate()} isLoading={mutation.isPending} disabled={!form.name.trim()}>
+          <Button icon="plus" variant="success-solid" type="button" onClick={() => mutation.mutate()} isLoading={mutation.isPending} disabled={!form.name.trim()}>
             {t('common.add')}
           </Button>
         </div>

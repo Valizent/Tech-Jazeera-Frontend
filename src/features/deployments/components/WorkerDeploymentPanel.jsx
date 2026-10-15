@@ -60,7 +60,7 @@ export default function WorkerDeploymentPanel({ employee }) {
               </p>
             </div>
             <Link to={`/deployments/${active._id}`}>
-              <Button size="sm" variant="secondary">
+              <Button icon="eye" size="sm" variant="soft">
                 {t('staffDeployments.panel.viewDeployment')}
               </Button>
             </Link>

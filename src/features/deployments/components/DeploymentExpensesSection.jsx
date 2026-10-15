@@ -48,7 +48,7 @@ export default function DeploymentExpensesSection({ deployment }) {
           {t('staffDeployments.detail.sectionExpenses')}
         </h2>
         {canWrite && (
-          <Button size="sm" onClick={() => setEditing({})}>
+          <Button icon="plus" variant="success-solid" size="sm" onClick={() => setEditing({})}>
             {t('staffDeployments.detail.addExpense')}
           </Button>
         )}
@@ -83,7 +83,7 @@ export default function DeploymentExpensesSection({ deployment }) {
                   </Button>
                 )}
                 {canWrite && (
-                  <Button size="sm" variant="ghost" onClick={() => setEditing(e)}>
+                  <Button icon="pencil" size="sm" variant="soft" onClick={() => setEditing(e)}>
                     {t('common.edit')}
                   </Button>
                 )}

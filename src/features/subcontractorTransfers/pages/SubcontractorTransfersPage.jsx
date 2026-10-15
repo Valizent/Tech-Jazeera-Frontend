@@ -115,10 +115,10 @@ export default function SubcontractorTransfersPage() {
       render: (r) =>
         r.canDecideCurrentStep && r.status === 'Pending' ? (
           <span className="flex justify-end gap-2">
-            <Button size="sm" isLoading={decideMutation.isPending} onClick={() => decideMutation.mutate({ id: r._id, decision: 'Approved' })}>
+            <Button icon="check" variant="success-solid" size="sm" isLoading={decideMutation.isPending} onClick={() => decideMutation.mutate({ id: r._id, decision: 'Approved' })}>
               {t('subcontractorTransfers.approve')}
             </Button>
-            <Button size="sm" variant="danger-ghost" onClick={() => setRejecting(r)}>
+            <Button icon="close" size="sm" variant="danger-solid" onClick={() => setRejecting(r)}>
               {t('subcontractorTransfers.reject')}
             </Button>
           </span>
@@ -170,9 +170,9 @@ export default function SubcontractorTransfersPage() {
             <Button type="button" variant="secondary" onClick={() => setRejecting(null)}>
               {t('common.cancel')}
             </Button>
-            <Button
+            <Button icon="close"
               type="button"
-              variant="danger"
+              variant="danger-solid"
               disabled={!note.trim()}
               isLoading={decideMutation.isPending}
               onClick={() => decideMutation.mutate({ id: rejecting._id, decision: 'Rejected', decisionNote: note.trim() })}

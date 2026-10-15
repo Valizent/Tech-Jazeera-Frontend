@@ -63,12 +63,11 @@ export default function DocumentActionsCell({ doc }) {
 
   return (
     <span className="flex justify-end gap-1">
-      <Button size="sm" variant="secondary" onClick={() => setPreviewing(true)}>
+      <Button icon="eye" size="sm" variant="soft" onClick={() => setPreviewing(true)}>
         {t('staffDocuments.actionsCell.view')}
       </Button>
-      <Button
-        size="sm"
-        variant="ghost"
+      <Button icon="download"
+        size="sm" variant="info"
         onClick={() => downloadDocumentFile(doc._id, version.version, version.originalName)}
       >
         {t('staffDocuments.actionsCell.download')}
@@ -97,7 +96,7 @@ export default function DocumentActionsCell({ doc }) {
         </>
       )}
       {canDelete && (
-        <Button size="sm" variant="danger-ghost" onClick={() => setConfirmingDelete(true)}>
+        <Button icon="trash" size="sm" variant="danger-solid" onClick={() => setConfirmingDelete(true)}>
           {t('common.delete')}
         </Button>
       )}

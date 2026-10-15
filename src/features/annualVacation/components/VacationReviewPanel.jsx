@@ -124,10 +124,10 @@ export default function VacationReviewPanel() {
                   <Badge variant={ANNUAL_VACATION_STATUS_VARIANT[r.status]}>{t(`common.status.${r.status}`, r.status)}</Badge>
                   {canAct && (
                     <div className="flex gap-2">
-                      <Button size="sm" variant="secondary" onClick={() => setConfirming({ req: r, decision: 'Approved' })}>
+                      <Button icon="check" size="sm" variant="success-solid" onClick={() => setConfirming({ req: r, decision: 'Approved' })}>
                         {t('common.approve')}
                       </Button>
-                      <Button size="sm" variant="danger-ghost" onClick={() => setConfirming({ req: r, decision: 'Rejected' })}>
+                      <Button icon="close" size="sm" variant="danger-solid" onClick={() => setConfirming({ req: r, decision: 'Rejected' })}>
                         {t('common.reject')}
                       </Button>
                     </div>

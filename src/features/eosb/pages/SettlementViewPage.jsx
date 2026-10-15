@@ -99,7 +99,7 @@ export default function SettlementViewPage() {
             </Badge>
             <SettlementPdfButton id={s._id} employeeCode={s.employeeCode} />
             {user.role === 'Admin' && (
-              <Button variant="danger-ghost" onClick={() => setConfirmingDelete(true)}>
+              <Button icon="trash" variant="danger-solid" onClick={() => setConfirmingDelete(true)}>
                 {t('common.delete')}
               </Button>
             )}

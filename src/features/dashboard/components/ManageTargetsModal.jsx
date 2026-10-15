@@ -380,7 +380,7 @@ export default function ManageTargetsModal({ open, onClose, coordinators = [] })
               >
                 {t('staffDashboard.targets.clear')}
               </Button>
-              <Button
+              <Button icon="check" variant="success-solid"
                 type="submit"
                 isLoading={setMutation.isPending}
                 disabled={!form.coordinatorId || !form.month || !form.target}

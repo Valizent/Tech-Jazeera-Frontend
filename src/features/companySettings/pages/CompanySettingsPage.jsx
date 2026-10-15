@@ -162,7 +162,7 @@ export default function CompanySettingsPage() {
 
         {canWrite && (
           <div className="flex justify-end">
-            <Button type="submit" isLoading={saveMutation.isPending}>
+            <Button icon="check" variant="success-solid" type="submit" isLoading={saveMutation.isPending}>
               Save changes
             </Button>
           </div>

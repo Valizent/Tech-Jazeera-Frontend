@@ -36,6 +36,7 @@ export default {
         },
         success: 'rgb(var(--color-success) / <alpha-value>)',
         warning: 'rgb(var(--color-warning) / <alpha-value>)',
+        info: 'rgb(var(--color-info) / <alpha-value>)',
       },
       /**
        * Elevation scale — soft, indigo-tinted shadows (never pure black, per

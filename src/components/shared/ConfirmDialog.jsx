@@ -14,7 +14,7 @@ export default function ConfirmDialog({
   title,
   message,
   confirmLabel = 'Delete',
-  confirmVariant = 'danger',
+  confirmVariant = 'danger-solid',
   onConfirm,
   onCancel,
   loading = false,

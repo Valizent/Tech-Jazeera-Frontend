@@ -293,7 +293,7 @@ export default function MobilisationListPage() {
       className: 'text-right',
       render: (m) => (
         <span className="flex justify-end gap-2">
-          <Button size="sm" variant="ghost" onClick={() => openPlacement(m)}>
+          <Button icon="eye" size="sm" variant="soft" onClick={() => openPlacement(m)}>
             {t('common.view')}
           </Button>
         </span>
@@ -321,7 +321,7 @@ export default function MobilisationListPage() {
         actions={
           <div className="flex flex-wrap items-center gap-2">
             {canDecideHours && (
-              <Button size="sm" variant="primary" onClick={() => navigate('/deployments/hours-review')} className="relative">
+              <Button icon="check" size="sm" variant="primary" onClick={() => navigate('/deployments/hours-review')} className="relative">
                 {t('staffMobilisations.list.approveTimesheets')}
                 {pendingHours?.length > 0 && (
                   <span className="absolute -right-1.5 -top-1.5 flex h-4 min-w-[1rem] items-center justify-center rounded-full bg-danger px-1 text-[9px] font-bold leading-none text-white shadow-sm ring-2 ring-surface">

@@ -131,7 +131,7 @@ export default function EmployeeLoginPanel({ employee }) {
               )}
             </div>
           </div>
-          <Button onClick={() => mutation.mutate()} isLoading={mutation.isPending} disabled={!role || (!employee.email && !email)}>
+          <Button icon="plus" variant="success-solid" onClick={() => mutation.mutate()} isLoading={mutation.isPending} disabled={!role || (!employee.email && !email)}>
             {t('staffEmployees.login.create')}
           </Button>
         </div>
@@ -181,7 +181,7 @@ export default function EmployeeLoginPanel({ employee }) {
               <Button variant="secondary" onClick={() => setEditingRole(null)}>
                 {t('common.cancel')}
               </Button>
-              <Button
+              <Button icon="check" variant="success-solid"
                 onClick={() => changeRoleMutation.mutate()}
                 isLoading={changeRoleMutation.isPending}
                 disabled={!editingRole || editingRole === login.role}

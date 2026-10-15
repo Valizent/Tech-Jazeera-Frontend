@@ -159,16 +159,16 @@ export default function ClientListPage() {
       className: 'text-right',
       render: (c) => (
         <span className="flex justify-end gap-2">
-          <Button size="sm" variant="secondary" onClick={() => navigate(`/clients/${c._id}`)}>
+          <Button icon="eye" size="sm" variant="soft" onClick={() => navigate(`/clients/${c._id}`)}>
             {t('common.view')}
           </Button>
           {canEditClient(user, c) && (
-            <Button size="sm" variant="ghost" onClick={() => navigate(`/clients/${c._id}/edit`)}>
+            <Button icon="pencil" size="sm" variant="soft" onClick={() => navigate(`/clients/${c._id}/edit`)}>
               {t('common.edit')}
             </Button>
           )}
           {canDelete && (
-            <Button size="sm" variant="danger-ghost" onClick={() => setToDelete(c)}>
+            <Button icon="trash" size="sm" variant="danger-solid" onClick={() => setToDelete(c)}>
               {t('common.delete')}
             </Button>
           )}
@@ -190,7 +190,7 @@ export default function ClientListPage() {
         title={t('staffClients.list.pageTitle')}
         description={t('staffClients.list.pageDescription')}
         onBack={() => navigate(-1)}
-        actions={canCreate && <Button onClick={() => navigate('/clients/new')}>{t('staffClients.list.addClient')}</Button>}
+        actions={canCreate && <Button icon="plus" variant="success-solid" onClick={() => navigate('/clients/new')}>{t('staffClients.list.addClient')}</Button>}
       />
 
       <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-end">
@@ -260,7 +260,7 @@ export default function ClientListPage() {
                 }
                 action={
                   noFilters && canCreate ? (
-                    <Button onClick={() => navigate('/clients/new')}>{t('staffClients.list.addClient')}</Button>
+                    <Button icon="plus" variant="success-solid" onClick={() => navigate('/clients/new')}>{t('staffClients.list.addClient')}</Button>
                   ) : null
                 }
               />

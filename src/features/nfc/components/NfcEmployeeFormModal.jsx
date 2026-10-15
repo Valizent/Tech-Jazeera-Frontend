@@ -141,7 +141,7 @@ export default function NfcEmployeeFormModal({ open, onClose, companyId, employe
           <Button variant="secondary" onClick={onClose} disabled={mutation.isPending}>
             Cancel
           </Button>
-          <Button type="submit" isLoading={mutation.isPending}>
+          <Button icon="check" variant="success-solid" type="submit" isLoading={mutation.isPending}>
             {isEdit ? 'Save' : 'Add'}
           </Button>
         </div>

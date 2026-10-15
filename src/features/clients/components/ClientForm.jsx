@@ -110,7 +110,7 @@ export default function ClientForm({ defaultValues, onSubmit, submitLabel, submi
             <h2 className="text-sm font-semibold uppercase tracking-wide text-muted">{t('staffClients.form.sitesTitle')}</h2>
             <p className="mt-1 text-sm text-muted">{t('staffClients.form.sitesDescription')}</p>
           </div>
-          <Button size="sm" variant="secondary" onClick={() => append({ name: '', city: '', address: '' })}>
+          <Button icon="plus" size="sm" variant="secondary" onClick={() => append({ name: '', city: '', address: '' })}>
             {t('staffClients.form.addSite')}
           </Button>
         </div>
@@ -126,9 +126,8 @@ export default function ClientForm({ defaultValues, onSubmit, submitLabel, submi
                 <Input placeholder={t('staffClients.form.siteNamePlaceholder')} error={errors.sites?.[index]?.name?.message} {...register(`sites.${index}.name`)} />
                 <Input placeholder={t('staffClients.form.cityPlaceholder')} {...register(`sites.${index}.city`)} />
                 <Input placeholder={t('staffClients.form.addressPlaceholder')} {...register(`sites.${index}.address`)} />
-                <Button
-                  size="sm"
-                  variant="danger-ghost"
+                <Button icon="trash"
+                  size="sm" variant="danger-solid"
                   onClick={() => remove(index)}
                   aria-label={t('staffClients.form.removeSiteAriaLabel', { index: index + 1 })}
                 >
@@ -145,7 +144,7 @@ export default function ClientForm({ defaultValues, onSubmit, submitLabel, submi
       </Card>
 
       <div className="flex justify-end gap-2">
-        <Button variant="secondary" onClick={() => navigate(-1)} disabled={submitting}>
+        <Button icon="close" variant="danger-solid" onClick={() => navigate(-1)} disabled={submitting}>
           {t('common.cancel')}
         </Button>
         <Button type="submit" isLoading={submitting}>

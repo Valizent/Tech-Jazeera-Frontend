@@ -46,10 +46,10 @@ export default function VacationAttachments({ request, download }) {
                 </span>
               </span>
               <span className="flex shrink-0 gap-1">
-                <Button type="button" size="sm" variant="ghost" onClick={() => open(download.viewTicket(request._id, file._id))}>
+                <Button icon="eye" type="button" size="sm" variant="soft" onClick={() => open(download.viewTicket(request._id, file._id))}>
                   {t('common.view')}
                 </Button>
-                <Button type="button" size="sm" variant="ghost" onClick={() => open(download.ticket(request._id, file._id, file.originalName))}>
+                <Button icon="download" type="button" size="sm" variant="info" onClick={() => open(download.ticket(request._id, file._id, file.originalName))}>
                   {t('common.download')}
                 </Button>
               </span>
@@ -66,10 +66,10 @@ export default function VacationAttachments({ request, download }) {
           </span>
           {visa.hasFile && (
             <>
-              <Button type="button" size="sm" variant="ghost" onClick={() => open(download.viewVisa(request._id))}>
+              <Button icon="eye" type="button" size="sm" variant="soft" onClick={() => open(download.viewVisa(request._id))}>
                 {t('common.view')}
               </Button>
-              <Button type="button" size="sm" variant="ghost" onClick={() => open(download.visa(request._id, visa.fileName))}>
+              <Button icon="download" type="button" size="sm" variant="info" onClick={() => open(download.visa(request._id, visa.fileName))}>
                 {t('common.download')}
               </Button>
             </>

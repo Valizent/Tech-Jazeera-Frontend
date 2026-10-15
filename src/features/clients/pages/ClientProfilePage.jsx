@@ -287,12 +287,12 @@ export default function ClientProfilePage() {
             )}
             {canDecideClient(user, client) && <Button onClick={() => setDeciding(true)}>{t('staffClients.list.review')}</Button>}
             {canEditClient(user, client) && (
-              <Button variant="secondary" onClick={() => navigate(`/clients/${id}/edit`)}>
+              <Button icon="pencil" variant="soft" onClick={() => navigate(`/clients/${id}/edit`)}>
                 {t('common.edit')}
               </Button>
             )}
             {canDelete && (
-              <Button variant="danger" onClick={() => setConfirmingDelete(true)}>
+              <Button icon="trash" variant="danger-solid" onClick={() => setConfirmingDelete(true)}>
                 {t('common.delete')}
               </Button>
             )}

@@ -205,12 +205,12 @@ export default function MyLeavePage() {
                   <div className="flex shrink-0 flex-col items-end gap-2">
                     <Badge variant={LEAVE_STATUS_VARIANT[req.status]}>{t(`common.status.${req.status}`, req.status)}</Badge>
                     {req.attachment && (
-                      <Button size="sm" variant="ghost" isLoading={downloadingId === req._id} onClick={() => handleDownload(req)}>
+                      <Button icon="eye" size="sm" variant="soft" isLoading={downloadingId === req._id} onClick={() => handleDownload(req)}>
                         {t('leave.viewAttachment')}
                       </Button>
                     )}
                     {cancellable && (
-                      <Button size="sm" variant="danger-ghost" onClick={() => setToCancel(req)}>
+                      <Button icon="close" size="sm" variant="danger-solid" onClick={() => setToCancel(req)}>
                         {t('leave.cancelButton')}
                       </Button>
                     )}

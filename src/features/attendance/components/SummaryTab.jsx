@@ -76,16 +76,14 @@ export default function SummaryTab() {
           <Input label={t('staffAttendance.signInOut.to')} type="date" value={to} onChange={(e) => setTo(e.target.value)} className="sm:max-w-[170px]" />
         </div>
         <div className="flex gap-2">
-          <Button
-            variant="secondary"
+          <Button icon="download" variant="info"
             onClick={() => handleExport('xlsx')}
             isLoading={exporting === 'xlsx'}
             disabled={!rangeValid || rows.length === 0}
           >
             {t('staffAttendance.summary.exportExcel')}
           </Button>
-          <Button
-            variant="secondary"
+          <Button icon="download" variant="info"
             onClick={() => handleExport('pdf')}
             isLoading={exporting === 'pdf'}
             disabled={!rangeValid || rows.length === 0}

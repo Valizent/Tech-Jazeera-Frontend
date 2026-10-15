@@ -66,7 +66,7 @@ export default function LogEntryForm({ mutation, defaultValues, submitLabel, onD
         />
         <div className="flex justify-end gap-2">
           {onCancel && (
-            <Button variant="secondary" onClick={onCancel} disabled={mutation.isPending}>
+            <Button icon="close" variant="danger-solid" onClick={onCancel} disabled={mutation.isPending}>
               {t('common.cancel')}
             </Button>
           )}

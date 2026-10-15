@@ -90,16 +90,16 @@ export default function SubcontractorListPage() {
       className: 'text-right',
       render: (s) => (
         <span className="flex justify-end gap-2">
-          <Button size="sm" variant="secondary" onClick={() => navigate(`/subcontractors/${s._id}`)}>
+          <Button icon="eye" size="sm" variant="soft" onClick={() => navigate(`/subcontractors/${s._id}`)}>
             {t('common.view')}
           </Button>
           {canWrite && (
-            <Button size="sm" variant="ghost" onClick={() => navigate(`/subcontractors/${s._id}/edit`)}>
+            <Button icon="pencil" size="sm" variant="soft" onClick={() => navigate(`/subcontractors/${s._id}/edit`)}>
               {t('common.edit')}
             </Button>
           )}
           {canDelete && (
-            <Button size="sm" variant="danger-ghost" onClick={() => setToDelete(s)}>
+            <Button icon="trash" size="sm" variant="danger-solid" onClick={() => setToDelete(s)}>
               {t('common.delete')}
             </Button>
           )}
@@ -118,7 +118,7 @@ export default function SubcontractorListPage() {
         onBack={() => navigate(-1)}
         actions={
           canWrite && (
-            <Button size="sm" onClick={() => navigate('/subcontractors/new')}>
+            <Button icon="plus" variant="success-solid" size="sm" onClick={() => navigate('/subcontractors/new')}>
               {t('staffSubcontractors.addSubcontractor')}
             </Button>
           )
@@ -175,7 +175,7 @@ export default function SubcontractorListPage() {
                 action={
                   canWrite &&
                   noFilters && (
-                    <Button variant="secondary" onClick={() => navigate('/subcontractors/new')}>
+                    <Button icon="plus" variant="success-solid" onClick={() => navigate('/subcontractors/new')}>
                       {t('staffSubcontractors.addSubcontractor')}
                     </Button>
                   )

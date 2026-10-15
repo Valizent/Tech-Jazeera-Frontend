@@ -139,7 +139,7 @@ function MyAdvancesSection() {
                 <div className="flex shrink-0 flex-col items-end gap-2">
                   <Badge variant={ADVANCE_STATUS_VARIANT[a.status]}>{t(`common.status.${a.status}`, a.status)}</Badge>
                   {a.status === 'Pending' && (
-                    <Button size="sm" variant="danger-ghost" onClick={() => setToCancel(a)}>
+                    <Button icon="close" size="sm" variant="danger-solid" onClick={() => setToCancel(a)}>
                       {t('leave.cancelButton')}
                     </Button>
                   )}
@@ -321,7 +321,7 @@ function MyReimbursementsSection() {
                     {t('requests.reimbursements.receiptButton')}
                   </Button>
                   {c.status === 'Pending' && (
-                    <Button size="sm" variant="danger-ghost" onClick={() => setToCancel(c)}>
+                    <Button icon="close" size="sm" variant="danger-solid" onClick={() => setToCancel(c)}>
                       {t('leave.cancelButton')}
                     </Button>
                   )}

@@ -81,7 +81,7 @@ export default function CandidatesSection({ requirement, canEdit, onBusyChange }
           </span>
         </h3>
         {canEdit && (
-          <Button size="sm" variant="secondary" onClick={() => setForm({ open: true, candidate: null })}>
+          <Button icon="plus" size="sm" variant="secondary" onClick={() => setForm({ open: true, candidate: null })}>
             {t('staffRequirements.candidates.add')}
           </Button>
         )}
@@ -146,12 +146,12 @@ export default function CandidatesSection({ requirement, canEdit, onBusyChange }
                       </Button>
                     )}
                     {canEdit && (
-                      <Button size="sm" variant="ghost" onClick={() => setForm({ open: true, candidate: c })}>
+                      <Button icon="pencil" size="sm" variant="soft" onClick={() => setForm({ open: true, candidate: c })}>
                         {t('common.edit')}
                       </Button>
                     )}
                     {canEdit && !started && (
-                      <Button size="sm" variant="danger-ghost" onClick={() => setToRemove(c)}>
+                      <Button icon="trash" size="sm" variant="danger-solid" onClick={() => setToRemove(c)}>
                         {t('common.delete')}
                       </Button>
                     )}

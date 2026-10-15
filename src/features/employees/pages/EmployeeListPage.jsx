@@ -180,16 +180,16 @@ export default function EmployeeListPage() {
       className: 'text-right',
       render: (e) => (
         <span className="flex justify-end gap-2">
-          <Button size="sm" variant="secondary" onClick={() => navigate(`/employees/${e._id}`)}>
+          <Button icon="eye" size="sm" variant="soft" onClick={() => navigate(`/employees/${e._id}`)}>
             {t('common.view')}
           </Button>
           {canWrite && (
-            <Button size="sm" variant="ghost" onClick={() => navigate(`/employees/${e._id}/edit`)}>
+            <Button icon="pencil" size="sm" variant="soft" onClick={() => navigate(`/employees/${e._id}/edit`)}>
               {t('common.edit')}
             </Button>
           )}
           {canDelete && (
-            <Button size="sm" variant="danger-ghost" onClick={() => setToDelete(e)}>
+            <Button icon="trash" size="sm" variant="danger-solid" onClick={() => setToDelete(e)}>
               {t('common.delete')}
             </Button>
           )}
@@ -206,7 +206,7 @@ export default function EmployeeListPage() {
         title={t('staffEmployees.list.title')}
         description={t('staffEmployees.list.description')}
         onBack={() => navigate(-1)}
-        actions={canCreate && <Button onClick={() => navigate('/employees/new')}>{t('staffEmployees.list.addEmployee')}</Button>}
+        actions={canCreate && <Button icon="plus" variant="success-solid" onClick={() => navigate('/employees/new')}>{t('staffEmployees.list.addEmployee')}</Button>}
       />
 
       <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-end">
@@ -286,7 +286,7 @@ export default function EmployeeListPage() {
                 description={noFilters ? emptyDescription : t('common.tryClearingFilters')}
                 action={
                   noFilters && canCreate ? (
-                    <Button onClick={() => navigate('/employees/new')}>{t('staffEmployees.list.addEmployee')}</Button>
+                    <Button icon="plus" variant="success-solid" onClick={() => navigate('/employees/new')}>{t('staffEmployees.list.addEmployee')}</Button>
                   ) : null
                 }
               />

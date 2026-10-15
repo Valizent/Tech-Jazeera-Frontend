@@ -91,7 +91,7 @@ function EmployeeList({ onView }) {
       header: '',
       className: 'text-right',
       render: (e) => (
-        <Button size="sm" variant="ghost" onClick={() => onView(e)}>
+        <Button icon="eye" size="sm" variant="soft" onClick={() => onView(e)}>
           {t('staffTimesheets.employeeList.viewButton')}
         </Button>
       ),
@@ -204,7 +204,7 @@ function MonthlyTimesheetDetail({ employee, onBack }) {
                 </option>
               ))}
             </Select>
-            <Button isLoading={exportMutation.isPending} onClick={() => exportMutation.mutate()}>
+            <Button icon="download" variant="info" isLoading={exportMutation.isPending} onClick={() => exportMutation.mutate()}>
               {t('staffTimesheets.detail.exportExcel')}
             </Button>
           </div>

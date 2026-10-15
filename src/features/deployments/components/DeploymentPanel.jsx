@@ -693,7 +693,7 @@ export default function DeploymentPanel({ deploymentId: id }) {
           {t(`staffDeployments.status.${deployment.status}`, deployment.status)}
         </Badge>
         {canEditDeployment && (
-          <Button size="sm" variant="secondary" onClick={openEditDeployment}>
+          <Button icon="pencil" size="sm" variant="soft" onClick={openEditDeployment}>
             {t('common.edit')}
           </Button>
         )}
@@ -917,14 +917,13 @@ export default function DeploymentPanel({ deploymentId: id }) {
                               </Button>
                             )}
                             {canEditThis && (
-                              <Button size="sm" variant="ghost" onClick={() => setEditingEntry(entry)}>
+                              <Button icon="pencil" size="sm" variant="soft" onClick={() => setEditingEntry(entry)}>
                                 {t('staffDeployments.detail.editEntry')}
                               </Button>
                             )}
                             {entry.invoiceFile && (
-                              <Button
-                                size="sm"
-                                variant="ghost"
+                              <Button icon="download"
+                                size="sm" variant="info"
                                 onClick={() => downloadInvoiceFile(id, entry._id, entry.invoiceFile.originalName)}
                               >
                                 {t('staffDeployments.detail.downloadInvoiceButton')}
@@ -1044,8 +1043,7 @@ export default function DeploymentPanel({ deploymentId: id }) {
             />
             <div className="flex justify-end gap-2 pt-1">
               <Button
-                type="button"
-                variant="secondary"
+                type="button" variant="secondary"
                 onClick={() => {
                   setEnteringSupplierHoursFor(null);
                   setSupplierHoursInput('');
@@ -1054,7 +1052,7 @@ export default function DeploymentPanel({ deploymentId: id }) {
               >
                 {t('common.cancel')}
               </Button>
-              <Button
+              <Button icon="check" variant="success-solid"
                 type="button"
                 isLoading={supplierHoursMutation.isPending}
                 disabled={supplierHoursInput === '' || Number.isNaN(Number(supplierHoursInput)) || Number(supplierHoursInput) < 0}
@@ -1174,7 +1172,7 @@ export default function DeploymentPanel({ deploymentId: id }) {
             <Button type="button" variant="secondary" onClick={() => setEditingDeployment(false)} disabled={editMutation.isPending}>
               {t('common.cancel')}
             </Button>
-            <Button type="submit" isLoading={editMutation.isPending}>
+            <Button icon="check" variant="success-solid" type="submit" isLoading={editMutation.isPending}>
               {t('common.save')}
             </Button>
           </div>

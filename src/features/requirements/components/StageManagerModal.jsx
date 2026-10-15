@@ -113,7 +113,7 @@ function StageForm({ stage, onDone }) {
         <Button variant="secondary" onClick={onDone} disabled={saveMutation.isPending}>
           {t('common.cancel')}
         </Button>
-        <Button type="submit" isLoading={saveMutation.isPending}>
+        <Button icon="check" variant="success-solid" type="submit" isLoading={saveMutation.isPending}>
           {t('common.save')}
         </Button>
       </div>
@@ -210,10 +210,10 @@ export default function StageManagerModal({ open, stages, onClose }) {
                   >
                     ↓
                   </Button>
-                  <Button size="sm" variant="ghost" onClick={() => setEditing(stage)}>
+                  <Button icon="pencil" size="sm" variant="soft" onClick={() => setEditing(stage)}>
                     {t('common.edit')}
                   </Button>
-                  <Button size="sm" variant="danger-ghost" onClick={() => setToDelete(stage)}>
+                  <Button icon="trash" size="sm" variant="danger-solid" onClick={() => setToDelete(stage)}>
                     {t('common.delete')}
                   </Button>
                 </span>
@@ -224,7 +224,7 @@ export default function StageManagerModal({ open, stages, onClose }) {
             <Button variant="secondary" onClick={handleClose}>
               {t('common.close')}
             </Button>
-            <Button onClick={() => setEditing({})}>{t('staffRequirements.stages.addStage')}</Button>
+            <Button icon="plus" variant="success-solid" onClick={() => setEditing({})}>{t('staffRequirements.stages.addStage')}</Button>
           </div>
         </div>
       )}

@@ -101,9 +101,8 @@ export default function AvatarUploadModal({ open, onClose }) {
             {t('avatarModal.chooseImage')}
           </Button>
           {user?.avatarUrl && !pendingFile && (
-            <Button
-              type="button"
-              variant="danger-ghost"
+            <Button icon="trash"
+              type="button" variant="danger-solid"
               onClick={() => removeMutation.mutate()}
               isLoading={removeMutation.isPending}
               disabled={busy}
@@ -119,7 +118,7 @@ export default function AvatarUploadModal({ open, onClose }) {
           <Button type="button" variant="secondary" onClick={handleClose} disabled={busy}>
             {t('common.cancel')}
           </Button>
-          <Button
+          <Button icon="check" variant="success-solid"
             type="button"
             onClick={() => uploadMutation.mutate(pendingFile)}
             isLoading={uploadMutation.isPending}

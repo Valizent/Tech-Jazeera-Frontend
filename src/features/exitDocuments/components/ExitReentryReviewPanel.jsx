@@ -115,10 +115,10 @@ export default function ExitReentryReviewPanel() {
                 <Badge variant={EXIT_REENTRY_STATUS_VARIANT[r.status]}>{r.status}</Badge>
                 {r.canDecideCurrentStep && r.status === 'Pending' && (
                   <div className="flex gap-2">
-                    <Button size="sm" variant="secondary" onClick={() => setConfirming({ req: r, decision: 'Approved' })}>
+                    <Button icon="check" size="sm" variant="success-solid" onClick={() => setConfirming({ req: r, decision: 'Approved' })}>
                       Approve
                     </Button>
-                    <Button size="sm" variant="danger-ghost" onClick={() => setConfirming({ req: r, decision: 'Rejected' })}>
+                    <Button icon="close" size="sm" variant="danger-solid" onClick={() => setConfirming({ req: r, decision: 'Rejected' })}>
                       Reject
                     </Button>
                   </div>
@@ -142,7 +142,7 @@ export default function ExitReentryReviewPanel() {
           `${confirming.decision === 'Approved' ? 'Approve' : 'Reject'} ${confirming.req.employee?.fullName}'s ${confirming.req.visaType} exit re-entry request? This cannot be undone.`
         }
         confirmLabel={confirming?.decision === 'Approved' ? 'Approve' : 'Reject'}
-        confirmVariant={confirming?.decision === 'Approved' ? 'primary' : 'danger'}
+        confirmVariant={confirming?.decision === 'Approved' ? 'success-solid' : 'danger-solid'}
         loading={decideMutation.isPending}
         onConfirm={() => decideMutation.mutate({ id: confirming.req._id, decision: confirming.decision })}
         onCancel={() => setConfirming(null)}

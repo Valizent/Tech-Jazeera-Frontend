@@ -124,7 +124,7 @@ export default function ReconciliationPage() {
                     <p className="text-sm text-text">{finding.summary}</p>
                   </button>
                   {user.role === 'Admin' && finding.category === 'orphanedMobilisation' && (
-                    <Button size="sm" variant="danger" onClick={() => setToDelete(finding)}>
+                    <Button icon="trash" size="sm" variant="danger-solid" onClick={() => setToDelete(finding)}>
                       Delete
                     </Button>
                   )}

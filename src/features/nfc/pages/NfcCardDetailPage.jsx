@@ -226,7 +226,7 @@ export default function NfcCardDetailPage() {
               <div className="flex items-end gap-2">
                 <Input label="Chip UID (optional)" value={chip} onChange={(e) => setChip(e.target.value)} className="flex-1" disabled={!canWrite} />
                 {canWrite && (
-                  <Button variant="secondary" isLoading={chipMutation.isPending} onClick={() => chipMutation.mutate()}>
+                  <Button icon="check" variant="success-solid" isLoading={chipMutation.isPending} onClick={() => chipMutation.mutate()}>
                     Save
                   </Button>
                 )}

@@ -76,8 +76,7 @@ export default function DocumentPreviewModal({ doc, open, onClose }) {
               <Badge variant="primary">{t(`staffDocuments.categoryLabels.${doc.category}`, doc.category)}</Badge>
               <ExpiryBadge date={doc.expiryDate} />
             </div>
-            <Button
-              variant="primary"
+            <Button icon="download" variant="info"
               className="mt-3 w-full"
               onClick={() => downloadDocumentFile(doc._id, version.version, version.originalName)}
             >
@@ -100,9 +99,8 @@ export default function DocumentPreviewModal({ doc, open, onClose }) {
                       {formatDate(v.uploadedAt)} · {formatFileSize(v.size)}
                     </p>
                   </div>
-                  <Button
-                    size="sm"
-                    variant="ghost"
+                  <Button icon="download"
+                    size="sm" variant="info"
                     onClick={() => downloadDocumentFile(doc._id, v.version, v.originalName)}
                   >
                     {t('staffDocuments.actionsCell.download')}

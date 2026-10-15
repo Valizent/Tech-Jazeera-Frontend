@@ -195,7 +195,7 @@ export default function CandidateFormModal({ open, requirementId, candidate, onC
           <Button variant="secondary" onClick={onClose} disabled={saveMutation.isPending}>
             {t('common.cancel')}
           </Button>
-          <Button type="submit" isLoading={saveMutation.isPending}>
+          <Button icon="check" variant="success-solid" type="submit" isLoading={saveMutation.isPending}>
             {t('common.save')}
           </Button>
         </div>

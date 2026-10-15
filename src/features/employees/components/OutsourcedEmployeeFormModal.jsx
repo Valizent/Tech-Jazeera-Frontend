@@ -180,7 +180,7 @@ function DocumentsSection({ employeeId, documents, canWrite, toast, queryClient,
       <div className="flex items-center justify-between gap-2">
         <h3 className="text-sm font-semibold text-text">{t('employees.outsourced.documents.heading', 'Documents')}</h3>
         {canWrite && editing === null && (
-          <Button type="button" size="sm" variant="secondary" onClick={() => open(null)}>
+          <Button icon="plus" type="button" size="sm" variant="secondary" onClick={() => open(null)}>
             {t('employees.outsourced.documents.add', 'Add document')}
           </Button>
         )}
@@ -208,16 +208,16 @@ function DocumentsSection({ employeeId, documents, canWrite, toast, queryClient,
                 <span className="flex shrink-0 items-center gap-2">
                   {status && <Badge variant={status.variant}>{status.label}</Badge>}
                   {d.fileName && (
-                    <Button type="button" size="sm" variant="ghost" onClick={() => downloadOutsourcedEmployeeDocument(employeeId, d._id, d.originalName)}>
+                    <Button icon="download" type="button" size="sm" variant="info" onClick={() => downloadOutsourcedEmployeeDocument(employeeId, d._id, d.originalName)}>
                       {t('common.download')}
                     </Button>
                   )}
                   {canWrite && (
                     <>
-                      <Button type="button" size="sm" variant="ghost" onClick={() => open(d)}>
+                      <Button icon="pencil" type="button" size="sm" variant="soft" onClick={() => open(d)}>
                         {t('common.edit')}
                       </Button>
-                      <Button type="button" size="sm" variant="danger-ghost" onClick={() => setConfirmDeleteId(d._id)}>
+                      <Button icon="trash" type="button" size="sm" variant="danger-solid" onClick={() => setConfirmDeleteId(d._id)}>
                         {t('common.delete')}
                       </Button>
                     </>
@@ -274,7 +274,7 @@ function DocumentsSection({ employeeId, documents, canWrite, toast, queryClient,
             <Button type="button" size="sm" variant="secondary" onClick={closeForm} disabled={saveMutation.isPending}>
               {t('common.cancel')}
             </Button>
-            <Button type="button" size="sm" disabled={!valid} isLoading={saveMutation.isPending} onClick={() => saveMutation.mutate()}>
+            <Button icon="check" variant="success-solid" type="button" size="sm" disabled={!valid} isLoading={saveMutation.isPending} onClick={() => saveMutation.mutate()}>
               {t('common.save')}
             </Button>
           </div>
@@ -438,7 +438,7 @@ export default function OutsourcedEmployeeFormModal({ open, employeeId, canWrite
 
           <div className="flex justify-end gap-2 pt-2">
             <Button variant="secondary" onClick={onClose} disabled={saveMutation.isPending}>{t('common.cancel')}</Button>
-            <Button type="submit" isLoading={saveMutation.isPending}>{t('common.save')}</Button>
+            <Button icon="check" variant="success-solid" type="submit" isLoading={saveMutation.isPending}>{t('common.save')}</Button>
           </div>
         </form>
       )}

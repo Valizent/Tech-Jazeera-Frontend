@@ -48,10 +48,10 @@ export default function VacationDaysEditor({ request }) {
       <Input label={t('staffAnnualVacation.newDays')} type="number" min="1" max="90" value={days} onChange={(e) => setDays(e.target.value)} />
       <Input label={t('staffAnnualVacation.changeNote')} value={note} onChange={(e) => setNote(e.target.value)} />
       <div className="flex gap-2">
-        <Button type="button" size="sm" isLoading={mutation.isPending} disabled={!valid} onClick={() => mutation.mutate()}>
+        <Button icon="check" variant="success-solid" type="button" size="sm" isLoading={mutation.isPending} disabled={!valid} onClick={() => mutation.mutate()}>
           {t('staffAnnualVacation.saveDays')}
         </Button>
-        <Button type="button" size="sm" variant="secondary" onClick={() => setOpen(false)}>
+        <Button icon="close" type="button" size="sm" variant="danger-solid" onClick={() => setOpen(false)}>
           {t('common.cancel')}
         </Button>
       </div>

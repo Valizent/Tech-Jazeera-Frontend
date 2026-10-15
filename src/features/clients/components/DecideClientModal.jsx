@@ -74,7 +74,7 @@ export default function DecideClientModal({ client, onClose }) {
                   {t('common.back')}
                 </Button>
                 <Button
-                  variant="danger"
+                  variant="danger-solid"
                   disabled={!note.trim()}
                   isLoading={mutation.isPending}
                   onClick={() => mutation.mutate({ status: 'Rejected', decisionNote: note.trim() })}
@@ -88,10 +88,11 @@ export default function DecideClientModal({ client, onClose }) {
               <Button variant="secondary" onClick={handleClose} disabled={mutation.isPending}>
                 {t('common.cancel')}
               </Button>
-              <Button variant="danger" onClick={() => setRejecting(true)} disabled={mutation.isPending}>
+              <Button icon="close" variant="danger-solid" onClick={() => setRejecting(true)} disabled={mutation.isPending}>
                 {t('common.reject')}
               </Button>
-              <Button
+              <Button icon="check"
+                variant="success-solid"
                 isLoading={mutation.isPending}
                 onClick={() => mutation.mutate({ status: 'Approved' })}
               >

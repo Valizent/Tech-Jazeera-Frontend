@@ -505,7 +505,7 @@ export default function RecordsGrid() {
               <Button type="button" variant="secondary" onClick={() => setEditing(null)}>
                 {t('common.cancel')}
               </Button>
-              <Button type="submit" isLoading={adjustMutation.isPending}>
+              <Button icon="check" variant="success-solid" type="submit" isLoading={adjustMutation.isPending}>
                 {t('common.save')}
               </Button>
             </div>

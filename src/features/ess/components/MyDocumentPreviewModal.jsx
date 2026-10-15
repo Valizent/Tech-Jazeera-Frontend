@@ -75,8 +75,7 @@ export default function MyDocumentPreviewModal({ doc, open, onClose }) {
             <Badge variant="primary">{doc.category}</Badge>
             <ExpiryBadge date={doc.expiryDate} />
           </div>
-          <Button
-            variant="primary"
+          <Button icon="download" variant="info"
             className="w-full"
             onClick={() => downloadMyDocumentFile(doc._id, version.version, version.originalName)}
           >

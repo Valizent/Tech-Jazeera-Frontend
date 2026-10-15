@@ -131,12 +131,12 @@ export default function TasksPanel({ access, currentUserId, coordinators }) {
             </Button>
           )}
           {task.permissions.edit && (
-            <Button size="sm" variant="ghost" onClick={() => setModal({ open: true, task })}>
+            <Button icon="pencil" size="sm" variant="soft" onClick={() => setModal({ open: true, task })}>
               {t('common.edit')}
             </Button>
           )}
           {task.permissions.remove && (
-            <Button size="sm" variant="danger-ghost" onClick={() => setToDelete(task)}>
+            <Button icon="trash" size="sm" variant="danger-solid" onClick={() => setToDelete(task)}>
               {t('common.delete')}
             </Button>
           )}
@@ -179,7 +179,7 @@ export default function TasksPanel({ access, currentUserId, coordinators }) {
           </Select>
         </div>
         {canAddTask && (
-          <Button size="sm" onClick={() => setModal({ open: true, task: null })}>
+          <Button icon="plus" variant="success-solid" size="sm" onClick={() => setModal({ open: true, task: null })}>
             {t(canAssign ? 'staffDailyUpdates.tasks.assignTask' : 'staffDailyUpdates.tasks.addTask')}
           </Button>
         )}

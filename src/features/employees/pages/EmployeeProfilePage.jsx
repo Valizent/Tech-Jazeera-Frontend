@@ -148,12 +148,12 @@ export default function EmployeeProfilePage() {
               </Button>
             )}
             {canWrite && (
-              <Button variant="secondary" onClick={() => navigate(`/employees/${id}/edit`)}>
+              <Button icon="pencil" variant="soft" onClick={() => navigate(`/employees/${id}/edit`)}>
                 {t('common.edit')}
               </Button>
             )}
             {canDelete && (
-              <Button variant="danger" onClick={() => setConfirmingDelete(true)}>
+              <Button icon="trash" variant="danger-solid" onClick={() => setConfirmingDelete(true)}>
                 {t('common.delete')}
               </Button>
             )}

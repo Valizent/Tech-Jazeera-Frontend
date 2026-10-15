@@ -197,12 +197,12 @@ export default function LogPanel({ access, coordinators }) {
                       </div>
                       <span className="flex shrink-0 gap-1">
                         {entry.permissions.edit && (
-                          <Button size="sm" variant="ghost" onClick={() => setEditing(entry)}>
+                          <Button icon="pencil" size="sm" variant="soft" onClick={() => setEditing(entry)}>
                             {t('common.edit')}
                           </Button>
                         )}
                         {entry.permissions.remove && (
-                          <Button size="sm" variant="danger-ghost" onClick={() => setToDelete(entry)}>
+                          <Button icon="trash" size="sm" variant="danger-solid" onClick={() => setToDelete(entry)}>
                             {t('common.delete')}
                           </Button>
                         )}

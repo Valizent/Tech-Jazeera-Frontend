@@ -76,7 +76,7 @@ export default function MyVacationRequests({ queryKey, fetchRequests, cancelRequ
               <div className="flex shrink-0 flex-col items-end gap-2">
                 <Badge variant={ANNUAL_VACATION_STATUS_VARIANT[r.status]}>{t(`common.status.${r.status}`, r.status)}</Badge>
                 {r.status === 'PendingReview' && (
-                  <Button size="sm" variant="danger-ghost" onClick={() => setToCancel(r)}>
+                  <Button icon="close" size="sm" variant="danger-solid" onClick={() => setToCancel(r)}>
                     {t('common.cancel')}
                   </Button>
                 )}

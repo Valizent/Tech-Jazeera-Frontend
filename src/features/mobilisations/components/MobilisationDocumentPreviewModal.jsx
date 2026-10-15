@@ -62,7 +62,7 @@ export default function MobilisationDocumentPreviewModal({ mobilisationId, doc, 
               {formatDate(doc.uploadedAt)} · {formatFileSize(doc.size)}
             </span>
           </div>
-          <Button size="sm" variant="secondary" onClick={() => downloadMobilisationDocument(mobilisationId, doc._id, doc.originalName)}>
+          <Button icon="download" size="sm" variant="info" onClick={() => downloadMobilisationDocument(mobilisationId, doc._id, doc.originalName)}>
             {t('common.download')}
           </Button>
         </div>

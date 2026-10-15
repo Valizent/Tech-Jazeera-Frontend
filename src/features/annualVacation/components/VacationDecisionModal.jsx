@@ -73,7 +73,7 @@ export default function VacationDecisionModal({ decision, saving, onConfirm, onC
             <div>
               <div className="mb-1.5 flex items-center justify-between gap-2">
                 <span className="text-sm font-medium">{t('staffAnnualVacation.decision.documents')}</span>
-                <Button type="button" size="sm" variant="secondary" onClick={() => inputRef.current?.click()}>
+                <Button icon="plus" type="button" size="sm" variant="secondary" onClick={() => inputRef.current?.click()}>
                   {t('staffAnnualVacation.decision.addFiles')}
                 </Button>
               </div>
@@ -85,7 +85,7 @@ export default function VacationDecisionModal({ decision, saving, onConfirm, onC
                       <span className="min-w-0 truncate">
                         {file.name} <span className="text-xs text-muted">({formatFileSize(file.size)})</span>
                       </span>
-                      <Button type="button" size="sm" variant="danger-ghost" onClick={() => setFiles((c) => c.filter((_, j) => j !== i))}>
+                      <Button icon="trash" type="button" size="sm" variant="danger-solid" onClick={() => setFiles((c) => c.filter((_, j) => j !== i))}>
                         {t('common.delete')}
                       </Button>
                     </li>
@@ -103,7 +103,7 @@ export default function VacationDecisionModal({ decision, saving, onConfirm, onC
               {t('common.cancel')}
             </Button>
             <Button
-              variant={approving ? 'primary' : 'danger'}
+              variant={approving ? 'success-solid' : 'danger-solid'}
               isLoading={saving}
               onClick={() => onConfirm({ id: decision.req._id, decision: decision.decision, decisionNote: note.trim(), files: approving ? files : [] })}
             >

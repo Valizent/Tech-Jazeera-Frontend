@@ -269,16 +269,16 @@ export default function ReimbursementReviewPanel() {
                 )}
                 {c.canDecideCurrentStep && c.status === 'Pending' && (
                   <div className="flex gap-2">
-                    <Button size="sm" variant="secondary" onClick={() => setConfirming({ claim: c, decision: 'Approved' })}>
+                    <Button icon="check" size="sm" variant="success-solid" onClick={() => setConfirming({ claim: c, decision: 'Approved' })}>
                       Approve
                     </Button>
-                    <Button size="sm" variant="danger-ghost" onClick={() => setConfirming({ claim: c, decision: 'Rejected' })}>
+                    <Button icon="close" size="sm" variant="danger-solid" onClick={() => setConfirming({ claim: c, decision: 'Rejected' })}>
                       Reject
                     </Button>
                   </div>
                 )}
                 {canPay && c.status === 'Approved' && (
-                  <Button size="sm" variant="ghost" isLoading={payMutation.isPending} onClick={() => payMutation.mutate(c._id)}>
+                  <Button size="sm" variant="success-solid" isLoading={payMutation.isPending} onClick={() => payMutation.mutate(c._id)}>
                     Mark paid
                   </Button>
                 )}
@@ -296,7 +296,7 @@ export default function ReimbursementReviewPanel() {
           `${confirming.decision === 'Approved' ? 'Approve' : 'Reject'} ${confirming.claim.employee?.fullName}'s ${formatMoney(confirming.claim.amount)} ${confirming.claim.category} claim? This cannot be undone.`
         }
         confirmLabel={confirming?.decision === 'Approved' ? 'Approve' : 'Reject'}
-        confirmVariant={confirming?.decision === 'Approved' ? 'primary' : 'danger'}
+        confirmVariant={confirming?.decision === 'Approved' ? 'success-solid' : 'danger-solid'}
         loading={decideMutation.isPending}
         onConfirm={() => decideMutation.mutate({ id: confirming.claim._id, decision: confirming.decision })}
         onCancel={() => setConfirming(null)}

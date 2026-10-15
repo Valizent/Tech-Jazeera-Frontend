@@ -121,7 +121,7 @@ export default function OfficeLocationSettings() {
           <p className="text-xs text-muted">{t('staffAttendance.officeLocation.ipsHint')}</p>
           {canWrite && (
             <div className="flex justify-end">
-              <Button type="submit" isLoading={saveMutation.isPending}>
+              <Button icon="check" variant="success-solid" type="submit" isLoading={saveMutation.isPending}>
                 {t('common.save')}
               </Button>
             </div>

@@ -159,7 +159,7 @@ export default function NfcCompanyFormModal({ open, onClose, company, onSaved })
           <Button variant="secondary" onClick={onClose} disabled={mutation.isPending}>
             Cancel
           </Button>
-          <Button type="submit" isLoading={mutation.isPending}>
+          <Button icon="check" variant="success-solid" type="submit" isLoading={mutation.isPending}>
             {isEdit ? 'Save' : 'Create'}
           </Button>
         </div>

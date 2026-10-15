@@ -117,7 +117,7 @@ export default function UserListPage() {
             >
               {u.isActive ? 'Deactivate' : 'Reactivate'}
             </Button>
-            <Button size="sm" variant="danger-ghost" onClick={() => setToDelete(u)}>
+            <Button icon="trash" size="sm" variant="danger-solid" onClick={() => setToDelete(u)}>
               Delete
             </Button>
           </span>

@@ -118,7 +118,7 @@ function LeaveTypesPanel() {
     <Card>
       <div className="mb-4 flex items-center justify-between gap-3">
         <h2 className="text-sm font-semibold uppercase tracking-wide text-muted">{t('staffLeave.types.title')}</h2>
-        <Button size="sm" onClick={openNew}>
+        <Button icon="plus" variant="success-solid" size="sm" onClick={openNew}>
           {t('staffLeave.types.addType')}
         </Button>
       </div>
@@ -196,7 +196,7 @@ function LeaveTypesPanel() {
             <div>
               <div className="mb-2 flex items-center justify-between">
                 <label className="text-sm font-medium">{t('staffLeave.types.form.payTiers')}</label>
-                <Button type="button" size="sm" variant="secondary" onClick={() => appendTier({ days: '', payPercent: '' })}>
+                <Button icon="plus" type="button" size="sm" variant="secondary" onClick={() => appendTier({ days: '', payPercent: '' })}>
                   {t('staffLeave.types.form.addTier')}
                 </Button>
               </div>
@@ -266,7 +266,7 @@ function LeaveTypesPanel() {
             <Button variant="secondary" onClick={() => setEditing(null)} disabled={saveMutation.isPending}>
               {t('common.cancel')}
             </Button>
-            <Button type="submit" isLoading={saveMutation.isPending}>
+            <Button icon="check" variant="success-solid" type="submit" isLoading={saveMutation.isPending}>
               {t('common.save')}
             </Button>
           </div>
@@ -493,16 +493,16 @@ function ReviewQueue() {
                 <div className="flex shrink-0 flex-col items-end gap-2">
                   <Badge variant={LEAVE_STATUS_VARIANT[req.status]}>{t(`staffLeave.statusLabels.${req.status}`, LEAVE_REQUEST_STATUS_LABELS[req.status])}</Badge>
                   {req.attachment && (
-                    <Button size="sm" variant="ghost" isLoading={downloadingId === req._id} onClick={() => handleDownload(req)}>
+                    <Button icon="eye" size="sm" variant="soft" isLoading={downloadingId === req._id} onClick={() => handleDownload(req)}>
                       {t('staffLeave.queue.viewAttachment')}
                     </Button>
                   )}
                   {req.canDecideCurrentStep && req.status === 'PendingReview' && (
                     <div className="flex gap-2">
-                      <Button size="sm" variant="secondary" onClick={() => setConfirming({ req, decision: 'Approved' })}>
+                      <Button icon="check" size="sm" variant="success-solid" onClick={() => setConfirming({ req, decision: 'Approved' })}>
                         {t('staffLeave.queue.approve')}
                       </Button>
-                      <Button size="sm" variant="danger-ghost" onClick={() => setConfirming({ req, decision: 'Rejected' })}>
+                      <Button icon="close" size="sm" variant="danger-solid" onClick={() => setConfirming({ req, decision: 'Rejected' })}>
                         {t('staffLeave.queue.reject')}
                       </Button>
                     </div>
@@ -533,7 +533,7 @@ function ReviewQueue() {
           })
         }
         confirmLabel={confirming?.decision === 'Approved' ? t('staffLeave.queue.approve') : t('staffLeave.queue.reject')}
-        confirmVariant={confirming?.decision === 'Approved' ? 'primary' : 'danger'}
+        confirmVariant={confirming?.decision === 'Approved' ? 'success-solid' : 'danger-solid'}
         loading={decideMutation.isPending}
         onConfirm={() => decideMutation.mutate({ id: confirming.req._id, decision: confirming.decision })}
         onCancel={() => setConfirming(null)}
