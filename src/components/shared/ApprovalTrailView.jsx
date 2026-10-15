@@ -77,6 +77,10 @@ export default function ApprovalTrailView({ request, pendingStatus = 'PendingRev
                   {!entry && i + 1}
                 </div>
                 <div className="mt-1.5 space-y-0.5 break-words">
+                  {/* The stage (HR, Accounts...) above the person: who decided it, or who it is given to. */}
+                  <p className={isCurrent ? 'font-medium text-warning' : 'text-muted'}>
+                    {step.label || step.roles?.map((r) => r.name).filter(Boolean).join(' / ') || t('approvalTrail.stepNumber', { number: i + 1 })}
+                  </p>
                   {entry ? (
                     <>
                       <p className="font-medium text-text">{entry.approvedBy?.name ?? 'Unknown'}</p>
@@ -85,9 +89,7 @@ export default function ApprovalTrailView({ request, pendingStatus = 'PendingRev
                       {entry.note && <p className="italic text-muted">“{entry.note}”</p>}
                     </>
                   ) : (
-                    <p className={isCurrent ? 'font-medium text-warning' : 'text-muted'}>
-                      {step.label || step.roles?.map((r) => r.name).filter(Boolean).join(' / ') || t('approvalTrail.stepNumber', { number: i + 1 })}
-                    </p>
+                    step.assignee?.name && <p className="font-medium text-text">{step.assignee.name}</p>
                   )}
                 </div>
               </div>
@@ -105,7 +107,8 @@ export function ApprovalProgressLine({ request, pendingStatus = 'Pending', statu
   if (!request.workflow || request[statusField] !== pendingStatus) return null;
   const steps = request.steps ?? [];
   const step = steps[request.currentStep];
-  const name = step?.label || step?.roles?.map((r) => r.name).filter(Boolean).join(' / ') || '';
+  const stage = step?.label || step?.roles?.map((r) => r.name).filter(Boolean).join(' / ') || '';
+  const name = step?.assignee?.name ? `${stage} (${step.assignee.name})` : stage;
   return (
     <p className="mt-1 text-xs text-muted">
       {t('approvalTrail.progress', { current: (request.currentStep ?? 0) + 1, total: steps.length, name })}
