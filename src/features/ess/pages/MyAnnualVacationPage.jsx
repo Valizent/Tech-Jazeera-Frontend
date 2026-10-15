@@ -11,6 +11,8 @@ import {
   cancelMyAnnualVacation,
   getMyVacationEligibility,
   downloadMyVacationTicket,
+  viewMyVacationTicket,
+  viewMyVacationVisa,
   downloadMyVacationVisa,
 } from '../../annualVacation/annualVacation.api.js';
 import PageHeader from '../../../components/shared/PageHeader.jsx';
@@ -18,7 +20,7 @@ import VacationRequestForm from '../../annualVacation/components/VacationRequest
 import MyVacationRequests from '../../annualVacation/components/MyVacationRequests.jsx';
 
 const QUERY_KEY = ['me', 'annual-vacation'];
-const DOWNLOAD = { ticket: downloadMyVacationTicket, visa: downloadMyVacationVisa };
+const DOWNLOAD = { ticket: downloadMyVacationTicket, visa: downloadMyVacationVisa, viewTicket: viewMyVacationTicket, viewVisa: viewMyVacationVisa };
 
 export default function MyAnnualVacationPage() {
   const { t } = useTranslation();

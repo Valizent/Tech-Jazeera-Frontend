@@ -12,6 +12,8 @@ import {
   decideAnnualVacation,
   downloadVacationTicket,
   downloadVacationVisa,
+  viewVacationTicket,
+  viewVacationVisa,
   VACATION_QUEUE_KEY,
 } from '../annualVacation.api.js';
 import { apiMessage, approvalOutcome, formatDate } from '../../../lib/utils.js';
@@ -28,7 +30,7 @@ import VacationDaysEditor from './VacationDaysEditor.jsx';
 import VacationAttachments from './VacationAttachments.jsx';
 import VacationDecisionModal from './VacationDecisionModal.jsx';
 
-const DOWNLOAD = { ticket: downloadVacationTicket, visa: downloadVacationVisa };
+const DOWNLOAD = { ticket: downloadVacationTicket, visa: downloadVacationVisa, viewTicket: viewVacationTicket, viewVisa: viewVacationVisa };
 
 export default function VacationReviewPanel() {
   const { t } = useTranslation();

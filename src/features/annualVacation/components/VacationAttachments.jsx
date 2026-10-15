@@ -6,7 +6,8 @@
  *
  * @param {object} props
  * @param {object} props.request   an annual vacation request as the server returns it
- * @param {{ticket:(id:string,fileId:string,name:string)=>Promise, visa:(id:string,name:string)=>Promise}} props.download
+ * @param {{ticket:(id:string,fileId:string,name:string)=>Promise, visa:(id:string,name:string)=>Promise,
+ *          viewTicket:(id:string,fileId:string)=>Promise, viewVisa:(id:string)=>Promise}} props.download
  */
 import { useTranslation } from 'react-i18next';
 import { useToast } from '../../../components/ui/Toast.jsx';
@@ -44,9 +45,14 @@ export default function VacationAttachments({ request, download }) {
                   {[file.stage, file.uploadedBy, formatDate(file.uploadedAt)].filter(Boolean).join(' · ')}
                 </span>
               </span>
-              <Button type="button" size="sm" variant="ghost" onClick={() => open(download.ticket(request._id, file._id, file.originalName))}>
-                {t('common.download')}
-              </Button>
+              <span className="flex shrink-0 gap-1">
+                <Button type="button" size="sm" variant="ghost" onClick={() => open(download.viewTicket(request._id, file._id))}>
+                  {t('common.view')}
+                </Button>
+                <Button type="button" size="sm" variant="ghost" onClick={() => open(download.ticket(request._id, file._id, file.originalName))}>
+                  {t('common.download')}
+                </Button>
+              </span>
             </li>
           ))}
         </ul>
@@ -59,9 +65,14 @@ export default function VacationAttachments({ request, download }) {
             {visa.visaReferenceNumber ? ` (${visa.visaReferenceNumber})` : ''}
           </span>
           {visa.hasFile && (
-            <Button type="button" size="sm" variant="ghost" onClick={() => open(download.visa(request._id, visa.fileName))}>
-              {t('common.download')}
-            </Button>
+            <>
+              <Button type="button" size="sm" variant="ghost" onClick={() => open(download.viewVisa(request._id))}>
+                {t('common.view')}
+              </Button>
+              <Button type="button" size="sm" variant="ghost" onClick={() => open(download.visa(request._id, visa.fileName))}>
+                {t('common.download')}
+              </Button>
+            </>
           )}
         </p>
       )}

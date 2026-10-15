@@ -95,8 +95,27 @@ async function downloadBlob(path, fallbackName) {
   URL.revokeObjectURL(url);
 }
 
+/** Opens a stored file in a new browser tab (the tab is opened first, inside the click, so a popup blocker allows it). */
+async function viewBlob(path) {
+  const tab = window.open('', '_blank');
+  try {
+    const res = await api.get(path, { responseType: 'blob' });
+    const url = URL.createObjectURL(res.data);
+    if (tab) tab.location.href = url;
+    else window.open(url, '_blank');
+    setTimeout(() => URL.revokeObjectURL(url), 60_000);
+  } catch (error) {
+    tab?.close();
+    throw error;
+  }
+}
+
 /** Staff side (anyone who may see the request) and the employee's own side (/api/me). */
 export const downloadVacationTicket = (id, fileId, name) => downloadBlob(`/annual-vacation/${id}/tickets/${fileId}/file`, name);
 export const downloadVacationVisa = (id, name) => downloadBlob(`/annual-vacation/${id}/visa/file`, name);
 export const downloadMyVacationTicket = (id, fileId, name) => downloadBlob(`/me/annual-vacation/${id}/tickets/${fileId}/file`, name);
 export const downloadMyVacationVisa = (id, name) => downloadBlob(`/me/annual-vacation/${id}/visa/file`, name);
+export const viewVacationTicket = (id, fileId) => viewBlob(`/annual-vacation/${id}/tickets/${fileId}/file`);
+export const viewVacationVisa = (id) => viewBlob(`/annual-vacation/${id}/visa/file`);
+export const viewMyVacationTicket = (id, fileId) => viewBlob(`/me/annual-vacation/${id}/tickets/${fileId}/file`);
+export const viewMyVacationVisa = (id) => viewBlob(`/me/annual-vacation/${id}/visa/file`);

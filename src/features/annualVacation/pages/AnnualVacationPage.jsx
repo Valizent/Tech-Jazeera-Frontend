@@ -14,6 +14,8 @@ import {
   cancelStaffAnnualVacation,
   getVacationEligibility,
   downloadVacationTicket,
+  viewVacationTicket,
+  viewVacationVisa,
   downloadVacationVisa,
   VACATION_QUEUE_KEY,
   MY_VACATION_REQUESTS_KEY,
@@ -68,7 +70,7 @@ export default function AnnualVacationPage() {
           queryKey={MY_VACATION_REQUESTS_KEY}
           fetchRequests={listMyStaffAnnualVacation}
           cancelRequest={cancelStaffAnnualVacation}
-          download={{ ticket: downloadVacationTicket, visa: downloadVacationVisa }}
+          download={{ ticket: downloadVacationTicket, visa: downloadVacationVisa, viewTicket: viewVacationTicket, viewVisa: viewVacationVisa }}
         />
       ),
     },
