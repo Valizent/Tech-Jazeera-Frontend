@@ -23,6 +23,12 @@ export async function updateSubcontractor(id, payload) {
   return data.data;
 }
 
+/** PATCH /subcontractors/:id/decide { status: 'Approved'|'Rejected', decisionNote? } */
+export async function decideSubcontractor(id, payload) {
+  const { data } = await api.patch(`/subcontractors/${id}/decide`, payload);
+  return data.data;
+}
+
 export async function deleteSubcontractor(id) {
   const { data } = await api.delete(`/subcontractors/${id}`);
   return data.data;

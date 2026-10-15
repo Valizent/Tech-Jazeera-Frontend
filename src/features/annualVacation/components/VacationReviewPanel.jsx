@@ -91,7 +91,6 @@ export default function VacationReviewPanel() {
         <div className="divide-y divide-border">
           {data.items.map((r) => {
             const pending = r.status === 'PendingReview';
-            const duty = pending ? r.steps?.[r.currentStep]?.duty : null;
             const canAct = Boolean(r.canDecideCurrentStep) && pending;
             return (
               <div key={r._id} className="flex flex-wrap items-start justify-between gap-3 py-3 text-sm">
@@ -116,7 +115,7 @@ export default function VacationReviewPanel() {
                       {t('staffAnnualVacation.reason')}: {r.reason}
                     </p>
                   )}
-                  {duty === 'HrReview' && canAct && <VacationDaysEditor request={r} />}
+                  {r.canChangeDays && canAct && <VacationDaysEditor request={r} />}
                   <VacationAttachments request={r} download={DOWNLOAD} />
                   <ApprovalTrailView request={r} pendingStatus="PendingReview" />
                 </div>

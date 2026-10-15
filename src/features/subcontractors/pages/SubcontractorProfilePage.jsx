@@ -21,6 +21,10 @@ import ProfileField from '../../../components/ui/ProfileField.jsx';
 import DocumentsPanel from '../../documents/components/DocumentsPanel.jsx';
 import CompanyProfileSummary from '../../companyProfile/components/CompanyProfileSummary.jsx';
 import { MissingDetailsBanner } from '../../companyProfile/components/MissingDetails.jsx';
+import { canDecideSubcontractor, canEditSubcontractor } from '../subcontractors.permissions.js';
+import SubcontractorApprovalBanner from '../components/SubcontractorApprovalBanner.jsx';
+import DecideSubcontractorModal from '../components/DecideSubcontractorModal.jsx';
+import { CLIENT_APPROVAL_VARIANT } from '../../../lib/constants.js';
 
 export default function SubcontractorProfilePage() {
   const { id } = useParams();
@@ -28,7 +32,7 @@ export default function SubcontractorProfilePage() {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [tab, setTab] = useState('overview');
-  const canWrite = Boolean(user.sectionAccessWrite?.includes('subcontractorsManage'));
+  const [deciding, setDeciding] = useState(null);
 
   const { data: subcontractor, isPending, isError } = useQuery({
     queryKey: ['subcontractor', id],
@@ -70,7 +74,15 @@ export default function SubcontractorProfilePage() {
             <Badge variant={subcontractor.status === 'Active' ? 'success' : 'default'} className="mr-1">
               {t(`common.status.${subcontractor.status}`, subcontractor.status)}
             </Badge>
-            {canWrite && (
+            {subcontractor.approvalStatus && subcontractor.approvalStatus !== 'Approved' && (
+              <Badge variant={CLIENT_APPROVAL_VARIANT[subcontractor.approvalStatus]} className="mr-1">
+                {t(`common.status.${subcontractor.approvalStatus}`, subcontractor.approvalStatus)}
+              </Badge>
+            )}
+            {canDecideSubcontractor(user, subcontractor) && (
+              <Button onClick={() => setDeciding(subcontractor)}>{t('staffSubcontractors.review')}</Button>
+            )}
+            {canEditSubcontractor(user, subcontractor) && (
               <Button icon="pencil" variant="soft" onClick={() => navigate(`/subcontractors/${id}/edit`)}>
                 {t('common.edit')}
               </Button>
@@ -97,6 +109,7 @@ export default function SubcontractorProfilePage() {
       {tab === 'overview' && (
         <div className="space-y-6">
           <MissingDetailsBanner missing={subcontractor.missingDetails} />
+          <SubcontractorApprovalBanner subcontractor={subcontractor} />
           <Card>
             <h2 className="mb-4 text-sm font-semibold uppercase tracking-wide text-muted">
               {t('staffSubcontractors.profile.companyDetails')}
@@ -118,6 +131,7 @@ export default function SubcontractorProfilePage() {
         </div>
       )}
       {tab === 'documents' && <DocumentsPanel ownerType="Subcontractor" ownerId={id} ownerName={subcontractor.name} />}
+      <DecideSubcontractorModal subcontractor={deciding} onClose={() => setDeciding(null)} />
     </div>
   );
 }

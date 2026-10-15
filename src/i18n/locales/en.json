@@ -2612,7 +2612,8 @@
       "contact": "Contact",
       "phone": "Phone",
       "email": "Email",
-      "status": "Status"
+      "status": "Status",
+      "approval": "Approval"
     },
     "couldNotLoad": "Could not load subcontractors",
     "couldNotLoadDescription": "Please try again.",
@@ -2654,6 +2655,21 @@
         "overview": "Overview",
         "documents": "Documents"
       }
+    },
+    "review": "Review",
+    "filterApprovalAriaLabel": "Filter by approval state",
+    "allApprovalStates": "All approval states",
+    "approval": {
+      "modalTitle": "Review subcontractor",
+      "approvedToast": "{{name}} approved.",
+      "rejectedToast": "{{name}} rejected.",
+      "rejectReasonLabel": "What needs fixing?",
+      "rejectReasonPlaceholder": "Tell the person who added it what to correct",
+      "confirmRejection": "Confirm rejection",
+      "rejectedTitle": "This subcontractor was rejected",
+      "rejectedBy": "Rejected by {{name}} on {{date}}",
+      "resubmitHint": "Saving your changes sends it back for review.",
+      "pendingHint": "Waiting for approval. It cannot be used on a mobilisation until it is approved."
     }
   },
   "staffPayroll": {
@@ -3094,7 +3110,10 @@
       "noWorkerMatch": "No employee matches “{{search}}”.",
       "changeWorker": "Change employee",
       "noCostedMonthsTitle": "No costed months yet",
-      "noCostedMonthsDescription": "Costs appear here once this deployment has an approved month you have access to view."
+      "noCostedMonthsDescription": "Costs appear here once this deployment has an approved month you have access to view.",
+      "mobilisationCostTitle": "Mobilisation cost (one-time)",
+      "mobilisationCountedIn": "Counted in {{month}}, the first approved month",
+      "mobilisationNotCounted": "Counted from this deployment's first approved month"
     }
   },
   "staffFinancial": {

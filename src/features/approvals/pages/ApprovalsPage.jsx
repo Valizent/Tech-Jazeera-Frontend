@@ -48,6 +48,7 @@ import EmptyState from '../../../components/ui/EmptyState.jsx';
 import Skeleton from '../../../components/ui/Skeleton.jsx';
 import MultiSelect from '../../../components/ui/MultiSelect.jsx';
 import EmployeeApprovalsPanel from '../components/EmployeeApprovalsPanel.jsx';
+import SpecialRolesCard from '../components/SpecialRolesCard.jsx';
 
 function ApprovalRolesPanel() {
   const { user } = useAuth();
@@ -236,12 +237,7 @@ function StepConnector() {
  * drag listeners, so clicking a role pill or the label input never fights
  * with starting a drag.
  */
-const STEP_DUTY_OPTIONS = [
-  { value: '', label: 'No special duty' },
-  { value: 'HrReview', label: 'HR review: may change the number of days (annual vacation)' },
-];
-
-function SortableStepCard({ id, index, register, roleError, roles, stepRoles, onToggleRole, onRemove, canRemove, showDuty }) {
+function SortableStepCard({ id, index, register, roleError, roles, stepRoles, onToggleRole, onRemove, canRemove }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id });
   const style = {
     transform: CSS.Transform.toString(transform),
@@ -288,16 +284,6 @@ function SortableStepCard({ id, index, register, roleError, roles, stepRoles, on
       <p className="mb-1 text-xs text-muted">Any ONE member of any role selected below can decide this step:</p>
       <MultiSelect items={roles} selected={stepRoles} onToggle={onToggleRole} placeholder="Select roles" />
       {roleError && <p className="mt-1 text-sm text-danger">{roleError}</p>}
-      {/* Only the annual vacation flow has step duties; shown there, or where one is already set. */}
-      {showDuty && (
-        <Select className="mt-3" label="Special duty of this step" {...register(`steps.${index}.duty`)}>
-          {STEP_DUTY_OPTIONS.map((o) => (
-            <option key={o.value} value={o.value}>
-              {o.label}
-            </option>
-          ))}
-        </Select>
-      )}
     </div>
   );
 }
@@ -457,7 +443,7 @@ function ApprovalWorkflowsPanel() {
             <div>
               <div className="mb-2 flex items-center justify-between">
                 <label className="text-sm font-medium">Steps, in order *</label>
-                <Button type="button" size="sm" variant="secondary" onClick={() => appendStep({ label: '', roles: [], duty: '' })}>
+                <Button type="button" size="sm" variant="secondary" onClick={() => appendStep({ label: '', roles: [] })}>
                   Add step
                 </Button>
               </div>
@@ -477,7 +463,6 @@ function ApprovalWorkflowsPanel() {
                           onToggleRole={(roleId) => toggleStepRole(i, roleId)}
                           onRemove={() => removeStep(i)}
                           canRemove={stepFields.length > 1}
-                          showDuty={appliesTo.includes('AnnualVacation') || Boolean(watch(`steps.${i}.duty`))}
                         />
                       </div>
                     ))}
@@ -586,7 +571,16 @@ export default function ApprovalsPage() {
   // Add/Save controls on the admin-configurable 'approvalHierarchy' Section
   // Access grant instead of an all-or-nothing page redirect.
   const tabs = [
-    { key: 'roles', label: 'Roles', content: <ApprovalRolesPanel /> },
+    {
+      key: 'roles',
+      label: 'Roles',
+      content: (
+        <div className="space-y-6">
+          <ApprovalRolesPanel />
+          <SpecialRolesCard />
+        </div>
+      ),
+    },
     { key: 'workflows', label: 'Workflows', content: <ApprovalWorkflowsPanel /> },
     { key: 'employees', label: 'Employees', content: <EmployeeApprovalsPanel /> },
   ];

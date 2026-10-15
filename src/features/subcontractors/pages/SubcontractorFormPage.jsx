@@ -21,6 +21,7 @@ import { apiMessage, collectFormErrorMessages } from '../../../lib/utils.js';
 import { useToast } from '../../../components/ui/Toast.jsx';
 import PageHeader from '../../../components/shared/PageHeader.jsx';
 import CompanyProfileFields from '../../companyProfile/components/CompanyProfileFields.jsx';
+import SubcontractorApprovalBanner from '../components/SubcontractorApprovalBanner.jsx';
 import Card from '../../../components/ui/Card.jsx';
 import Input from '../../../components/ui/Input.jsx';
 import Select from '../../../components/ui/Select.jsx';
@@ -39,7 +40,7 @@ function Section({ title, description, children }) {
   );
 }
 
-function SubcontractorForm({ defaultValues, onSubmit, submitting }) {
+function SubcontractorForm({ subcontractor, defaultValues, onSubmit, submitting }) {
   const navigate = useNavigate();
   const { t } = useTranslation();
   const toast = useToast();
@@ -57,6 +58,7 @@ function SubcontractorForm({ defaultValues, onSubmit, submitting }) {
 
   return (
     <form onSubmit={handleSubmit(onSubmit, onInvalid)} noValidate className="space-y-6">
+      {subcontractor && <SubcontractorApprovalBanner subcontractor={subcontractor} resubmitHint />}
       <Section title={t('staffSubcontractors.form.sectionCompany')}>
         <Input label={t('staffSubcontractors.form.name')} error={errors.name?.message} {...register('name')} />
         <Input label={t('staffSubcontractors.form.industry')} placeholder={t('staffSubcontractors.form.industryPlaceholder')} error={errors.industry?.message} {...register('industry')} />
@@ -154,6 +156,7 @@ export default function SubcontractorFormPage() {
         onBack={() => navigate(-1)}
       />
       <SubcontractorForm
+        subcontractor={isEdit ? subcontractor : null}
         defaultValues={isEdit ? subcontractorToForm(subcontractor) : emptySubcontractorForm}
         onSubmit={(values) => mutation.mutate(values)}
         submitting={mutation.isPending}

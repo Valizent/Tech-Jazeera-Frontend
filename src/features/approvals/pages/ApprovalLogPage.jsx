@@ -47,6 +47,7 @@ const PENDING_STATUS_BY_TYPE = {
   Certificate: 'Pending',
   AnnualVacation: 'PendingReview',
   ClientApproval: 'Pending',
+  SubcontractorApproval: 'Pending',
   ClientPayment: 'Pending',
   SubcontractorPayment: 'Pending',
   MonthlyHours: 'Pending',

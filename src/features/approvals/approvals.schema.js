@@ -26,8 +26,6 @@ export function approvalRoleToForm(role) {
 const workflowStepFormSchema = z.object({
   label: z.string().trim().max(60).optional().or(z.literal('')),
   roles: z.array(z.string()).min(1, 'Each step needs at least one role.'),
-  // '' = an ordinary step; otherwise the annual vacation step duty (see STEP_DUTIES on the server).
-  duty: z.string().optional(),
 });
 
 export const approvalWorkflowFormSchema = z.object({
@@ -43,7 +41,7 @@ export const approvalWorkflowFormSchema = z.object({
 
 export const emptyApprovalWorkflowForm = {
   name: '',
-  steps: [{ label: '', roles: [], duty: '' }],
+  steps: [{ label: '', roles: [] }],
   appliesTo: [],
   notifyRoles: [],
   departmentRoutes: [],
@@ -56,7 +54,6 @@ export function approvalWorkflowToForm(workflow) {
     steps: (workflow.steps ?? []).map((s) => ({
       label: s.label ?? '',
       roles: (s.roles ?? []).map((r) => r._id ?? r),
-      duty: s.duty ?? '',
     })),
     appliesTo: workflow.appliesTo ?? [],
     notifyRoles: (workflow.notifyRoles ?? []).map((r) => r._id ?? r),

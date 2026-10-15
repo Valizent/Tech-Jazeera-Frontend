@@ -88,6 +88,10 @@ export default function DeploymentCostsTab() {
     return selected.monthlyHours.filter((e) => e.expenses != null).sort((a, b) => b.month.localeCompare(a.month));
   }, [selected]);
 
+  // The one-time mobilisation cost: charged once, in the first approved month, so it may not be in any listed month yet.
+  const mobilisationCost = selected?.mobilisation?.mobilisationCost ?? 0;
+  const chargedMonth = monthsWithCost.find((e) => (e.breakdown?.expenseMobilisationCost ?? 0) > 0)?.month ?? null;
+
   return (
     <div className="space-y-4">
       <div className="max-w-sm">
@@ -140,6 +144,18 @@ export default function DeploymentCostsTab() {
               {L('changeWorker')}
             </button>
           </div>
+
+          {mobilisationCost > 0 && (
+            <Card className="flex flex-wrap items-baseline justify-between gap-2">
+              <div>
+                <p className="text-sm font-semibold text-text">{L('mobilisationCostTitle')}</p>
+                <p className="text-xs text-muted">
+                  {chargedMonth ? L('mobilisationCountedIn', { month: chargedMonth }) : L('mobilisationNotCounted')}
+                </p>
+              </div>
+              <span className="text-lg font-semibold tabular-nums text-danger">{formatMoney(mobilisationCost)}</span>
+            </Card>
+          )}
 
           {selectedPending ? (
             <Skeleton className="h-40 w-full" />

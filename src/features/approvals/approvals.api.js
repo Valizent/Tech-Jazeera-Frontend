@@ -35,6 +35,18 @@ export async function updateApprovalWorkflow(id, payload) {
   return data.data;
 }
 
+/** The roles the system looks for by purpose: { hr, escalation } each { chosen, effective, fallbackName }. */
+export async function getSpecialRoles() {
+  const { data } = await api.get('/approvals/special-roles');
+  return data.data;
+}
+
+/** payload: { hr?: roleId|null, escalation?: roleId|null } (null = find it by its usual name) */
+export async function saveSpecialRoles(payload) {
+  const { data } = await api.put('/approvals/special-roles', payload);
+  return data.data;
+}
+
 /** Each employee's own hierarchy per module (default unless changed). */
 export async function listEmployeeApprovals(params) {
   const { data } = await api.get('/approvals/employees', { params });

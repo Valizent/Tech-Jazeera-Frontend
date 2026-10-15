@@ -2643,7 +2643,8 @@
       "contact": "جهة الاتصال",
       "phone": "الهاتف",
       "email": "البريد الإلكتروني",
-      "status": "الحالة"
+      "status": "الحالة",
+      "approval": "الموافقة"
     },
     "couldNotLoad": "تعذر تحميل المقاولين من الباطن",
     "couldNotLoadDescription": "يرجى المحاولة مرة أخرى.",
@@ -2685,6 +2686,21 @@
         "overview": "نظرة عامة",
         "documents": "المستندات"
       }
+    },
+    "review": "مراجعة",
+    "filterApprovalAriaLabel": "تصفية حسب حالة الموافقة",
+    "allApprovalStates": "كل حالات الموافقة",
+    "approval": {
+      "modalTitle": "مراجعة المقاول",
+      "approvedToast": "تمت الموافقة على {{name}}.",
+      "rejectedToast": "تم رفض {{name}}.",
+      "rejectReasonLabel": "ما الذي يجب إصلاحه؟",
+      "rejectReasonPlaceholder": "أخبر من أضافه بما يجب تصحيحه",
+      "confirmRejection": "تأكيد الرفض",
+      "rejectedTitle": "تم رفض هذا المقاول",
+      "rejectedBy": "رفضه {{name}} في {{date}}",
+      "resubmitHint": "حفظ التعديلات يعيده للمراجعة.",
+      "pendingHint": "بانتظار الموافقة. لا يمكن استخدامه في التعبئة قبل الموافقة عليه."
     }
   },
   "staffPayroll": {
@@ -3129,7 +3145,10 @@
       "noWorkerMatch": "لا يوجد موظف يطابق «{{search}}».",
       "changeWorker": "تغيير الموظف",
       "noCostedMonthsTitle": "لا توجد أشهر محتسبة التكاليف بعد",
-      "noCostedMonthsDescription": "تظهر التكاليف هنا بعد أن يكون لهذا النشر شهر معتمد يحق لك الاطلاع عليه."
+      "noCostedMonthsDescription": "تظهر التكاليف هنا بعد أن يكون لهذا النشر شهر معتمد يحق لك الاطلاع عليه.",
+      "mobilisationCostTitle": "تكلفة التعبئة (مرة واحدة)",
+      "mobilisationCountedIn": "محتسبة في {{month}}، أول شهر معتمد",
+      "mobilisationNotCounted": "تُحتسب من أول شهر معتمد لهذا الانتشار"
     }
   },
   "staffFinancial": {

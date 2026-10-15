@@ -130,9 +130,9 @@ function Sidebar({ onNavigate, showBrand }) {
       </nav>
       <div className="border-t border-border p-4">
         <p className="text-[11px] leading-relaxed text-muted">
-          Manpower supply &amp; trading
+          Nexus Work WMS
           <br />
-          Operating system
+          by Valizent Technologies
         </p>
       </div>
     </div>

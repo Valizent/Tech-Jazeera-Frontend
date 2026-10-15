@@ -8,6 +8,8 @@
  * empty state.
  *
  * Column shape: { key, header, render(row), sortable?, className?, hideOnMobile? }
+ * A text-alignment class in `className` (text-end, text-center) is applied to the header too, so a
+ * right-aligned column's title sits over its figures.
  *
  * onRowClick(row): makes each row/card clickable (e.g. open the detail view).
  * Clicks that land on a <button> or <a> are ignored, so action buttons and
@@ -63,7 +65,10 @@ export default function Table({
               {columns.map((col) => (
                 <th
                   key={col.key}
-                  className="whitespace-nowrap px-4 py-3 text-[14px] font-black uppercase tracking-wider text-text bg-border/40 border-b-[3px] border-border shadow-sm first:rounded-tl-2xl last:rounded-tr-2xl"
+                  className={cn(
+                    'whitespace-nowrap px-4 py-3 text-[14px] font-black uppercase tracking-wider text-text bg-border/40 border-b-[3px] border-border shadow-sm first:rounded-tl-2xl last:rounded-tr-2xl',
+                    col.className?.match(/(?:^|\s)text-(?:end|right|center)(?:\s|$)/)?.[0]?.trim()
+                  )}
                 >
                   <SortableHeader column={col} sortBy={sortBy} sortOrder={sortOrder} onSort={onSort} />
                 </th>

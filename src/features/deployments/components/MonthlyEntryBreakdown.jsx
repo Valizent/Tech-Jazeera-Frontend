@@ -115,7 +115,7 @@ export default function MonthlyEntryBreakdownPanel({ row, formatMoney, children 
           {(row.fta ?? 0) > 0 && <DetailRow label={k('fta')} value={formatMoney(row.fta)} />}
           {(row.allowance ?? 0) > 0 && <DetailRow label={k('allowance')} value={formatMoney(row.allowance)} />}
           {(row.deductionAmount ?? 0) > 0 && <DetailRow label={k('clientDeduction')} value={formatMoney(row.deductionAmount)} />}
-          {(row.mobilisationCost ?? 0) > 0 && <DetailRow label={k('mobilisationCost')} value={formatMoney(row.mobilisationCost)} />}
+          {(b.expenseMobilisationCost ?? 0) > 0 && <DetailRow label={k('mobilisationCost')} value={formatMoney(b.expenseMobilisationCost)} />}
           {(b.otCalculations ?? 0) > 0 && <DetailRow label={k('workerOtPay')} value={formatMoney(b.otCalculations)} hint={isSupplier ? k('workerOtPayHintSupplier') : k('workerOtPayHint')} valueClass="text-danger" />}
           {clientCommissionExpense > 0 && <DetailRow label={k('clientCommission')} value={formatMoney(clientCommissionExpense)} valueClass="text-danger" />}
           {isSupplier && subInvoice !== 0 && <DetailRow label={k('subInvoice')} value={formatMoney(subInvoice)} valueClass={costColor(subInvoice)} />}

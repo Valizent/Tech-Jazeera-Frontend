@@ -11,7 +11,9 @@ import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tansta
 import { listSubcontractors, deleteSubcontractor } from '../subcontractors.api.js';
 import { useAuth } from '../../auth/AuthContext.jsx';
 import { apiMessage } from '../../../lib/utils.js';
-import { SUBCONTRACTOR_STATUSES } from '../../../lib/constants.js';
+import { SUBCONTRACTOR_STATUSES, CLIENT_APPROVAL_STATUSES, CLIENT_APPROVAL_VARIANT } from '../../../lib/constants.js';
+import { canDecideSubcontractor, canEditSubcontractor } from '../subcontractors.permissions.js';
+import DecideSubcontractorModal from '../components/DecideSubcontractorModal.jsx';
 import { useToast } from '../../../components/ui/Toast.jsx';
 import PageHeader from '../../../components/shared/PageHeader.jsx';
 import ConfirmDialog from '../../../components/shared/ConfirmDialog.jsx';
@@ -33,8 +35,9 @@ export default function SubcontractorListPage() {
   const canDelete = user.role === 'Admin'; // delete is Admin only (2026-10-13)
 
   const [search, setSearch] = useState('');
-  const [params, setParams] = useState({ page: 1, limit: 20, search: '', status: '' });
+  const [params, setParams] = useState({ page: 1, limit: 20, search: '', status: '', approvalStatus: '' });
   const [toDelete, setToDelete] = useState(null);
+  const [deciding, setDeciding] = useState(null);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -51,6 +54,7 @@ export default function SubcontractorListPage() {
         limit: params.limit,
         ...(params.search && { search: params.search }),
         ...(params.status && { status: params.status }),
+        ...(params.approvalStatus && { approvalStatus: params.approvalStatus }),
       }),
     placeholderData: keepPreviousData,
   });
@@ -85,6 +89,14 @@ export default function SubcontractorListPage() {
       render: (s) => <Badge variant={s.status === 'Active' ? 'success' : 'default'}>{t(`common.status.${s.status}`, s.status)}</Badge>,
     },
     {
+      key: 'approvalStatus',
+      header: t('staffSubcontractors.columns.approval'),
+      render: (s) => {
+        const approval = s.approvalStatus ?? 'Approved';
+        return <Badge variant={CLIENT_APPROVAL_VARIANT[approval]}>{t(`common.status.${approval}`, approval)}</Badge>;
+      },
+    },
+    {
       key: 'actions',
       header: '',
       className: 'text-right',
@@ -93,7 +105,7 @@ export default function SubcontractorListPage() {
           <Button icon="eye" size="sm" variant="soft" onClick={() => navigate(`/subcontractors/${s._id}`)}>
             {t('common.view')}
           </Button>
-          {canWrite && (
+          {canEditSubcontractor(user, s) && (
             <Button icon="pencil" size="sm" variant="soft" onClick={() => navigate(`/subcontractors/${s._id}/edit`)}>
               {t('common.edit')}
             </Button>
@@ -103,12 +115,17 @@ export default function SubcontractorListPage() {
               {t('common.delete')}
             </Button>
           )}
+          {canDecideSubcontractor(user, s) && (
+            <Button size="sm" onClick={() => setDeciding(s)}>
+              {t('staffSubcontractors.review')}
+            </Button>
+          )}
         </span>
       ),
     },
   ];
 
-  const noFilters = !params.search && !params.status;
+  const noFilters = !params.search && !params.status && !params.approvalStatus;
 
   return (
     <div className="mx-auto max-w-[1600px]">
@@ -141,6 +158,19 @@ export default function SubcontractorListPage() {
         >
           <option value="">{t('common.allStatuses')}</option>
           {SUBCONTRACTOR_STATUSES.map((s) => (
+            <option key={s} value={s}>
+              {t(`common.status.${s}`, s)}
+            </option>
+          ))}
+        </Select>
+        <Select
+          value={params.approvalStatus}
+          onChange={(e) => setParams((p) => ({ ...p, approvalStatus: e.target.value, page: 1 }))}
+          className="sm:max-w-[180px]"
+          aria-label={t('staffSubcontractors.filterApprovalAriaLabel')}
+        >
+          <option value="">{t('staffSubcontractors.allApprovalStates')}</option>
+          {CLIENT_APPROVAL_STATUSES.map((s) => (
             <option key={s} value={s}>
               {t(`common.status.${s}`, s)}
             </option>
@@ -202,6 +232,8 @@ export default function SubcontractorListPage() {
           )}
         </>
       )}
+
+      <DecideSubcontractorModal subcontractor={deciding} onClose={() => setDeciding(null)} />
 
       <ConfirmDialog
         open={Boolean(toDelete)}

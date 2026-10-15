@@ -37,7 +37,7 @@ export default function CandidateFormModal({ open, requirementId, candidate, onC
   // Same key and function the Mobilisation form uses, so the cache is shared.
   const { data: subcontractorData, isError: subcontractorsError } = useQuery({
     queryKey: ['subcontractors', { active: true }],
-    queryFn: () => listSubcontractors({ status: 'Active', limit: 100 }),
+    queryFn: () => listSubcontractors({ status: 'Active', approvalStatus: 'Approved', limit: 100 }),
     enabled: open,
   });
 

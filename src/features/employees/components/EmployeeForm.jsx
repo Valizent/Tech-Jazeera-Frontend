@@ -93,7 +93,7 @@ export default function EmployeeForm({ defaultValues, onSubmit, submitLabel, sub
   // Only fetched/shown once 'Subcontracted' is picked — who supplied this worker.
   const { data: subcontractorData, isError: subcontractorsError } = useQuery({
     queryKey: ['subcontractors', { active: true }],
-    queryFn: () => listSubcontractors({ status: 'Active', limit: 100 }),
+    queryFn: () => listSubcontractors({ status: 'Active', approvalStatus: 'Approved', limit: 100 }),
     enabled: type === 'Subcontracted',
   });
   const subcontractors = subcontractorData?.items ?? [];
