@@ -23,10 +23,29 @@ export function approvalRoleToForm(role) {
   };
 }
 
-const workflowStepFormSchema = z.object({
-  label: z.string().trim().max(60).optional().or(z.literal('')),
-  roles: z.array(z.string()).min(1, 'Each step needs at least one role.'),
+/** One escalation level: after N days tell the step's approver or a role (inform only). */
+const escalationLevelFormSchema = z.object({
+  afterDays: z.coerce.number({ error: 'Enter the number of days.' }).int().min(1, 'Days must be at least 1.').max(90, 'Days cannot be more than 90.'),
+  notify: z.enum(['approver', 'role']),
+  role: z.string().optional().or(z.literal('')),
 });
+
+const workflowStepFormSchema = z
+  .object({
+    label: z.string().trim().max(60).optional().or(z.literal('')),
+    roles: z.array(z.string()).min(1, 'Each step needs at least one role.'),
+    escalation: z.array(escalationLevelFormSchema).max(3, 'A step can have up to 3 escalation levels.'),
+  })
+  .superRefine((step, ctx) => {
+    step.escalation.forEach((level, i) => {
+      if (level.notify === 'role' && !level.role) {
+        ctx.addIssue({ code: 'custom', path: ['escalation', i, 'role'], message: 'Choose the role to tell.' });
+      }
+      if (i > 0 && level.afterDays <= step.escalation[i - 1].afterDays) {
+        ctx.addIssue({ code: 'custom', path: ['escalation', i, 'afterDays'], message: 'Must come after the level above.' });
+      }
+    });
+  });
 
 export const approvalWorkflowFormSchema = z.object({
   name: z.string().trim().min(2, 'Name is required.').max(60),
@@ -41,7 +60,7 @@ export const approvalWorkflowFormSchema = z.object({
 
 export const emptyApprovalWorkflowForm = {
   name: '',
-  steps: [{ label: '', roles: [] }],
+  steps: [{ label: '', roles: [], escalation: [] }],
   appliesTo: [],
   notifyRoles: [],
   departmentRoutes: [],
@@ -54,6 +73,7 @@ export function approvalWorkflowToForm(workflow) {
     steps: (workflow.steps ?? []).map((s) => ({
       label: s.label ?? '',
       roles: (s.roles ?? []).map((r) => r._id ?? r),
+      escalation: (s.escalation ?? []).map((l) => ({ afterDays: l.afterDays, notify: l.notify, role: l.role?._id ?? l.role ?? '' })),
     })),
     appliesTo: workflow.appliesTo ?? [],
     notifyRoles: (workflow.notifyRoles ?? []).map((r) => r._id ?? r),

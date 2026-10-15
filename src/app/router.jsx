@@ -69,7 +69,6 @@ const MobilisationNewPage = lazy(() => import('../features/mobilisations/pages/M
 const MobilisationDetailPage = lazy(() => import('../features/mobilisations/pages/MobilisationDetailPage.jsx'));
 const MobilisationEditPage = lazy(() => import('../features/mobilisations/pages/MobilisationEditPage.jsx'));
 const WorkerHistoryPage = lazy(() => import('../features/mobilisations/pages/WorkerHistoryPage.jsx'));
-const MobilisationSettingsPage = lazy(() => import('../features/mobilisationSettings/pages/MobilisationSettingsPage.jsx'));
 const CompanySettingsPage = lazy(() => import('../features/companySettings/pages/CompanySettingsPage.jsx'));
 const SectionAccessPage = lazy(() => import('../features/sectionAccess/pages/SectionAccessPage.jsx'));
 const SubcontractorListPage = lazy(() => import('../features/subcontractors/pages/SubcontractorListPage.jsx'));
@@ -289,7 +288,6 @@ export const router = createBrowserRouter([
               { path: '/mobilisations/worker-history', element: <WorkerHistoryPage /> },
               { path: '/mobilisations/:id', element: <MobilisationDetailPage /> },
               { path: '/mobilisations/:id/edit', element: <MobilisationEditPage /> },
-              { path: '/mobilisation-settings', element: <MobilisationSettingsPage /> },
               { path: '/locations', element: <LocationsSettingsPage /> },
               { path: '/company-settings', element: <CompanySettingsPage /> },
               { path: '/section-access', element: <SectionAccessPage /> },

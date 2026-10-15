@@ -624,10 +624,6 @@
         "label": "Approval Hierarchy",
         "description": "Approval roles and multi-step workflow chains."
       },
-      "mobilisationSettings": {
-        "label": "Mobilisation Settings",
-        "description": "The stale mobilisation warning threshold viewer/self-mobilise access is on Section Access now."
-      },
       "locations": {
         "label": "Locations",
         "description": "Remove a site/location from the shared Mobilisation & Requirement picklist. Adding a new one is done inline from either form."

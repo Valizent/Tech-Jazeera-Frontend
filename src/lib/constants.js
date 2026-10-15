@@ -217,9 +217,6 @@ export const MOBILISATION_DOCUMENT_CATEGORIES = ['Contract', 'IDCopy', 'Other'];
 /** Mirrors outsourcedEmployee.model.js: what an outsourced worker's papers are called in the picker. */
 export const OUTSOURCED_DOCUMENT_TYPES = ['Ajeer', 'Muqeem', 'Passport', 'Iqama', 'Medical', 'Visa', 'Driving License', 'Insurance', 'Contract', 'Other'];
 export const MOBILISATION_DOCUMENT_CATEGORY_LABELS = { Contract: 'Contract', IDCopy: 'ID Copy', Other: 'Other' };
-/** Configuring MobilisationSettings (viewer/self-mobilise roles) is
- *  Admin-only — server enforces; this only hides the nav link/route. */
-export const MOBILISATION_SETTINGS_MANAGE_ROLES = ['Admin'];
 
 /** Mirrors the Client model's status enum. */
 export const CLIENT_STATUSES = ['Active', 'Inactive'];

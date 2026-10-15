@@ -12,7 +12,6 @@
 import {
   COORDINATOR_ACTIVITY_VIEW_ROLES,
   FINANCIAL_REQUEST_VIEW_ROLES,
-  MOBILISATION_SETTINGS_MANAGE_ROLES,
 } from '../lib/constants.js';
 
 // Inline SVG paths (24×24 outline, Heroicons-style) — an icon library isn't
@@ -202,7 +201,6 @@ export const NAV_GROUPS = [
       // depend on being ABLE to read role/workflow names, so an Admin will
       // likely want to grant this broadly again from Section Access.
       { to: '/approvals', label: 'Approval Hierarchy', icon: ICON.hierarchy, sectionKey: 'approvalHierarchy', description: 'Approval roles and multi-step workflow chains.', labelKey: 'staffNav.admin.approvals.label', descriptionKey: 'staffNav.admin.approvals.description' },
-      { to: '/mobilisation-settings', label: 'Mobilisation Settings', icon: ICON.cog, roles: MOBILISATION_SETTINGS_MANAGE_ROLES, description: 'The stale mobilisation warning threshold viewer/self-mobilise access is on Section Access now.', labelKey: 'staffNav.admin.mobilisationSettings.label', descriptionKey: 'staffNav.admin.mobilisationSettings.description' },
       { to: '/locations', label: 'Locations', icon: ICON.map, roles: ['Admin'], description: 'Remove a site/location from the shared Mobilisation & Requirement picklist. Adding a new one is done inline from either form.', labelKey: 'staffNav.admin.locations.label', descriptionKey: 'staffNav.admin.locations.description' },
       { to: '/approvals/log', label: 'Approval Log', icon: ICON.activity, description: 'Every request decided through a workflow, in order. Visible if you sit in the hierarchy.', labelKey: 'staffNav.admin.approvalsLog.label', descriptionKey: 'staffNav.admin.approvalsLog.description' },
       { to: '/timesheet-processor', label: 'Timesheet Processor', icon: ICON.clock, sectionKey: 'timesheetProcessor', description: 'Bulk-import device attendance exports.', labelKey: 'staffNav.admin.timesheetProcessor.label', descriptionKey: 'staffNav.admin.timesheetProcessor.description' },

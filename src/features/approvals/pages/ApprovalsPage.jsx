@@ -8,7 +8,7 @@
  */
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useForm, useFieldArray } from 'react-hook-form';
+import { useForm, useFieldArray, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { DndContext, closestCenter, PointerSensor, KeyboardSensor, useSensor, useSensors } from '@dnd-kit/core';
@@ -232,12 +232,81 @@ function StepConnector() {
   );
 }
 
+/** The escalation matrix of one step: up to 3 levels, each "after N days tell the approver / a role". Inform only. */
+function StepEscalation({ control, register, setValue, index, roles, errors }) {
+  const { fields, append, remove } = useFieldArray({ control, name: `steps.${index}.escalation` });
+  const levels = useWatch({ control, name: `steps.${index}.escalation` }) ?? [];
+  const activeRoles = roles.filter((r) => r.isActive !== false);
+  // One picker per level: the step's approver, or straight to a role (kept as notify + role in the form).
+  const recipientOf = (level) => (level?.notify === 'role' ? level.role || '' : 'approver');
+  function setRecipient(i, value) {
+    const path = `steps.${index}.escalation.${i}`;
+    setValue(`${path}.notify`, value === 'approver' ? 'approver' : 'role', { shouldDirty: true });
+    setValue(`${path}.role`, value === 'approver' ? '' : value, { shouldDirty: true, shouldValidate: true });
+  }
+  return (
+    <div className="mt-3 border-t border-border pt-3">
+      <p className="mb-2 text-xs text-muted">
+        Escalation: if nobody has decided this step after N days, tell the step&apos;s approver or a role. It only informs; it never
+        changes who can decide.
+      </p>
+      <div className="space-y-2">
+        {fields.map((field, i) => (
+          <div key={field.id} className="flex items-start gap-2">
+            <span className="flex h-10 shrink-0 items-center text-xs text-muted">After</span>
+            <Input
+              type="number"
+              min="1"
+              max="90"
+              className="w-16 shrink-0"
+              aria-label={`Escalation level ${i + 1} days`}
+              error={errors?.[i]?.afterDays?.message}
+              {...register(`steps.${index}.escalation.${i}.afterDays`)}
+            />
+            <span className="flex h-10 shrink-0 items-center text-xs text-muted">days, tell</span>
+            <Select
+              className="min-w-0 flex-1"
+              aria-label={`Escalation level ${i + 1} recipient`}
+              value={recipientOf(levels[i])}
+              error={errors?.[i]?.role?.message}
+              onChange={(e) => setRecipient(i, e.target.value)}
+            >
+              <option value="approver">Step approver</option>
+              <optgroup label="A role">
+                {activeRoles.map((r) => (
+                  <option key={r._id} value={r._id}>
+                    {r.name}
+                  </option>
+                ))}
+              </optgroup>
+            </Select>
+            <Button type="button" size="sm" variant="danger-ghost" className="mt-0.5 shrink-0" onClick={() => remove(i)} aria-label="Remove level">
+              ✕
+            </Button>
+          </div>
+        ))}
+      </div>
+      {fields.length < 3 && (
+        <Button
+          type="button"
+          size="sm"
+          variant="secondary"
+          className="mt-2"
+          onClick={() => append({ afterDays: (Number(levels[levels.length - 1]?.afterDays) || 0) + 2, notify: 'approver', role: '' })}
+        >
+          Add escalation level
+        </Button>
+      )}
+    </div>
+  );
+}
+
 /**
  * One draggable step card. The grip handle (not the whole card) carries the
  * drag listeners, so clicking a role pill or the label input never fights
  * with starting a drag.
  */
-function SortableStepCard({ id, index, register, roleError, roles, stepRoles, onToggleRole, onRemove, canRemove }) {
+function SortableStepCard({ id, index, control, register, setValue, roleError, escalationErrors, roles, stepRoles, onToggleRole, onRemove, canRemove }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id });
   const style = {
     transform: CSS.Transform.toString(transform),
@@ -284,6 +353,7 @@ function SortableStepCard({ id, index, register, roleError, roles, stepRoles, on
       <p className="mb-1 text-xs text-muted">Any ONE member of any role selected below can decide this step:</p>
       <MultiSelect items={roles} selected={stepRoles} onToggle={onToggleRole} placeholder="Select roles" />
       {roleError && <p className="mt-1 text-sm text-danger">{roleError}</p>}
+      <StepEscalation control={control} register={register} setValue={setValue} index={index} roles={roles} errors={escalationErrors} />
     </div>
   );
 }
@@ -412,6 +482,19 @@ function ApprovalWorkflowsPanel() {
                 {wf.notifyRoles?.length > 0 && (
                   <p className="mt-0.5 text-xs text-muted">Told: {wf.notifyRoles.map((r) => r.name).join(', ')}</p>
                 )}
+                {wf.steps.some((s) => s.escalation?.length > 0) && (
+                  <p className="mt-0.5 text-xs text-muted">
+                    Escalation:{' '}
+                    {wf.steps
+                      .map((s, i) =>
+                        s.escalation?.length
+                          ? `${s.label || `Step ${i + 1}`} ${s.escalation.map((l) => `${l.afterDays}d ${l.notify === 'role' ? l.role?.name ?? '?' : 'approver'}`).join(' · ')}`
+                          : null
+                      )
+                      .filter(Boolean)
+                      .join('; ')}
+                  </p>
+                )}
                 {wf.departmentRoutes?.length > 0 && (
                   <p className="mt-0.5 text-xs text-muted">
                     By department: {wf.departmentRoutes.map((r) => `${r.department} → ${r.workflow?.name ?? '?'}`).join(', ')}
@@ -443,7 +526,7 @@ function ApprovalWorkflowsPanel() {
             <div>
               <div className="mb-2 flex items-center justify-between">
                 <label className="text-sm font-medium">Steps, in order *</label>
-                <Button type="button" size="sm" variant="secondary" onClick={() => appendStep({ label: '', roles: [] })}>
+                <Button type="button" size="sm" variant="secondary" onClick={() => appendStep({ label: '', roles: [], escalation: [] })}>
                   Add step
                 </Button>
               </div>
@@ -457,7 +540,10 @@ function ApprovalWorkflowsPanel() {
                           id={field.id}
                           index={i}
                           register={register}
+                          control={control}
+                          setValue={setValue}
                           roleError={errors.steps?.[i]?.roles?.message}
+                          escalationErrors={errors.steps?.[i]?.escalation}
                           roles={roles ?? []}
                           stepRoles={watch(`steps.${i}.roles`) ?? []}
                           onToggleRole={(roleId) => toggleStepRole(i, roleId)}
