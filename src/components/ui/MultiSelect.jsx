@@ -1,7 +1,7 @@
 /**
  * MultiSelect — the dropdown for "pick any number of these" (approval roles, request types, staff members).
  * Closed it is one field showing what is picked as removable chips; open it is a checklist (with a search box
- * once the list is long). Same props as PillChecklist, so a screen switches between them in one line.
+ * once the list is long).
  *
  * @param {object[]} items
  * @param {string[]} selected      the currently-selected ids

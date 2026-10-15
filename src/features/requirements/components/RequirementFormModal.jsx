@@ -29,7 +29,7 @@ import Input from '../../../components/ui/Input.jsx';
 import Textarea from '../../../components/ui/Textarea.jsx';
 import Button from '../../../components/ui/Button.jsx';
 import SuggestInput from '../../../components/ui/SuggestInput.jsx';
-import { PillChecklist } from '../../../components/ui/TogglePill.jsx';
+import MultiSelect from '../../../components/ui/MultiSelect.jsx';
 
 export default function RequirementFormModal({ open, requirement, canAssign, coordinators, defaultCoordinatorId, onClose }) {
   const { t } = useTranslation();
@@ -219,7 +219,7 @@ export default function RequirementFormModal({ open, requirement, canAssign, coo
         {showCoordinators && (
           <div>
             <p className="mb-1.5 text-sm font-medium">{t('staffRequirements.form.coordinators')}</p>
-            <PillChecklist
+            <MultiSelect
               items={coordinators ?? []}
               selected={selectedCoordinators}
               onToggle={toggleCoordinator}
