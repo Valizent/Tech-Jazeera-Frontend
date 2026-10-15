@@ -1,5 +1,5 @@
 {
-  "approvalTrail": { "singleStep": "Single review step (no approval hierarchy set for this request).", "stepNumber": "Step {{number}}", "progress": "Step {{current}} of {{total}}: {{name}}" },
+  "approvalTrail": { "singleStep": "Single review step (no approval hierarchy set for this request).", "stepNumber": "Step {{number}}", "progress": "Step {{current}} of {{total}}: {{name}}", "stepApprovedToast": "Your approval is recorded and the request moves to the next stage." },
   "common": {
     "noSectionAccessTitle": "You don't have access to this section",
     "noSectionAccessDescription": "Ask an Admin to grant you access from Section Access if you believe this is wrong.",
@@ -3195,22 +3195,20 @@
     "changeNote": "Why (from the employee's remarks)",
     "saveDays": "Save days",
     "daysChangedToast": "Days changed.",
-    "travel": {
-      "title": "Travel documents",
+    "attachments": {
+      "title": "Attached documents",
       "travelDay": "Day of travel",
-      "tickets": "Air tickets",
-      "noTickets": "No tickets attached yet.",
       "visa": "Re-entry visa",
-      "visaNotRaised": "Raised automatically when the tickets are attached.",
-      "visaWaiting": "The re-entry visa request ({{from}} to {{to}}) is waiting for the visa document.",
-      "visaIssued": "Re-entry visa uploaded",
-      "attach": "Attach tickets",
-      "visaDocument": "Visa document",
-      "visaReference": "Visa reference (optional)",
-      "uploadVisa": "Upload re-entry visa",
-      "attachedToast": "Tickets attached.",
-      "visaUploadedToast": "Re-entry visa uploaded.",
-      "movesOnItsOwn": "This step moves on to the next one by itself once the tickets are attached and the visa is uploaded."
+      "visaIssued": "uploaded"
+    },
+    "decision": {
+      "remark": "Remarks",
+      "remarkHint": "Shown with this stage to everyone in the approval chain and to the employee.",
+      "documents": "Documents",
+      "addFiles": "Add files",
+      "documentsHint": "Air tickets and similar papers. Up to {{count}} files, {{max}} MB each (PDF, image, Word or Excel). They go with the request to the next stage and, on final approval, into the employee's own documents.",
+      "tooLarge": "{{name}} is larger than {{max}} MB.",
+      "tooMany": "You can attach at most {{max}} files."
     }
   },
   "portalHome": {

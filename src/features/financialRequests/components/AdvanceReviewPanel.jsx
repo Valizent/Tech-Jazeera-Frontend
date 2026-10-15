@@ -16,7 +16,7 @@ import {
   emptyAdvanceForm,
 } from '../financialRequests.schema.js';
 import { useAuth } from '../../auth/AuthContext.jsx';
-import { apiMessage, formatDate, formatMoney, collectFormErrorMessages } from '../../../lib/utils.js';
+import { apiMessage, approvalOutcome, formatDate, formatMoney, collectFormErrorMessages } from '../../../lib/utils.js';
 import {
   ADVANCE_STATUSES,
   ADVANCE_STATUS_VARIANT,
@@ -116,8 +116,9 @@ export default function AdvanceReviewPanel() {
 
   const decideMutation = useMutation({
     mutationFn: ({ id, decision }) => decideAdvance(id, { status: decision }),
-    onSuccess: (advance) => {
-      toast.success(`Advance ${advance.status.toLowerCase()}.`);
+    onSuccess: (advance, { decision }) => {
+      const outcome = approvalOutcome(advance, decision);
+      toast.success(outcome === 'StepApproved' ? 'Your approval is recorded and the request moves to the next stage.' : `Advance ${outcome.toLowerCase()}.`);
       invalidate();
     },
     onError: (error) => toast.error(apiMessage(error)),

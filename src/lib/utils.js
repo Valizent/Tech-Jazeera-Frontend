@@ -170,3 +170,15 @@ export function timeAgo(value) {
   if (days < 7) return `${days}d ago`;
   return formatDate(value);
 }
+
+/**
+ * What a decision actually did, for the toast. A request on a hierarchy that is approved at an early stage is
+ * NOT approved yet: it comes back still pending and moves to the next stage, so the result's status alone must
+ * never be read as "the decision" (it used to show "rejected" there).
+ * `finalStatuses` are the request type's own terminal "approved" literals.
+ * @returns {'Approved' | 'StepApproved' | 'Rejected'}
+ */
+export function approvalOutcome(result, decision, finalStatuses = ['Approved']) {
+  if (decision === 'Rejected') return 'Rejected';
+  return finalStatuses.includes(result?.status) ? 'Approved' : 'StepApproved';
+}

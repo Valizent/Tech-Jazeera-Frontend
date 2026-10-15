@@ -32,8 +32,20 @@ export async function cancelStaffAnnualVacation(id) {
   return data.data;
 }
 
-export async function decideAnnualVacation(id, payload) {
-  const { data } = await api.patch(`/annual-vacation/${id}/decide`, payload);
+/**
+ * Approve or reject. `payload`: { status, decisionNote?, files? }: documents (File objects) may travel with an
+ * approval, which makes the request multipart.
+ */
+export async function decideAnnualVacation(id, { status, decisionNote, files = [] }) {
+  if (files.length === 0) {
+    const { data } = await api.patch(`/annual-vacation/${id}/decide`, { status, ...(decisionNote && { decisionNote }) });
+    return data.data;
+  }
+  const formData = new FormData();
+  formData.append('status', status);
+  if (decisionNote) formData.append('decisionNote', decisionNote);
+  for (const file of files) formData.append('files', file);
+  const { data } = await api.patch(`/annual-vacation/${id}/decide`, formData);
   return data.data;
 }
 
@@ -67,29 +79,6 @@ export async function getMyVacationEligibility() {
 /** HR changing the days at the HR step. */
 export async function changeVacationDays(id, payload) {
   const { data } = await api.patch(`/annual-vacation/${id}/days`, payload);
-  return data.data;
-}
-
-/** Accounts attaching the air tickets with the day of travel. `files` is an array of File objects. */
-export async function attachVacationTickets(id, { files, travelDate }) {
-  const formData = new FormData();
-  for (const file of files) formData.append('files', file);
-  formData.append('travelDate', travelDate);
-  const { data } = await api.post(`/annual-vacation/${id}/tickets`, formData);
-  return data.data;
-}
-
-export async function removeVacationTicket(id, fileId) {
-  const { data } = await api.delete(`/annual-vacation/${id}/tickets/${fileId}`);
-  return data.data;
-}
-
-/** Accounts uploading the issued re-entry visa. */
-export async function uploadVacationVisa(id, { file, visaReferenceNumber }) {
-  const formData = new FormData();
-  formData.append('file', file);
-  if (visaReferenceNumber?.trim()) formData.append('visaReferenceNumber', visaReferenceNumber.trim());
-  const { data } = await api.post(`/annual-vacation/${id}/visa`, formData);
   return data.data;
 }
 

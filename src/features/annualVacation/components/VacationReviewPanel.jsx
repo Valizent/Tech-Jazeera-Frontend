@@ -14,7 +14,7 @@ import {
   downloadVacationVisa,
   VACATION_QUEUE_KEY,
 } from '../annualVacation.api.js';
-import { apiMessage, formatDate } from '../../../lib/utils.js';
+import { apiMessage, approvalOutcome, formatDate } from '../../../lib/utils.js';
 import { ANNUAL_VACATION_STATUSES, ANNUAL_VACATION_STATUS_VARIANT } from '../../../lib/constants.js';
 import { useToast } from '../../../components/ui/Toast.jsx';
 import Card from '../../../components/ui/Card.jsx';
@@ -23,10 +23,10 @@ import Button from '../../../components/ui/Button.jsx';
 import Select from '../../../components/ui/Select.jsx';
 import EmptyState from '../../../components/ui/EmptyState.jsx';
 import Skeleton from '../../../components/ui/Skeleton.jsx';
-import ConfirmDialog from '../../../components/shared/ConfirmDialog.jsx';
 import ApprovalTrailView from '../../../components/shared/ApprovalTrailView.jsx';
 import VacationDaysEditor from './VacationDaysEditor.jsx';
-import VacationTravelDocuments from './VacationTravelDocuments.jsx';
+import VacationAttachments from './VacationAttachments.jsx';
+import VacationDecisionModal from './VacationDecisionModal.jsx';
 
 const DOWNLOAD = { ticket: downloadVacationTicket, visa: downloadVacationVisa };
 
@@ -47,9 +47,12 @@ export default function VacationReviewPanel() {
   });
 
   const decideMutation = useMutation({
-    mutationFn: ({ id, decision }) => decideAnnualVacation(id, { status: decision }),
-    onSuccess: (request) => {
-      toast.success(t(request.status === 'Approved' ? 'staffAnnualVacation.approvedToast' : 'staffAnnualVacation.rejectedToast'));
+    mutationFn: ({ id, decision, decisionNote, files }) => decideAnnualVacation(id, { status: decision, decisionNote, files }),
+    onSuccess: (request, { decision }) => {
+      const outcome = approvalOutcome(request, decision);
+      toast.success(
+        t(outcome === 'Approved' ? 'staffAnnualVacation.approvedToast' : outcome === 'StepApproved' ? 'approvalTrail.stepApprovedToast' : 'staffAnnualVacation.rejectedToast')
+      );
       queryClient.invalidateQueries({ queryKey: VACATION_QUEUE_KEY });
       // An approval records a leave — the Leave screens should refetch too.
       queryClient.invalidateQueries({ queryKey: ['leave'] });
@@ -88,7 +91,6 @@ export default function VacationReviewPanel() {
             const pending = r.status === 'PendingReview';
             const duty = pending ? r.steps?.[r.currentStep]?.duty : null;
             const canAct = Boolean(r.canDecideCurrentStep) && pending;
-            const hasTravel = Boolean(r.travelDate) || r.tickets?.length > 0 || Boolean(r.visaRequest) || (duty === 'TravelDocuments' && canAct);
             return (
               <div key={r._id} className="flex flex-wrap items-start justify-between gap-3 py-3 text-sm">
                 <div className="min-w-0 flex-1">
@@ -113,19 +115,16 @@ export default function VacationReviewPanel() {
                     </p>
                   )}
                   {duty === 'HrReview' && canAct && <VacationDaysEditor request={r} />}
-                  {hasTravel && <VacationTravelDocuments request={r} canAct={duty === 'TravelDocuments' && canAct} download={DOWNLOAD} />}
+                  <VacationAttachments request={r} download={DOWNLOAD} />
                   <ApprovalTrailView request={r} pendingStatus="PendingReview" />
                 </div>
                 <div className="flex shrink-0 flex-col items-end gap-2">
                   <Badge variant={ANNUAL_VACATION_STATUS_VARIANT[r.status]}>{t(`common.status.${r.status}`, r.status)}</Badge>
                   {canAct && (
                     <div className="flex gap-2">
-                      {/* The Accounts step has no Approve button: it moves on by itself once the tickets and the visa are in. */}
-                      {duty !== 'TravelDocuments' && (
-                        <Button size="sm" variant="secondary" onClick={() => setConfirming({ req: r, decision: 'Approved' })}>
-                          {t('common.approve')}
-                        </Button>
-                      )}
+                      <Button size="sm" variant="secondary" onClick={() => setConfirming({ req: r, decision: 'Approved' })}>
+                        {t('common.approve')}
+                      </Button>
                       <Button size="sm" variant="danger-ghost" onClick={() => setConfirming({ req: r, decision: 'Rejected' })}>
                         {t('common.reject')}
                       </Button>
@@ -138,20 +137,12 @@ export default function VacationReviewPanel() {
         </div>
       )}
 
-      <ConfirmDialog
-        open={!!confirming}
-        title={t(confirming?.decision === 'Approved' ? 'staffAnnualVacation.approveTitle' : 'staffAnnualVacation.rejectTitle')}
-        message={
-          confirming &&
-          t(confirming.decision === 'Approved' ? 'staffAnnualVacation.approveMessage' : 'staffAnnualVacation.rejectMessage', {
-            name: confirming.req.employee?.fullName,
-          })
-        }
-        confirmLabel={t(confirming?.decision === 'Approved' ? 'common.approve' : 'common.reject')}
-        confirmVariant={confirming?.decision === 'Approved' ? 'primary' : 'danger'}
-        loading={decideMutation.isPending}
-        onConfirm={() => decideMutation.mutate({ id: confirming.req._id, decision: confirming.decision })}
-        onCancel={() => setConfirming(null)}
+      <VacationDecisionModal
+        key={confirming ? `${confirming.req._id}-${confirming.decision}` : 'closed'}
+        decision={confirming}
+        saving={decideMutation.isPending}
+        onConfirm={(payload) => decideMutation.mutate(payload)}
+        onClose={() => setConfirming(null)}
       />
     </Card>
   );

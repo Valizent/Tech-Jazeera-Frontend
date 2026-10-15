@@ -10,7 +10,7 @@ import { useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { listCertificates, decideCertificate, markCertificateIssued, downloadCertificatePdf } from '../certificates.api.js';
 import { useAuth } from '../../auth/AuthContext.jsx';
-import { apiMessage } from '../../../lib/utils.js';
+import { apiMessage, approvalOutcome } from '../../../lib/utils.js';
 import {
   CERTIFICATE_STATUSES,
   CERTIFICATE_STATUS_VARIANT,
@@ -52,8 +52,9 @@ export default function CertificateReviewPanel() {
 
   const decideMutation = useMutation({
     mutationFn: ({ id, decision }) => decideCertificate(id, { status: decision }),
-    onSuccess: (request) => {
-      toast.success(`Request ${request.status.toLowerCase()}.`);
+    onSuccess: (request, { decision }) => {
+      const outcome = approvalOutcome(request, decision);
+      toast.success(outcome === 'StepApproved' ? 'Your approval is recorded and the request moves to the next stage.' : `Request ${outcome.toLowerCase()}.`);
       invalidate();
     },
     onError: (error) => toast.error(apiMessage(error)),

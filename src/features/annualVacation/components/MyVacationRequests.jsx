@@ -16,7 +16,7 @@ import Button from '../../../components/ui/Button.jsx';
 import EmptyState from '../../../components/ui/EmptyState.jsx';
 import Skeleton from '../../../components/ui/Skeleton.jsx';
 import ConfirmDialog from '../../../components/shared/ConfirmDialog.jsx';
-import VacationTravelDocuments from './VacationTravelDocuments.jsx';
+import VacationAttachments from './VacationAttachments.jsx';
 import ApprovalTrailView from '../../../components/shared/ApprovalTrailView.jsx';
 
 export default function MyVacationRequests({ queryKey, fetchRequests, cancelRequest, download }) {
@@ -65,7 +65,7 @@ export default function MyVacationRequests({ queryKey, fetchRequests, cancelRequ
                     {r.daysChange.note ? `: ${r.daysChange.note}` : ''}
                   </p>
                 )}
-                {(r.travelDate || r.tickets?.length > 0 || r.visaRequest) && <VacationTravelDocuments request={r} download={download} />}
+                <VacationAttachments request={r} download={download} />
                 {r.decisionNote && (
                   <p className="mt-1 text-xs italic text-muted">
                     {t('common.note')}: {r.decisionNote}

@@ -29,7 +29,7 @@ import {
   emptySubmitLeaveForm,
 } from '../leave.schema.js';
 import { useAuth } from '../../auth/AuthContext.jsx';
-import { apiMessage, formatDate, collectFormErrorMessages } from '../../../lib/utils.js';
+import { apiMessage, approvalOutcome, formatDate, collectFormErrorMessages } from '../../../lib/utils.js';
 import {
   LEAVE_RECURRENCES,
   LEAVE_RECURRENCE_LABELS,
@@ -412,8 +412,15 @@ function ReviewQueue() {
 
   const decideMutation = useMutation({
     mutationFn: ({ id, decision }) => decideLeaveRequest(id, { status: decision }),
-    onSuccess: (req) => {
-      toast.success(req.status === 'Approved' ? t('staffLeave.queue.approvedDecidedToast') : t('staffLeave.queue.rejectedDecidedToast'));
+    onSuccess: (req, { decision }) => {
+      const outcome = approvalOutcome(req, decision);
+      toast.success(
+        outcome === 'Approved'
+          ? t('staffLeave.queue.approvedDecidedToast')
+          : outcome === 'StepApproved'
+            ? t('approvalTrail.stepApprovedToast')
+            : t('staffLeave.queue.rejectedDecidedToast')
+      );
       invalidate();
     },
     onError: (error) => toast.error(apiMessage(error)),

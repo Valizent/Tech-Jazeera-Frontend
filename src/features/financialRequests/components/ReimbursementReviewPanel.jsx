@@ -17,7 +17,7 @@ import {
 } from '../reimbursements.api.js';
 import { reimbursementFormSchema, emptyReimbursementForm } from '../financialRequests.schema.js';
 import { useAuth } from '../../auth/AuthContext.jsx';
-import { apiMessage, formatDate, formatMoney, collectFormErrorMessages } from '../../../lib/utils.js';
+import { apiMessage, approvalOutcome, formatDate, formatMoney, collectFormErrorMessages } from '../../../lib/utils.js';
 import {
   REIMBURSEMENT_STATUSES,
   REIMBURSEMENT_STATUS_VARIANT,
@@ -172,8 +172,9 @@ export default function ReimbursementReviewPanel() {
 
   const decideMutation = useMutation({
     mutationFn: ({ id, decision }) => decideReimbursement(id, { status: decision }),
-    onSuccess: (claim) => {
-      toast.success(`Claim ${claim.status.toLowerCase()}.`);
+    onSuccess: (claim, { decision }) => {
+      const outcome = approvalOutcome(claim, decision);
+      toast.success(outcome === 'StepApproved' ? 'Your approval is recorded and the request moves to the next stage.' : `Claim ${outcome.toLowerCase()}.`);
       invalidate();
     },
     onError: (error) => toast.error(apiMessage(error)),

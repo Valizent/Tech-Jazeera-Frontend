@@ -12,7 +12,7 @@ import { useForm } from 'react-hook-form';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { listExitReentry, decideExitReentry, markExitReentryIssued } from '../exitReentry.api.js';
 import { useAuth } from '../../auth/AuthContext.jsx';
-import { apiMessage, formatDate } from '../../../lib/utils.js';
+import { apiMessage, approvalOutcome, formatDate } from '../../../lib/utils.js';
 import { EXIT_REENTRY_STATUSES, EXIT_REENTRY_STATUS_VARIANT, EXIT_DOCUMENTS_ISSUE_ROLES } from '../../../lib/constants.js';
 import { useToast } from '../../../components/ui/Toast.jsx';
 import Card from '../../../components/ui/Card.jsx';
@@ -51,8 +51,9 @@ export default function ExitReentryReviewPanel() {
 
   const decideMutation = useMutation({
     mutationFn: ({ id, decision }) => decideExitReentry(id, { status: decision }),
-    onSuccess: (request) => {
-      toast.success(`Request ${request.status.toLowerCase()}.`);
+    onSuccess: (request, { decision }) => {
+      const outcome = approvalOutcome(request, decision);
+      toast.success(outcome === 'StepApproved' ? 'Your approval is recorded and the request moves to the next stage.' : `Request ${outcome.toLowerCase()}.`);
       invalidate();
     },
     onError: (error) => toast.error(apiMessage(error)),

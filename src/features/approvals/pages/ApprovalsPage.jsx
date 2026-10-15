@@ -239,7 +239,6 @@ function StepConnector() {
 const STEP_DUTY_OPTIONS = [
   { value: '', label: 'No special duty' },
   { value: 'HrReview', label: 'HR review: may change the number of days (annual vacation)' },
-  { value: 'TravelDocuments', label: 'Travel documents: attaches the air tickets and the re-entry visa (annual vacation)' },
 ];
 
 function SortableStepCard({ id, index, register, roleError, roles, stepRoles, onToggleRole, onRemove, canRemove, showDuty }) {
