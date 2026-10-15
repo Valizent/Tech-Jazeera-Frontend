@@ -12,6 +12,12 @@ export async function listDocuments(params) {
   return data.data; // { items, total, page, pages }
 }
 
+/** GET /documents/expiry-tracker - params: status, ownerType, search, page, limit. { items, total, page, pages, counts } */
+export async function listExpiryTracker(params) {
+  const { data } = await api.get('/documents/expiry-tracker', { params: Object.fromEntries(Object.entries(params).filter(([, v]) => v !== '' && v != null)) });
+  return data.data;
+}
+
 /** POST /documents (multipart). `formData` carries file + title/category/owner. */
 export async function uploadDocument(formData) {
   const { data } = await api.post('/documents', formData);

@@ -194,6 +194,8 @@ export const TIMESHEET_STATUS_VARIANT = { Submitted: 'warning', Approved: 'succe
 /** Mirrors expense.model.js. Internal cost data — access is the same
  *  SectionAccess ('expenses') mechanism as Payroll, not a static role list. */
 export const EXPENSE_CATEGORIES = ['Rent', 'Fuel', 'Salaries-external', 'Purchases', 'Utilities', 'Staff Reimbursement', 'Other'];
+/** Costs the ledger shows read-only from where they are recorded (mobilisation, subcontractor payments, end of service). */
+export const LEDGER_SOURCE_CATEGORIES = ['Mobilisation', 'Subcontractor Payment', 'End of Service'];
 
 /** Mirrors subcontractor.model.js's status enum. Create/edit/delete (one
  *  circle) is the admin-configurable SectionAccess ('subcontractorsManage')
@@ -212,6 +214,8 @@ export const MOBILISATION_STATUS_VARIANT = {
   Completed: 'default',
 };
 export const MOBILISATION_DOCUMENT_CATEGORIES = ['Contract', 'IDCopy', 'Other'];
+/** Mirrors outsourcedEmployee.model.js: what an outsourced worker's papers are called in the picker. */
+export const OUTSOURCED_DOCUMENT_TYPES = ['Ajeer', 'Muqeem', 'Passport', 'Iqama', 'Medical', 'Visa', 'Driving License', 'Insurance', 'Contract', 'Other'];
 export const MOBILISATION_DOCUMENT_CATEGORY_LABELS = { Contract: 'Contract', IDCopy: 'ID Copy', Other: 'Other' };
 /** Configuring MobilisationSettings (viewer/self-mobilise roles) is
  *  Admin-only — server enforces; this only hides the nav link/route. */

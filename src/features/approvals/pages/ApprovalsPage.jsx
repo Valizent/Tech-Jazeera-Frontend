@@ -46,7 +46,7 @@ import Select from '../../../components/ui/Select.jsx';
 import Modal from '../../../components/ui/Modal.jsx';
 import EmptyState from '../../../components/ui/EmptyState.jsx';
 import Skeleton from '../../../components/ui/Skeleton.jsx';
-import { PillChecklist } from '../../../components/ui/TogglePill.jsx';
+import MultiSelect from '../../../components/ui/MultiSelect.jsx';
 import EmployeeApprovalsPanel from '../components/EmployeeApprovalsPanel.jsx';
 
 function ApprovalRolesPanel() {
@@ -173,15 +173,15 @@ function ApprovalRolesPanel() {
             <Input label="Description" error={errors.description?.message} {...register('description')} />
             <div>
               <label className="mb-2 block text-sm font-medium">Members</label>
-              <div className="max-h-48 overflow-y-auto rounded-lg border border-border p-2">
-                <PillChecklist
-                  items={memberChoices}
-                  selected={members}
-                  onToggle={toggleMember}
-                  getLabel={(u) => `${u.name} (${u.role})`}
-                  emptyMessage={selfServiceRole ? 'No Worker or Staff logins found.' : 'No staff accounts found.'}
-                />
-              </div>
+              <MultiSelect
+                items={memberChoices}
+                selected={members}
+                onToggle={toggleMember}
+                getLabel={(u) => `${u.name} (${u.role})`}
+                placeholder="Select members"
+                disabled={!canManage}
+                emptyMessage={selfServiceRole ? 'No Worker or Staff logins found.' : 'No staff accounts found.'}
+              />
             </div>
             <label className="flex items-center gap-2 text-sm">
               <input type="checkbox" className="h-4 w-4 rounded border-border" {...register('isActive')} />
@@ -285,8 +285,8 @@ function SortableStepCard({ id, index, register, roleError, roles, stepRoles, on
           ✕
         </Button>
       </div>
-      <p className="mb-1 text-xs text-muted">Any ONE member of any role checked below can decide this step:</p>
-      <PillChecklist items={roles} selected={stepRoles} onToggle={onToggleRole} />
+      <p className="mb-1 text-xs text-muted">Any ONE member of any role selected below can decide this step:</p>
+      <MultiSelect items={roles} selected={stepRoles} onToggle={onToggleRole} placeholder="Select roles" />
       {roleError && <p className="mt-1 text-sm text-danger">{roleError}</p>}
       {/* Only the annual vacation flow has step duties; shown there, or where one is already set. */}
       {showDuty && (
@@ -494,17 +494,18 @@ function ApprovalWorkflowsPanel() {
                 Marketing Manager for an annual vacation, or the Financial Manager for someone in Accounts). They do not
                 decide anything.
               </p>
-              <PillChecklist items={roles ?? []} selected={notifyRoles} onToggle={toggleNotifyRole} />
+              <MultiSelect items={roles ?? []} selected={notifyRoles} onToggle={toggleNotifyRole} placeholder="Select roles" />
             </div>
 
             <div>
               <label className="mb-2 block text-sm font-medium">Default for request types</label>
-              <PillChecklist
+              <MultiSelect
                 items={APPROVAL_REQUEST_TYPES}
                 selected={appliesTo}
                 onToggle={toggleAppliesTo}
                 getId={(t) => t}
                 getLabel={(t) => APPROVAL_REQUEST_TYPE_LABELS[t]}
+                placeholder="Select request types"
               />
               <p className="mt-1 text-xs text-muted">
                 Only one active workflow may default to a given request type an individual employee&apos;s profile can

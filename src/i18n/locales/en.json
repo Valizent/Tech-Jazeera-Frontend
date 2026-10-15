@@ -1,5 +1,10 @@
 {
-  "approvalTrail": { "singleStep": "Single review step (no approval hierarchy set for this request).", "stepNumber": "Step {{number}}", "progress": "Step {{current}} of {{total}}: {{name}}", "stepApprovedToast": "Your approval is recorded and the request moves to the next stage." },
+  "approvalTrail": {
+    "singleStep": "Single review step (no approval hierarchy set for this request).",
+    "stepNumber": "Step {{number}}",
+    "progress": "Step {{current}} of {{total}}: {{name}}",
+    "stepApprovedToast": "Your approval is recorded and the request moves to the next stage."
+  },
   "common": {
     "noSectionAccessTitle": "You don't have access to this section",
     "noSectionAccessDescription": "Ask an Admin to grant you access from Section Access if you believe this is wrong.",
@@ -1607,6 +1612,34 @@
       "chooseFileError": "Choose a file to upload.",
       "fileTooLargeError": "File is too large (maximum {{maxMb}} MB).",
       "selectOwnerError": "Select who this document belongs to."
+    },
+    "tracker": {
+      "tab": "Expiry tracker",
+      "filesTab": "All files",
+      "searchPlaceholder": "Search a person, company or document",
+      "columns": {
+        "owner": "Belongs to",
+        "document": "Document",
+        "expires": "Expires",
+        "status": "Status",
+        "reminder": "Reminders start"
+      },
+      "ownerTypes": {
+        "Employee": "Employee",
+        "Outsourced": "Outsourced worker",
+        "Client": "Client",
+        "Subcontractor": "Subcontractor"
+      },
+      "statuses": {
+        "Expired": "Expired",
+        "Expiring": "Expiring",
+        "Valid": "Valid"
+      },
+      "expiredAgo": "expired {{count}} day(s) ago",
+      "daysLeft": "{{count}} day(s) left",
+      "reminderDays": "{{count}} days before",
+      "emptyTitle": "Nothing with an expiry date yet",
+      "emptyDescription": "Add expiry dates on an employee, outsourced worker, client or subcontractor and they show up here."
     }
   },
   "staffClients": {
@@ -2981,14 +3014,17 @@
       "Purchases": "Purchases",
       "Utilities": "Utilities",
       "Other": "Other",
-      "Staff Reimbursement": "Staff reimbursement"
+      "Staff Reimbursement": "Staff reimbursement",
+      "Mobilisation": "Mobilisation cost",
+      "Subcontractor Payment": "Subcontractor payment",
+      "End of Service": "End of service"
     },
     "summaryBar": {
       "recordedIn": "Recorded in {{month}}"
     },
     "list": {
       "pageTitle": "Expenses",
-      "pageDescription": "Company costs (rent, fuel, purchases, utilities), the other half of profit.",
+      "pageDescription": "Every company cost in one place: expenses, reimbursements, mobilisation costs, subcontractor payments and end of service you can see.",
       "addExpense": "Add expense",
       "searchPlaceholder": "Search vendor or notes…",
       "searchAriaLabel": "Search expenses",
@@ -3047,7 +3083,9 @@
       "tabs": {
         "ledger": "Ledger",
         "deploymentCosts": "Deployment costs"
-      }
+      },
+      "sourceLink": "Open",
+      "sourceLinkTitle": "Open where this cost is recorded"
     },
     "costs": {
       "searchPlaceholder": "Search by employee name…",
@@ -3315,5 +3353,30 @@
     "emptyTitle": "No transfer requests",
     "emptyDescription": "Requests appear here when a coordinator moves an employee to another subcontractor.",
     "couldNotLoad": "Could not load the transfer requests."
+  },
+  "employees": {
+    "outsourced": {
+      "documents": {
+        "add": "Add document",
+        "typeLabel": "Document",
+        "other": "Other (name it)",
+        "nameLabel": "Name of the document",
+        "numberLabel": "Number (optional)",
+        "remindLabel": "Remind this many days before",
+        "fileLabel": "File (optional, can be added later)",
+        "replaceFileLabel": "Replace the file (optional)",
+        "empty": "No documents recorded yet.",
+        "savedToast": "Document saved.",
+        "removedToast": "Document removed.",
+        "noExpiry": "No expiry date",
+        "noFile": "no file attached",
+        "remindBeforeShort": "reminder {{days}} days before",
+        "expiryLabel": "Expiry date",
+        "heading": "Documents",
+        "expires": "expires",
+        "deleteConfirmTitle": "Delete document?",
+        "deleteConfirmMessage": "This cannot be undone."
+      }
+    }
   }
 }

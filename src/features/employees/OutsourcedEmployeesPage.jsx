@@ -97,15 +97,6 @@ export default function OutsourcedEmployeesPage() {
       ),
     },
     {
-      key: 'agreedRate',
-      header: t('employees.outsourced.agreedRate', 'Agreed Rate'),
-      render: (row) => (
-        <div className="text-sm font-medium text-text">
-          {row.agreedRate != null ? `${row.agreedRate} ${row.currency || ''}` : '\u2014'}
-        </div>
-      ),
-    },
-    {
       key: 'actions',
       header: '',
       hideOnMobile: true,

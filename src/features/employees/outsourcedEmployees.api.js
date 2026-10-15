@@ -29,13 +29,28 @@ export async function deleteOutsourcedEmployee(id) {
 
 // ---- documents ----
 
-/** `file` is a single File object; `expiryDate` is optional (a 'YYYY-MM-DD' string or omitted). */
-export async function uploadOutsourcedEmployeeDocument(id, file, { title, expiryDate }) {
+/**
+ * Record a document. `details`: { type, title? (for Other), number?, expiryDate?, reminderDays? }; `file` is an
+ * optional File object (it can be attached later).
+ */
+export async function saveOutsourcedEmployeeDocument(id, details, file) {
   const formData = new FormData();
-  formData.append('file', file);
-  formData.append('title', title);
-  if (expiryDate) formData.append('expiryDate', expiryDate);
+  for (const [key, value] of Object.entries(details)) {
+    if (value !== undefined && value !== null && value !== '') formData.append(key, value);
+  }
+  if (file) formData.append('file', file);
   const { data } = await api.post(`/outsourced-employees/${id}/documents`, formData);
+  return data.data;
+}
+
+/** Change a document's details (and optionally put a new file on it). `clearExpiry: true` removes the date. */
+export async function updateOutsourcedEmployeeDocument(id, fileId, details, file) {
+  const formData = new FormData();
+  for (const [key, value] of Object.entries(details)) {
+    if (value !== undefined && value !== null && value !== '') formData.append(key, value);
+  }
+  if (file) formData.append('file', file);
+  const { data } = await api.patch(`/outsourced-employees/${id}/documents/${fileId}`, formData);
   return data.data;
 }
 

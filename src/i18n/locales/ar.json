@@ -1,5 +1,10 @@
 {
-  "approvalTrail": { "singleStep": "خطوة مراجعة واحدة (لا توجد سلسلة اعتماد محددة لهذا الطلب).", "stepNumber": "الخطوة {{number}}", "progress": "الخطوة {{current}} من {{total}}: {{name}}", "stepApprovedToast": "تم تسجيل موافقتك، وينتقل الطلب إلى المرحلة التالية." },
+  "approvalTrail": {
+    "singleStep": "خطوة مراجعة واحدة (لا توجد سلسلة اعتماد محددة لهذا الطلب).",
+    "stepNumber": "الخطوة {{number}}",
+    "progress": "الخطوة {{current}} من {{total}}: {{name}}",
+    "stepApprovedToast": "تم تسجيل موافقتك، وينتقل الطلب إلى المرحلة التالية."
+  },
   "common": {
     "noSectionAccessTitle": "ليس لديك صلاحية الوصول إلى هذا القسم",
     "noSectionAccessDescription": "اطلب من المسؤول منحك الوصول من صلاحيات الأقسام إذا كنت تعتقد أن هذا خطأ.",
@@ -1638,6 +1643,34 @@
       "chooseFileError": "اختر ملفًا لرفعه.",
       "fileTooLargeError": "الملف كبير جدًا (الحد الأقصى {{maxMb}} ميجابايت).",
       "selectOwnerError": "حدد الجهة التي يخص هذا المستند."
+    },
+    "tracker": {
+      "tab": "متابعة انتهاء المستندات",
+      "filesTab": "كل الملفات",
+      "searchPlaceholder": "ابحث عن شخص أو شركة أو مستند",
+      "columns": {
+        "owner": "يخص",
+        "document": "المستند",
+        "expires": "ينتهي",
+        "status": "الحالة",
+        "reminder": "بدء التنبيه"
+      },
+      "ownerTypes": {
+        "Employee": "موظف",
+        "Outsourced": "عامل خارجي",
+        "Client": "عميل",
+        "Subcontractor": "مقاول"
+      },
+      "statuses": {
+        "Expired": "منتهي",
+        "Expiring": "قارب على الانتهاء",
+        "Valid": "ساري"
+      },
+      "expiredAgo": "انتهى منذ {{count}} يوم",
+      "daysLeft": "متبقي {{count}} يوم",
+      "reminderDays": "قبل {{count}} يوم",
+      "emptyTitle": "لا يوجد ما له تاريخ انتهاء بعد",
+      "emptyDescription": "أضف تواريخ الانتهاء على موظف أو عامل خارجي أو عميل أو مقاول وستظهر هنا."
     }
   },
   "staffClients": {
@@ -3016,14 +3049,17 @@
       "Purchases": "المشتريات",
       "Utilities": "المرافق",
       "Other": "أخرى",
-      "Staff Reimbursement": "تعويض الموظفين"
+      "Staff Reimbursement": "تعويض الموظفين",
+      "Mobilisation": "تكلفة التعبئة",
+      "Subcontractor Payment": "دفعة مقاول",
+      "End of Service": "نهاية الخدمة"
     },
     "summaryBar": {
       "recordedIn": "المسجَّل في {{month}}"
     },
     "list": {
       "pageTitle": "المصروفات",
-      "pageDescription": "تكاليف الشركة (الإيجار والوقود والمشتريات والمرافق)، النصف الآخر من الربح.",
+      "pageDescription": "كل تكاليف الشركة في مكان واحد: المصروفات والتعويضات وتكاليف التعبئة ودفعات المقاولين ونهاية الخدمة التي يمكنك رؤيتها.",
       "addExpense": "إضافة مصروف",
       "searchPlaceholder": "البحث بالمورد أو الملاحظات…",
       "searchAriaLabel": "البحث في المصروفات",
@@ -3082,7 +3118,9 @@
       "tabs": {
         "ledger": "السجل",
         "deploymentCosts": "تكاليف النشر"
-      }
+      },
+      "sourceLink": "فتح",
+      "sourceLinkTitle": "افتح المكان المسجل فيه هذا المبلغ"
     },
     "costs": {
       "searchPlaceholder": "ابحث باسم الموظف…",
@@ -3350,5 +3388,30 @@
     "emptyTitle": "لا توجد طلبات نقل",
     "emptyDescription": "تظهر الطلبات هنا عندما ينقل منسّق موظفًا إلى مقاول من الباطن آخر.",
     "couldNotLoad": "تعذر تحميل طلبات النقل."
+  },
+  "employees": {
+    "outsourced": {
+      "documents": {
+        "add": "إضافة مستند",
+        "typeLabel": "المستند",
+        "other": "أخرى (حدد الاسم)",
+        "nameLabel": "اسم المستند",
+        "numberLabel": "الرقم (اختياري)",
+        "remindLabel": "التنبيه قبل كم يوم",
+        "fileLabel": "الملف (اختياري، يمكن إضافته لاحقاً)",
+        "replaceFileLabel": "استبدال الملف (اختياري)",
+        "empty": "لا توجد مستندات مسجلة بعد.",
+        "savedToast": "تم حفظ المستند.",
+        "removedToast": "تم حذف المستند.",
+        "noExpiry": "بدون تاريخ انتهاء",
+        "noFile": "لا يوجد ملف مرفق",
+        "remindBeforeShort": "التنبيه قبل {{days}} يوم",
+        "expiryLabel": "تاريخ الانتهاء",
+        "heading": "المستندات",
+        "expires": "ينتهي",
+        "deleteConfirmTitle": "حذف المستند؟",
+        "deleteConfirmMessage": "لا يمكن التراجع عن ذلك."
+      }
+    }
   }
 }

@@ -1,8 +1,8 @@
 /**
- * Document Center — the global, searchable list of every document, with
- * filters (owner type, category, search, expiring) and upload (owner picked
- * in the modal). Per-owner document sections live on the profiles; this is
- * the company-wide view.
+ * Document Center. Two views: the expiry tracker (every document with an expiry date, wherever it is
+ * kept, and where it stands: the page HR looks at) and the company-wide list of stored files, with
+ * filters (owner type, category, search, expiring) and upload (owner picked in the modal). Per-owner
+ * document sections live on the profiles.
  */
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -11,6 +11,8 @@ import { keepPreviousData, useQuery } from '@tanstack/react-query';
 import { listDocuments } from '../documents.api.js';
 import { buildDocumentColumns } from '../components/documentColumns.jsx';
 import DocumentUploadModal from '../components/DocumentUploadModal.jsx';
+import ExpiryTrackerPanel from '../components/ExpiryTrackerPanel.jsx';
+import Tabs, { useTabParam } from '../../../components/ui/Tabs.jsx';
 import { useAuth } from '../../auth/AuthContext.jsx';
 import { DOCUMENT_CATEGORIES, DOCUMENT_OWNER_TYPES } from '../../../lib/constants.js';
 import PageHeader from '../../../components/shared/PageHeader.jsx';
@@ -61,15 +63,8 @@ export default function DocumentListPage() {
   const columns = buildDocumentColumns({ showOwner: true, t });
   const noFilters = !params.search && !params.ownerType && !params.category && !params.expiring;
 
-  return (
-    <div className="mx-auto max-w-[1600px]">
-      <PageHeader
-        title={t('staffDocuments.list.pageTitle')}
-        description={t('staffDocuments.list.pageDescription')}
-        onBack={() => navigate(-1)}
-        actions={canWrite && <Button onClick={() => setUploading(true)}>{t('staffDocuments.list.uploadDocument')}</Button>}
-      />
-
+  const filesPanel = (
+    <>
       <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-end">
         <Input
           placeholder={t('staffDocuments.list.searchPlaceholder')}
@@ -154,6 +149,24 @@ export default function DocumentListPage() {
           )}
         </>
       )}
+    </>
+  );
+  const tabs = [
+    { key: 'tracker', label: t('staffDocuments.tracker.tab', 'Expiry tracker'), content: <ExpiryTrackerPanel /> },
+    { key: 'files', label: t('staffDocuments.tracker.filesTab', 'All files'), content: filesPanel },
+  ];
+  const [activeTab, setActiveTab] = useTabParam(tabs, 'tracker');
+
+  return (
+    <div className="mx-auto max-w-[1600px]">
+      <PageHeader
+        title={t('staffDocuments.list.pageTitle')}
+        description={t('staffDocuments.list.pageDescription')}
+        onBack={() => navigate(-1)}
+        actions={canWrite && <Button onClick={() => setUploading(true)}>{t('staffDocuments.list.uploadDocument')}</Button>}
+      />
+
+      <Tabs tabs={tabs} value={activeTab} onChange={setActiveTab} />
 
       <DocumentUploadModal open={uploading} onClose={() => setUploading(false)} />
     </div>

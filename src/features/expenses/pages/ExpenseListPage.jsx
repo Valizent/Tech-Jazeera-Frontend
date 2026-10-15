@@ -12,7 +12,7 @@ import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tansta
 import { useAuth } from '../../auth/AuthContext.jsx';
 import { listExpenses, getExpenseSummary, deleteExpense, downloadExpenseReceipt } from '../expenses.api.js';
 import { apiMessage, formatDate, formatMoney } from '../../../lib/utils.js';
-import { EXPENSE_CATEGORIES } from '../../../lib/constants.js';
+import { EXPENSE_CATEGORIES, LEDGER_SOURCE_CATEGORIES } from '../../../lib/constants.js';
 import { useToast } from '../../../components/ui/Toast.jsx';
 import PageHeader from '../../../components/shared/PageHeader.jsx';
 import ConfirmDialog from '../../../components/shared/ConfirmDialog.jsx';
@@ -150,6 +150,15 @@ export default function ExpenseListPage() {
       render: (e) => (
         <span className="flex items-center gap-1.5">
           {t(`staffExpenses.categoryLabels.${e.category}`)}
+          {e.derived && (
+            <Link
+              to={e.link}
+              className="rounded-full bg-primary/10 px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-wide text-primary hover:bg-primary/20"
+              title={L('sourceLinkTitle')}
+            >
+              {L('sourceLink')}
+            </Link>
+          )}
           {e.sourceReimbursement && (
             <Link
               to={`/financial-requests?tab=reimbursements&claim=${e.sourceReimbursement}`}
@@ -183,7 +192,7 @@ export default function ExpenseListPage() {
       header: '',
       className: 'text-end',
       render: (e) =>
-        canWrite ? (
+        canWrite && !e.derived ? (
           <span className="flex justify-end gap-2">
             <Button size="sm" variant="ghost" onClick={() => openEdit(e)}>
               {t('common.edit')}
@@ -226,7 +235,7 @@ export default function ExpenseListPage() {
           aria-label={L('filterCategoryAriaLabel')}
         >
           <option value="">{L('allCategories')}</option>
-          {EXPENSE_CATEGORIES.map((c) => (
+          {[...EXPENSE_CATEGORIES, ...LEDGER_SOURCE_CATEGORIES].map((c) => (
             <option key={c} value={c}>
               {t(`staffExpenses.categoryLabels.${c}`)}
             </option>

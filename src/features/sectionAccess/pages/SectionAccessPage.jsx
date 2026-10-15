@@ -176,16 +176,19 @@ function SectionCard({ section, local, dirty, onRole, onAllStaff, onToggleExcept
   const emptyMessage = approvalRolesError
     ? "Couldn't load approval roles try refreshing the page."
     : 'No approval roles configured yet add one on the Approval Hierarchy page first.';
+  // A short description is written out under the heading; a long one stays behind the (i).
+  const shortDescription = Boolean(section.description) && section.description.length <= 120;
 
   return (
     <Card className={cn('space-y-4', dirty && 'ring-2 ring-primary/50')}>
       <div className="flex items-start justify-between gap-2">
         <div className="flex items-center gap-1.5">
           <h2 className="text-sm font-semibold uppercase tracking-wide text-muted">{section.label}</h2>
-          <InfoTip text={section.description} />
+          {!shortDescription && <InfoTip text={section.description} />}
         </div>
         {dirty && <Badge variant="warning">Unsaved</Badge>}
       </div>
+      {shortDescription && <p className="-mt-2 text-xs text-muted">{section.description}</p>}
 
       <SwitchTable columns={columns} rows={rows} loading={approvalRolesLoading} emptyMessage={emptyMessage} />
 
