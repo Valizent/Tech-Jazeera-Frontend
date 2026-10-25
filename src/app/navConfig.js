@@ -56,6 +56,7 @@ const ICON = {
   hierarchy:
     'M3.375 19.5h6a1.125 1.125 0 001.125-1.125v-6a1.125 1.125 0 00-1.125-1.125h-6A1.125 1.125 0 002.25 12.375v6c0 .621.504 1.125 1.125 1.125zM3.375 6.75h6a1.125 1.125 0 001.125-1.125v-3a1.125 1.125 0 00-1.125-1.125h-6A1.125 1.125 0 002.25 2.625v3c0 .621.504 1.125 1.125 1.125zM13.5 19.5h6a1.125 1.125 0 001.125-1.125v-3a1.125 1.125 0 00-1.125-1.125h-6a1.125 1.125 0 00-1.125 1.125v3c0 .621.504 1.125 1.125 1.125zM13.5 6.75h6a1.125 1.125 0 001.125-1.125v-3A1.125 1.125 0 0019.5 1.5h-6a1.125 1.125 0 00-1.125 1.125v3c0 .621.504 1.125 1.125 1.125z',
   trendingUp: 'M2.25 18L9 11.25l4.306 4.307a11.95 11.95 0 015.814-5.519l2.74-1.22m0 0l-5.94-2.28m5.94 2.28l-2.28 5.941',
+  chat: 'M20.25 8.511c.884.284 1.5 1.128 1.5 2.097v4.286c0 1.136-.847 2.1-1.98 2.193-.34.027-.68.052-1.02.072v3.091l-3-3c-1.354 0-2.694-.055-4.02-.163a2.115 2.115 0 01-.825-.242m9.345-8.334a2.126 2.126 0 00-.476-.095 48.64 48.64 0 00-8.048 0c-1.131.094-1.976 1.057-1.976 2.192v4.286c0 .837.46 1.58 1.155 1.951m9.345-8.334V6.637c0-1.621-1.152-3.026-2.76-3.235A48.455 48.455 0 0011.25 3c-2.115 0-4.198.137-6.24.402-1.608.209-2.76 1.614-2.76 3.235v6.226c0 1.621 1.152 3.026 2.76 3.235.577.075 1.157.14 1.74.194V21l4.155-4.155',
 };
 
 /** Logins that are self-service only (see the server's selfService.constants.js). */
@@ -70,6 +71,9 @@ export function isGrantedToSelfService(item, user) {
 }
 
 export const MY_PORTAL_ITEM = { to: '/me', label: 'My portal', labelKey: 'staffNav.myPortal', icon: ICON.users };
+
+/** Chat sits beside the Dashboard for every office login (no Section Access: every staff role and Executive can chat). */
+export const CHAT_ITEM = { to: '/chat', label: 'Chat', labelKey: 'staffNav.chat', icon: ICON.chat };
 
 export const DASHBOARD_ITEM = { to: '/', label: 'Dashboard', labelKey: 'staffNav.dashboard', icon: ICON.dashboard };
 
@@ -207,6 +211,7 @@ export const NAV_GROUPS = [
       { to: '/nfc', label: 'NFC Customers', icon: ICON.nfc, sectionKey: 'nfc', description: 'NFC business-card program.', labelKey: 'staffNav.admin.nfc.label', descriptionKey: 'staffNav.admin.nfc.description' },
       { to: '/security-log', label: 'Security Log', icon: ICON.check, sectionKey: 'auditLog', description: 'Auth & CRUD audit trail.', labelKey: 'staffNav.admin.securityLog.label', descriptionKey: 'staffNav.admin.securityLog.description' },
       { to: '/reconciliation', label: 'Data Reconciliation', icon: ICON.list, sectionKey: 'reconciliation', description: 'A standing integrity check across ledgers, payroll, and deployments.', labelKey: 'staffNav.admin.reconciliation.label', descriptionKey: 'staffNav.admin.reconciliation.description' },
+      { to: '/chat/reports', label: 'Chat Reports', icon: ICON.chat, sectionKey: 'chatModeration', description: 'Review chat messages that were reported.', labelKey: 'staffNav.admin.chatReports.label', descriptionKey: 'staffNav.admin.chatReports.description' },
       { to: '/coordinator-activity', label: 'Coordinator Activity', icon: ICON.activity, roles: COORDINATOR_ACTIVITY_VIEW_ROLES, description: 'What Coordinators added themselves.', labelKey: 'staffNav.admin.coordinatorActivity.label', descriptionKey: 'staffNav.admin.coordinatorActivity.description' },
     ],
   },
@@ -238,6 +243,7 @@ const EXECUTIVE_GRANT_BY_PATH = {
   '/assets': 'assetsManage',
   '/approvals': 'approvalHierarchy',
   '/reconciliation': 'reconciliation',
+  '/chat/reports': 'chatModeration',
 };
 
 export const EXECUTIVE_GRANTED_ITEMS = NAV_GROUPS.flatMap((group) => group.items)

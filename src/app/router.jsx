@@ -87,6 +87,8 @@ const NfcAnalyticsPage = lazy(() => import('../features/nfc/pages/NfcAnalyticsPa
 const UserListPage = lazy(() => import('../features/users/pages/UserListPage.jsx'));
 const CoordinatorActivityPage = lazy(() => import('../features/coordinatorActivity/pages/CoordinatorActivityPage.jsx'));
 const LeavePage = lazy(() => import('../features/leave/pages/LeavePage.jsx'));
+const ChatPage = lazy(() => import('../features/chat/pages/ChatPage.jsx'));
+const ChatReportsPage = lazy(() => import('../features/chat/pages/ChatReportsPage.jsx'));
 const HolidayListPage = lazy(() => import('../features/holidays/pages/HolidayListPage.jsx'));
 const SettlementListPage = lazy(() => import('../features/eosb/pages/SettlementListPage.jsx'));
 const SettlementNewPage = lazy(() => import('../features/eosb/pages/SettlementNewPage.jsx'));
@@ -200,6 +202,12 @@ function WorkerRouter() {
   return <Outlet />;
 }
 
+/** Chat is for office logins only; a Worker/Staff login that reached the staff shell through a grant is sent back to its portal. */
+function StaffOnly({ children }) {
+  const { user } = useAuth();
+  return SELF_SERVICE_ROLES.includes(user.role) ? <Navigate to="/me" replace /> : children;
+}
+
 /** Wrap a route's element with the Read gate for its section (see
  *  RequireSectionRead) — only for the sections that are now Section-Access
  *  read-gated. Routes deliberately left unwrapped: Mobilisation's list/
@@ -306,6 +314,9 @@ export const router = createBrowserRouter([
               { path: '/coordinator-activity', element: <CoordinatorActivityPage /> },
               { path: '/leave', element: guarded(['leaveRequests', 'leaveApply'], <LeavePage />) },
               { path: '/holidays', element: <HolidayListPage /> },
+              { path: '/chat', element: <StaffOnly><ChatPage /></StaffOnly> },
+              { path: '/chat/reports', element: <StaffOnly>{guardedWrite('chatModeration', <ChatReportsPage />)}</StaffOnly> },
+              { path: '/chat/:id', element: <StaffOnly><ChatPage /></StaffOnly> },
               { path: '/eosb', element: guarded('eosb', <SettlementListPage />) },
               // Before the /eosb/:id catch-all, or "new" is read as a settlement id.
               { path: '/eosb/new', element: guardedWrite('eosb', <SettlementNewPage />) },

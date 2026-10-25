@@ -123,6 +123,7 @@ export const MODULE_GROUPS = [
       { ...navItem('admin', '/nfc'), sectionKeys: ['nfc'] },
       { ...navItem('admin', '/security-log'), sectionKeys: ['auditLog'] },
       { ...navItem('admin', '/reconciliation'), sectionKeys: ['reconciliation'] },
+      { ...navItem('admin', '/chat/reports'), sectionKeys: ['chatModeration'] },
       // Mobilisation Settings, Approval Log, and Coordinator Activity are
       // deliberately absent — none has a Section Access key of its own
       // (each is gated by a fixed login-role list instead, see navConfig.js).

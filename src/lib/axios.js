@@ -24,6 +24,11 @@ export function setAccessToken(token) {
   accessToken = token;
 }
 
+/** The current access token, for the one thing that cannot ride on an axios request: the chat WebSocket's auth message. */
+export function getAccessToken() {
+  return accessToken;
+}
+
 /** AuthContext registers here to be told when the session is unrecoverable. */
 const unauthorizedSubscribers = new Set();
 export function subscribeUnauthorized(callback) {

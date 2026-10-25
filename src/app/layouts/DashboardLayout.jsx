@@ -30,6 +30,7 @@ import Icon from '../../components/ui/Icon.jsx';
 import { cn } from '../../lib/utils.js';
 import { useCloseOnOutsideClick } from '../../lib/useCloseOnOutsideClick.js';
 import {
+  CHAT_ITEM,
   DASHBOARD_ITEM,
   NAV_GROUPS,
   EXECUTIVE_NAV_ITEMS,
@@ -39,12 +40,15 @@ import {
   isGrantedToSelfService,
 } from '../navConfig.js';
 import { useNavCounts } from '../useNavCounts.js';
+import { useChatSocket } from '../../features/chat/useChatSocket.js';
+import { useChatUnread } from '../../features/chat/useChatUnread.js';
 
 function Sidebar({ onNavigate, showBrand }) {
   const { user } = useAuth();
   const { t } = useTranslation();
   const { name: brandName } = useBranding();
-  const badgeCounts = useNavCounts();
+  const chatUnread = useChatUnread(!SELF_SERVICE_LOGIN_ROLES.includes(user.role));
+  const badgeCounts = { ...useNavCounts(), [CHAT_ITEM.to]: chatUnread };
   // Executive still gets its own short, explicit nav — see
   // EXECUTIVE_NAV_ITEMS's doc comment for why this can't just be another
   // `roles`-filtered slice of the grouped nav below (every unguarded group
@@ -56,6 +60,7 @@ function Sidebar({ onNavigate, showBrand }) {
   if (user.role === 'Executive') {
     items = [
       DASHBOARD_ITEM,
+      CHAT_ITEM,
       ...[...EXECUTIVE_NAV_ITEMS, ...EXECUTIVE_GRANTED_ITEMS].filter((item) => {
         if (!item.sectionKey) return true;
         const keys = Array.isArray(item.sectionKey) ? item.sectionKey : [item.sectionKey];
@@ -79,7 +84,7 @@ function Sidebar({ onNavigate, showBrand }) {
         return true;
       })
     );
-    items = [selfService ? MY_PORTAL_ITEM : DASHBOARD_ITEM, ...groups];
+    items = selfService ? [MY_PORTAL_ITEM, ...groups] : [DASHBOARD_ITEM, CHAT_ITEM, ...groups];
   }
 
   return (
@@ -145,6 +150,8 @@ export default function DashboardLayout() {
   const { name: brandName } = useBranding();
   const navigate = useNavigate();
   const { pathname } = useLocation();
+  // The live chat connection lives here so the sidebar badge updates on every page; self-service logins have no chat.
+  useChatSocket(!SELF_SERVICE_LOGIN_ROLES.includes(user.role));
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [changePasswordOpen, setChangePasswordOpen] = useState(false);
   const [avatarModalOpen, setAvatarModalOpen] = useState(false);
